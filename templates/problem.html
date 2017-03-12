@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="bd-pageheader">
+    <h1>Problem {{ problem.id }}</h1>
+  </div>
+  <h2 class="problem-header-title">{{ problem.title }}</h2>
+  <div class="problem-body">
+    <div class="row">
+      <div class="col-md-6">
+        <p class="problem-header-statement">
+          <strong>Time Limit:&nbsp;</strong>
+          {{ problem.time_limit }} milliseconds
+        </p>
+        <p class="problem-header-statement">
+          <strong>Memory Limit:&nbsp;</strong>
+          {{ problem.memory_limit }} megabytes
+        </p>
+        <p class="problem-header-statement">
+          <strong>Code Length Limit:&nbsp;</strong>
+          {{ problem.program_limit }} kilobytes
+        </p>
+      </div>
+      <div class="col-md-6">
+        <p class="problem-header-statement">
+          <strong>Author:&nbsp;</strong>
+          {{ problem.author }}
+        </p>
+        <p class="problem-header-statement">
+          <strong>Submission:&nbsp;</strong>
+          <a href="#">{{ problem.submissions }}</a>
+        </p>
+        <p class="problem-header-statement">
+          <strong>Current Standing:&nbsp;</strong>
+          <a href="#">View</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="problem-body">
+    <h3>Description</h3>
+    {{ problem.description|safe }}
+  </div>
+  <div class="problem-body">
+    <h3>Input</h3>
+    {{ problem.input|safe }}
+  </div>
+  <div class="problem-body">
+    <h3>Output</h3>
+    {{ problem.output|safe }}
+  </div>
+
+  <div class="problem-body">
+    <h3>Samples</h3>
+    {% for sample in problem.samples.all %}
+      <h6>Sample Input</h6>
+      <pre>{{ sample.input }}</pre>
+      <h6>Sample Output</h6>
+      <pre>{{ sample.output }}</pre>
+    {% endfor %}
+  </div>
+
+  <form class="form" action="#" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="problem_id" value="{{ problem.id }}">
+    <input type="hidden" name="user_id" value="{{ request.user.username }}">
+    <div class="form-group form-inline float-xs-right">
+      <label for="languageSelect">Language</label>
+      <select class="form-control" name="languageSelect">
+        <option value="c">C++</option>
+        <option value="j">Java</option>
+        <option value="p">Python</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <textarea rows="18" name="code" class="form-control" style="resize:none; font-family: monospace;"></textarea>
+    </div>
+    <div class="container mx-0 px-0 mb-3">
+      <div class="col-md-6 form-group">
+        <button class="btn btn-lg btn-outline-primary btn-block" type="submit">Submit My Code</button>
+      </div>
+      <div class="col-md-6 form-group">
+        <button class="btn btn-lg btn-outline-warning btn-block" type="submit">I Want To Challenge</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
