@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Create an account</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <form>
+      <div class="form-group">
+        <label for="inputEmail">Email</label>
+        <input name="email" type="email" class="form-control" id="inputUsername" placeholder="Enter an email">
+      </div>
+      <div class="form-group">
+        <label for="inputUsername">Username</label>
+        <input name="username" type="text" class="form-control" id="inputUsername"
+               placeholder="Username cannot be changed once created">
+      </div>
+      <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input name="password" type="password" class="form-control" id="inputPassword"
+               placeholder="Length should be at least 6">
+      </div>
+      <div class="form-group">
+        <label for="inputRepeatPassword">Password</label>
+        <input name="rpassword" type="password" class="form-control" id="inputRepeatPassword"
+               placeholder="Repeat your password please">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+{% endblock %}
