@@ -20,6 +20,6 @@ from problem.views import problem_list_view, problem_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', home_view),
+    url(r'^$', home_view, name='home'),
     url(r'^problem/$', problem_view)
 ]
