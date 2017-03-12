@@ -10,6 +10,12 @@
 
   <div class="container">
     <form>
+      {% for field in form %}
+        <div class="form-group">
+        {{ field.label }}
+        {{ field }}
+      </div>
+      {% endfor %}
       <div class="form-group">
         <label for="inputUsername">Username</label>
         <input name="username" type="text" class="form-control" id="inputUsername" placeholder="Username">
@@ -18,12 +24,12 @@
         <label for="inputPassword">Password</label>
         <input name="password" type="password" class="form-control" id="inputPassword" placeholder="Password">
       </div>
-      <div class="form-check">
-        <label class="form-check-label">
-          <input name="remember" type="checkbox" class="form-check-input">
-          Remember me
-        </label>
-      </div>
+{#      <div class="form-check">#}
+{#        <label class="form-check-label">#}
+{#          <input name="remember" type="checkbox" class="form-check-input">#}
+{#          Remember me#}
+{#        </label>#}
+{#      </div>#}
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
