@@ -1,0 +1,19 @@
+.bd-pageheader {
+  padding: 2rem 15px;
+  margin-bottom: 1rem;
+  color: #fff;
+  text-align: center;
+  background-color: #444486;
+  @media (min-width: 576px) {
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+  h1 {
+    font-weight: normal;
+    @media (max-width: 768px) {
+      font-size: 2.5rem;
+    }
+  }
+}

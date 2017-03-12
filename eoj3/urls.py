@@ -17,9 +17,11 @@ from django.conf.urls import url
 from django.contrib import admin
 from home.views import home_view
 from problem.views import problem_list_view, problem_view
+from account.views import login_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', home_view, name='home'),
-    url(r'^problem/$', problem_view)
+    url(r'^problem/$', problem_view),
+    url(r'^login/', login_view),
 ]
