@@ -20,6 +20,11 @@ class RegisterForm(forms.ModelForm):
             }
         }
 
+    def create(self):
+        instance = self.save(commit=False)
+        instance.set_password(self.cleaned_data.get('password'))
+        return instance.save()
+
     password = forms.CharField(help_text='Length should be at least 6',
                                widget=forms.PasswordInput,
                                min_length=6,
@@ -44,7 +49,9 @@ class LoginForm(forms.Form):
         cleaned_data = super(LoginForm, self).clean()
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
+        print(username, password)
         user = authenticate(username=username, password=password)
+        print(user)
         if not user:
             raise forms.ValidationError("Username and password don't match.")
-        return user
+        return cleaned_data
