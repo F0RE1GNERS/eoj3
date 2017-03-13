@@ -1,13 +1,12 @@
 {% extends 'backstage/base.html' %}
 
 {% block backstage_content %}
-<div class="container">
   <h2>Add a problem</h2>
   <ul>
     <li>News</li>
     <li>Problems
       <ul>
-        <li><a href="{% url 'backstage:add_problem' %}">Add a new problem</a></li>
+        <li><a href="{% url 'backstage:problem_add' %}">Add a new problem</a></li>
         <li>View problems</li>
       </ul>
     </li>
@@ -25,5 +24,4 @@
       </ul>
     </li>
   </ul>
-</div>
 {% endblock %}
