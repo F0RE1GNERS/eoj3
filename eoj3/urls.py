@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from home.views import home_view
 from problem.views import problem_list_view, problem_view
-from account.views import login_view, register_view
+from account.views import login_view, register_view, logout_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -26,5 +26,6 @@ urlpatterns = [
     url(r'^problem/(\d+)/', problem_view, name='problem'),
     url(r'^login/', login_view, name='login'),
     url(r'^register/', register_view, name='register'),
+    url(r'^logout$', logout_view, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
 ]
