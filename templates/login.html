@@ -10,12 +10,7 @@
 
   <div class="container">
     <form>
-      {% for field in form %}
-        <div class="form-group">
-        {{ field.label }}
-        {{ field }}
-      </div>
-      {% endfor %}
+
       <div class="form-group">
         <label for="inputUsername">Username</label>
         <input name="username" type="text" class="form-control" id="inputUsername" placeholder="Username">

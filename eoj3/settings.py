@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'home',
     'account',
     'problem',
+
+    # third-party packages
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
