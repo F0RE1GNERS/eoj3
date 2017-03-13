@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+
+{% for message in messages %}
+    <div class="alert alert-success" role="alert">
+      {{ message }}
+    </div>
+{% endfor %}
+
+<form action="{{ request.path }}" method="post">
+  {% csrf_token %}
+  {% for field in form %}
+    {% if not field.errors %}
+      {% if field.label == 'Visible' %}  {# TODO hard code #}
+        <div class="form-check">
+          <label class="form-check-label">
+            {% render_field field class+="form-check-input" placeholder=field.help_text %}
+            {{ field.label }}
+          </label>
+        </div>
+      {% else %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {% render_field field class+="form-control" placeholder=field.help_text %}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="form-group has-warning">
+        {{ field.label_tag }}
+        {% render_field field class+="form-control form-control-warning" placeholder=field.help_text %}
+        {% for error in field.errors %}
+          <div class="form-control-feedback">{{ error | escape }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
