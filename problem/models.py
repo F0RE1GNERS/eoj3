@@ -1,10 +1,11 @@
 from django.db import models
 from account.models import User
 
+
 class Problem(models.Model):
     title = models.CharField('Title', max_length=128)
     description = models.TextField('Description')
-    created_by = models.ForeignKey('Created by', User)
+    created_by = models.ForeignKey(User)
 
     visible = models.BooleanField('Visible', default=True)
     create_time = models.DateTimeField('Created time', auto_now_add=True)
