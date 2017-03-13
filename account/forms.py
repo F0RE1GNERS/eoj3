@@ -49,9 +49,7 @@ class LoginForm(forms.Form):
         cleaned_data = super(LoginForm, self).clean()
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
-        print(username, password)
         user = authenticate(username=username, password=password)
-        print(user)
         if not user:
             raise forms.ValidationError("Username and password don't match.")
         return cleaned_data
