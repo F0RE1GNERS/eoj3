@@ -9,6 +9,8 @@ def login_view(request):
         if form.is_valid():
             user = authenticate(username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password'))
             login(request, user)
+            if not request.POST.get('remember', None):
+                request.session.set_expiry(0)
             return redirect('/')
     else:
         form = LoginForm()
