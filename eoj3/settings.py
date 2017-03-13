@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'home',
     'account',
     'problem',
+    'backstage',
 
     # third-party packages
     'widget_tweaks',

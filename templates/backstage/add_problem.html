@@ -1,0 +1,29 @@
+{% extends 'backstage/base.html' %}
+
+{% block backstage_content %}
+<div class="container">
+  <h2>Add a problem</h2>
+  <ul>
+    <li>News</li>
+    <li>Problems
+      <ul>
+        <li><a href="{% url 'backstage:add_problem' %}">Add a new problem</a></li>
+        <li>View problems</li>
+      </ul>
+    </li>
+    <li>Contests
+      <ul>
+        <li>Add a new contest</li>
+        <li>View contests</li>
+      </ul>
+    </li>
+    <li>Accounts
+      <ul>
+        <li>Add a privilege</li>
+        <li>View privileges</li>
+        <li>Generate users</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+{% endblock %}

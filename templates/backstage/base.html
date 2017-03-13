@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="bd-pageheader">
+  <div class="container">
+    <h1>Backstage</h1>
+  </div>
+</div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-md-9">
+        {% block backstage_content %}
+        {% endblock %}
+      </div>
+      <div class="col-12 col-md-3 bd-sidebar">
+        <a href="#" class="{% if backstage_active == 'home' %}active{% endif %}">Go to homepage</a>
+        <a href="#">News</a>
+        <a href="#">Add a problem</a>
+        <a href="#">View problems</a>
+        <a href="#">Add a contest</a>
+        <a href="#">View contests</a>
+        <a href="#">Add a privilege</a>
+        <a href="#">View privileges</a>
+        <a href="#">Generate accounts</a>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
