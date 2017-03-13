@@ -1,27 +1,32 @@
 {% extends 'backstage/base.html' %}
+{% load widget_tweaks %}
 
 {% block backstage_content %}
-  <h2>Add a problem</h2>
-  <ul>
-    <li>News</li>
-    <li>Problems
-      <ul>
-        <li><a href="{% url 'backstage:problem_add' %}">Add a new problem</a></li>
-        <li>View problems</li>
-      </ul>
-    </li>
-    <li>Contests
-      <ul>
-        <li>Add a new contest</li>
-        <li>View contests</li>
-      </ul>
-    </li>
-    <li>Accounts
-      <ul>
-        <li>Add a privilege</li>
-        <li>View privileges</li>
-        <li>Generate users</li>
-      </ul>
-    </li>
-  </ul>
+  <div class="content-header">
+    <h2>Add a problem</h2>
+  </div>
+
+  <form action="#" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+
+      {% if not field.errors %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {% render_field field class+="form-control" placeholder=field.help_text %}
+        </div>
+      {% else %}
+        <div class="form-group has-warning">
+          {{ field.label_tag }}
+          {% render_field field class+="form-control form-control-warning" placeholder=field.help_text %}
+          {% for error in field.errors %}
+            <div class="form-control-feedback">{{ error | escape}}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
 {% endblock %}

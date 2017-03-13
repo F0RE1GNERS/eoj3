@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from .forms import ProblemEditForm
 
 
 def index(request):
@@ -10,4 +11,6 @@ def problem(request):
 
 
 def problem_add(request):
-    return render(request, 'backstage/problem_add.html', {'backstage_active': 'problem'})
+    problem_edit_form = ProblemEditForm()
+    return render(request, 'backstage/problem_add.html', {'backstage_active': 'problem',
+                                                          'form': problem_edit_form})
