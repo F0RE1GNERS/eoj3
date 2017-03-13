@@ -23,7 +23,20 @@ class RegisterForm(forms.ModelForm):
     def create(self):
         instance = self.save(commit=False)
         instance.set_password(self.cleaned_data.get('password'))
-        return instance.save()
+        instance.save()
+        return instance
+
+    def clean_username(self):
+        data = self.cleaned_data.get('username')
+        if len(data) < 6:
+            raise forms.ValidationError("Username should contain at least 6 characters.")
+        return data
+
+    def clean(self):
+        data = super(RegisterForm, self).clean()
+        if data.get('password') != data.get('repeat_password'):
+            self.add_error('repeat_password', forms.ValidationError("Password doesn't match.", code='invalid'))
+        return data
 
     password = forms.CharField(help_text='Length should be at least 6',
                                widget=forms.PasswordInput,
@@ -51,5 +64,5 @@ class LoginForm(forms.Form):
         password = cleaned_data.get('password')
         user = authenticate(username=username, password=password)
         if not user:
-            raise forms.ValidationError("Username and password don't match.")
+            raise forms.ValidationError("Username and password don't match.", code='invalid')
         return cleaned_data
