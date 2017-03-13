@@ -1,6 +1,6 @@
 .bd-pageheader {
   padding: 2rem 15px;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
   color: #fff;
   text-align: center;
   background-color: #444486;
@@ -34,6 +34,17 @@
       text-decoration: none;
       background-color: transparent;
     }
+    &:last-child {
+      margin-bottom: 2rem;
+    }
   }
 }
 
+.full-width-table {
+  display: table;
+}
+
+h1.content-header, h2.content-header, h3.content-header {
+  margin-top: .5rem;
+  margin-bottom: 1.5rem;
+}

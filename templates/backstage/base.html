@@ -8,22 +8,19 @@
 </div>
   <div class="container">
     <div class="row">
-      <div class="col-12 col-md-9">
+
+      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+        <a href="{% url 'backstage:index' %}" class="{% if backstage_active == 'home' %}active{% endif %}">Go to homepage</a>
+        <a href="#" class="{% if backstage_active == 'site' %}active{% endif %}">Site</a>
+        <a href="{% url 'backstage:problem' %}" class="{% if backstage_active == 'problem' %}active{% endif %}">Problems</a>
+        <a href="#">Contests</a>
+        <a href="#">Accounts</a>
+      </div>
+      <div class="col-12 col-md-9 pull-md-3 bd-content">
         {% block backstage_content %}
         {% endblock %}
       </div>
-      <div class="col-12 col-md-3 bd-sidebar">
-        <a href="#" class="{% if backstage_active == 'home' %}active{% endif %}">Go to homepage</a>
-        <a href="#">News</a>
-        <a href="#">Add a problem</a>
-        <a href="#">View problems</a>
-        <a href="#">Add a contest</a>
-        <a href="#">View contests</a>
-        <a href="#">Add a privilege</a>
-        <a href="#">View privileges</a>
-        <a href="#">Generate accounts</a>
 
-      </div>
     </div>
   </div>
 
