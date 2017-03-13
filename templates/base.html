@@ -26,7 +26,7 @@
         <div class="collapse navbar-toggleable-sm" id="navbarResponsive">
           <ul class="nav navbar-nav">
             <li class="nav-item active">
-              <a class="nav-item nav-link {{ home_active }}" href="#">EOJ</a>
+              <a class="nav-item nav-link {{ home_active }}" href="{% url 'home' %}">EOJ</a>
             </li>
             <li class="nav-item">
               <a class="nav-item nav-link {{ problist_active }}" href="#">Problems</a>
@@ -48,12 +48,17 @@
               </div>
             {% else %}
               <div class="float-md-right">
-                <li class="nav-item">
-                  <a class="nav-link" href="" data-toggle="modal" data-target="#modal-login">Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="" data-toggle="modal" data-target="#modal-register">Register</a>
-                </li>
+                <ul class="nav navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'backstage:index' %}">Admin</a>
+                  </li>
+                </ul>
               </div>
             {% endif %}
           </ul>
@@ -62,45 +67,6 @@
     </div>
   </header>
 
-  <div class="modal fade" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-       aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form class="form" id="user-login-form">
-          <div class="modal-body">
-            <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-            <div class="text-danger mx-1" style="display:none" id="user-login-message">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="login_button_click()">Login</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="modal-register" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-       aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form class="form" id="user-register-form">
-          <div class="modal-body">
-            <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
-            <input type="text" name="username" class="form-control" placeholder="Username" required>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-            <div class="text-danger mx-1" style="display:none" id="user-register-message"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="register_button_click()">Register</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   {% block content %}
   {% endblock %}

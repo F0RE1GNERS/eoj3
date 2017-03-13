@@ -17,3 +17,23 @@
     }
   }
 }
+
+.bd-sidebar {
+  padding-left: 1rem;
+  a {
+    display: block;
+    padding: .25rem .75rem;
+    font-size: 90%;
+    color: #99979c;
+    &.active {
+      font-weight: 500;
+      color: #121314;
+    }
+    &:hover {
+      color: #0275d8;
+      text-decoration: none;
+      background-color: transparent;
+    }
+  }
+}
+
