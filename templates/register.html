@@ -13,10 +13,22 @@
     <form action="{% url "register" %}" method="post">
       {% csrf_token %}
       {% for field in form %}
-        <div class="form-group">
-          {{ field.label_tag }}
-          {% render_field field class+="form-control" placeholder=field.help_text %}
-        </div>
+
+        {% if not field.errors %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {% render_field field class+="form-control" placeholder=field.help_text %}
+          </div>
+        {% else %}
+          <div class="form-group has-warning">
+            {{ field.label_tag }}
+            {% render_field field class+="form-control form-control-warning" placeholder=field.help_text %}
+            {% for error in field.errors %}
+              <div class="form-control-feedback">{{ error | escape}}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
       {% endfor %}
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
