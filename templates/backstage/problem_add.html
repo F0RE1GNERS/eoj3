@@ -5,22 +5,35 @@
   <div class="content-header">
     <h2>Add a problem</h2>
   </div>
-
-  <form action="#" method="post">
+  {% for message in messages %}
+    <div class="alert alert-success" role="alert">
+      {{ message }}
+    </div>
+  {% endfor %}
+  <form action="{% url 'backstage:problem_add' %}" method="post">
     {% csrf_token %}
     {% for field in form %}
-
       {% if not field.errors %}
-        <div class="form-group">
-          {{ field.label_tag }}
-          {% render_field field class+="form-control" placeholder=field.help_text %}
-        </div>
+        {% if field.label == 'Visible' %}  {# TODO hard code #}
+          <div class="form-check">
+            <label class="form-check-label">
+{#              <input type="checkbox" class="form-check-input">#}
+              {% render_field field class+="form-check-input" placeholder=field.help_text %}
+              {{ field.label }}
+            </label>
+          </div>
+        {% else %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {% render_field field class+="form-control" placeholder=field.help_text %}
+          </div>
+        {% endif %}
       {% else %}
         <div class="form-group has-warning">
           {{ field.label_tag }}
           {% render_field field class+="form-control form-control-warning" placeholder=field.help_text %}
           {% for error in field.errors %}
-            <div class="form-control-feedback">{{ error | escape}}</div>
+            <div class="form-control-feedback">{{ error | escape }}</div>
           {% endfor %}
         </div>
       {% endif %}

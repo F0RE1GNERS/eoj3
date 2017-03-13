@@ -5,16 +5,9 @@ from problem.models import Problem
 class ProblemEditForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ['title', 'description', 'time_limit', 'sum_time_limit', 'memory_limit']
+        fields = ['title', 'description', 'time_limit', 'sum_time_limit', 'memory_limit', 'visible']
         error_messages = {
-            'title': {
-                'require': "Please enter a title.",
-            },
-            'description': {
-                'require': "Please enter a description."
-            }
         }
-
     # def create(self):
     #     instance = self.save(commit=False)
     #     instance.set_password(self.cleaned_data.get('password'))

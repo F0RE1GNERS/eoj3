@@ -133,3 +133,4 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # my settings
 AUTH_USER_MODEL = 'account.User'
+LOGIN_URL = '/login/'

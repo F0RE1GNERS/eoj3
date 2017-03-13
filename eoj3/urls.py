@@ -26,6 +26,6 @@ urlpatterns = [
     url(r'^problem/(\d+)/', problem_view, name='problem'),
     url(r'^login/', login_view, name='login'),
     url(r'^register/', register_view, name='register'),
-    url(r'^logout$', logout_view, name='logout'),
+    url(r'^logout/', logout_view, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
 ]

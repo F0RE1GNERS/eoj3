@@ -3,11 +3,11 @@ from account.models import User
 
 
 class Problem(models.Model):
-    title = models.CharField('Title', max_length=128)
-    description = models.TextField('Description')
+    title = models.CharField('Title', max_length=128, blank=True)
+    description = models.TextField('Description', blank=True)
     created_by = models.ForeignKey(User)
 
-    visible = models.BooleanField('Visible', default=True)
+    visible = models.BooleanField('Visible', default=False)
     create_time = models.DateTimeField('Created time', auto_now_add=True)
 
     time_limit = models.IntegerField('Time limit per test', default=1000)

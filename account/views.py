@@ -1,15 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from .forms import RegisterForm, LoginForm
 from django.contrib.auth import login, authenticate, logout
-
 
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        if form.is_valid():
+        if form.is_valid():  # TODO authenticate twice
             user = authenticate(username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password'))
             login(request, user)
-            return redirect('/')
+            return HttpResponseRedirect(request.POST.get('next', '/'))
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})

@@ -28,6 +28,7 @@
           <input name="remember" type="checkbox" class="form-check-input">
           Remember me
         </label>
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
