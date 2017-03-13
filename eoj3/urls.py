@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^$', home_view, name='home'),
     url(r'^problem/$', problem_view),
     url(r'^login/', login_view),
-    url(r'^register/', register_view),
+    url(r'^register/', register_view, name='register'),
 ]
