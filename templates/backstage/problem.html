@@ -18,29 +18,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>A+B Problem</td>
-        <td><a href="#" class="text-primary">Edit</a></td>
-        <td><a href="#" class="text-primary">Testdata</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
+      {% for problem in problem_list %}
+        <tr>
+        <th scope="row">{{ problem.title }}</th>
+        <td>{{ problem.pk }}</td>
+        <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
+        <td><a href="#" class="text-primary">Testdata(todo)</a></td>
+        <td><a href="#" class="text-danger">Delete(todo)</a></td>
       </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>A*B Problem</td>
-        <td><a href="#" class="text-primary">Edit</a></td>
-        <td><a href="#" class="text-primary">Testdata</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td>Mr. Frog's interesting problem</td>
-        <td><a href="#" class="text-primary">Edit</a></td>
-        <td><a href="#" class="text-primary">Testdata</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
-      </tr>
+      {% endfor %}
     </tbody>
   </table>
+  {#  TODO https://docs.djangoproject.com/en/1.10/topics/pagination/ #}
   <nav aria-label="pagination-nav">
     <ul class="pagination">
       <li class="page-item disabled">

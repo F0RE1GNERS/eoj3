@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
 from .forms import ProblemEditForm
@@ -10,10 +11,6 @@ from problem.models import Problem
 
 def index(request):
     return render(request, 'backstage/index.html', {'backstage_active': 'home'})
-
-
-def problem(request):
-    return render(request, 'backstage/problem.html', {'backstage_active': 'problem'})
 
 
 @method_decorator(login_required(), name='dispatch')
@@ -44,3 +41,11 @@ class ProblemUpdate(UpdateView):
     def form_valid(self, form):
         messages.add_message(self.request, messages.SUCCESS, "Your changes have been saved.")
         return super(ProblemUpdate, self).form_invalid(form)
+
+
+@method_decorator(login_required(), name='dispatch')
+class ProblemList(ListView):
+    template_name = 'backstage/problem.html'
+    queryset = Problem.objects.all()
+    paginate_by = 5
+    context_object_name = 'problem_list'
