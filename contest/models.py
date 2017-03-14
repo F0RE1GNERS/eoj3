@@ -13,7 +13,7 @@ class Contest(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
 
     visible = models.BooleanField(default=True)
-    # allower_user
+    # allowed_user
 
 
 class ContestProblem(models.Model):
