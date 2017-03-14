@@ -7,7 +7,8 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from .forms import GroupEditForm
-from group.models import Group
+from group.models import Group, GroupMembership
+from account.models import User
 
 
 class GroupManage(View):
@@ -16,14 +17,25 @@ class GroupManage(View):
     @staticmethod
     def get_context_data(**kwargs):
         group = Group.objects.get(**kwargs)
-        member_list = group.members.all()
-        return dict(group=group, member_list=member_list)
+        membership_list = GroupMembership.objects.filter(group=group).all()
+        return dict(group=group, membership_list=membership_list)
 
     def post(self, request, **kwargs):
-        return render(request, self.template_name, self.get_context_data(**kwargs))
+
+        username = request.POST.get('username', None)
+        number = request.POST.get('number', None)
+        if username:
+            group = Group.objects.get(**kwargs)
+            comment = request.POST.get('comment', '')
+            GroupMembership.objects.create(user=User.objects.get(username=username), comment=comment, group=group)
+        if number:
+            pass
+        data = self.get_context_data(**kwargs)
+        return render(request, self.template_name, data)
 
     def get(self, request, **kwargs):
-        return render(request, self.template_name, self.get_context_data(**kwargs))
+        data = self.get_context_data(**kwargs)
+        return render(request, self.template_name, data)
 
 
 @method_decorator(login_required(), name='dispatch')
