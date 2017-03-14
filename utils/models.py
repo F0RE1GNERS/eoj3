@@ -12,3 +12,6 @@ class InvitationCode(models.Model):
     group_id = models.IntegerField()
     comment = models.CharField(max_length=48, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['comment']

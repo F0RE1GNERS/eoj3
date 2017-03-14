@@ -9,6 +9,8 @@ from django.utils.decorators import method_decorator
 from .forms import GroupEditForm
 from group.models import Group, GroupMembership
 from account.models import User
+from utils.models import InvitationCode
+from utils.invitation import generate
 
 
 class GroupManage(View):
@@ -18,18 +20,18 @@ class GroupManage(View):
     def get_context_data(**kwargs):
         group = Group.objects.get(**kwargs)
         membership_list = GroupMembership.objects.filter(group=group).all()
-        return dict(group=group, membership_list=membership_list)
+        code_list = InvitationCode.objects.filter(group_id=group.id).all()
+        return dict(group=group, membership_list=membership_list, code_list=code_list)
 
     def post(self, request, **kwargs):
-
+        group = Group.objects.get(**kwargs)
         username = request.POST.get('username', None)
         number = request.POST.get('number', None)
+        comment = request.POST.get('comment', '')
         if username:
-            group = Group.objects.get(**kwargs)
-            comment = request.POST.get('comment', '')
             GroupMembership.objects.create(user=User.objects.get(username=username), comment=comment, group=group)
         if number:
-            pass
+            generate(group, number, comment)
         data = self.get_context_data(**kwargs)
         return render(request, self.template_name, data)
 

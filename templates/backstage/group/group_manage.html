@@ -62,14 +62,12 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td scope="row">89a3c9a3df</td>
-        <td>SJTU</td>
-      </tr>
-      <tr>
-        <td scope="row">93a95ffq87</td>
-        <td>FDU</td>
-      </tr>
+      {% for code in code_list %}
+        <tr>
+          <td scope="row">{{ code.code }}</td>
+          <td>{{ code.comment }}</td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
 {% endblock %}
