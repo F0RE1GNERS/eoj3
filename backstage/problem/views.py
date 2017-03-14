@@ -10,7 +10,16 @@ from problem.models import Problem
 
 
 def index(request):
-    return render(request, 'backstage/index.html', {'backstage_active': 'home'})
+    return render(request, 'backstage/index.html')
+
+
+def problem_home(request):
+    return HttpResponseRedirect(reverse('backstage:problem', args=(1, )))
+
+
+# TODO: modify form
+def group_edit(request):
+    return render(request, 'backstage/group/group.html')
 
 
 @method_decorator(login_required(), name='dispatch')
