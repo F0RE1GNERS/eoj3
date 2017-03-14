@@ -10,16 +10,16 @@
         <th>Username</th>
         <th>Comment</th>
         <th>Join Time</th>
-        <th>Delete</th>
+        <th>Remove</th>
       </tr>
     </thead>
     <tbody>
       {% for membership in membership_list %}
         <tr>
           <td><a href="#" class="text-primary">{{ membership.user.username }}</a></td>
-          <td class="text-primary">{{ membership.comment }}</td>
-          <td class="text-primary">{{ membership.join_time }}</td>
-          <td><a href="#" class="text-danger">Delete</a></td>
+          <td class="">{{ membership.comment }}</td>
+          <td class="">{{ membership.join_time }}</td>
+          <td><a href="{% url 'backstage:group_delete' membership.pk %}" class="text-danger">Remove</a></td>
         </tr>
       {% endfor %}
     </tbody>

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -45,15 +45,12 @@ class GroupCreate(CreateView):
     form_class = GroupEditForm
     template_name = 'backstage/group/group_add.html'
 
-    def get_success_url(self):  # TODO reverse
-        return self.request.path
-
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
         messages.add_message(self.request, messages.SUCCESS, "Group was successfully added.")
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse('backstage:group_manage', kwargs={'pk': instance.pk}))
 
 
 @method_decorator(login_required(), name='dispatch')
@@ -76,3 +73,9 @@ class GroupList(ListView):
     queryset = Group.objects.all()
     paginate_by = 5
     context_object_name = 'group_list'
+
+
+def group_member_delete(request, membership_pk):
+    membership = GroupMembership.objects.get(pk=membership_pk)
+    membership.delete()
+    return HttpResponseRedirect(reverse('backstage:group_manage', kwargs={'pk': membership.group.pk}))
