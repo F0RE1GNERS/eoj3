@@ -1,2 +1,4 @@
 AIPlayground
 migrations/
+db.sqlite3
+.idea/
