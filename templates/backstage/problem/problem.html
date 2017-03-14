@@ -20,8 +20,8 @@
     <tbody>
       {% for problem in problem_list %}
         <tr>
-        <th scope="row">{{ problem.title }}</th>
-        <td>{{ problem.pk }}</td>
+        <th scope="row">{{ problem.pk }}</th>
+        <td>{{ problem.title }}</td>
         <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
         <td><a href="#" class="text-primary">Testdata(todo)</a></td>
         <td><a href="#" class="text-danger">Delete(todo)</a></td>

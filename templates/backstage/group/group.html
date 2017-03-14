@@ -2,55 +2,29 @@
 
 {% block backstage_content %}
   <div class="content-header">
-    <h2>Add / Edit Group #?</h2>
+    <h2>Group List</h2>
+  </div>
+  <div class="mb-1">
+    <a role="button" class="btn btn-primary" href="{% url 'backstage:group_create' %}">Add a group</a>
   </div>
   <table class="table table-responsive full-width-table">
     <thead>
       <tr>
         <th>#</th>
-        <th>Invitation</th>
-        <th>Username</th>
-        <th>Comment</th>
-        <th>Delete</th>
+        <th>Name</th>
+        <th>Edit</th>
+        <th>Manage</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>89KKbbdbAC</td>
-        <td><a href="#" class="text-primary">haha</a></td>
-        <td><a href="#" class="text-primary">ECNU</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
+      {% for group in group_list %}
+        <tr>
+        <th scope="row">{{ group.pk }}</th>
+        <td>{{ group.name }}</td>
+        <td><a href="{% url 'backstage:group_edit' group.pk %}" class="text-primary">Edit</a></td>
+        <td><a href="#" class="text-primary">Manage(todo)</a></td>
       </tr>
-    <tr>
-        <th scope="row">1</th>
-        <td>89KKbbdbAC</td>
-        <td><a href="#" class="text-primary">haha</a></td>
-        <td><a href="#" class="text-primary">ECNU</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
-      </tr>
+      {% endfor %}
     </tbody>
   </table>
-  <form class="form-inline mb-3">
-    <label class="sr-only" for="username">Username</label>
-    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="username" placeholder="Enter a new username">
-    <button type="submit" class="btn btn-primary">Add a user</button>
-  </form>
-  <h5>Increase group capacity</h5>
-  <form>
-  <div class="form-group row">
-    <label for="inputNumber" class="col-sm-2 col-form-label">Numbers</label>
-    <div class="col-sm-10">
-      <input type="number" class="form-control" id="inputNumber" placeholder="How many do you want to add?">
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="inputNumber" class="col-sm-2 col-form-label">Comments</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="inputComment" placeholder="Identify users by entering information?">
-    </div>
-  </div>
-    <button type="submit" class="btn btn-primary">Sign in</button>
-
-  </form>
 {% endblock %}

@@ -10,4 +10,5 @@ def get_invitation_code():
 class InvitationCode(models.Model):
     code = models.CharField(max_length=32, default=get_invitation_code, unique=True, primary_key=True)
     group_id = models.IntegerField()
+    comment = models.CharField(max_length=48, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)

@@ -7,5 +7,4 @@ class Group(models.Model):
     description = models.TextField()
     members = models.ManyToManyField(User)
 
-    create_by = models.ForeignKey(User, related_name='my_groups')
-    visible = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, related_name='my_groups')
