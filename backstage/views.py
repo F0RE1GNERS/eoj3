@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import CreateView, UpdateView
+from django.utils.decorators import method_decorator
 
 from .forms import ProblemEditForm
 from problem.models import Problem
@@ -14,29 +16,31 @@ def problem(request):
     return render(request, 'backstage/problem.html', {'backstage_active': 'problem'})
 
 
-@login_required()
-def problem_add(request):
-    if request.method == 'POST':
-        form = ProblemEditForm(request.POST)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.created_by = request.user
-            instance.save()
-            messages.add_message(request, messages.SUCCESS, "Problem was successfully added.")
-    else:
-        form = ProblemEditForm()
-    return render(request, 'backstage/problem_add.html', {'backstage_active': 'problem',
-                                                          'form': form})
+@method_decorator(login_required(), name='dispatch')
+class ProblemCreate(CreateView):
+    form_class = ProblemEditForm
+    template_name = 'backstage/problem_add.html'
 
-@login_required()
-def problem_edit(request, problem_pk):
-    instance = Problem.objects.get(pk=problem_pk)
-    if request.method == 'POST':
-        form = ProblemEditForm(request.POST, instance=instance)
-        if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.SUCCESS, "Problem was successfully edited.")
-    else:
-            form = ProblemEditForm(instance=instance)
-    return render(request, 'backstage/problem_edit.html', {'backstage_active': 'problem',
-                                                          'form': form})
+    def get_success_url(self):
+        return reverse("backstage:problem")
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.created_by = self.request.user
+        instance.save()
+        messages.add_message(self.request, messages.SUCCESS, "Problem was successfully added.")
+        return HttpResponseRedirect(self.get_success_url())
+
+
+@method_decorator(login_required(), name='dispatch')
+class ProblemUpdate(UpdateView):
+    form_class = ProblemEditForm
+    queryset = Problem.objects.all()
+    template_name = 'backstage/problem_edit.html'
+
+    def get_success_url(self):
+        return self.request.path
+
+    def form_valid(self, form):
+        messages.add_message(self.request, messages.SUCCESS, "Your changes have been saved.")
+        return super(ProblemUpdate, self).form_invalid(form)
