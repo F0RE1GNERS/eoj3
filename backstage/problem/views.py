@@ -16,7 +16,7 @@ def index(request):
 @method_decorator(login_required(), name='dispatch')
 class ProblemCreate(CreateView):
     form_class = ProblemEditForm
-    template_name = 'backstage/problem_add.html'
+    template_name = 'backstage/problem/problem_add.html'
 
     def get_success_url(self):
         return reverse("backstage:problem")
@@ -33,7 +33,7 @@ class ProblemCreate(CreateView):
 class ProblemUpdate(UpdateView):
     form_class = ProblemEditForm
     queryset = Problem.objects.all()
-    template_name = 'backstage/problem_edit.html'
+    template_name = 'backstage/problem/problem_edit.html'
 
     def get_success_url(self):
         return self.request.path
@@ -45,7 +45,7 @@ class ProblemUpdate(UpdateView):
 
 @method_decorator(login_required(), name='dispatch')
 class ProblemList(ListView):
-    template_name = 'backstage/problem.html'
+    template_name = 'backstage/problem/problem.html'
     queryset = Problem.objects.all()
     paginate_by = 5
     context_object_name = 'problem_list'

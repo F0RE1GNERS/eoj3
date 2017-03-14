@@ -14,7 +14,6 @@ class Contest(models.Model):
 
     visible = models.BooleanField(default=True)
     # allower_user
-    # allowed_lang
 
 
 class ContestProblem(models.Model):
