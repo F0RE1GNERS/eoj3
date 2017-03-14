@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from .forms import RegisterForm, LoginForm
 from django.contrib.auth import login, authenticate, logout
 
+
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
