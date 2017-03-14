@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'backstage',
     'submission',
     'contest',
+    'group',
     'utils',
 
     # third-party packages
