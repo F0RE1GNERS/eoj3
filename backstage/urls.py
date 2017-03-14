@@ -1,5 +1,6 @@
 from django.conf.urls import url
-from .views import *
+
+from backstage.problem.views import index, ProblemCreate, ProblemUpdate, ProblemList
 
 urlpatterns = [
     url(r'^$', index, name='index'),
