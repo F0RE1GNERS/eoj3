@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'backstage',
     'submission',
     'contest',
+    'utils',
 
     # third-party packages
     'widget_tweaks',
