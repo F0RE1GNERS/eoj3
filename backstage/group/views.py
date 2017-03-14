@@ -3,14 +3,27 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.views import View
 from django.utils.decorators import method_decorator
 
 from .forms import GroupEditForm
 from group.models import Group
 
 
-def group_edit(request):
-    return render(request, 'backstage/group/group_manage.html')
+class GroupManage(View):
+    template_name = 'backstage/group/group_manage.html'
+
+    @staticmethod
+    def get_context_data(**kwargs):
+        group = Group.objects.get(**kwargs)
+        member_list = group.members.all()
+        return dict(group=group, member_list=member_list)
+
+    def post(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context_data(**kwargs))
+
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context_data(**kwargs))
 
 
 @method_decorator(login_required(), name='dispatch')
@@ -18,7 +31,7 @@ class GroupCreate(CreateView):
     form_class = GroupEditForm
     template_name = 'backstage/group/group_add.html'
 
-    def get_success_url(self):  # reverse
+    def get_success_url(self):  # TODO reverse
         return self.request.path
 
     def form_valid(self, form):

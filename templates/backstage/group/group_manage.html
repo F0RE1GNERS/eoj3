@@ -2,29 +2,28 @@
 
 {% block backstage_content %}
   <div class="content-header">
-    <h2>Add / Edit Group #?</h2>
+    <h2>Manage Group - {{ group.name }}</h2>
   </div>
   <table class="table table-responsive full-width-table">
     <thead>
       <tr>
         <th>#</th>
-        <th>Invitation</th>
         <th>Username</th>
         <th>Comment</th>
         <th>Delete</th>
       </tr>
     </thead>
     <tbody>
+      {% for member in member_list %}
+        <tr>
+          <th scope="row">1</th>
+          <td><a href="#" class="text-primary">{{ member.username }}</a></td>
+          <td><a href="#" class="text-primary">ECNU</a></td>
+          <td><a href="#" class="text-danger">Delete</a></td>
+        </tr>
+      {% endfor %}
       <tr>
         <th scope="row">1</th>
-        <td>89KKbbdbAC</td>
-        <td><a href="#" class="text-primary">haha</a></td>
-        <td><a href="#" class="text-primary">ECNU</a></td>
-        <td><a href="#" class="text-danger">Delete</a></td>
-      </tr>
-    <tr>
-        <th scope="row">1</th>
-        <td>89KKbbdbAC</td>
         <td><a href="#" class="text-primary">haha</a></td>
         <td><a href="#" class="text-primary">ECNU</a></td>
         <td><a href="#" class="text-danger">Delete</a></td>
