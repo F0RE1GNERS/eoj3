@@ -6,3 +6,4 @@
 + allowed_lang in Contest
 + used or unused invitation code
 + title on edit views
++ pagination
