@@ -32,3 +32,9 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+def security_view(request):
+    if request.method == 'POST':
+        pass
+    return render(request, 'account/security.html')

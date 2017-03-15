@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load navitem_active %}
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Personal info</h1>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+
+      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+        <a href="#" class="{% navitem_active 'backstage:index' %}">Profile</a>
+        <a href="#" class="{% navitem_active 'backstage:site' %}">Security</a>
+        <a href="#" class="{% navitem_active 'backstage:problem' %}">Groups</a>
+      </div>
+      <div class="col-12 col-md-9 pull-md-3 bd-content">
+        {% block account_setting %}
+        {% endblock %}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

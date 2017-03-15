@@ -20,12 +20,12 @@ class Dispatcher:
     def is_latest_data_for_server(self):
         result = ServerProblemStatus.objects.filter(problem=self.problem, server=self.server)
         if len(result) == 0:
-            status = ServerProblemStatus(problem=self.problem,
-                                         server=self.server,
-                                         testdata_hash='')
+            self.status = ServerProblemStatus(problem=self.problem,
+                                              server=self.server,
+                                              testdata_hash='')
         else:
-            status = result[0]
-        if status.testdata_hash != self.problem.testdata_hash:
+            self.status = result[0]
+        if self.status.testdata_hash != self.problem.testdata_hash:
             return False
         return True
 
@@ -40,6 +40,7 @@ class Dispatcher:
                 print(response)
                 if response['status'] != 'received':
                     raise ConnectionError('Remote server rejected the request.')
+                self.status.testdata_hash = self.problem.testdata_hash
         except Exception as e:
             print('Something wrong during update:')
             print(e)
