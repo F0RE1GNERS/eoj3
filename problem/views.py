@@ -31,7 +31,7 @@ class ProblemView(View):
             submission.author = request.user
             submission.save()
             #  TODO handle(submission)
-            return HttpResponseRedirect(reverse('submission'))
+            return HttpResponseRedirect(reverse('submission', args=[submission.pk]))
         else:
             body = markdown3.convert(problem.description)
             data = dict(problem=problem, form=form, body=body)
