@@ -37,6 +37,9 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Status</a>
         </li>
+        <li class="nav-item {% navitem_active 'backstage' %}">
+          <a class="nav-link" href="{% url 'backstage:index' %}">Backstage</a>
+        </li>
       </ul>
       <ul class="navbar-nav">
         {% if request.user.is_authenticated %}

@@ -17,7 +17,7 @@ class Contest(models.Model):
     groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
 
-    visible = models.BooleanField(default=True)
+    visible = models.BooleanField(default=False)
 
 
 class ContestProblem(models.Model):

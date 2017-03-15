@@ -1,0 +1,31 @@
+{% extends 'backstage/base.html' %}
+
+{% block backstage_content %}
+
+  {% include 'components/message.html' %}
+
+  <div class="content-header">
+    <h2>Manage Contest - {{ contest.title }}</h2>
+  </div>
+  <table class="table table-responsive full-width-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Comment</th>
+        <th>Join Time</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for membership in membership_list %}
+        <tr>
+          <td><a href="#" class="text-primary">{{ membership.user.username }}</a></td>
+          <td class="">{{ membership.comment }}</td>
+          <td class="">{{ membership.join_time }}</td>
+          <td><a href="{% url 'backstage:group_delete' membership.pk %}" class="text-danger">Remove</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

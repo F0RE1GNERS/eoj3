@@ -14,7 +14,7 @@ class Problem(models.Model):
     time_limit = models.IntegerField('Time limit per test', default=1000)
     sum_time_limit = models.IntegerField('Time limit all tests', default=10000)
     memory_limit = models.IntegerField('Memory limit', default=256)
-    judge = models.CharField('Judge indicator', blank=True)
+    judge = models.CharField('Judge indicator', max_length=128, blank=True)
 
     total_submit_number = models.IntegerField('Submit', default=0)
     total_accepted_number = models.IntegerField('Accepted', default=0)

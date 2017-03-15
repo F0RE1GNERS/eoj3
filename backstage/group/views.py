@@ -33,12 +33,10 @@ class GroupManage(View):
             GroupMembership.objects.create(user=User.objects.get(username=username), comment=comment, group=group)
         if number:
             generate(group, number, comment)
-        data = self.get_context_data(**kwargs)
-        return render(request, self.template_name, data)
+        return render(request, self.template_name, self.get_context_data(**kwargs))
 
     def get(self, request, **kwargs):
-        data = self.get_context_data(**kwargs)
-        return render(request, self.template_name, data)
+        return render(request, self.template_name, self.get_context_data(**kwargs))
 
 
 class GroupCreate(BaseCreateView):

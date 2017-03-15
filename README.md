@@ -9,3 +9,4 @@
 + pagination
 + time format
 + friendly time input
++ markdown safe
