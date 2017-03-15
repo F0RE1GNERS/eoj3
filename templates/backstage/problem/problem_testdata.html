@@ -1,0 +1,37 @@
+{% extends 'backstage/base.html' %}
+
+{% block backstage_content %}
+  <div class="content-header">
+    <h2>Add testdata to problem #?</h2>
+  </div>
+  <form class="mb-5" enctype="multipart/form-data" method="post" action="{{ request.path }}">
+    <h5>Upload testdata</h5>
+    {% csrf_token %}
+    <div class="mb-3">
+      <input id="data-input" name="data" type="file" style="display:none"
+             onChange="$('#data-display').html($(this).val());">
+      <button class="btn btn-sm btn-secondary" role="button"
+              onclick="$('#data-input').click(); return false;">Browse...</button>
+      <span class="ml-2 text-mute" id="data-display"></span>
+    </div>
+    <button class="btn btn-primary">Submit</button>
+  </form>
+  <h5>Latest uploaded testdata</h5>
+  <p>md5: {{ hash }}</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Input file</th>
+        <th>Output file</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for data in data_set %}
+      <tr>
+        <td>{{ data.0 }}</td>
+        <td>{{ data.1 }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -21,15 +21,18 @@
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="{% url 'home' %}">EOJ</a>
+    <span class="navbar-brand">EOJ</span>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item {% navitem_active 'problem' %}">
+        <li class="nav-item {% navitem_active 'home' %}">
           <a class="nav-link" href="{% url 'home' %}">Home</a>
         </li>
+        <li class="nav-item {% navitem_active 'problem' %}">
+          <a class="nav-link" href="{% url 'problem_list' %}">Problems</a>
+        </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Competition</a>
+          <a class="nav-link" href="#">Contests</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">Status</a>
