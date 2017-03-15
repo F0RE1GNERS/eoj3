@@ -1,7 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -11,6 +10,8 @@ from group.models import Group, GroupMembership
 from account.models import User
 from utils.models import InvitationCode
 from utils.invitation import generate
+
+from ..base_views import BaseCreateView, BaseUpdateView
 
 
 class GroupManage(View):
@@ -40,41 +41,29 @@ class GroupManage(View):
         return render(request, self.template_name, data)
 
 
-@method_decorator(login_required(), name='dispatch')
-class GroupCreate(CreateView):
+class GroupCreate(BaseCreateView):
     form_class = GroupEditForm
     template_name = 'backstage/group/group_add.html'
 
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
-        messages.success(self.request, "Group was successfully added.")
-        return HttpResponseRedirect(reverse('backstage:group_manage', kwargs={'pk': instance.pk}))
+    def get_redirect_url(self, instance):
+        return reverse('backstage:group_manage', kwargs={'pk': instance.pk})
 
 
-@method_decorator(login_required(), name='dispatch')
-class GroupUpdate(UpdateView):
+class GroupUpdate(BaseUpdateView):
     form_class = GroupEditForm
     template_name = 'backstage/group/group_edit.html'
     queryset = Group.objects.all()
 
-    def get_success_url(self):
-        return self.request.path
 
-    def form_valid(self, form):
-        form.save()
-        messages.success(self.request, "Your changes have been saved.")
-        return HttpResponseRedirect(self.get_success_url())
-
-
+@method_decorator(login_required(), name='dispatch')
 class GroupList(ListView):
     template_name = 'backstage/group/group.html'
     queryset = Group.objects.all()
-    paginate_by = 5
+    paginate_by = 20
     context_object_name = 'group_list'
 
 
+@login_required()
 def group_member_delete(request, membership_pk):
     membership = GroupMembership.objects.get(pk=membership_pk)
     membership.delete()

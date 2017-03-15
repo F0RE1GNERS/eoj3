@@ -1,6 +1,8 @@
 from django.db import models
+
 from account.models import User
 from problem.models import Problem
+from group.models import Group
 
 
 class Contest(models.Model):
@@ -12,8 +14,10 @@ class Contest(models.Model):
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
 
+    groups = models.ManyToManyField(Group)
+    problems = models.ManyToManyField(Problem, through='ContestProblem')
+
     visible = models.BooleanField(default=True)
-    # allowed_user
 
 
 class ContestProblem(models.Model):
@@ -26,5 +30,5 @@ class ContestProblem(models.Model):
 class ContestClarification(models.Model):
     contest = models.ForeignKey(Contest)
     question = models.TextField()
-    answer = models.TextField()
+    answer = models.TextField(blank=True)
     username = models.CharField(max_length=30)

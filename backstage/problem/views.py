@@ -1,46 +1,30 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
 from .forms import ProblemEditForm
 from problem.models import Problem
 
+from ..base_views import BaseCreateView, BaseUpdateView
+
 
 def index(request):
     return render(request, 'backstage/index.html')
 
 
-@method_decorator(login_required(), name='dispatch')
-class ProblemCreate(CreateView):
+class ProblemCreate(BaseCreateView):
     form_class = ProblemEditForm
     template_name = 'backstage/problem/problem_add.html'
 
-    def get_success_url(self):
+    def get_redirect_url(self, instance):
         return reverse("backstage:problem")
 
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
-        messages.success(self.request, "Problem was successfully added.")
-        return HttpResponseRedirect(self.get_success_url())
 
-
-@method_decorator(login_required(), name='dispatch')
-class ProblemUpdate(UpdateView):
+class ProblemUpdate(BaseUpdateView):
     form_class = ProblemEditForm
     queryset = Problem.objects.all()
     template_name = 'backstage/problem/problem_edit.html'
-
-    def get_success_url(self):
-        return self.request.path
-
-    def form_valid(self, form):
-        messages.success(self.request, "Your changes have been saved.")
-        return super(ProblemUpdate, self).form_invalid(form)
 
 
 @method_decorator(login_required(), name='dispatch')
