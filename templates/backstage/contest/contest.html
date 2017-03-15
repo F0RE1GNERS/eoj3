@@ -26,7 +26,7 @@
           <td>{{ contest.start_time }}</td>
           <td>{{ contest.end_time }}</td>
           <td><a href="{% url 'backstage:contest_edit' contest.pk %}" class="text-default">Edit</a></td>
-          <td><a href="#" class="text-primary">Manage(todo)</a></td>
+          <td><a href="{% url 'backstage:contest_manage' contest.pk %}" class="text-primary">Manage</a></td>
         </tr>
       {% endfor %}
     </tbody>

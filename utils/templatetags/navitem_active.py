@@ -12,8 +12,9 @@ def navitem_active(context, match):
     resolve_path = context['request'].resolver_match
     if ':' in match:
         namespace, name = match.split(':', 1)
+        if resolve_path.namespace == namespace and resolve_path.url_name.endswith(name):
+            return "active"
     else:
-        namespace, name = match, ''
-    if resolve_path.namespace == namespace or resolve_path.url_name.startswith(namespace):
-        return "active"
+        if resolve_path.namespace == match:
+            return "active"
     return ""
