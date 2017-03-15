@@ -1,0 +1,34 @@
+{% extends 'backstage/base.html' %}
+
+{% block backstage_content %}
+  <div class="content-header">
+    <h2>Judge Server List</h2>
+  </div>
+  <div class="mb-1">
+    <a role="button" class="btn btn-primary" href="{% url 'backstage:contest_create' %}">Add a judge server</a>
+  </div>
+  <table class="table table-responsive full-width-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>StartTime</th>
+        <th>EndTime</th>
+        <th>Edit</th>
+        <th>Manage</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contest in contest_list %}
+        <tr>
+          <td scope="row">{{ contest.pk }}</td>
+          <td>{{ contest.title }}</td>
+          <td>{{ contest.start_time }}</td>
+          <td>{{ contest.end_time }}</td>
+          <td><a href="{% url 'backstage:contest_edit' contest.pk %}" class="text-default">Edit</a></td>
+          <td><a href="#" class="text-primary">Manage(todo)</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
