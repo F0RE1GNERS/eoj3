@@ -10,68 +10,54 @@
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
   <link href="{% static 'css/main.css' %}" rel="stylesheet">
-  <title>{% if title %}{{ title }}{% else %}AI Playground{% endif %}</title>
+  <title>{% if title %}{{ title }}{% else %}ECNU Online Judge{% endif %}</title>
 </head>
 
 <body>
-  <header class="navbar navbar-light navbar-toggleable-md bd-navbar">
-    <nav class="container">
 
+<div class="container">
+  <nav class="navbar navbar-toggleable-sm navbar-light bd-navbar">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="{% url 'home' %}">EOJ</a>
 
-      <div class="d-flex justify-content-between hidden-lg-up">
-        <a class="navbar-brand" href="/">
-          EOJ
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bd-main-nav" aria-controls="bd-main-nav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
-
-      <div class="collapse navbar-collapse" id="bd-main-nav">
-        <ul class="nav navbar-nav">
-          <li class="nav-item active">
-            <a class="nav-item nav-link" href="{% url 'home' %}">EOJ</a>
-          </li>
-          <li class="nav-item {% navitem_active 'problem' %}">
-            <a class="nav-item nav-link {{ problist_active }}" href="{% url 'problem_list' %}">Problems</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item {% navitem_active 'problem' %}">
+          <a class="nav-link" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Competition</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Status</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link text-gray-dark" href="#">{{ request.user.username }}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-item nav-link {{ status_active }}" href="#">Status</a>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
           </li>
           <li class="nav-item">
-            <a class="nav-item nav-link {{ challenge_active }}" href="#">Contest</a>
+            <a class="nav-link" href="{% url 'register' %}">Register</a>
           </li>
-          {% if request.user.is_authenticated %}
-            <div class="float-md-right">
-              <ul class="nav navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link text-gray-dark" href="#">{{ request.user.username }}</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
-              </ul>
-            </div>
-          {% else %}
-            <div class="float-md-right">
-              <ul class="nav navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'register' %}">Register</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'backstage:index' %}">Admin</a>
-                </li>
-              </ul>
-            </div>
-          {% endif %}
-        </ul>
-      </div>
-    </nav>
-  </header>
-
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'backstage:index' %}">Admin</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+</div>
 
 
   {% block content %}
@@ -87,7 +73,6 @@
       <p>Proudly powered by <a href="https://v4-alpha.getbootstrap.com/">Bootstrap v4-alpha</a>.</p>
     </div>
   </footer>
-</div>
 
 
 <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
