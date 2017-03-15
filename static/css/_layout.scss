@@ -23,8 +23,10 @@
   a {
     display: block;
     padding: .25rem .75rem;
-    font-size: 90%;
     color: #99979c;
+    @media (min-width: 768px) {
+      font-size: 90%;
+    }
     &.active {
       font-weight: 500;
       color: #121314;
