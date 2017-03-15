@@ -1,10 +1,6 @@
 {% load widget_tweaks %}
 
-{% for message in messages %}
-    <div class="alert alert-success" role="alert">
-      {{ message }}
-    </div>
-{% endfor %}
+{% include 'components/message.html' %}
 
 <form action="{{ request.path }}" method="post">
   {% csrf_token %}
