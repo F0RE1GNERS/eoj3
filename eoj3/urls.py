@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^register/', register_view, name='register'),
     url(r'^logout/', logout_view, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
+    url(r'^account/', include('account.urls', namespace='account'))
 ]
