@@ -2,31 +2,7 @@
 
 {% block backstage_content %}
   <div class="content-header">
-    <h2>Problem List</h2>
+    <h2>Edit a problem</h2>
   </div>
-  <div class="mb-1">
-    <a role="button" class="btn btn-primary" href="{% url 'backstage:problem_create' %}">Add a problem</a>
-  </div>
-  <table class="table table-responsive full-width-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Title</th>
-        <th>Edit</th>
-        <th>Testdata</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for problem in problem_list %}
-        <tr>
-        <th scope="row">{{ problem.title }}</th>
-        <td>{{ problem.pk }}</td>
-        <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
-        <td><a href="#" class="text-primary">Testdata(todo)</a></td>
-        <td><a href="#" class="text-danger">Delete(todo)</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% include 'components/form.html' %}
 {% endblock %}

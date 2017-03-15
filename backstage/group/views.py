@@ -49,7 +49,7 @@ class GroupCreate(CreateView):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
-        messages.add_message(self.request, messages.SUCCESS, "Group was successfully added.")
+        messages.success(self.request, "Group was successfully added.")
         return HttpResponseRedirect(reverse('backstage:group_manage', kwargs={'pk': instance.pk}))
 
 
@@ -64,7 +64,7 @@ class GroupUpdate(UpdateView):
 
     def form_valid(self, form):
         form.save()
-        messages.add_message(self.request, messages.SUCCESS, "Your changes have been saved.")
+        messages.success(self.request, "Your changes have been saved.")
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -78,4 +78,5 @@ class GroupList(ListView):
 def group_member_delete(request, membership_pk):
     membership = GroupMembership.objects.get(pk=membership_pk)
     membership.delete()
+    messages.success(request, "User <strong>%s</strong> is successfully removed from group." % membership.user.username)
     return HttpResponseRedirect(reverse('backstage:group_manage', kwargs={'pk': membership.group.pk}))

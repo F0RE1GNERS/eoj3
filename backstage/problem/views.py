@@ -25,7 +25,7 @@ class ProblemCreate(CreateView):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
-        messages.add_message(self.request, messages.SUCCESS, "Problem was successfully added.")
+        messages.success(self.request, "Problem was successfully added.")
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -39,7 +39,7 @@ class ProblemUpdate(UpdateView):
         return self.request.path
 
     def form_valid(self, form):
-        messages.add_message(self.request, messages.SUCCESS, "Your changes have been saved.")
+        messages.success(self.request, "Your changes have been saved.")
         return super(ProblemUpdate, self).form_invalid(form)
 
 

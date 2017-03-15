@@ -1,6 +1,9 @@
 {% extends 'backstage/base.html' %}
 
 {% block backstage_content %}
+
+  {% include 'components/message.html' %}
+
   <div class="content-header">
     <h2>Manage Group - {{ group.name }}</h2>
   </div>
