@@ -17,6 +17,7 @@
         <a href="#">Contests</a>
         <a href="#">Accounts</a>
         <a href="{% url 'backstage:group' %}" class="{% navitem_active 'backstage:group' %}">Groups</a>
+        <a href="{% url 'backstage:server' %}" class="{% navitem_active 'backstage:server' %}">Servers</a>
       </div>
       <div class="col-12 col-md-9 pull-md-3 bd-content">
         {% block backstage_content %}

@@ -3,6 +3,7 @@ from django.conf.urls import url
 from .problem.views import index
 from .problem.views import ProblemCreate, ProblemUpdate, ProblemList
 from .group.views import GroupList, GroupUpdate, GroupCreate, GroupManage, group_member_delete
+from .server.views import ServerCreate, ServerUpdate, ServerList
 
 urlpatterns = [
     url(r'^$', index, name='index'),
@@ -15,7 +16,10 @@ urlpatterns = [
     url(r'^group/create/', GroupCreate.as_view(), name='group_create'),
     url(r'^group/edit/(?P<pk>\d+)/', GroupUpdate.as_view(), name='group_edit'),
     url(r'^group/manage/(?P<pk>\d+)/', GroupManage.as_view(), name='group_manage'),
-    url(r'^group/delete/(?P<membership_pk>\d+)/', group_member_delete, name='group_delete')
+    url(r'^group/delete/(?P<membership_pk>\d+)/', group_member_delete, name='group_delete'),
 
+    url(r'^server/$', ServerList.as_view(), name='server'),
+    url(r'^server/create/', ServerCreate.as_view(), name='server_create'),
+    url(r'^server/edit/(?P<pk>\d+)/', ServerUpdate.as_view(), name='server_edit'),
 
 ]

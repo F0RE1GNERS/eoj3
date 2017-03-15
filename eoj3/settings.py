@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'home',
     'account',
+    'dispatcher',
     'problem',
     'backstage',
     'submission',
