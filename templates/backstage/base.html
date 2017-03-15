@@ -14,7 +14,7 @@
         <a href="{% url 'backstage:index' %}" class="{% navitem_active 'backstage:index' %}">Go to homepage</a>
         <a href="#" class="{% navitem_active 'backstage:site' %}">Site</a>
         <a href="{% url 'backstage:problem' %}" class="{% navitem_active 'backstage:problem' %}">Problems</a>
-        <a href="#">Contests</a>
+        <a href="{% url 'backstage:contest' %}" class="{% navitem_active 'backstage:contest' %}">Contest</a>
         <a href="#">Accounts</a>
         <a href="{% url 'backstage:group' %}" class="{% navitem_active 'backstage:group' %}">Groups</a>
         <a href="{% url 'backstage:server' %}" class="{% navitem_active 'backstage:server' %}">Servers</a>

@@ -7,3 +7,5 @@
 + used or unused invitation code
 + title on edit views
 + pagination
++ time format
++ friendly time input
