@@ -3,3 +3,4 @@ migrations/
 db.sqlite3
 .idea/
 !migrations/__init__.py
+data/

@@ -28,7 +28,7 @@
     </tbody>
   </table>
 
-  <form class="form-inline mb-3" action="{{ request.path }}" method="post">
+  <form class="form-inline mb-5" action="{{ request.path }}" method="post">
     {% csrf_token %}
     <label class="sr-only" for="username">Username</label>
     <input type="text" class="form-control mr-sm-2 mb-sm-0" id="username" name="username" placeholder="Enter a new username">
@@ -38,7 +38,7 @@
   </form>
 
   <h4>Generate invitation codes</h4>
-  <form class="mb-3" action="{{ request.path }}" method="post">
+  <form class="mb-5" action="{{ request.path }}" method="post">
     {% csrf_token %}
     <div class="form-group row">
       <label for="inputNumber" class="col-sm-3 col-form-label">Account number</label>

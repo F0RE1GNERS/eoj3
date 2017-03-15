@@ -138,3 +138,5 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 AUTH_USER_MODEL = 'account.User'
 SESSION_COOKIE_AGE = 1209600  # default 2 weeks
 LOGIN_URL = '/login/'
+
+TESTDATA_DIR = os.path.join(BASE_DIR, "data")

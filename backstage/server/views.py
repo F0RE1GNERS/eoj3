@@ -26,5 +26,4 @@ class ServerUpdate(BaseUpdateView):
 class ServerList(ListView):
     template_name = 'backstage/server/server.html'
     queryset = Server.objects.all()
-    paginate_by = 5
     context_object_name = 'server_list'

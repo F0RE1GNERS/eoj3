@@ -5,6 +5,7 @@ from account.models import User
 class Problem(models.Model):
     title = models.CharField('Title', max_length=128, blank=True)
     description = models.TextField('Description', blank=True)
+    source = models.CharField('Source', max_length=128, blank=True)
     created_by = models.ForeignKey(User)
 
     visible = models.BooleanField('Visible', default=False)
@@ -16,3 +17,5 @@ class Problem(models.Model):
 
     total_submit_number = models.IntegerField('Submit', default=0)
     total_accepted_number = models.IntegerField('Accepted', default=0)
+
+    testdata_hash = models.CharField('Testdata zip hash value', max_length=64, blank=True)

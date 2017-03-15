@@ -24,7 +24,7 @@
         <th scope="row">{{ problem.pk }}</th>
         <td>{{ problem.title }}</td>
         <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
-        <td><a href="#" class="text-primary">Testdata(todo)</a></td>
+        <td><a href="{% url 'backstage:problem_testdata' problem.pk %}" class="text-primary">Testdata</a></td>
         <td><a href="#" class="text-danger">Delete(todo)</a></td>
       </tr>
       {% endfor %}

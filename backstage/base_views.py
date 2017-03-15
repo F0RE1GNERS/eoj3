@@ -1,8 +1,12 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib import messages
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+
+
+def index(request):
+    return render(request, 'backstage/index.html')
 
 
 @method_decorator(login_required(), name='dispatch')
