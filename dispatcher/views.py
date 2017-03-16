@@ -16,6 +16,7 @@ class Dispatcher:
         self.problem = Problem.objects.get(pk=problem_id)
         self.server = Server.objects.get()
         self.submission = submission
+        self.status = None
         print(self.problem, self.server)
 
     def is_latest_data_for_server(self):

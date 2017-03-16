@@ -4,8 +4,7 @@ from .base_views import index
 from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, testdata
 from .group.views import GroupList, GroupUpdate, GroupCreate, GroupManage, group_member_delete
 from .contest.views import ContestList, ContestCreate, ContestUpdate, ContestManage
-
-from .server.views import ServerCreate, ServerUpdate, ServerList
+from .server.views import ServerCreate, ServerUpdate, ServerList, server_delete
 
 urlpatterns = [
     url(r'^$', index, name='index'),
@@ -29,4 +28,5 @@ urlpatterns = [
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/', ServerCreate.as_view(), name='server_create'),
     url(r'^server/edit/(?P<pk>\d+)/', ServerUpdate.as_view(), name='server_edit'),
+    url(r'^server/delete/(?P<pk>\d+)/', server_delete, name='server_delete'),
 ]
