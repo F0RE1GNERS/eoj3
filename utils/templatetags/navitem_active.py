@@ -15,6 +15,6 @@ def navitem_active(context, match):
         if resolve_path.namespace == namespace and resolve_path.url_name.startswith(name):
             return "active"
     else:
-        if resolve_path.url_name.startswith(match) or resolve_path.namespace.startswith(match):
+        if resolve_path.url_name.startswith(match) and not resolve_path.namespace or resolve_path.namespace == match:
             return "active"
     return ""
