@@ -9,13 +9,40 @@
     </div>
   </div>
 
-  <div class="container">
-    <div>
-      <pre>
-        <code>{{ submission.code }}</code>
-      </pre>
-    </div>
 
+
+  <div class="container">
+    <div class="alert alert-{{ submission.get_verdict_color }} mb-4" role="alert">
+      <span class="verdict-lg">{{ submission.get_status_display }}</span>
+    </div>
+    <div class="property">
+      <p><strong>Verdict: </strong>{{ submission.get_status_display }}</p>
+      <p><strong>Language: </strong>{{ submission.get_lang_display }}</p>
+      <p><strong>Author: </strong>{{ submission.author.username }}</p>
+      <p><strong>Created: </strong>{{ submission.create_time }}</p>
+      {% if submission.is_judged %}
+        <p><strong>Judged: </strong>{{ submission.judge_end_time }}</p>
+        <p><strong>Code length: </strong>{{ submission.code_length }}B</p>
+        <p><strong>Time: </strong>{{ submission.get_time_display }}</p>
+        <p><strong>Memory: </strong>{{ submission.get_memory_display }}</p>
+      {% endif %}
+    </div>
+    <div class="code-block">
+      {# TODO: add pygments #}
+      <pre><code>{{ submission.code }}</code></pre>
+    </div>
+    {% if detail %}
+      <h3>Detail for cases</h3>
+      {% for message in detail %}
+        <div class="card card-outline-{{ message.color }} mb-3">
+          <div class="card-block detail">
+            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms., memory: {{ message.memory }}KB,
+              verdict: {{ message.verdict }}</p>
+            {# TODO: get verdict display #}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
 
   </div>
 
