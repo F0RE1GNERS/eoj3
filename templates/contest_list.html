@@ -3,36 +3,30 @@
 
   <div class="bd-pageheader">
     <div class="container">
-      <h1>Online Status</h1>
+      <h1>Contest List</h1>
     </div>
   </div>
 
   <div class="container">
 
-    <form class="form-inline mb-3" action="{{ request.path }}" method="post">
-      {% csrf_token %}
-      <label class="sr-only" for="keyword">Keyword</label>
-      <input type="text" class="form-control mr-sm-2 mb-sm-0" id="keyword" name="keyword" placeholder="Keyword">
-      <button type="submit" class="btn btn-primary">Search</button>
-    </form>
     <table class="table">
       <thead>
         <tr>
-          <th width="9%">#</th>
-          <th width="14%">Author</th>
-          <th width="27%">Problem</th>
-          <th width="25%">Time</th>
-          <th width="25%">Verdict</th>
+          <th width="8%">#</th>
+          <th width="40%">Title</th>
+          <th width="22%">Start</th>
+          <th width="10%">Length</th>
+          <th width="20%" align="center">Participants</th>
         </tr>
       </thead>
       <tbody>
-        {% for submission in submission_list %}
+        {% for contest in contest_list %}
           <tr>
-            <td scope="row">{{ submission.pk }}</td>
-            <td>{{ submission.author.username }}</td>
-            <td>{{ submission.problem }}</td>
-            <td>{{ submission.create_time }}</td>
-            <td class="text-{{ submission.get_verdict_color }}">{{ submission.get_status_display }}</td>
+            <td scope="row">{{ contest.pk }}</td>
+            <td><a href="{% url 'contest:dashboard' contest.pk %}">{{ contest.title }}</a></td>
+            <td>{{ contest.start_time }}</td>
+            <td>02:00</td>
+            <td>2300</td>
           </tr>
         {% endfor %}
       </tbody>

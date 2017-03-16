@@ -31,18 +31,18 @@
         <li class="nav-item {% navitem_active 'problem' %}">
           <a class="nav-link" href="{% url 'problem_list' %}">Problems</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Contests</a>
+        <li class="nav-item {% navitem_active 'contest' %}">
+          <a class="nav-link" href="{% url 'contest:list' %}">Contests</a>
         </li>
         <li class="nav-item {% navitem_active 'status' %}">
           <a class="nav-link" href="{% url 'status' %}">Status</a>
         </li>
-        <li class="nav-item {% navitem_active 'backstage' %}">
-          <a class="nav-link" href="{% url 'backstage:index' %}">Backstage</a>
-        </li>
       </ul>
       <ul class="navbar-nav">
         {% if request.user.is_authenticated %}
+          <li class="nav-item {% navitem_active 'backstage' %}">
+            <a class="nav-link" href="{% url 'backstage:index' %}">Backstage</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link text-gray-dark" href="{% url 'account:security' %}">{{ request.user.username }}</a>
           </li>
