@@ -1,8 +1,9 @@
 from django.db import models
 from account.models import User
+from problem.models import Problem
 
 
-class ProblemStatus(object):
+class SubmissionStatus(object):
     WAITING = -2
     WRONG_ANSWER = -1
     ACCEPTED = 0
@@ -27,11 +28,12 @@ LANG_CHOICE = (
 class Submission(models.Model):
     lang = models.CharField('Language', max_length=12, choices=LANG_CHOICE, default='cpp')
     code = models.TextField('Code', blank=True)
+    problem = models.ForeignKey(Problem)
     author = models.ForeignKey(User)
 
     create_time = models.DateTimeField(auto_now_add=True)
     judge_start_time = models.DateTimeField(blank=True, null=True)
     judge_end_time = models.DateTimeField(blank=True, null=True)
 
-    status = models.IntegerField(default=ProblemStatus.WAITING)
+    status = models.IntegerField(default=SubmissionStatus.WAITING)
     status_detail = models.TextField(blank=True)

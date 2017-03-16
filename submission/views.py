@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from .models import Submission
 
-# Create your views here.
+def submission_view(request, pk):
+    submission = Submission.objects.get(pk=pk)
+    return render(request, 'submission.html', context={'submission': submission})

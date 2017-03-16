@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import requests
 import os
+import threading
 
 from .models import ServerProblemStatus, Server
 from problem.models import Problem
@@ -66,6 +67,17 @@ class Dispatcher:
             print(response)
         except Exception as e:
             pass
+
+
+class DispatcherThread(threading.Thread):
+
+    def __init__(self, problem_id, submission):
+        super().__init__()
+        self.problem_id = problem_id
+        self.submission = submission
+
+    def run(self):
+        Dispatcher(self.problem_id, self.submission).dispatch()
 
 
 def test():

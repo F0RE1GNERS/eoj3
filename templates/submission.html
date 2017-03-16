@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Submission #{{ submission.pk }}</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div>
+      <pre>
+        <code>{{ submission.code }}</code>
+      </pre>
+    </div>
+
+
+  </div>
+
+{% endblock %}
