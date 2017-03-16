@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
-from .forms import RegisterForm, LoginForm
 from django.contrib.auth import login, authenticate, logout
+from django.views import View
+from django.contrib import messages
+
+from .forms import RegisterForm, LoginForm
+from utils.invitation import activate
 
 
 def login_view(request):
@@ -32,6 +36,27 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+class MyGroup(View):
+    template_name = 'account/group.html'
+
+    def get_context_data(self):
+        user = self.request.user
+        group_list = user.group_set.all()
+        return dict(group_list=group_list)
+
+    def post(self, request):
+        code = request.POST.get('code')
+        group_membership, error = activate(request.user, code)
+        if group_membership:
+            messages.success(request, "You successfully join group <strong>%s</strong>." % group_membership.group.name)
+        else:
+            messages.error(request, error)
+        return render(request, self.template_name, self.get_context_data())
+
+    def get(self, request):
+        return render(request, self.template_name, self.get_context_data())
 
 
 def security_view(request):
