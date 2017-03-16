@@ -18,6 +18,7 @@
     <div class="property">
       <p><strong>Verdict: </strong>{{ submission.get_status_display }}</p>
       <p><strong>Language: </strong>{{ submission.get_lang_display }}</p>
+      <p><strong>Problem: </strong>{{ submission.problem }}</p>
       <p><strong>Author: </strong>{{ submission.author.username }}</p>
       <p><strong>Created: </strong>{{ submission.create_time }}</p>
       {% if submission.is_judged %}
@@ -34,9 +35,9 @@
     {% if detail %}
       <h3>Detail for cases</h3>
       {% for message in detail %}
-        <div class="card card-outline-{{ message.color }} mb-3">
+        <div class="card card-outline-{{ message.color }} mb-2">
           <div class="card-block detail">
-            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms., memory: {{ message.memory }}KB,
+            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms., memory: {{ message.emory }}KB,
               verdict: {{ message.verdict }}</p>
             {# TODO: get verdict display #}
           </div>

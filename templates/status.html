@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Online Status</h1>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <form class="form-inline mb-3" action="{{ request.path }}" method="post">
+      {% csrf_token %}
+      <label class="sr-only" for="keyword">Keyword</label>
+      <input type="text" class="form-control mr-sm-2 mb-sm-0" id="keyword" name="keyword" placeholder="Keyword">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="9%">#</th>
+          <th width="14%">Author</th>
+          <th width="27%">Problem</th>
+          <th width="25%">Time</th>
+          <th width="25%">Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for submission in submission_list %}
+          <tr>
+            <td scope="row">{{ submission.pk }}</td>
+            <td>{{ submission.author.username }}</td>
+            <td>{{ submission.problem }}</td>
+            <td>{{ submission.create_time }}</td>
+            <td>{{ submission.get_status_display }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <nav aria-label="pagination-nav">
+      <ul class="pagination">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active">
+          <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+          <a class="page-link" href="#">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+{% endblock %}

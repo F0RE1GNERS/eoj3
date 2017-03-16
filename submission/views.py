@@ -2,6 +2,7 @@ import json
 from django.shortcuts import render
 from .models import Submission, get_color_from_status
 
+
 def submission_view(request, pk):
     submission = Submission.objects.get(pk=pk)
     context = {'submission': submission}
@@ -20,3 +21,8 @@ def submission_view(request, pk):
     except Exception as e:
         print(e)
     return render(request, 'submission.html', context=context)
+
+
+def status_view(request):
+    submissions = Submission.objects.all()
+    return render(request, 'status.html', context={'submission_list': submissions})

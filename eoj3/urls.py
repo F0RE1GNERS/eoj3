@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from home.views import home_view
 from problem.views import ProblemList, ProblemView
-from submission.views import submission_view
+from submission.views import submission_view, status_view
 from account.views import my_login, register_view
 from django.contrib.auth.views import logout
 
@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^problem/$', ProblemList.as_view(), name='problem_list'),
     url(r'^problem/(?P<pk>\d+)/', ProblemView.as_view(), name='problem'),
     url(r'^submission/(?P<pk>\d+)', submission_view, name='submission'),
+    url(r'^status/$', status_view, name='status'),
     url(r'^login/', my_login, name='login'),
     url(r'^register/', register_view, name='register'),
     url(r'^logout/', logout, name='logout'),
