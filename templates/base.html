@@ -10,6 +10,8 @@
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
   <link href="{% static 'css/main.css' %}" rel="stylesheet">
+  {% block css %}
+  {% endblock %}
   <title>{% if title %}{{ title }}{% else %}ECNU Online Judge{% endif %}</title>
 </head>
 

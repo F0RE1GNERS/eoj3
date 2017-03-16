@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load choice_display %}
+{% load staticfiles %}
+
+{% block css %}
+<link href="{% static 'css/highlight.css' %}" rel="stylesheet">
+{% endblock %}
+
 
 {% block content %}
 
@@ -30,8 +36,7 @@
       {% endif %}
     </div>
     <div class="code-block">
-      {# TODO: add pygments #}
-      <pre><code>{{ submission.code }}</code></pre>
+      <pre><code>{{ code | safe }}</code></pre>
     </div>
     {% if detail %}
       <h3>Detail for cases</h3>
@@ -39,7 +44,7 @@
         <div class="card card-outline-{{ message.color }} mb-2">
           <div class="card-block detail">
             <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms, memory: {{ message.memory }}KB,
-              verdict: {{ message.verdict | status_choice}}</p>
+              verdict: {{ message.verdict | status_choice }}</p>
           </div>
         </div>
       {% endfor %}
