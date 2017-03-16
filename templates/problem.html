@@ -27,7 +27,6 @@
 
   <form class="form" action="{{ request.path }}" method="post">
     {% csrf_token %}
-    <input type="hidden" name="problem" value="{{ problem.pk }}">
     <div class="form-group form-inline float-xs-right">
       {{ form.lang.label_tag }}
       {% render_field form.lang class+="mx-2 form-control" %}
