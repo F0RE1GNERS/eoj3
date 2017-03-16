@@ -51,5 +51,5 @@ class ProblemUpdate(BaseUpdateView):
 class ProblemList(ListView):
     template_name = 'backstage/problem/problem.html'
     queryset = Problem.objects.all()
-    paginate_by = 5
+    paginate_by = 20
     context_object_name = 'problem_list'

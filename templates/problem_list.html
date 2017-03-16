@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load paginator %}
+
 {% block content %}
 
   <div class="bd-pageheader">
@@ -16,42 +18,29 @@
       <button type="submit" class="btn btn-primary">Search</button>
     </form>
     <table class="table">
-    <thead>
-      <tr>
-        <th width="8%">#</th>
-        <th width="47%">Title</th>
-        <th width="30%">Source</th>
-        <th width="15%" align="center">AC / Submit</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for problem in problem_list %}
+      <thead>
         <tr>
-          <th scope="row">{{ problem.pk }}</th>
-          <td><a href="{% url 'problem' problem.pk %}">{{ problem.title }}</a></td>
-          <td>{{ problem.source }}</td>
-          <td align="center">{{ problem.total_accepted_number }} / {{ problem.total_submit_number }}</td>
+          <th width="8%">#</th>
+          <th width="47%">Title</th>
+          <th width="30%">Source</th>
+          <th width="15%" align="center">AC / Submit</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for problem in problem_list %}
+          <tr>
+            <th scope="row">{{ problem.pk }}</th>
+            <td><a href="{% url 'problem' problem.pk %}">{{ problem.title }}</a></td>
+            <td>{{ problem.source }}</td>
+            <td align="center">{{ problem.total_accepted_number }} / {{ problem.total_submit_number }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
+    {% paginator %}
 
-    <nav aria-label="pagination-nav">
-      <ul class="pagination">
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">Previous</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item active">
-          <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#">Next</a>
-        </li>
-      </ul>
-    </nav>
   </div>
+
 
 {% endblock %}

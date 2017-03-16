@@ -1,4 +1,5 @@
 {% extends 'backstage/base.html' %}
+{% load paginator %}
 
 {% block backstage_content %}
   <div class="content-header">
@@ -31,4 +32,7 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% paginator %}
+
 {% endblock %}
