@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load choice_display %}
 
 {% block content %}
 
@@ -37,9 +38,8 @@
       {% for message in detail %}
         <div class="card card-outline-{{ message.color }} mb-2">
           <div class="card-block detail">
-            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms., memory: {{ message.emory }}KB,
-              verdict: {{ message.verdict }}</p>
-            {# TODO: get verdict display #}
+            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms, memory: {{ message.memory }}KB,
+              verdict: {{ message.verdict | status_choice}}</p>
           </div>
         </div>
       {% endfor %}

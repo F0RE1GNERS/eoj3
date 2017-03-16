@@ -25,6 +25,21 @@ LANG_CHOICE = (
     ('java', 'Java')
 )
 
+STATUS_CHOICE = (
+        (-3, 'Waiting'),
+        (-2, 'Judging'),
+        (-1, 'Wrong Answer'),
+        (0, 'Accepted'),
+        (1, 'Time Limit Exceeded'),
+        (2, 'Time Limit Exceeded'),
+        (3, 'Memory Limit Exceeded'),
+        (4, 'Runtime Error'),
+        (5, 'System Error'),
+        (6, 'Compile Error'),
+        (7, 'Idleness Limit Exceeded'),
+        (8, 'Time Limit Exceeded')
+    )
+
 
 def get_color_from_status(status):
     if status == SubmissionStatus.ACCEPTED:
