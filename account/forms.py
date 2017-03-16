@@ -55,20 +55,6 @@ class RegisterForm(forms.ModelForm):
                                       })
 
 
-class LoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
-
-    def clean(self):
-        cleaned_data = super(LoginForm, self).clean()
-        username = cleaned_data.get('username')
-        password = cleaned_data.get('password')
-        user = authenticate(username=username, password=password)
-        if not user:
-            raise forms.ValidationError("Username and password don't match.", code='invalid')
-        return cleaned_data
-
-
 class MyPasswordChangeForm(PasswordChangeForm):
     new_password1 = forms.CharField(
         label="New password",
