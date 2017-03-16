@@ -104,13 +104,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 6
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    }
 ]
 
 
@@ -137,6 +137,8 @@ AUTH_USER_MODEL = 'account.User'
 SESSION_COOKIE_AGE = 1209600  # default 2 weeks
 LOGIN_URL = '/login/'
 TESTDATA_DIR = os.path.join(BASE_DIR, "data")
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # modified
 TIME_ZONE = 'Asia/Shanghai'

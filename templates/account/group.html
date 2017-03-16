@@ -1,0 +1,21 @@
+{% extends 'account/base.html' %}
+{% block account_setting %}
+
+  <div class="content-header">
+    <h2>My Groups</h2>
+  </div>
+
+  {% include 'components/message.html' %}
+
+  {% for group in group_list %}
+    {{ group.name }}<br>
+  {% endfor %}
+
+  <form class="form-inline mb-5" action="{{ request.path }}" method="post">
+    {% csrf_token %}
+    <label class="sr-only" for="code">Username</label>
+    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="code" name="code" placeholder="Enter an invitation code">
+    <button type="submit" class="btn btn-primary">Go!</button>
+  </form>
+
+{% endblock %}

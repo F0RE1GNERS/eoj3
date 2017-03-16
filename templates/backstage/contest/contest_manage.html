@@ -7,6 +7,8 @@
   <div class="content-header">
     <h2>Manage Contest - {{ contest.title }}</h2>
   </div>
+
+  <h3>Contest Problem</h3>
   <table class="table table-responsive full-width-table">
     <thead>
       <tr>
@@ -31,7 +33,14 @@
       {% endfor %}
     </tbody>
   </table>
+  <form class="form-inline mb-5" action="{{ request.path }}" method="post">
+    {% csrf_token %}
+    <label class="sr-only" for="problem">Problem id</label>
+    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="problem" name="problem" placeholder="Enter a problem id">
+    <button type="submit" class="btn btn-primary">Add a problem</button>
+  </form>
 
+  <h3>Contest Group</h3>
   <table class="table table-responsive full-width-table">
     <thead>
       <tr>
@@ -54,6 +63,11 @@
       {% endfor %}
     </tbody>
   </table>
-  </table>
+  <form class="form-inline mb-5" action="{{ request.path }}" method="post">
+    {% csrf_token %}
+    <label class="sr-only" for="group">Group id</label>
+    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="group" name="group" placeholder="Enter a group id">
+    <button type="submit" class="btn btn-primary">Add a group</button>
+  </form>
 
 {% endblock %}

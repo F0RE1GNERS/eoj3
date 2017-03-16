@@ -8,7 +8,8 @@ from django.utils import timezone
 
 from .forms import ContestEditForm
 from contest.models import Contest, ContestProblem
-from account.models import User
+from problem.models import Problem
+from group.models import Group
 
 from ..base_views import BaseCreateView, BaseUpdateView
 
@@ -28,6 +29,14 @@ class ContestManage(View):
         return dict(contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
 
     def post(self, request, **kwargs):
+        problem_pk = request.POST.get('problem')
+        group_pk = request.POST.get('group')
+        contest = Contest.objects.get(**kwargs)
+        if problem_pk:
+            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk))
+        if group_pk:
+            contest.groups.add(Group.objects.get(pk=group_pk))
+
         return render(request, self.template_name, self.get_context_data(**kwargs))
 
     def get(self, request, **kwargs):

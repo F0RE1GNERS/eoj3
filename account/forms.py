@@ -1,6 +1,7 @@
 from django import forms
 from .models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 class RegisterForm(forms.ModelForm):
@@ -66,3 +67,12 @@ class LoginForm(forms.Form):
         if not user:
             raise forms.ValidationError("Username and password don't match.", code='invalid')
         return cleaned_data
+
+
+class MyPasswordChangeForm(PasswordChangeForm):
+    new_password1 = forms.CharField(
+        label="New password",
+        widget=forms.PasswordInput,
+        strip=False,
+        help_text='',
+    )

@@ -10,28 +10,7 @@
   </div>
 
   <div class="container">
-    <form action="{% url "login" %}" method="post">
-      {% csrf_token %}
-      {% for field in form %}
-        <div class="form-group">
-          {{ field.label_tag }}
-          {% render_field field class+="form-control" placeholder=field.help_text %}
-        </div>
-      {% endfor %}
-      {% for error in form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-          {{ error }}
-        </div>
-      {% endfor %}
-      <div class="form-check">
-        <label class="form-check-label">
-          <input name="remember" type="checkbox" class="form-check-input">
-          Remember me
-        </label>
-        <input type="hidden" name="next" value="{{ request.GET.next }}" />
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    {% include 'components/form.html' %}
   </div>
 
 {% endblock %}

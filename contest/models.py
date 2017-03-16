@@ -26,6 +26,9 @@ class ContestProblem(models.Model):
     total_submit_number = models.IntegerField(default=0)
     total_accept_number = models.IntegerField(default=0)
 
+    class Meta:
+        unique_together = ('problem', 'contest')
+
 
 class ContestClarification(models.Model):
     contest = models.ForeignKey(Contest)

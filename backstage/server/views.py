@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 
 from .forms import ServerEditForm
 from dispatcher.models import Server
@@ -27,3 +28,10 @@ class ServerList(ListView):
     template_name = 'backstage/server/server.html'
     queryset = Server.objects.all()
     context_object_name = 'server_list'
+
+
+def server_delete(request, pk):
+    server = Server.objects.get(pk=pk)
+    server.delete()
+    messages.success(request, "Server <strong>%s</strong> is successfully removed." % server.name)
+    return HttpResponseRedirect(reverse('backstage:server'))

@@ -1,20 +1,13 @@
-from django.shortcuts import render, redirect, HttpResponseRedirect
-from .forms import RegisterForm, LoginForm
-from django.contrib.auth import login, authenticate, logout
+from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
+from django.views import View
+from utils.auth_view import password_change, login
+from django.contrib import messages
+from .forms import RegisterForm, LoginForm, MyPasswordChangeForm
+from utils.invitation import activate
 
 
-def login_view(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():  # TODO authenticate twice
-            user = authenticate(username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password'))
-            login(request, user)
-            if not request.POST.get('remember', None):
-                request.session.set_expiry(0)
-            return HttpResponseRedirect(request.POST.get('next', '/'))
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+def profile_view(request):
+    return render(request, 'account/profile.html')
 
 
 def register_view(request):
@@ -23,18 +16,39 @@ def register_view(request):
         if form.is_valid():
             user = form.create()
             login(request, user)
-            redirect('/')
+            return HttpResponseRedirect('/')
     else:
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
 
 
-def logout_view(request):
-    logout(request)
-    return redirect('/')
+class MyGroup(View):
+    template_name = 'account/group.html'
+
+    def get_context_data(self):
+        user = self.request.user
+        group_list = user.group_set.all()
+        return dict(group_list=group_list)
+
+    def post(self, request):
+        code = request.POST.get('code')
+        group_membership, error = activate(request.user, code)
+        if group_membership:
+            messages.success(request, "You successfully join group <strong>%s</strong>." % group_membership.group.name)
+        else:
+            messages.error(request, error)
+        return render(request, self.template_name, self.get_context_data())
+
+    def get(self, request):
+        return render(request, self.template_name, self.get_context_data())
 
 
-def security_view(request):
-    if request.method == 'POST':
-        pass
-    return render(request, 'account/security.html')
+def my_password_change(request):
+    return password_change(request, template_name='account/security.html',
+                           post_change_redirect=reverse('account:profile'),
+                           password_change_form=MyPasswordChangeForm,
+                           message="Your password was changed successfully")
+
+
+def my_login(request):
+    return login(request, template_name='login.html')
