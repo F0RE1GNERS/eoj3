@@ -10,7 +10,7 @@ def generate(group, number, comment):
 
 
 def activate(user, code):
-    invitation = InvitationCode.objects.get(code=code)
+    invitation = InvitationCode.objects.filter(code=code).first()
     if not invitation:
         return None, "Invitation code is invalid."
     group = Group.objects.get(pk=invitation.group_id)
@@ -19,5 +19,6 @@ def activate(user, code):
         membership.full_clean()
     except ValidationError:
         return None, "You cannot join a group twice."
+    membership.save()
     invitation.delete()
     return membership, ''

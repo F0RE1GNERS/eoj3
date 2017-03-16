@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
 from django.views import View
 from utils.auth_view import password_change, login
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, MyPasswordChangeForm
+from .forms import RegisterForm, MyPasswordChangeForm
 from utils.invitation import activate
 
 

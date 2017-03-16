@@ -10,3 +10,4 @@
 + friendly time input
 + markdown safe
 + csrf_protect on function-based views
++ remember me
