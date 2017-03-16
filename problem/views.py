@@ -31,6 +31,7 @@ class ProblemView(View):
             submission = form.save(commit=False)
             submission.problem = problem
             submission.author = request.user
+            submission.code_length = len(submission.code)
             submission.save()
             DispatcherThread(problem.pk, submission).start()
             return HttpResponseRedirect(reverse('submission', args=[submission.pk]))

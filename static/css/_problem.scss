@@ -1,9 +1,31 @@
-.problem-header {
+.property {
 
+  p:first-child {
+    margin-top: 1rem;
+  }
   p:not(:last-child) {
     margin-bottom: .2rem;
   }
   p {
     font-size: 90%;
   }
+}
+
+.code-block {
+  border: 1px;
+  border-radius: 4px;
+  border-color: #ccc;
+  border-style: solid;
+  padding: 20px;
+  margin-bottom: 4rem;
+  background-color: #fbfbfb;
+}
+
+.verdict-lg {
+  font-size: 1.7em;
+  font-weight: 600;
+}
+
+.card-block.detail p {
+  margin-bottom: .2rem;
 }
