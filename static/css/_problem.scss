@@ -26,6 +26,10 @@
   font-weight: 600;
 }
 
-.card-block.detail p {
-  margin-bottom: .2rem;
+.card-block.detail {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  p {
+    margin-bottom: .2rem;
+  }
 }
