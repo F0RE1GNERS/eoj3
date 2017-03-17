@@ -2,14 +2,14 @@
 {% block contest_content %}
 
   <div class="content-header">
-    <h2>Problem A - Mr. Panda</h2>
+    <h2>Problem {{ contest_problem.identifier }} - {{ problem.title }}</h2>
     <p><strong>Time limit per test: </strong>{% widthratio problem.time_limit 1000 1 %} seconds</p>
     <p><strong>Time limit all tests: </strong>{% widthratio problem.sum_time_limit 1000 1 %} seconds</p>
     <p><strong>Memory limit: </strong>{{ problem.memory_limit }} megabytes</p>
     <p><strong>Accept / Submit: </strong><a href="#">{{ problem.total_accepted_number }} / {{ problem.total_submit_number }}</a></p>
   </div>
   <div class="problem-body">
-    {{ body | safe }}
+    {{ problem.body | safe }}
   </div>
 
   {% include 'components/math_support.html' %}

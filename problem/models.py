@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import User
+from utils import markdown3
 
 
 class Problem(models.Model):
@@ -29,3 +30,7 @@ class Problem(models.Model):
 
     def add_accept(self, add=1):
         self.total_accepted_number += add
+
+    def get_markdown(self):
+        self.body = markdown3.convert(self.description)
+        return self
