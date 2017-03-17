@@ -1,0 +1,27 @@
+{% extends 'contest/base.html' %}
+{% load widget_tweaks %}
+{% block contest_content %}
+
+<div>
+  <div class="content-header">
+    <h2>Submit your code</h2>
+  </div>
+</div>
+<form class="form" action="{{ request.path }}" method="post">
+  {% csrf_token %}
+  <div class="form-group form-inline">
+    {{ form.problem.label_tag }}
+    {% render_field form.problem class+="mx-2 form-control" %}
+  </div>
+  <div class="form-group form-inline">
+    {{ form.lang.label_tag }}
+    {% render_field form.lang class+="mx-2 form-control" %}
+  </div>
+  <div class="form-group">
+    {% render_field form.code class+="form-control" rows="18" style="font-family: monospace;" %}
+  </div>
+  <button class="btn btn-lg btn-outline-primary" type="submit">Submit</button>
+
+</form>
+
+{% endblock %}

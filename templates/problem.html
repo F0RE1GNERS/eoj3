@@ -27,7 +27,7 @@
 
   <form class="form" action="{{ request.path }}" method="post">
     {% csrf_token %}
-    <div class="form-group form-inline float-xs-right">
+    <div class="form-group form-inline">
       {{ form.lang.label_tag }}
       {% render_field form.lang class+="mx-2 form-control" %}
     </div>
@@ -35,7 +35,6 @@
       {% render_field form.code class+="form-control" rows="18" style="font-family: monospace;" %}
     </div>
     <button class="btn btn-lg btn-outline-primary" type="submit">Submit my code</button>
-
   </form>
   </div>
 

@@ -6,13 +6,14 @@ from django.utils import timezone
 
 from .models import Contest, ContestProblem
 from problem.models import Problem
+from submission.forms import ContestSubmitForm
 
 
-class BaseContextView(TemplateView):
+class BaseContestView(TemplateView):
     template_name = 'contest/index.html'
 
     def get_context_data(self, **kwargs):
-        data = super(BaseContextView, self).get_context_data(**kwargs)
+        data = super(BaseContestView, self).get_context_data(**kwargs)
         contest = get_object_or_404(Contest, pk=self.kwargs['pk'])
         data['contest'] = contest
         remaining_time_seconds = (contest.end_time - timezone.now()).seconds
@@ -33,15 +34,20 @@ class ContestList(ListView):
         return Contest.objects.get_status_list()
 
 
-def dashboard(request, pk):
-    return render(request, 'contest/index.html')
-
-
 def standings(request, pk):
-    return render(request, 'contest/standings.html')
+    return render(request, 'contest/standings.html', context={'contest': get_object_or_404(Contest, pk=pk)})
 
 
-class ContestProblemDetail(BaseContextView):
+class ContestSubmit(BaseContestView):
+    template_name = 'contest/submit.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestSubmit, self).get_context_data(**kwargs)
+        data['form'] = ContestSubmitForm({'problem': ''})
+        return data
+
+
+class ContestProblemDetail(BaseContestView):
     template_name = 'contest/problem.html'
 
     def get_context_data(self, **kwargs):

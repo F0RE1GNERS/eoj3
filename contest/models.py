@@ -32,7 +32,7 @@ class Contest(models.Model):
     title = models.CharField(max_length=48)
     description = models.TextField()
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, related_name='created_contests')
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -40,7 +40,7 @@ class Contest(models.Model):
 
     groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
-    participants = models.ManyToManyField(User, through='ContestParticipants')
+    participants = models.ManyToManyField(User, through='ContestParticipants', related_name='contests')
 
     visible = models.BooleanField(default=False)
 
@@ -81,4 +81,4 @@ class ContestParticipants(models.Model):
     score = models.BigIntegerField(default=0)
 
     class Meta:
-        order = ["-score"]
+        ordering = ["-score"]

@@ -6,3 +6,12 @@ class SubmitForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ['code', 'lang']
+
+
+
+class ContestSubmitForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ['code', 'lang']
+
+    problem = forms.CharField(max_length=12)
