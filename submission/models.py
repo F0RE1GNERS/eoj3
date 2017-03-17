@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import User
 from problem.models import Problem
+from contest.models import Contest
 
 
 class SubmissionStatus(object):
@@ -86,6 +87,9 @@ class Submission(models.Model):
     status_time = models.IntegerField(default=0)
     status_memory = models.IntegerField(default=0)
     code_length = models.IntegerField(default=0)
+
+    # if contest is null, then it is visible outside
+    contest = models.ForeignKey(Contest, null=True)
 
     class Meta:
         ordering = ['-pk']

@@ -30,6 +30,6 @@ def submission_view(request, pk):
 
 class StatusList(ListView):
     template_name = 'status.html'
-    queryset = Submission.objects.all()
+    queryset = Submission.objects.filter(contest__isnull=True).all()
     paginate_by = 50
     context_object_name = 'submission_list'

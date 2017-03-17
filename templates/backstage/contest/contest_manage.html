@@ -13,6 +13,7 @@
     <thead>
       <tr>
         <th>#</th>
+        <th>Identifier</th>
         <th>Title</th>
         <th>Edit</th>
         <th>Testdata</th>
@@ -24,6 +25,7 @@
         {% with contest_problem.problem as problem %}
           <tr>
             <th scope="row">{{ problem.pk }}</th>
+            <td>{{ contest_problem.identifier }}</td>
             <td>{{ problem.title }}</td>
             <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
             <td><a href="{% url 'backstage:problem_testdata' problem.pk %}" class="text-primary">Testdata</a></td>
@@ -37,6 +39,8 @@
     {% csrf_token %}
     <label class="sr-only" for="problem">Problem id</label>
     <input type="text" class="form-control mr-sm-2 mb-sm-0" id="problem" name="problem" placeholder="Enter a problem id">
+    <label class="sr-only" for="identifier">Problem identifier</label>
+    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="identifier" name="identifier" placeholder="Enter an identifier">
     <button type="submit" class="btn btn-primary">Add a problem</button>
   </form>
 

@@ -23,6 +23,7 @@ class Contest(models.Model):
 class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
     contest = models.ForeignKey(Contest)
+    identifier = models.CharField(max_length=12)
     total_submit_number = models.IntegerField(default=0)
     total_accept_number = models.IntegerField(default=0)
 

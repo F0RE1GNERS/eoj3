@@ -30,10 +30,12 @@ class ContestManage(View):
 
     def post(self, request, **kwargs):
         problem_pk = request.POST.get('problem')
+        identifier = request.POST.get('identifier', 'A') # TODO: auto-increment
         group_pk = request.POST.get('group')
         contest = Contest.objects.get(**kwargs)
         if problem_pk:
-            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk))
+            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
+                                          identifier=identifier)
         if group_pk:
             contest.groups.add(Group.objects.get(pk=group_pk))
 

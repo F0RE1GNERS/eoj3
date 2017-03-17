@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from .models import Contest
+from problem.models import Problem
 
 
 class ContestList(ListView):
@@ -16,3 +17,11 @@ def dashboard(request, pk):
 
 def standings(request, pk):
     return render(request, 'contest/standings.html')
+
+
+def problem(request, pk, pid):
+    problem = Problem.objects.get(**kwargs)
+    form = self.form_class()
+    body = markdown3.convert(problem.description)
+    data = dict(problem=problem, form=form, body=body)
+    return render(request, self.template_name, data)
