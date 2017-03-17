@@ -1,7 +1,27 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic.list import ListView
-from .models import Contest
+from django.views.generic.detail import DetailView
+from django.views.generic import TemplateView
+from django.utils import timezone
+
+from .models import Contest, ContestProblem
 from problem.models import Problem
+
+
+class BaseContextView(TemplateView):
+    template_name = 'contest/index.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(BaseContextView, self).get_context_data(**kwargs)
+        contest = get_object_or_404(Contest, pk=self.kwargs['pk'])
+        data['contest'] = contest
+        remaining_time_seconds = (contest.end_time - timezone.now()).seconds
+        data['progress'] = 100 - int(100 * remaining_time_seconds / (contest.end_time - contest.start_time).seconds)
+        data['remaining_time'] = "%d:%.2d:%.2d" % (remaining_time_seconds // 3600,
+                                                   remaining_time_seconds % 3600 // 60,
+                                                   remaining_time_seconds % 60)
+        return data
+
 
 
 class ContestList(ListView):
@@ -21,9 +41,12 @@ def standings(request, pk):
     return render(request, 'contest/standings.html')
 
 
-def problem(request, pk, pid):
-    problem = Problem.objects.get(**kwargs)
-    form = self.form_class()
-    body = markdown3.convert(problem.description)
-    data = dict(problem=problem, form=form, body=body)
-    return render(request, self.template_name, data)
+class ContestProblemDetail(BaseContextView):
+    template_name = 'contest/problem.html'
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestProblemDetail, self).get_context_data(**kwargs)
+        data['problem'] = get_object_or_404(ContestProblem,
+                                            identifier=self.kwargs.get('pid'),
+                                            contest=data['contest']).problem.get_markdown()
+        return data

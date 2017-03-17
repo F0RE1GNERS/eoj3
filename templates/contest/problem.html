@@ -9,7 +9,7 @@
     <p><strong>Accept / Submit: </strong><a href="#">{{ problem.total_accepted_number }} / {{ problem.total_submit_number }}</a></p>
   </div>
   <div class="problem-body">
-    {{ body | safe }}
+    {{ problem.body | safe }}
   </div>
 
   {% include 'components/math_support.html' %}
