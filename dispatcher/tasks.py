@@ -1,14 +1,16 @@
-from django.utils import timezone
 import requests
 import os
 import threading
 import json
-
+from django.utils import timezone
 from django.db import transaction
+
 from .models import ServerProblemStatus, Server
-from problem.models import Problem
-from submission.models import Submission, SubmissionStatus
 from eoj3.settings import TESTDATA_DIR
+from account.models import User
+from problem.models import Problem
+from contest.tasks import update_contest
+from submission.models import Submission, SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
 
@@ -93,14 +95,20 @@ class Dispatcher:
                 submission.status_memory = response['memory']
             submission.save()
 
+            accept_increment = 0
             problem = Problem.objects.select_for_update().get(pk=self.problem_id)
             if prev_status != SubmissionStatus.ACCEPTED \
                     and response['verdict'] == SubmissionStatus.ACCEPTED:
-                problem.add_accepted()
+                accept_increment = 1
             elif prev_status == SubmissionStatus.ACCEPTED \
                     and response['verdict'] != SubmissionStatus.ACCEPTED:
-                problem.add_accepted(-1)
+                accept_increment = -1
+            problem.add_accept(accept_increment)
             problem.save(update_fields=['total_accepted_number'])
+
+            if submission.contest is not None:
+                user_id = submission.author.pk
+                update_contest(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
         try:

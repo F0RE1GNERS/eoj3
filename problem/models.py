@@ -27,5 +27,5 @@ class Problem(models.Model):
     def add_submit(self, add=1):
         self.total_submit_number += add
 
-    def add_accepted(self, add=1):
+    def add_accept(self, add=1):
         self.total_accepted_number += add

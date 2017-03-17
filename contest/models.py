@@ -24,8 +24,14 @@ class ContestManager(models.Manager):
 
 
 class Contest(models.Model):
+    RULE_CHOICE = (
+        ('acm', 'ACM Rule'),
+        ('oi', 'OI Rule')
+    )
+
     title = models.CharField(max_length=48)
     description = models.TextField()
+    rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     created_by = models.ForeignKey(User)
 
     start_time = models.DateTimeField()
@@ -34,6 +40,7 @@ class Contest(models.Model):
 
     groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
+    participants = models.ManyToManyField(User, through='ContestParticipants')
 
     visible = models.BooleanField(default=False)
 
@@ -53,9 +60,25 @@ class ContestProblem(models.Model):
     class Meta:
         unique_together = ('problem', 'contest')
 
+    def add_submit(self, add=1):
+        # Added when submitting
+        self.total_submit_number += add
+
+    def add_accept(self, add=1):
+        self.total_accepted_number += add
+
 
 class ContestClarification(models.Model):
     contest = models.ForeignKey(Contest)
     question = models.TextField()
     answer = models.TextField(blank=True)
     username = models.CharField(max_length=30)
+
+
+class ContestParticipants(models.Model):
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)
+    score = models.BigIntegerField(default=0)
+
+    class Meta:
+        order = ["-score"]
