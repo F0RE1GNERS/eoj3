@@ -4,7 +4,7 @@ from django.views import View
 
 from .models import Problem
 from submission.forms import SubmitForm
-from dispatcher.views import DispatcherThread
+from dispatcher.tasks import DispatcherThread
 from utils import markdown3
 
 
@@ -35,7 +35,7 @@ class ProblemView(View):
             problem.total_submit_number += 1
             submission.save()
             problem.save()
-            DispatcherThread(problem.pk, submission).start()
+            DispatcherThread(problem.pk, submission.pk).start()
             return HttpResponseRedirect(reverse('submission', args=[submission.pk]))
         else:
             body = markdown3.convert(problem.description)

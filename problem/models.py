@@ -23,3 +23,9 @@ class Problem(models.Model):
 
     def __str__(self):
         return '%d - %s' % (self.pk, self.title)
+
+    def add_submit(self, add=1):
+        self.total_submit_number += add
+
+    def add_accepted(self, add=1):
+        self.total_accepted_number += add
