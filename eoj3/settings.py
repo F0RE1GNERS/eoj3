@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django.contrib.humanize',
+
     'home',
     'account',
     'dispatcher',
@@ -121,9 +123,7 @@ LANGUAGE_CODE = 'en-us'
 
 USE_I18N = True
 
-USE_L10N = True
 
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -139,6 +139,10 @@ LOGIN_URL = '/login/'
 TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+DATETIME_FORMAT = 'Y-m-d H:i'
 
 # modified
 TIME_ZONE = 'Asia/Shanghai'
+# TIME_ZONE = 'UTC'
+USE_L10N = False
+USE_TZ = False

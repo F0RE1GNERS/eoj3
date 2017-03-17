@@ -1,8 +1,26 @@
 from django.db import models
+from django.utils import timezone
 
 from account.models import User
 from problem.models import Problem
 from group.models import Group
+
+
+class ContestManager(models.Manager):
+
+    def get_status_list(self):
+        cmp = dict(Running=-1, Pending=0, Ended=1)
+        contest_list = super(ContestManager, self).get_queryset().all()
+        now = timezone.now()
+        for contest in contest_list:
+            if contest.start_time <= now <= contest.end_time:
+                contest.status = 'Running'
+            elif now <= contest.start_time:
+                contest.status = 'Pending'
+            else:
+                contest.status = 'Ended'
+        contest_list = sorted(contest_list, key=lambda c: cmp[c.status])
+        return contest_list
 
 
 class Contest(models.Model):
@@ -18,6 +36,11 @@ class Contest(models.Model):
     problems = models.ManyToManyField(Problem, through='ContestProblem')
 
     visible = models.BooleanField(default=False)
+
+    objects = ContestManager()
+
+    class Meta:
+        ordering = ['-start_time']
 
 
 class ContestProblem(models.Model):
