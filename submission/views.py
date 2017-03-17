@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render
+from django.views.generic.list import ListView
 from .models import Submission, get_color_from_status
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -27,6 +28,8 @@ def submission_view(request, pk):
     return render(request, 'submission.html', context=context)
 
 
-def status_view(request):
-    submissions = Submission.objects.all()
-    return render(request, 'status.html', context={'submission_list': submissions})
+class StatusList(ListView):
+    template_name = 'status.html'
+    queryset = Submission.objects.all()
+    paginate_by = 50
+    context_object_name = 'submission_list'

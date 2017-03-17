@@ -1,0 +1,24 @@
+.contest-progress {
+  margin-bottom: 3rem;
+  p {
+    font-size: 95%;
+    color: #555;
+    font-weight: 600;
+  }
+}
+
+.bd-sidebar a.link-lg {
+  padding: .75rem 0 .25rem 0;
+  color: #333;
+  font-weight: 400;
+  font-size: 105%;
+  &.active {
+    font-weight: 600;
+    color: #121314;
+  }
+  &:hover {
+    color: #333;
+    text-decoration: none;
+    background-color: transparent;
+  }
+}

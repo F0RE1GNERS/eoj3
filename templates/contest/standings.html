@@ -1,0 +1,32 @@
+{% extends 'contest/base.html' %}
+{% block contest_content %}
+
+  <div class="content-header">
+    <h2>Standings</h2>
+  </div>
+  <div>
+    <p>Your standing: 244</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="9%">Rank</th>
+          <th width="14%">Name</th>
+          <th width="27%">A</th>
+          <th width="25%">B</th>
+          <th width="25%">C</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td scope="row">1</td>
+            <td>Orzerol</td>
+            <td class="text-success">00:00:01</td>
+            <td>00:00:02(-1)</td>
+            <td>00:00:03</td>
+          </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+{% endblock %}

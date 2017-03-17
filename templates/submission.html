@@ -39,12 +39,12 @@
       <pre><code>{{ code | safe }}</code></pre>
     </div>
     {% if detail %}
-      <h3>Detail for cases</h3>
+      <h3>Detail</h3>
       {% for message in detail %}
         <div class="card card-outline-{{ message.color }} mb-2">
           <div class="card-block detail">
             <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms, memory: {{ message.memory }}KB,
-              verdict: {{ message.verdict | status_choice }}</p>
+              verdict: <strong>{{ message.verdict | status_choice }}</strong></p>
           </div>
         </div>
       {% endfor %}

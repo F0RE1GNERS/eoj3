@@ -11,4 +11,8 @@ class ContestList(ListView):
 
 
 def dashboard(request, pk):
-    return render(request, 'contest/base.html')
+    return render(request, 'contest/index.html')
+
+
+def standings(request, pk):
+    return render(request, 'contest/standings.html')

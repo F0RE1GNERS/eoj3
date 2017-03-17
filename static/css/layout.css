@@ -31,9 +31,9 @@
 
 pre {
   display: block;
-  padding: 9.5px;
+  padding: 9px;
   margin: 0 0 10px;
-  font-size: 0.9rem;
+  font-size: 90%;
   line-height: 1.42857143;
   word-break: break-all;
   word-wrap: break-word;
