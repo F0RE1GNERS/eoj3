@@ -54,6 +54,25 @@ class Dispatcher:
             print(e)
             return False
 
+    def update_submission_and_problem(self, response):
+
+        if self.submission.contest is None:
+            if self.submission.status != SubmissionStatus.ACCEPTED \
+                    and response['verdict'] == SubmissionStatus.ACCEPTED:
+                self.problem.total_accepted_number += 1
+            elif self.submission.status == SubmissionStatus.ACCEPTED \
+                    and response['verdict'] != SubmissionStatus.ACCEPTED:
+                self.problem.total_accepted_number -= 1
+            self.problem.save()
+
+        self.submission.status = response['verdict']
+        if self.submission.status == SubmissionStatus.COMPILE_ERROR:
+            self.submission.status_detail = response['message']
+        else:
+            self.submission.status_detail = json.dumps(response['detail'])
+            self.submission.status_time = response['time']
+            self.submission.status_memory = response['memory']
+
     def dispatch(self):
         try:
             self.update_data_for_server()
@@ -77,18 +96,15 @@ class Dispatcher:
             response = requests.post(judge_linker(self.server.ip, self.server.port),
                                      json=request, auth=('token', self.server.token),
                                      timeout=3600).json()
-            # If presented multiple judge responses at the same time, unexpected results will happen.
             if response['status'] != 'received':
                 raise ConnectionError('Remote server rejected the request.')
-            print(response)
+            # If presented multiple judge responses at the same time, unexpected results will happen.
             self.submission.judge_end_time = timezone.now()
-            self.submission.status = response['verdict']
-            if self.submission.status == SubmissionStatus.COMPILE_ERROR:
-                self.submission.status_detail = response['message']
-            else:
-                self.submission.status_detail = json.dumps(response['detail'])
-                self.submission.status_time = response['time']
-                self.submission.status_memory = response['memory']
+            if Submission.objects.get(pk=self.submission.pk).judge_start_time > self.submission.judge_start_time:
+                raise ValueError('There has been a newer judge')
+            print(response)
+            self.update_submission_and_problem(response)
+
             self.submission.save()
             return True
         except Exception as e:
