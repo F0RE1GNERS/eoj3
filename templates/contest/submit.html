@@ -9,13 +9,18 @@
 </div>
 <form class="form" action="{{ request.path }}" method="post">
   {% csrf_token %}
-  <div class="form-group form-inline">
-    {{ form.problem.label_tag }}
-    {% render_field form.problem class+="mx-2 form-control" %}
+  <div class="form-group row">
+    <label class="col-2 col-form-label">Problem:</label>
+    {# TODO: this should be a choice field #}
+    <div class="col-8">
+      {% render_field form.problem_identifier class+="form-control" %}
+    </div>
   </div>
-  <div class="form-group form-inline">
-    {{ form.lang.label_tag }}
-    {% render_field form.lang class+="mx-2 form-control" %}
+  <div class="form-group row">
+    <label class="col-2 col-form-label">Language:</label>
+    <div class="col-8">
+      {% render_field form.lang class+="form-control" %}
+    </div>
   </div>
   <div class="form-group">
     {% render_field form.code class+="form-control" rows="18" style="font-family: monospace;" %}

@@ -14,4 +14,4 @@ class ContestSubmitForm(forms.ModelForm):
         model = Submission
         fields = ['code', 'lang']
 
-    problem = forms.CharField(max_length=12)
+    problem_identifier = forms.CharField(max_length=12)

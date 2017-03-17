@@ -65,7 +65,7 @@ class ContestProblem(models.Model):
         self.total_submit_number += add
 
     def add_accept(self, add=1):
-        self.total_accepted_number += add
+        self.total_accept_number += add
 
 
 class ContestClarification(models.Model):

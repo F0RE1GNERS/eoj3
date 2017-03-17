@@ -73,18 +73,28 @@ class Dispatcher:
             return True
         except FileNotFoundError:
             print('Data file not found. Why?')
-            return True
+            return False
         except Exception as e:
             print('Something wrong during update:')
             print(e)
             return False
 
     def update_submission_and_problem(self, response):
+        submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+        if submission.judge_start_time > self.submission.judge_start_time:
+            raise SystemError('There has been a newer judge')
+        prev_status = submission.status
+
+        accept_increment = 0
+        problem = Problem.objects.select_for_update().get(pk=self.problem_id)
+        if prev_status != SubmissionStatus.ACCEPTED \
+                and response['verdict'] == SubmissionStatus.ACCEPTED:
+            accept_increment = 1
+        elif prev_status == SubmissionStatus.ACCEPTED \
+                and response['verdict'] != SubmissionStatus.ACCEPTED:
+            accept_increment = -1
+
         with transaction.atomic():
-            submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-            if submission.judge_start_time > self.submission.judge_start_time:
-                raise SystemError('There has been a newer judge')
-            prev_status = submission.status
             submission.status = response['verdict']
             submission.judge_end_time = timezone.now()
             if submission.status == SubmissionStatus.COMPILE_ERROR:
@@ -95,20 +105,12 @@ class Dispatcher:
                 submission.status_memory = response['memory']
             submission.save()
 
-            accept_increment = 0
-            problem = Problem.objects.select_for_update().get(pk=self.problem_id)
-            if prev_status != SubmissionStatus.ACCEPTED \
-                    and response['verdict'] == SubmissionStatus.ACCEPTED:
-                accept_increment = 1
-            elif prev_status == SubmissionStatus.ACCEPTED \
-                    and response['verdict'] != SubmissionStatus.ACCEPTED:
-                accept_increment = -1
             problem.add_accept(accept_increment)
             problem.save(update_fields=['total_accepted_number'])
 
-            if submission.contest is not None:
-                user_id = submission.author.pk
-                update_contest(submission.contest.pk, self.problem_id, user_id, accept_increment)
+        if submission.contest is not None:
+            user_id = submission.author.pk
+            update_contest(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
         try:
@@ -138,6 +140,7 @@ class Dispatcher:
             response = requests.post(judge_linker(server.ip, server.port),
                                      json=request, auth=('token', server.token),
                                      timeout=3600).json()
+            print(response)
             if response['status'] != 'received':
                 raise ConnectionError('Remote server rejected the request.')
 

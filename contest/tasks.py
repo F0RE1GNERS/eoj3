@@ -1,6 +1,7 @@
 from django.db import transaction
 
 from .models import Contest
+from account.models import User
 from submission.models import SubmissionStatus
 
 
@@ -14,7 +15,7 @@ def recalculate_score_for_participant(participant, submissions):
     INF = 2000000000
     score = 0
     for submission in submissions:
-        if submission.verdict == SubmissionStatus.ACCEPTED:
+        if submission.status == SubmissionStatus.ACCEPTED:
             score += INF - 1200
         else:
             score -= 1200
@@ -39,6 +40,7 @@ def update_contest(contest_id, problem_id, user_id, accept_increment):
         problem.save()
 
         submissions = contest.submission_set.filter(author__pk=user_id)
-        participant = contest.contestparticipants_set.select_for_update().get(user__pk=user_id)
+        participant, _ = contest.contestparticipants_set.select_for_update().get_or_create(user__pk=user_id,
+                            defaults={'user': User.objects.get(pk=user_id), 'contest': contest})
         participant.score = recalculate_score_for_participant(participant, submissions)
         participant.save()

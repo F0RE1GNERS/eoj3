@@ -32,7 +32,7 @@
         <a class="link-lg" href="#">My submissions</a>
         <a class="link-lg" href="#">Status</a>
         {# TODO: link reverse does not work #}
-        <a class="link-lg" href="#">Standings</a>
+        <a class="link-lg" href="{% url 'contest:standings' contest.pk %}">Standings</a>
         <a class="link-lg" href="#">Clarification <span class="badge badge-pill badge-info">NEW</span></a>
 
       </div>
