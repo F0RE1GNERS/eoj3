@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic import TemplateView
@@ -20,8 +20,8 @@ class BaseContextView(TemplateView):
         data['remaining_time'] = "%d:%.2d:%.2d" % (remaining_time_seconds // 3600,
                                                    remaining_time_seconds % 3600 // 60,
                                                    remaining_time_seconds % 60)
+        data['contest_problem_list'] = get_list_or_404(ContestProblem, contest=data['contest'])
         return data
-
 
 
 class ContestList(ListView):
@@ -46,7 +46,8 @@ class ContestProblemDetail(BaseContextView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestProblemDetail, self).get_context_data(**kwargs)
-        data['problem'] = get_object_or_404(ContestProblem,
-                                            identifier=self.kwargs.get('pid'),
-                                            contest=data['contest']).problem.get_markdown()
+        data['contest_problem'] = get_object_or_404(ContestProblem,
+                                                    identifier=self.kwargs.get('pid'),
+                                                    contest=data['contest'])
+        data['problem'] = data['contest_problem'].problem.get_markdown()
         return data

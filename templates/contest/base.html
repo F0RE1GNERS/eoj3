@@ -20,12 +20,14 @@
           </div>
           <p>Remaining: {{ remaining_time }}</p>
         </div>
-        <a class="link-lg" href="#">Dashboard</a>
+        <a class="link-lg" href="{% url 'contest:dashboard' contest.pk %}">Dashboard</a>
         <a class="link-lg active" href="#">Problem</a>
         {# TODO: active link #}
-        <a class="active" href="#">A. Mr. Panda and fascinating creatures</a>
-        <a href="#">B. Ms. Ostrich and fascinating creatures</a>
-        <a href="#">C. Cows and Farmer John</a>
+        {% for contest_problem in contest_problem_list %}
+          <a href="{% url 'contest:problem' contest.pk contest_problem.identifier %}">
+            {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+          </a>
+        {% endfor %}
         <a class="link-lg" href="#">Submit</a>
         <a class="link-lg" href="#">My submissions</a>
         <a class="link-lg" href="#">Status</a>
