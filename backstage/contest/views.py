@@ -15,7 +15,7 @@ from ..base_views import BaseCreateView, BaseUpdateView
 
 
 def get_formatted_time():
-    return timezone.localtime(timezone.now()).strftime("%Y-%m-%d 00:00")
+    return timezone.now().strftime("%Y-%m-%d 00:00")
 
 
 class ContestManage(View):

@@ -6,9 +6,11 @@ from problem.models import Problem
 
 class ContestList(ListView):
     template_name = 'contest_list.html'
-    queryset = Contest.objects.filter(visible=True).all()
     paginate_by = 50
     context_object_name = 'contest_list'
+
+    def get_queryset(self):
+        return Contest.objects.get_status_list()
 
 
 def dashboard(request, pk):
