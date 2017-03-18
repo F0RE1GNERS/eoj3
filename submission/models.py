@@ -44,7 +44,7 @@ STATUS_CHOICE = (
 
 def get_color_from_status(status):
     if status == SubmissionStatus.ACCEPTED:
-        return "success"
+        return "success font-weight-bold"
     elif status <= SubmissionStatus.JUDGING:
         return "info"
     elif status == SubmissionStatus.COMPILE_ERROR or status == SubmissionStatus.IDLENESS_LIMIT_EXCEEDED:

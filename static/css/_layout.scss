@@ -4,7 +4,7 @@
   color: #fff;
   text-align: center;
   background-color: #444486;
-  @media (min-width: 576px) {
+  @media (min-width: 544px) {
     padding-top: 3rem;
     padding-bottom: 2rem;
     margin-bottom: 2rem;
@@ -19,7 +19,10 @@
 }
 
 .bd-sidebar {
-  padding-left: 1rem;
+  @media (max-width: 768px) {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
   a {
     display: block;
     padding: .25rem .75rem;
@@ -43,7 +46,10 @@
 }
 
 .scrollable {
-  overflow-x: scroll;
+  overflow-x: visible;
+  @media (max-width: 544px) {
+    overflow-x: scroll;
+  }
 }
 
 .content-header {

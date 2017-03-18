@@ -3,10 +3,8 @@
 {% block contest_content %}
 
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Online Status</h1>
-    </div>
+  <div class="content-header">
+    <h2>My submissions</h2>
   </div>
 
   <table class="table">
@@ -22,7 +20,7 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-          <td scope="row"><a href="{% url 'submission' submission.pk %}">{{ submission.pk }}</a></td>
+          <td scope="row"><a href="#">{{ submission.pk }}</a></td>
           <td>{{ submission.author.username }}</td>
           <td>{{ submission.problem }}</td>
           <td>{{ submission.create_time }}</td>

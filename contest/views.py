@@ -76,10 +76,11 @@ class ContestMySubmission(BaseContestView, ListView):
     template_name = 'contest/submission.html'
     paginate_by = 1
     context_object_name = 'submission_list'
+    object_list = 'submission_list'
 
-    def get_queryset(self):
-        print(self.kwargs['cid'])
-        # TODO: query set?
+    def get_queryset(self, **kwargs):
+        print('Was here')
+        # return Contest.objects.get()
 
 
 class ContestProblemDetail(BaseContestView):

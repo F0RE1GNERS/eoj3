@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 
 from .forms import ProblemEditForm
 from problem.models import Problem
@@ -31,6 +32,13 @@ def testdata(request, pk):
     return render(request, 'backstage/problem/problem_testdata.html',
                   {'data_set': sort_data_from_zipfile(file_path),
                    'hash': problem.testdata_hash})
+
+
+def problem_delete(request, pk):
+    name = str(Problem.objects.get(pk=pk))
+    Problem.objects.get(pk=pk).delete()
+    messages.success(request, "Problem <strong>%s</strong> has been successfully deleted." % name)
+    return HttpResponseRedirect(reverse('backstage:problem'))
 
 
 class ProblemCreate(BaseCreateView):
