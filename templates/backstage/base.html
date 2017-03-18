@@ -11,13 +11,13 @@
     <div class="row">
 
       <div class="col-12 col-md-3 push-md-9 bd-sidebar">
-        <a href="{% url 'backstage:index' %}" class="{% navitem_active 'backstage:index' %}">Go to homepage</a>
-        <a href="#" class="{% navitem_active 'backstage:site' %}">Site</a>
-        <a href="{% url 'backstage:problem' %}" class="{% navitem_active 'backstage:problem' %}">Problems</a>
-        <a href="{% url 'backstage:contest' %}" class="{% navitem_active 'backstage:contest' %}">Contest</a>
+        {% link_active 'backstage:index' 'Go to homepage' %}
+        <a href="#">Site</a>
+        {% link_active 'backstage:problem' 'Problems' %}
+        {% link_active 'backstage:contest' 'Contest' %}
         <a href="#">Accounts</a>
-        <a href="{% url 'backstage:group' %}" class="{% navitem_active 'backstage:group' %}">Groups</a>
-        <a href="{% url 'backstage:server' %}" class="{% navitem_active 'backstage:server' %}">Servers</a>
+        {% link_active 'backstage:group' 'Groups' %}
+        {% link_active 'backstage:server' 'Servers' %}
       </div>
       <div class="col-12 col-md-9 pull-md-3 bd-content">
         {% block backstage_content %}

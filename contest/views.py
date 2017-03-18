@@ -25,7 +25,10 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin):
         data['remaining_time'] = "%d:%.2d:%.2d" % (remaining_time_seconds // 3600,
                                                    remaining_time_seconds % 3600 // 60,
                                                    remaining_time_seconds % 60)
-        data['contest_problem_list'] = get_list_or_404(ContestProblem, contest=data['contest'])
+        contest_problem_list = get_list_or_404(ContestProblem, contest=data['contest'])
+        for contest_problem in contest_problem_list:
+            contest_problem.title = "%s. %s" % (contest_problem.identifier, contest_problem.problem.title)
+        data['contest_problem_list'] = contest_problem_list
         return data
 
 

@@ -27,18 +27,10 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item {% navitem_active 'home' %}">
-          <a class="nav-link" href="{% url 'home' %}">Home</a>
-        </li>
-        <li class="nav-item {% navitem_active 'problem' %}">
-          <a class="nav-link" href="{% url 'problem_list' %}">Problems</a>
-        </li>
-        <li class="nav-item {% navitem_active 'contest' %}">
-          <a class="nav-link" href="{% url 'contest:list' %}">Contests</a>
-        </li>
-        <li class="nav-item {% navitem_active 'status' %}">
-          <a class="nav-link" href="{% url 'status' %}">Status</a>
-        </li>
+        {% link_active 'home' 'Home' outside=True %}
+        {% link_active 'problem_list' 'Problems' outside=True %}
+        {% link_active 'contest:list' 'Contests' outside=True %}
+        {% link_active 'status' 'Status' outside=True %}
       </ul>
       <ul class="navbar-nav">
         {% if request.user.is_authenticated %}

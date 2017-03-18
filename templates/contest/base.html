@@ -23,9 +23,7 @@
         <a class="link-lg active">Problem</a>
         {# TODO: active link #}
         {% for contest_problem in contest_problem_list %}
-          <a href="{% url 'contest:problem' contest.pk contest_problem.identifier %}" class="">
-            {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
-          </a>
+          {% link_active 'contest:problem' contest_problem.title contest.pk contest_problem.identifier %}
         {% endfor %}
         <a class="link-lg" href="{% url 'contest:submit' contest.pk %}?pid={{ contest_problem.identifier }}">Submit</a>
         <a class="link-lg" href="{% url 'contest:submission' contest.pk %}">My submissions</a>
