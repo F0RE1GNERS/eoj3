@@ -4,10 +4,11 @@
 
 <form action="{{ request.path }}" method="post">
   {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.path }}">
   {% for field in form %}
     {% if not field.errors %}
       {% if field.label == 'Visible' %}  {# TODO hard code #}
-        <div class="form-check">
+        <div class="form-check mb-3">
           <label class="form-check-label">
             {% render_field field class+="form-check-input" placeholder=field.help_text %}
             {{ field.label }}
@@ -34,5 +35,5 @@
       {{ error }}
     </div>
   {% endfor %}
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary">Save</button>
 </form>

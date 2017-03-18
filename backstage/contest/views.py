@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from django.db import IntegrityError
 
 from .forms import ContestEditForm
 from contest.models import Contest, ContestProblem
@@ -51,7 +52,7 @@ class ContestCreate(BaseCreateView):
     template_name = 'backstage/contest/contest_add.html'
 
     def get_redirect_url(self, instance):
-        return self.request.path  # TODO
+        return self.request.POST.get('next', self.request.path)
 
 
 class ContestUpdate(BaseUpdateView):
@@ -68,3 +69,25 @@ class ContestList(ListView):
     context_object_name = 'contest_list'
 
 
+def contest_problem_create(request, contest_pk):
+    if request.method == 'POST':
+        try:
+            contest = Contest.objects.get(pk=contest_pk)
+            problem_pk = request.POST['problem']
+            identifier = request.POST['identifier']
+            if problem_pk == '':
+                raise KeyError
+            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
+                                          identifier=identifier)
+        except (ValueError, KeyError, Contest.DoesNotExist, Problem.DoesNotExist):
+            messages.error(request, 'Contest problem or tag might be illegal.')
+        except IntegrityError:
+            messages.error(request, 'Problem and ID must be unique.')
+        return HttpResponseRedirect(request.POST['next'])
+
+
+def contest_problem_delete(request, contest_pk, contest_problem_pk):
+    contest = Contest.objects.get(pk=contest_pk)
+    contest.contestproblem_set.get(pk=contest_problem_pk).delete()
+    messages.success(request, "This problem has been successfully deleted.")
+    return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))
