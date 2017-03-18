@@ -44,6 +44,9 @@
 
 .scrollable {
   overflow-x: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .content-header {

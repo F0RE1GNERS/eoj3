@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load navitem_active %}
-{% load tz %}
 
 {% block content %}
 
@@ -16,19 +15,19 @@
         <div class="contest-progress">
           <h5>Contest running</h5>
           <div class="progress">
-            <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress }}%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <p>Remaining: {{ remaining_time }}</p>
         </div>
         <a class="link-lg" href="{% url 'contest:dashboard' contest.pk %}">Dashboard</a>
-        <a class="link-lg active" href="#">Problem</a>
+        <a class="link-lg active">Problem</a>
         {# TODO: active link #}
         {% for contest_problem in contest_problem_list %}
-          <a href="{% url 'contest:problem' contest.pk contest_problem.identifier %}">
+          <a href="{% url 'contest:problem' contest.pk contest_problem.identifier %}" class="">
             {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
           </a>
         {% endfor %}
-        <a class="link-lg" href="{% url 'contest:submit' contest.pk %}">Submit</a>
+        <a class="link-lg" href="{% url 'contest:submit' contest.pk %}?pid={{ contest_problem.identifier }}">Submit</a>
         <a class="link-lg" href="{% url 'contest:submission' contest.pk %}">My submissions</a>
         <a class="link-lg" href="#">Status</a>
         {# TODO: link reverse does not work #}
@@ -43,5 +42,9 @@
 
     </div>
   </div>
+
+{% endblock %}
+
+{% block script %}
 
 {% endblock %}
