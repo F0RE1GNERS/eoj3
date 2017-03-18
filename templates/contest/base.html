@@ -29,7 +29,7 @@
           </a>
         {% endfor %}
         <a class="link-lg" href="{% url 'contest:submit' contest.pk %}">Submit</a>
-        <a class="link-lg" href="#">My submissions</a>
+        <a class="link-lg" href="{% url 'contest:submission' contest.pk %}">My submissions</a>
         <a class="link-lg" href="#">Status</a>
         {# TODO: link reverse does not work #}
         <a class="link-lg" href="{% url 'contest:standings' contest.pk %}">Standings</a>

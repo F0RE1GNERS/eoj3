@@ -42,8 +42,8 @@
   }
 }
 
-.full-width-table {
-  display: table;
+.scrollable {
+  overflow-x: scroll;
 }
 
 .content-header {

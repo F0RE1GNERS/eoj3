@@ -72,6 +72,16 @@ class ContestSubmit(BaseContestView):
             return HttpResponseRedirect(reverse('contest:standings', args=[contest.pk]))
 
 
+class ContestMySubmission(BaseContestView, ListView):
+    template_name = 'contest/submission.html'
+    paginate_by = 1
+    context_object_name = 'submission_list'
+
+    def get_queryset(self):
+        print(self.kwargs['cid'])
+        # TODO: query set?
+
+
 class ContestProblemDetail(BaseContestView):
     template_name = 'contest/problem.html'
 

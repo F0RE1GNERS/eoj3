@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div class="container">
+  <div class="container scrollable">
 
     <form class="form-inline mb-3" action="{{ request.path }}" method="post">
       {% csrf_token %}
@@ -33,7 +33,7 @@
             <td>{{ submission.author.username }}</td>
             <td>{{ submission.problem }}</td>
             <td>{{ submission.create_time }}</td>
-            <td class="text-{{ submission.get_verdict_color }}">{{ submission.get_status_display }}</td>
+            <td class="font-weight-bold text-{{ submission.get_verdict_color }}">{{ submission.get_status_display }}</td>
           </tr>
         {% endfor %}
       </tbody>
