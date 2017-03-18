@@ -8,26 +8,28 @@
   <div class="mb-1">
     <a role="button" class="btn btn-primary" href="{% url 'backstage:group_create' %}">Add a group</a>
   </div>
-  <table class="table table-responsive full-width-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Edit</th>
-        <th>Manage Group Members</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for group in group_list %}
+  <div class="scrollable">
+    <table class="table">
+      <thead>
         <tr>
-        <th scope="row">{{ group.pk }}</th>
-        <td>{{ group.name }}</td>
-        <td><a href="{% url 'backstage:group_edit' group.pk %}" class="text-primary">Edit</a></td>
-        <td><a href="{% url 'backstage:group_manage' group.pk %}" class="text-primary">Manage</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          <th>#</th>
+          <th>Name</th>
+          <th>Edit</th>
+          <th>Manage Group Members</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in group_list %}
+          <tr>
+          <th scope="row">{{ group.pk }}</th>
+          <td>{{ group.name }}</td>
+          <td><a href="{% url 'backstage:group_edit' group.pk %}" class="text-primary">Edit</a></td>
+          <td><a href="{% url 'backstage:group_manage' group.pk %}" class="text-primary">Manage</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% paginator %}
 

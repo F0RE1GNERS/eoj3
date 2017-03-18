@@ -9,69 +9,89 @@
   </div>
 
   <h3>Contest Problem</h3>
-  <table class="table table-responsive full-width-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Identifier</th>
-        <th>Title</th>
-        <th>Edit</th>
-        <th>Testdata</th>
-        <th>Remove</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for contest_problem in contest_problem_list %}
-        {% with contest_problem.problem as problem %}
-          <tr>
-            <th scope="row">{{ problem.pk }}</th>
-            <td>{{ contest_problem.identifier }}</td>
-            <td>{{ problem.title }}</td>
-            <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
-            <td><a href="{% url 'backstage:problem_testdata' problem.pk %}" class="text-primary">Testdata</a></td>
-            <td><a href="#" class="text-danger">Remove(todo)</a></td>
-          </tr>
-        {% endwith %}
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="scrollable">
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="10%">ID</th>
+          <th width="50%">Title</th>
+          <th width="10%">Edit</th>
+          <th width="16%">Testdata</th>
+          <th width="14%">Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contest_problem in contest_problem_list %}
+          {% with contest_problem.problem as problem %}
+            <tr>
+              <td scope="row">{{ contest_problem.identifier }}</td>
+              <td>{{ problem.title }}</td>
+              <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
+              <td><a href="{% url 'backstage:problem_testdata' problem.pk %}" class="text-primary">Testdata</a></td>
+              <td><a data-toggle="modal" href="#problemConfirmModal" class="text-danger">Remove</a></td>
+            </tr>
+          {% endwith %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <form class="form-inline mb-5" action="{{ request.path }}" method="post">
     {% csrf_token %}
-    <label class="sr-only" for="problem">Problem id</label>
-    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="problem" name="problem" placeholder="Enter a problem id">
-    <label class="sr-only" for="identifier">Problem identifier</label>
-    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="identifier" name="identifier" placeholder="Enter an identifier">
-    <button type="submit" class="btn btn-primary">Add a problem</button>
+    <input type="text" class="form-control mr-2 mb-2" id="problem" name="problem" placeholder="Type in a problem id">
+    <input type="text" class="form-control mr-2 mb-2" id="identifier" name="identifier" placeholder="Enter an identifier">
+    <button type="submit" class="btn btn-primary mb-2">Add a problem</button>
   </form>
 
   <h3>Contest Group</h3>
-  <table class="table table-responsive full-width-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Total Number</th>
-        <th>Edit</th>
-        <th>Manage Group Members</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for group in group_list %}
+  {% if group_list %}
+  <div class="scrollable">
+    <table class="table">
+      <thead>
         <tr>
-        <th scope="row">{{ group.pk }}</th>
-        <td>{{ group.name }}</td>
-        <td>{{ group.members.count }}</td>
-        <td><a href="{% url 'backstage:group_edit' group.pk %}" class="text-primary">Edit</a></td>
-        <td><a href="{% url 'backstage:group_manage' group.pk %}" class="text-primary">Manage</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          <th width="10%">#</th>
+          <th width="60%">Name</th>
+          <th width="30%">Members</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in group_list %}
+          <tr>
+          <th scope="row">{{ group.pk }}</th>
+          <td>{{ group.name }}</td>
+          <td><a href="{% url 'backstage:group_manage' group.pk %}" class="text-primary">&times; {{ group.members.count }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
   <form class="form-inline mb-5" action="{{ request.path }}" method="post">
     {% csrf_token %}
     <label class="sr-only" for="group">Group id</label>
-    <input type="text" class="form-control mr-sm-2 mb-sm-0" id="group" name="group" placeholder="Enter a group id">
-    <button type="submit" class="btn btn-primary">Add a group</button>
+    <input type="text" class="form-control mr-2 mb-2" id="group" name="group" placeholder="Enter a group ID">
+    <button type="submit" class="btn btn-primary mb-2">Add a group</button>
   </form>
+
+  <div class="modal fade" id="problemConfirmModal" tabindex="-1" role="dialog"
+       aria-labelledby="problemConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="problemConfirmModalLabel">Confirm</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this problem? All information of this problem will be permanently gone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a class="btn btn-danger modal-submit" href="#" role="button">I'm sure</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}

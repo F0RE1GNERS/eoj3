@@ -9,13 +9,12 @@
     </div>
   </div>
 
-  <div class="container">
+  <div class="container scrollable">
 
-    <form class="form-inline mb-3" action="{{ request.path }}" method="post">
+    <form class="form-inline mb-3" action="{{ request.path }}" method="get">
       {% csrf_token %}
-      <label class="sr-only" for="keyword">Keyword</label>
-      <input type="text" class="form-control mr-sm-2 mb-sm-0" id="keyword" name="keyword" placeholder="Keyword">
-      <button type="submit" class="btn btn-primary">Search</button>
+      <input type="text" class="form-control mb-2 mr-4" id="keyword" name="keyword" placeholder="Keyword">
+      <button type="submit" class="btn btn-primary mb-2">Search</button>
     </form>
     <table class="table">
       <thead>
