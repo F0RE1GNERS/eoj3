@@ -20,20 +20,21 @@
           </div>
           <p>Remaining: {{ remaining_time }}</p>
         </div>
-        <a class="link-lg" href="{% url 'contest:dashboard' contest.pk %}">Dashboard</a>
-        <a class="link-lg active" href="#">Problem</a>
+        <a class="link-lg {% navitem_active 'contest:dashboard' %}" href="{% url 'contest:dashboard' contest.pk %}">Dashboard</a>
+        <a class="link-lg {% navitem_active 'contest:problem' %}">Problem</a>
         {# TODO: active link #}
         {% for contest_problem in contest_problem_list %}
-          <a href="{% url 'contest:problem' contest.pk contest_problem.identifier %}">
+          <a class="{% navitem_active 'contest:problem' cid=contest.pk pid=contest_problem.identifier %}"
+             href="{% url 'contest:problem' contest.pk contest_problem.identifier %}">
             {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
           </a>
         {% endfor %}
-        <a class="link-lg" href="{% url 'contest:submit' contest.pk %}">Submit</a>
-        <a class="link-lg" href="{% url 'contest:submission' contest.pk %}">My submissions</a>
-        <a class="link-lg" href="#">Status</a>
+        <a class="link-lg {% navitem_active 'contest:submit' %}" href="{% url 'contest:submit' contest.pk %}">Submit</a>
+        <a class="link-lg {% navitem_active 'contest:submission' %}" href="{% url 'contest:submission' contest.pk %}">My submissions</a>
+        <a class="link-lg {% navitem_active 'contest:status' %}" href="#">Status</a>
         {# TODO: link reverse does not work #}
-        <a class="link-lg" href="{% url 'contest:standings' contest.pk %}">Standings</a>
-        <a class="link-lg" href="#">Clarification <span class="badge badge-pill badge-info">NEW</span></a>
+        <a class="link-lg {% navitem_active 'contest:standings' %}" href="{% url 'contest:standings' contest.pk %}">Standings</a>
+        <a class="link-lg {% navitem_active 'contest:clarification' %}" href="#">Clarification <span class="badge badge-pill badge-info">NEW</span></a>
 
       </div>
       <div class="col-12 col-md-9 pull-md-3 bd-content">
