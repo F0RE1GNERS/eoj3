@@ -10,21 +10,27 @@
   <table class="table">
     <thead>
       <tr>
-        <th width="9%">#</th>
-        <th width="14%">Author</th>
-        <th width="27%">Problem</th>
-        <th width="25%">Time</th>
-        <th width="25%">Verdict</th>
+        <th width="8%">#</th>
+        <th width="25%">Problem</th>
+        <th width="10%">Time</th>
+        <th width="10%">Memory</th>
+        <th width="10%">Language</th>
+        <th width="17%">Verdict</th>
+        <th width="20%">Submit time</th>
       </tr>
     </thead>
     <tbody>
       {% for submission in submission_list %}
         <tr>
           <td scope="row"><a href="#">{{ submission.pk }}</a></td>
-          <td>{{ submission.author.username }}</td>
-          <td>{{ submission.problem }}</td>
-          <td>{{ submission.create_time }}</td>
+          {# TODO: get identifier #}
+          <td scope="row">{{ submission.problem }}</td>
+          <td>{{ submission.get_time_display }}</td>
+          <td>{{ submission.get_memory_display }}</td>
+          <td>{{ submission.get_lang_display }}</td>
           <td class="text-{{ submission.get_verdict_color }}">{{ submission.get_status_display }}</td>
+          <td>{{ submission.create_time }}</td>
+          {# TODO: create time delta #}
         </tr>
       {% endfor %}
     </tbody>
