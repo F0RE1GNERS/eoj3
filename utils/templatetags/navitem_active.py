@@ -1,53 +1,32 @@
 from django import template
 from django.core.urlresolvers import reverse, resolve
-from django.shortcuts import reverse
-from django.utils.html import format_html
+
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def navitem_active(context, match):
+def navitem_active(context, match, **kwargs):
     """
-    In template: {% navitem_active "namespace:name(optional)" %}
+    In template: {% navitem_active "namespace(optional):name" %}
+    For further usage, if you need something more specific, remember to parse all kwargs here.
     """
+    def check_kwargs(a, b):
+        if len(a.items()) != len(b.items()):
+            return False
+        for (key, item) in a.items():
+            try:
+                check = b[key]
+                # Ignore the type difference
+                if str(check) != str(item):
+                    return False
+            except KeyError:
+                return False
+        return True
+
     resolve_path = context['request'].resolver_match
-    if ':' in match:
-        namespace, name = match.split(':', 1)
-        if resolve_path.namespace == namespace and resolve_path.url_name.startswith(name):
-            return "active"
-    elif '/' in match:
-        if context['request'].path == match:
-            return "active"
-    elif resolve_path.url_name.startswith(match) and not resolve_path.namespace or resolve_path.namespace == match:
-            return "active"
-    else:
+    if kwargs and not check_kwargs(kwargs, resolve_path.kwargs):
         return ""
-
-
-@register.simple_tag(takes_context=True)
-def link_active(context, view_name, text, *args, **kwargs):
-    if kwargs.pop('outside', None):
-        html = r"""
-            <li class="nav-item {active}">
-                <a class="nav-link" href="{url}">{text}</a>
-            </li>
-            """
-    else:
-        html = '<a href="{url}" class="{active}">{text}</a>'
-    active = False
-    resolve_path = context['request'].resolver_match
-    url = reverse(view_name, args=args)
-    if args:
-        if url == context['request'].path:
-            active = True
-    else:
-        if ':' in view_name:
-            namespace, name = view_name.split(':', 1)
-            if resolve_path.namespace == namespace and resolve_path.url_name.startswith(name):
-                active = True
-        elif '/' in view_name:
-            if context['request'].path == view_name:
-                active = True
-        elif resolve_path.url_name.startswith(view_name) and not resolve_path.namespace or resolve_path.namespace == view_name:
-                active = True
-    return format_html(html, url=url, active="active" if active else "", text=text)
+    (namespace, name) = match.split(':', 1) if ':' in match else ('', match)
+    if (not namespace or namespace in resolve_path.namespaces) and resolve_path.url_name.startswith(name):
+        return "active"
+    return ""

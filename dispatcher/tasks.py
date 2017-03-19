@@ -106,7 +106,7 @@ class Dispatcher:
             submission.save()
 
             problem.add_accept(accept_increment)
-            problem.save(update_fields=['total_accepted_number'])
+            problem.save(update_fields=['total_accept_number'])
 
         if submission.contest is not None:
             user_id = submission.author.pk

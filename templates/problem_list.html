@@ -31,7 +31,7 @@
             <th scope="row">{{ problem.pk }}</th>
             <td><a href="{% url 'problem' problem.pk %}">{{ problem.title }}</a></td>
             <td>{{ problem.source }}</td>
-            <td align="center">{{ problem.total_accepted_number }} / {{ problem.total_submit_number }}</td>
+            <td align="center">{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
           </tr>
         {% endfor %}
       </tbody>

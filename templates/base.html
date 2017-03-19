@@ -9,6 +9,9 @@
   <meta name="author" content="">
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+  <script src="//cdn.bootcss.com/tether/1.4.0/js/tether.min.js"></script>
+  <script src="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
   <link href="{% static 'css/main.css' %}" rel="stylesheet">
   {% block css %}
   {% endblock %}
@@ -27,10 +30,18 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        {% link_active 'home' 'Home' outside=True %}
-        {% link_active 'problem_list' 'Problems' outside=True %}
-        {% link_active 'contest:list' 'Contests' outside=True %}
-        {% link_active 'status' 'Status' outside=True %}
+        <li class="nav-item {% navitem_active 'home' %}">
+          <a class="nav-link" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item {% navitem_active 'problem' %}">
+          <a class="nav-link" href="{% url 'problem_list' %}">Problems</a>
+        </li>
+        <li class="nav-item {% navitem_active 'contest:list' %}">
+          <a class="nav-link" href="{% url 'contest:list' %}">Contests</a>
+        </li>
+        <li class="nav-item {% navitem_active 'status' %}">
+          <a class="nav-link" href="{% url 'status' %}">Status</a>
+        </li>
       </ul>
       <ul class="navbar-nav">
         {% if request.user.is_authenticated %}
@@ -73,12 +84,6 @@
       <p>Proudly powered by <a href="https://v4-alpha.getbootstrap.com/">Bootstrap v4-alpha</a>.</p>
     </div>
   </footer>
-
-
-<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
-<script src="//cdn.bootcss.com/tether/1.4.0/js/tether.min.js"></script>
-<script src="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
-
 
 
 {% block script %}

@@ -74,7 +74,7 @@ class ContestSubmit(BaseContestMixin, FormView):
             submission.problem.save()
 
             DispatcherThread(submission.problem.pk, submission.pk).start()
-        return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': contest.pk}))
+        return HttpResponseRedirect(reverse('contest:submission', kwargs={'cid': contest.pk}))
 
 
 class ContestMySubmission(BaseContestMixin, ListView):
@@ -85,6 +85,15 @@ class ContestMySubmission(BaseContestMixin, ListView):
     def get_queryset(self):
         return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid')),
                                          author=self.request.user).all()
+
+
+class ContestStatus(BaseContestMixin, ListView):
+    template_name = 'contest/status.html'
+    paginate_by = 20
+    context_object_name = 'submission_list'
+
+    def get_queryset(self):
+        return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid'))).all()
 
 
 class ContestProblemDetail(BaseContestMixin, TemplateView):

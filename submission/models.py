@@ -101,7 +101,6 @@ class Submission(models.Model):
         return get_color_from_status(self.status)
 
     def get_time_display(self):
-        self.get_status_display()
         if self.status >= SubmissionStatus.WRONG_ANSWER and self.status != SubmissionStatus.COMPILE_ERROR:
             return str(self.status_time) + "ms"
         else:

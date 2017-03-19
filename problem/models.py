@@ -18,7 +18,7 @@ class Problem(models.Model):
     judge = models.CharField('Judge indicator', max_length=128, blank=True)
 
     total_submit_number = models.IntegerField('Submit', default=0)
-    total_accepted_number = models.IntegerField('Accepted', default=0)
+    total_accept_number = models.IntegerField('Accept', default=0)
 
     testdata_hash = models.CharField('Testdata zip hash value', max_length=64, blank=True)
 
@@ -29,7 +29,7 @@ class Problem(models.Model):
         self.total_submit_number += add
 
     def add_accept(self, add=1):
-        self.total_accepted_number += add
+        self.total_accept_number += add
 
     def get_markdown(self):
         self.body = markdown3.convert(self.description)

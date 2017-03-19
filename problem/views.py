@@ -30,7 +30,7 @@ class ProblemView(View):
                 submission.author = request.user
                 submission.code_length = len(submission.code)
                 submission.save()
-                update_problem = Problem.object.select_for_update().get(**kwargs)
+                update_problem = Problem.objects.select_for_update().get(**kwargs)
                 update_problem.add_submit()
                 update_problem.save()
             DispatcherThread(problem.pk, submission.pk).start()

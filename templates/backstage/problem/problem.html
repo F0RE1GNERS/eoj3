@@ -3,7 +3,7 @@
 
 {% block backstage_content %}
   <div class="content-header">
-    <h2>Problem List</h2>
+    <h2>Problems</h2>
   </div>
   {% include 'components/message.html' %}
   <div class="mb-3">
@@ -57,12 +57,6 @@
     </div>
   </div>
 
-  {% paginator %}
-
-{% endblock %}
-
-
-{% block script %}
   <script>
   $('#problemConfirmModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
@@ -70,4 +64,12 @@
     $(this).find('.modal-submit').attr('href', url);
   });
   </script>
+
+  {% paginator %}
+
+{% endblock %}
+
+
+{% block script %}
+
 {% endblock %}
