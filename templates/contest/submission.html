@@ -22,9 +22,8 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-          <td scope="row"><a href="#">{{ submission.pk }}</a></td>
-          {# TODO: get identifier #}
-          <td scope="row">{{ submission.problem }}</td>
+          <td scope="row"><a href="{% url 'submission' submission.pk %}">{{ submission.pk }}</a></td>
+          <td>{{ submission.contest_problem }}</td>
           <td>{{ submission.get_time_display }}</td>
           <td>{{ submission.get_memory_display }}</td>
           <td>{{ submission.get_lang_display }}</td>

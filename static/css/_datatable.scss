@@ -10,6 +10,8 @@
   }
   thead th {
     border-bottom-width: 2px;
+    padding-top: .8em;
+    padding-bottom: .8em;
   }
   td, th {
     border: 1px solid #e1e1e1;
@@ -17,6 +19,12 @@
     text-align: center;
     overflow: hidden;
     vertical-align: middle !important;
+    @media(min-width: 576px) {
+      &.col-width-large {
+        padding-left: .8em;
+        padding-right: .8em;
+      }
+    }
   }
   table {
     width: 100%;

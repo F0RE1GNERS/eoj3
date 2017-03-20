@@ -35,7 +35,7 @@ class ContestManage(View):
         contest = Contest.objects.get(**kwargs)
         if group_pk:
             contest.groups.add(Group.objects.get(pk=group_pk))
-        contest.update_header()
+        update_contest(contest)
         return render(request, self.template_name, self.get_context_data(**kwargs))
 
     def get(self, request, **kwargs):
@@ -83,7 +83,7 @@ def contest_problem_create(request, contest_pk):
                 raise KeyError
             ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
                                           identifier=identifier)
-            contest.update_header()
+            update_contest(contest)
         except (ValueError, KeyError, Contest.DoesNotExist, Problem.DoesNotExist):
             messages.error(request, 'Contest problem or tag might be illegal.')
         except IntegrityError:
@@ -94,6 +94,6 @@ def contest_problem_create(request, contest_pk):
 def contest_problem_delete(request, contest_pk, contest_problem_pk):
     contest = Contest.objects.get(pk=contest_pk)
     contest.contestproblem_set.get(pk=contest_problem_pk).delete()
-    contest.update_header()
+    update_contest(contest)
     messages.success(request, "This problem has been successfully deleted.")
     return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))

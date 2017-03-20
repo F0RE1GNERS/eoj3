@@ -15,17 +15,33 @@ from submission.forms import ContestSubmitForm
 from dispatcher.tasks import DispatcherThread
 
 
+def time_formatter(seconds):
+    return "%d:%.2d:%.2d" % (seconds // 3600,
+                             seconds % 3600 // 60,
+                             seconds % 60)
+
+
+def get_contest_problem(contest, problem):
+    return contest.contestproblem_set.get(problem=problem)
+
+
 class BaseContestMixin(TemplateResponseMixin, ContextMixin):
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         data['contest'] = contest
-        remaining_time_seconds = (contest.end_time - timezone.now()).seconds
-        data['progress'] = 100 - int(100 * remaining_time_seconds / (contest.end_time - contest.start_time).seconds)
-        data['remaining_time'] = "%d:%.2d:%.2d" % (remaining_time_seconds // 3600,
-                                                   remaining_time_seconds % 3600 // 60,
-                                                   remaining_time_seconds % 60)
-        data['contest_problem_list'] = get_list_or_404(ContestProblem, contest=data['contest'])
+        data['contest_status'] = contest.get_status()
+        if data['contest_status'] == 'Ended':
+            data['progress'] = 100
+        elif data['contest_status'] == 'Running':
+            remaining_time_seconds = int((contest.end_time - timezone.now()).total_seconds())
+            data['progress'] = 100 - int(100 * remaining_time_seconds / (contest.end_time - contest.start_time).total_seconds())
+            data['remaining_time'] = 'Remaining ' + time_formatter(remaining_time_seconds)
+        elif data['contest_status'] == 'Pending':
+            data['progress'] = 0
+            before_start_time_seconds = int((contest.start_time - timezone.now()).total_seconds())
+            data['remaining_time'] = 'Before start ' + time_formatter(before_start_time_seconds)
+        data['contest_problem_list'] = contest.contestproblem_set.all()
         return data
 
 
@@ -90,12 +106,19 @@ class ContestSubmit(BaseContestMixin, FormView):
 
 class ContestMySubmission(BaseContestMixin, ListView):
     template_name = 'contest/submission.html'
-    paginate_by = 20
+    paginate_by = 1
     context_object_name = 'submission_list'
 
     def get_queryset(self):
         return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid')),
                                          author=self.request.user).all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestMySubmission, self).get_context_data(**kwargs)
+        for submission in data['submission_list']:
+            submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
+            submission.contest_problem = str(get_contest_problem(data['contest'], submission.problem))
+        return data
 
 
 class ContestStatus(BaseContestMixin, ListView):
@@ -105,6 +128,12 @@ class ContestStatus(BaseContestMixin, ListView):
 
     def get_queryset(self):
         return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid'))).all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestStatus, self).get_context_data(**kwargs)
+        for submission in data['submission_list']:
+            submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
+        return data
 
 
 class ContestProblemDetail(BaseContestMixin, TemplateView):

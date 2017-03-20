@@ -11,14 +11,8 @@ class ContestManager(models.Manager):
     def get_status_list(self):
         cmp = dict(Running=-1, Pending=0, Ended=1)
         contest_list = super(ContestManager, self).get_queryset().all()
-        now = timezone.now()
         for contest in contest_list:
-            if contest.start_time <= now <= contest.end_time:
-                contest.status = 'Running'
-            elif now <= contest.start_time:
-                contest.status = 'Pending'
-            else:
-                contest.status = 'Ended'
+            contest.status = contest.get_status()
         contest_list = sorted(contest_list, key=lambda c: cmp[c.status])
         return contest_list
 
@@ -50,6 +44,15 @@ class Contest(models.Model):
     class Meta:
         ordering = ['-start_time']
 
+    def get_status(self):
+        now = timezone.now()
+        if self.start_time <= now <= self.end_time:
+            return 'Running'
+        elif now <= self.start_time:
+            return 'Pending'
+        else:
+            return 'Ended'
+
 
 class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
@@ -67,6 +70,9 @@ class ContestProblem(models.Model):
 
     def add_accept(self, add=1):
         self.total_accept_number += add
+
+    def __str__(self):
+        return self.identifier + ' - ' + self.problem.title
 
 
 class ContestClarification(models.Model):

@@ -41,7 +41,7 @@ def recalculate_for_participant(contest, submissions, problems):
         :param submit_time: time in DateTimeField
         :return: penalty in seconds
         """
-        return (submit_time - start_time).seconds
+        return int((submit_time - start_time).total_seconds())
 
     def get_time_display(time):
         """
@@ -116,7 +116,7 @@ def recalculate_for_participant(contest, submissions, problems):
             else:
                 sub_cache = ''
             cache += html_column.format(column=sub_cache)
-    cache = html_column.format(column=score) + html_column.format(column=penalty) + cache
+    cache = html_column.format(column=score) + html_column.format(column=int(penalty // 60)) + cache
 
     print(score, penalty, cache)
     return score, penalty, cache
