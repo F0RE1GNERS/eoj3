@@ -44,7 +44,8 @@ class Contest(models.Model):
 
     visible = models.BooleanField(default=False)
 
-    objects = ContestManager()
+    objects = ContestManager() # ???
+    contest_header = models.TextField('Header of standings', blank=True)
 
     class Meta:
         ordering = ['-start_time']
@@ -78,7 +79,9 @@ class ContestClarification(models.Model):
 class ContestParticipants(models.Model):
     user = models.ForeignKey(User)
     contest = models.ForeignKey(Contest)
-    score = models.BigIntegerField(default=0)
+    score = models.IntegerField(default=0)
+    penalty = models.IntegerField(default=0)
+    html_cache = models.TextField(blank=True)
 
     class Meta:
-        ordering = ["-score"]
+        ordering = ["-score", "penalty"]

@@ -42,8 +42,14 @@ class ContestList(ListView):
         return Contest.objects.get_status_list()
 
 
-class ContestStandings(BaseContestMixin, TemplateView):
+class ContestStandings(BaseContestMixin, ListView):
     template_name = 'contest/standings.html'
+    paginate_by = 20
+    context_object_name = 'rank_list'
+
+    def get_queryset(self):
+        print(self.kwargs)
+        return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipants_set.all()
 
 
 class ContestSubmit(BaseContestMixin, FormView):
@@ -103,3 +109,4 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
                                                     contest=data['contest'])
         data['problem'] = data['contest_problem'].problem.get_markdown()
         return data
+

@@ -11,6 +11,7 @@ from .forms import ContestEditForm
 from contest.models import Contest, ContestProblem
 from problem.models import Problem
 from group.models import Group
+from contest.tasks import update_contest
 
 from ..base_views import BaseCreateView, BaseUpdateView
 
@@ -30,16 +31,11 @@ class ContestManage(View):
         return dict(contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
 
     def post(self, request, **kwargs):
-        problem_pk = request.POST.get('problem')
-        identifier = request.POST.get('identifier', 'A') # TODO: auto-increment
         group_pk = request.POST.get('group')
         contest = Contest.objects.get(**kwargs)
-        if problem_pk:
-            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
-                                          identifier=identifier)
         if group_pk:
             contest.groups.add(Group.objects.get(pk=group_pk))
-
+        contest.update_header()
         return render(request, self.template_name, self.get_context_data(**kwargs))
 
     def get(self, request, **kwargs):
@@ -54,11 +50,19 @@ class ContestCreate(BaseCreateView):
     def get_redirect_url(self, instance):
         return self.request.POST.get('next', self.request.path)
 
+    def post_create(self, instance):
+        super(ContestCreate, self).post_create(instance)
+        update_contest(instance)
+
 
 class ContestUpdate(BaseUpdateView):
     form_class = ContestEditForm
     template_name = 'backstage/contest/contest_edit.html'
     queryset = Contest.objects.all()
+
+    def post_update(self, instance):
+        super(ContestUpdate, self).post_update(instance)
+        update_contest(instance)
 
 
 @method_decorator(login_required(), name='dispatch')
@@ -79,6 +83,7 @@ def contest_problem_create(request, contest_pk):
                 raise KeyError
             ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
                                           identifier=identifier)
+            contest.update_header()
         except (ValueError, KeyError, Contest.DoesNotExist, Problem.DoesNotExist):
             messages.error(request, 'Contest problem or tag might be illegal.')
         except IntegrityError:
@@ -89,5 +94,6 @@ def contest_problem_create(request, contest_pk):
 def contest_problem_delete(request, contest_pk, contest_problem_pk):
     contest = Contest.objects.get(pk=contest_pk)
     contest.contestproblem_set.get(pk=contest_problem_pk).delete()
+    contest.update_header()
     messages.success(request, "This problem has been successfully deleted.")
     return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))

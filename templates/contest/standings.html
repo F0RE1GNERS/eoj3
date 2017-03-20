@@ -6,24 +6,22 @@
   </div>
   <div>
     <p>Your standing: 244</p>
-    <table class="table">
+    <table class="datatable table-bordered">
       <thead>
         <tr>
-          <th width="9%">Rank</th>
-          <th width="14%">Name</th>
-          <th width="27%">A</th>
-          <th width="25%">B</th>
-          <th width="25%">C</th>
+        <th class="col-width-2">#</th>
+        <th style="text-align: left;">Who</th>
+        {{ contest.contest_header | safe }}
         </tr>
       </thead>
       <tbody>
+        {% for rank in rank_list %}
           <tr>
             <td scope="row">1</td>
-            <td>Orzerol</td>
-            <td class="text-success">00:00:01</td>
-            <td>00:00:02(-1)</td>
-            <td>00:00:03</td>
+            <td style="text-align: left;">{{ rank.user.username }}</td>
+            {{ rank.html_cache | safe }}
           </tr>
+        {% endfor %}
       </tbody>
     </table>
 

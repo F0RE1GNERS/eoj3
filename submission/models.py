@@ -18,6 +18,14 @@ class SubmissionStatus(object):
     IDLENESS_LIMIT_EXCEEDED = 7
     SUM_TIME_LIMIT_EXCEEDED = 8
 
+    @staticmethod
+    def is_judged(status):
+        return status >= SubmissionStatus.WRONG_ANSWER
+
+    @staticmethod
+    def is_penalty(status):
+        return SubmissionStatus.is_judged(status) and status != SubmissionStatus.COMPILE_ERROR
+
 
 LANG_CHOICE = (
     ('c', 'C'),
@@ -83,6 +91,7 @@ class Submission(models.Model):
 
     # TODO: add choices?
     status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.WAITING)
+    status_percent = models.IntegerField(default=0)
     status_detail = models.TextField(blank=True)
     status_time = models.IntegerField(default=0)
     status_memory = models.IntegerField(default=0)

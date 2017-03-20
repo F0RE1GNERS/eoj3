@@ -1,0 +1,40 @@
+.datatable {
+  width: 100%;
+  position: relative;
+  td {
+    width: auto;
+    max-width: 20em;
+  }
+  th {
+    font-weight: bold;
+  }
+  thead th {
+    border-bottom-width: 2px;
+  }
+  td, th {
+    border: 1px solid #e1e1e1;
+    padding: .5em;
+    text-align: center;
+    overflow: hidden;
+    vertical-align: middle !important;
+  }
+  table {
+    width: 100%;
+  }
+  .text-small {
+    font-size: .8em;
+    color: #222;
+  }
+  .col-width-2 {
+    width: 2em !important;
+  }
+  .col-width-3 {
+    width: 3em !important;
+  }
+  .col-width-4 {
+    width: 4em !important;
+  }
+  .col-width-5 {
+    width: 5em !important;
+  }
+}
