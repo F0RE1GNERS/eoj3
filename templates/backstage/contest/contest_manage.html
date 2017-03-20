@@ -10,12 +10,37 @@
 
   <div class="content-section">
     <h3>Contest Profile</h3>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">Title</div>
+      <div class="col-9">{{ contest.title }}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">Description</div>
+      <div class="col-9">{{ contest.description }}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">Rule</div>
+      <div class="col-9">{{ contest.get_rule_display }}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">Start time</div>
+      <div class="col-9">{{ contest.start_time }}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">End time</div>
+      <div class="col-9">{{ contest.end_time }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-3 font-weight-bold">Visible</div>
+      <div class="col-9">{{ contest.visible }}</div>
+    </div>
     <a role="button" href="{% url 'backstage:contest_edit' contest.pk %}" class="btn btn-outline-primary">
       Edit Profile</a>
   </div>
 
   <div class="content-section">
     <h3>Contest Problems</h3>
+    {% if contest_problem_list %}
     <div class="scrollable">
       <table class="table">
         <thead>
@@ -43,6 +68,7 @@
         </tbody>
       </table>
     </div>
+    {% endif %}
     <form class="form-inline" action="{% url 'backstage:contest_problem_create' contest.pk %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.path }}">

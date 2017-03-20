@@ -48,7 +48,7 @@ class ContestCreate(BaseCreateView):
     template_name = 'backstage/contest/contest_add.html'
 
     def get_redirect_url(self, instance):
-        return self.request.POST.get('next', self.request.path)
+        return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
 
     def post_create(self, instance):
         super(ContestCreate, self).post_create(instance)

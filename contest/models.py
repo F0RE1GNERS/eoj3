@@ -24,7 +24,7 @@ class Contest(models.Model):
     )
 
     title = models.CharField(max_length=48)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     created_by = models.ForeignKey(User, related_name='created_contests')
 
