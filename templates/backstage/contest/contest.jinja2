@@ -12,11 +12,10 @@
       <thead>
         <tr>
           <th width="8%">#</th>
-          <th width="32%">Title</th>
-          <th width="20%">Start time</th>
-          <th width="20%">End time</th>
-          <th width="10%">Profile</th>
-          <th width="10%">Manage</th>
+          <th width="36%">Title</th>
+          <th width="23%">Start time</th>
+          <th width="23%">End time</th>
+          <th width="10%">Edit</th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +25,6 @@
             <td>{{ contest.title }}</td>
             <td>{{ contest.start_time }}</td>
             <td>{{ contest.end_time }}</td>
-            <td><a href="{{ url('backstage:contest_edit', contest.pk) }}" class="text-default">Edit</a></td>
             <td><a href="{{ url('backstage:contest_manage', contest.pk) }}" class="text-primary">Manage</a></td>
             {# NOTE: Contest cannot be deleted once created #}
           </tr>

@@ -10,7 +10,7 @@
   <div class="container">
     <div class="row">
 
-      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+      <div class="col-12 col-md-3 push-md-9 bd-sidebar bd-contest-sidebar">
         <div class="contest-progress">
           <h5>Contest {{ contest_status }}</h5>
           <div class="progress">
@@ -22,9 +22,8 @@
         </div>
         <a class="link-lg {{ active('contest:dashboard') }}" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
         <a class="link-lg {{  active('contest:problem') }}">Problem</a>
-        {# TODO: active link #}
         {% for contest_problem in contest_problem_list %}
-          <a class="{{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+          <a class="link-sm {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
              href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
             {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
           </a>

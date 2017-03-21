@@ -5,7 +5,7 @@
   <input type="hidden" name="next" value="{{ request.path }}">
   {% for field in form %}
     {% if not field.errors %}
-      {% if field.label == 'Visible' %}  {# TODO hard code #}
+      {% if field.label in ['Visible', 'Public'] %}  {# TODO hard code #}
         <div class="form-check mb-3">
           <label class="form-check-label">
             {{ field.label }}
