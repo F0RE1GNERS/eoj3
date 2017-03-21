@@ -1,9 +1,15 @@
 from django.db import models
+from django.db import IntegrityError
 from django.utils import timezone
 
 from account.models import User
 from problem.models import Problem
 from group.models import Group
+import shortuuid
+
+
+def get_invitation_code():
+    return shortuuid.ShortUUID().random(12)
 
 
 class ContestManager(models.Manager):
@@ -24,7 +30,7 @@ class Contest(models.Model):
     )
 
     title = models.CharField(max_length=48)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     created_by = models.ForeignKey(User, related_name='created_contests')
 
@@ -34,15 +40,16 @@ class Contest(models.Model):
 
     groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
-    participants = models.ManyToManyField(User, through='ContestParticipants', related_name='contests')
+    participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
     visible = models.BooleanField(default=False)
+    public = models.BooleanField(default=False)
 
     objects = ContestManager() # ???
     contest_header = models.TextField('Header of standings', blank=True)
 
     class Meta:
-        ordering = ['-start_time']
+        ordering = ['-pk']
 
     def get_status(self):
         now = timezone.now()
@@ -63,6 +70,7 @@ class ContestProblem(models.Model):
 
     class Meta:
         unique_together = ('problem', 'contest')
+        ordering = ['identifier']
 
     def add_submit(self, add=1):
         # Added when submitting
@@ -82,12 +90,25 @@ class ContestClarification(models.Model):
     username = models.CharField(max_length=30)
 
 
-class ContestParticipants(models.Model):
+class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
+    comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
     html_cache = models.TextField(blank=True)
 
     class Meta:
+        unique_together = ["user", "contest"]
         ordering = ["-score", "penalty"]
+
+
+class ContestInvitation(models.Model):
+
+    contest = models.ForeignKey(Contest)
+    code = models.CharField(max_length=24)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('contest', 'code')
+        ordering = ['-pk']

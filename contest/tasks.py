@@ -142,7 +142,7 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
             problem.add_accept(accept_increment)
             problem.save()
 
-        participant, _ = contest.contestparticipants_set.select_for_update().\
+        participant, _ = contest.contestparticipant_set.select_for_update().\
             get_or_create(user__pk=user_id, defaults={'user': User.objects.get(pk=user_id), 'contest': contest})
         _update_participant(contest, participant)
 
@@ -176,6 +176,6 @@ def _update_header(contest):
 def update_contest(contest):
     with transaction.atomic():
         _update_header(contest)
-        participants = contest.contestparticipants_set.select_for_update().all()
+        participants = contest.contestparticipant_set.select_for_update().all()
         for participant in participants:
             _update_participant(contest, participant)

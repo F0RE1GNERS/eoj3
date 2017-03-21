@@ -1,3 +1,5 @@
+import shortuuid
+
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,13 +7,15 @@ from django.views.generic.list import ListView
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from .forms import ContestEditForm
-from contest.models import Contest, ContestProblem
+from account.models import User
+from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
 from group.models import Group
 from contest.tasks import update_contest
+from utils import markdown3
 
 from ..base_views import BaseCreateView, BaseUpdateView
 
@@ -27,8 +31,12 @@ class ContestManage(View):
     def get_context_data(**kwargs):
         contest = Contest.objects.get(**kwargs)
         contest_problem_list = ContestProblem.objects.filter(contest=contest).all()
-        group_list = contest.groups.all()
-        return dict(contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
+        profile = [('Title', contest.title), ('Description', contest.description),
+                   ('Rule', contest.get_rule_display()), ('Start time', contest.start_time),
+                   ('End time', contest.end_time), ('Visible', contest.visible), ('Public', contest.public)]
+        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list,
+                    invitation_count=contest.contestinvitation_set.count(),
+                    participant_count=contest.contestparticipant_set.count())
 
     def post(self, request, **kwargs):
         group_pk = request.POST.get('group')
@@ -48,20 +56,23 @@ class ContestCreate(BaseCreateView):
     template_name = 'backstage/contest/contest_add.jinja2'
 
     def get_redirect_url(self, instance):
-        return self.request.POST.get('next', self.request.path)
+        return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
 
     def post_create(self, instance):
         super(ContestCreate, self).post_create(instance)
         update_contest(instance)
 
 
-class ContestUpdate(BaseUpdateView):
+class ContestProfileUpdate(BaseUpdateView):
     form_class = ContestEditForm
     template_name = 'backstage/contest/contest_edit.jinja2'
     queryset = Contest.objects.all()
 
+    def get_redirect_url(self, instance):
+        return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
+
     def post_update(self, instance):
-        super(ContestUpdate, self).post_update(instance)
+        super(ContestProfileUpdate, self).post_update(instance)
         update_contest(instance)
 
 
@@ -74,20 +85,34 @@ class ContestList(ListView):
 
 
 def contest_problem_create(request, contest_pk):
+
+    def get_next_identifier(identifiers):
+        from collections import deque
+        q = deque()
+        q.append('')
+        while q:
+            u = q.popleft()
+            if u and u not in identifiers:
+                return u
+            for i in range(ord('A'), ord('Z') + 1):
+                q.append(u + chr(i))
+
     if request.method == 'POST':
         try:
-            contest = Contest.objects.get(pk=contest_pk)
-            problem_pk = request.POST['problem']
-            identifier = request.POST['identifier']
-            if problem_pk == '':
-                raise KeyError
-            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
-                                          identifier=identifier)
-            update_contest(contest)
-        except (ValueError, KeyError, Contest.DoesNotExist, Problem.DoesNotExist):
-            messages.error(request, 'Contest problem or tag might be illegal.')
-        except IntegrityError:
-            messages.error(request, 'Problem and ID must be unique.')
+            problems = [request.POST['problem']]
+        except KeyError:
+            problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split('\n'))))
+        contest = Contest.objects.get(pk=contest_pk)
+        for problem in problems:
+            identifier = get_next_identifier([x.identifier for x in contest.contestproblem_set.all()])
+            try:
+                ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem),
+                                              identifier=identifier)
+            except (ValueError, Problem.DoesNotExist):
+                messages.error(request, 'There is no such thing as Problem #%s.' % problem)
+            except IntegrityError:
+                messages.error(request, 'Problem and ID must be unique.')
+        update_contest(contest)
         return HttpResponseRedirect(request.POST['next'])
 
 
@@ -97,3 +122,78 @@ def contest_problem_delete(request, contest_pk, contest_problem_pk):
     update_contest(contest)
     messages.success(request, "This problem has been successfully deleted.")
     return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))
+
+
+class ContestInvitationList(ListView):
+    template_name = 'backstage/contest/contest_invitation.html'
+    paginate_by = 50
+    context_object_name = 'invitation_list'
+
+    def get_queryset(self):
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestInvitationList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data
+
+
+def contest_invitation_create(request, pk):
+    def _create(contest, comment):
+        while True:
+            try:
+                ContestInvitation.objects.create(contest=contest, comment=comment,
+                                                 code=shortuuid.ShortUUID().random(12))
+                break
+            except IntegrityError:
+                import sys
+                print('Invitation code collision just happened', file=sys.stderr)
+
+    if request.method == 'POST':
+        try:
+            comments = [''] * int(request.POST['number'])
+        except KeyError:
+            comments = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
+        contest = Contest.objects.get(pk=pk)
+        for comment in comments:
+            _create(contest, comment)
+        return HttpResponseRedirect(request.POST['next'])
+
+
+def contest_invitation_delete(request, pk, invitation_pk):
+    contest = Contest.objects.get(pk=pk)
+    contest.contestinvitation_set.get(pk=invitation_pk).delete()
+    return HttpResponseRedirect(reverse('backstage:contest_invitation', kwargs={'pk': pk}))
+
+
+def contest_invitation_assign(request, pk, invitation_pk):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            with transaction.atomic():
+                user = User.objects.get(username=username)
+                contest = Contest.objects.get(pk=pk)
+                invitation = contest.contestinvitation_set.get(pk=invitation_pk)
+                ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
+                invitation.delete()
+                update_contest(contest)
+            messages.success(request, 'The user <strong>%s</strong> has been successfully added to the contest.' % username)
+        except User.DoesNotExist:
+            messages.error(request, 'The user <strong>%s</strong> does not exist. Please check again.' % username)
+        except IntegrityError:
+            messages.error(request, 'You cannot add one user twice.')
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantList(ListView):
+    template_name = 'backstage/contest/contest_participant.html'
+    paginate_by = 50
+    context_object_name = 'participant_list'
+
+    def get_queryset(self):
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestParticipantList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data

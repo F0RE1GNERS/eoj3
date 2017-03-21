@@ -62,13 +62,12 @@ class ContestStandings(BaseContestMixin, TemplateView):
     template_name = 'contest/standings.jinja2'
 
     def get_queryset(self):
-        print(self.kwargs)
-        return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipants_set.all()
+        return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
         contest = data['contest']
-        data['rank_list'] = list(enumerate(contest.contestparticipants_set.all(), start=1))
+        data['rank_list'] = list(enumerate(contest.contestparticipant_set.all(), start=1))
         data['my_rank'] = 'N/A'
         for (rank, detail) in data['rank_list']:
             if detail.user == self.request.user:
