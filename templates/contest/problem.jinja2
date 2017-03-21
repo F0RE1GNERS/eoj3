@@ -1,0 +1,18 @@
+{% extends 'contest/base.jinja2' %}
+{% block contest_content %}
+
+  <div class="problem-header">
+    <h2>Problem {{ contest_problem.identifier }} - {{ problem.title }}</h2>
+    <div class="property">
+      <p><strong>Time limit per test: </strong>{ problem.time_limit / 1000} seconds</p>
+      <p><strong>Time limit all tests: </strong>{{ problem.sum_time_limit / 1000 }} seconds</p>
+      <p><strong>Memory limit: </strong>{{ problem.memory_limit }} megabytes</p>
+      <p><strong>Accept / Submit: </strong><a href="#">{{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</a></p>
+    </div>
+  </div>
+  <div class="problem-body">
+    {{ problem.body | safe }}
+  </div>
+
+  {% include 'components/math_support.jinja2' %}
+{% endblock %}

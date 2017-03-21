@@ -21,7 +21,7 @@ def get_formatted_time():
 
 
 class ContestManage(View):
-    template_name = 'backstage/contest/contest_manage.html'
+    template_name = 'backstage/contest/contest_manage.jinja2'
 
     @staticmethod
     def get_context_data(**kwargs):
@@ -45,7 +45,7 @@ class ContestManage(View):
 class ContestCreate(BaseCreateView):
     initial = {'start_time': get_formatted_time(), 'end_time': get_formatted_time()}
     form_class = ContestEditForm
-    template_name = 'backstage/contest/contest_add.html'
+    template_name = 'backstage/contest/contest_add.jinja2'
 
     def get_redirect_url(self, instance):
         return self.request.POST.get('next', self.request.path)
@@ -57,7 +57,7 @@ class ContestCreate(BaseCreateView):
 
 class ContestUpdate(BaseUpdateView):
     form_class = ContestEditForm
-    template_name = 'backstage/contest/contest_edit.html'
+    template_name = 'backstage/contest/contest_edit.jinja2'
     queryset = Contest.objects.all()
 
     def post_update(self, instance):
@@ -67,7 +67,7 @@ class ContestUpdate(BaseUpdateView):
 
 @method_decorator(login_required(), name='dispatch')
 class ContestList(ListView):
-    template_name = 'backstage/contest/contest.html'
+    template_name = 'backstage/contest/contest.jinja2'
     queryset = Contest.objects.all()
     paginate_by = 20
     context_object_name = 'contest_list'

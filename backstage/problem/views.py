@@ -29,7 +29,7 @@ def testdata(request, pk):
         problem.testdata_hash = hashlib.md5(data).hexdigest()
         problem.save()
 
-    return render(request, 'backstage/problem/problem_testdata.html',
+    return render(request, 'backstage/problem/problem_testdata.jinja2',
                   {'data_set': sort_data_from_zipfile(file_path),
                    'hash': problem.testdata_hash,
                    'pid': pk})
@@ -45,7 +45,7 @@ def problem_delete(request, pk):
 
 class ProblemCreate(BaseCreateView):
     form_class = ProblemEditForm
-    template_name = 'backstage/problem/problem_add.html'
+    template_name = 'backstage/problem/problem_add.jinja2'
 
     def get_redirect_url(self, instance):
         return reverse("backstage:problem")
@@ -54,12 +54,12 @@ class ProblemCreate(BaseCreateView):
 class ProblemUpdate(BaseUpdateView):
     form_class = ProblemEditForm
     queryset = Problem.objects.all()
-    template_name = 'backstage/problem/problem_edit.html'
+    template_name = 'backstage/problem/problem_edit.jinja2'
 
 
 @method_decorator(login_required(), name='dispatch')
 class ProblemList(ListView):
-    template_name = 'backstage/problem/problem.html'
+    template_name = 'backstage/problem/problem.jinja2'
     queryset = Problem.objects.all()
     paginate_by = 20
     context_object_name = 'problem_list'

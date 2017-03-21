@@ -1,0 +1,30 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+<div class="bd-pageheader">
+  <div class="container">
+    <h1>Backstage</h1>
+  </div>
+</div>
+  <div class="container">
+    <div class="row">
+
+      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+        <a href="{{ url('backstage:index') }}" class="{{ active('backstage:index') }}">Go to homepage</a>
+        <a href="#" class="">Site</a>
+        <a href="{{ url('backstage:problem') }}" class="{{ active('backstage:problem') }}">Problems</a>
+        <a href="{{ url('backstage:contest') }}" class="{{ active('backstage:contest') }}">Contest</a>
+        <a href="#">Accounts</a>
+        <a href="{{ url('backstage:group') }}" class="{{ active('backstage:group') }}">Groups</a>
+        <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }}">Servers</a>
+      </div>
+      <div class="col-12 col-md-9 pull-md-3 bd-content">
+        {% block backstage_content %}
+        {% endblock %}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

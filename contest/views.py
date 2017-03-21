@@ -46,11 +46,11 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin):
 
 
 class DashboardView(BaseContestMixin, TemplateView):
-    template_name = 'contest/index.html'
+    template_name = 'contest/index.jinja2'
 
 
 class ContestList(ListView):
-    template_name = 'contest_list.html'
+    template_name = 'contest_list.jinja2'
     paginate_by = 50
     context_object_name = 'contest_list'
 
@@ -59,7 +59,7 @@ class ContestList(ListView):
 
 
 class ContestStandings(BaseContestMixin, TemplateView):
-    template_name = 'contest/standings.html'
+    template_name = 'contest/standings.jinja2'
 
     def get_queryset(self):
         print(self.kwargs)
@@ -77,7 +77,7 @@ class ContestStandings(BaseContestMixin, TemplateView):
 
 
 class ContestSubmit(BaseContestMixin, FormView):
-    template_name = 'contest/submit.html'
+    template_name = 'contest/submit.jinja2'
     form_class = ContestSubmitForm
 
     def get_initial(self):
@@ -105,7 +105,7 @@ class ContestSubmit(BaseContestMixin, FormView):
 
 
 class ContestMySubmission(BaseContestMixin, ListView):
-    template_name = 'contest/submission.html'
+    template_name = 'contest/submission.jinja2'
     paginate_by = 1
     context_object_name = 'submission_list'
 
@@ -122,7 +122,7 @@ class ContestMySubmission(BaseContestMixin, ListView):
 
 
 class ContestStatus(BaseContestMixin, ListView):
-    template_name = 'contest/status.html'
+    template_name = 'contest/status.jinja2'
     paginate_by = 20
     context_object_name = 'submission_list'
 
@@ -137,7 +137,7 @@ class ContestStatus(BaseContestMixin, ListView):
 
 
 class ContestProblemDetail(BaseContestMixin, TemplateView):
-    template_name = 'contest/problem.html'
+    template_name = 'contest/problem.jinja2'
 
     def get_context_data(self, **kwargs):
         data = super(ContestProblemDetail, self).get_context_data(**kwargs)

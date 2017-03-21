@@ -15,7 +15,7 @@ from ..base_views import BaseCreateView, BaseUpdateView
 
 
 class GroupManage(View):
-    template_name = 'backstage/group/group_manage.html'
+    template_name = 'backstage/group/group_manage.jinja2'
 
     @staticmethod
     def get_context_data(**kwargs):
@@ -41,7 +41,7 @@ class GroupManage(View):
 
 class GroupCreate(BaseCreateView):
     form_class = GroupEditForm
-    template_name = 'backstage/group/group_add.html'
+    template_name = 'backstage/group/group_add.jinja2'
 
     def get_redirect_url(self, instance):
         return reverse('backstage:group_manage', kwargs={'pk': instance.pk})
@@ -49,13 +49,13 @@ class GroupCreate(BaseCreateView):
 
 class GroupUpdate(BaseUpdateView):
     form_class = GroupEditForm
-    template_name = 'backstage/group/group_edit.html'
+    template_name = 'backstage/group/group_edit.jinja2'
     queryset = Group.objects.all()
 
 
 @method_decorator(login_required(), name='dispatch')
 class GroupList(ListView):
-    template_name = 'backstage/group/group.html'
+    template_name = 'backstage/group/group.jinja2'
     queryset = Group.objects.all()
     paginate_by = 20
     context_object_name = 'group_list'

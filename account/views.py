@@ -7,7 +7,7 @@ from utils.invitation import activate
 
 
 def profile_view(request):
-    return render(request, 'account/profile.html')
+    return render(request, 'account/profile.jinja2')
 
 
 def register_view(request):
@@ -19,11 +19,11 @@ def register_view(request):
             return HttpResponseRedirect('/')
     else:
         form = RegisterForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'register.jinja2', {'form': form})
 
 
 class MyGroup(View):
-    template_name = 'account/group.html'
+    template_name = 'account/group.jinja2'
 
     def get_context_data(self):
         user = self.request.user
@@ -44,11 +44,11 @@ class MyGroup(View):
 
 
 def my_password_change(request):
-    return password_change(request, template_name='account/security.html',
+    return password_change(request, template_name='account/security.jinja2',
                            post_change_redirect=reverse('account:profile'),
                            password_change_form=MyPasswordChangeForm,
                            message="Your password was changed successfully")
 
 
 def my_login(request):
-    return login(request, template_name='login.html')
+    return login(request, template_name='login.jinja2')

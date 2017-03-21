@@ -19,7 +19,6 @@
       </div>
     </div>
 
-{#    <div>{{ problem.description_html }}</div>#}
   <div class="problem-body">
     {{ problem.body | safe }}
   </div>
@@ -28,11 +27,11 @@
     {% csrf_token %}
     <div class="form-group form-inline">
       {{ form.lang.label_tag() }}
-      {{ render_field(form.lang, add_attrs={'class': 'form-control'}) }}
+      {{ render_field(form.lang, {'class': 'form-control'}) }}
     </div>
     <div class="form-group">
       {{ form.code.label_tag() }}
-      {{ render_field(form.code, add_attrs={'class': 'form-control'}) }}
+      {{ render_field(form.code, {'class': 'form-control'}) }}
     </div>
     <button class="btn btn-lg btn-outline-primary" type="submit">Submit my code</button>
   </form>

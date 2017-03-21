@@ -1,0 +1,40 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block backstage_content %}
+  <div class="content-header">
+    <h2>Contests</h2>
+  </div>
+  <div class="mb-3">
+    <a role="button" class="btn btn-primary" href="{{ url('backstage:contest_create') }}">Add a contest</a>
+  </div>
+  <div class="scrollable">
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="8%">#</th>
+          <th width="32%">Title</th>
+          <th width="20%">Start time</th>
+          <th width="20%">End time</th>
+          <th width="10%">Profile</th>
+          <th width="10%">Manage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contest in contest_list %}
+          <tr>
+            <td scope="row">{{ contest.pk }}</td>
+            <td>{{ contest.title }}</td>
+            <td>{{ contest.start_time }}</td>
+            <td>{{ contest.end_time }}</td>
+            <td><a href="{{ url('backstage:contest_edit', contest.pk) }}" class="text-default">Edit</a></td>
+            <td><a href="{{ url('backstage:contest_manage', contest.pk) }}" class="text-primary">Manage</a></td>
+            {# NOTE: Contest cannot be deleted once created #}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {{ my_paginator() }}
+
+{% endblock %}

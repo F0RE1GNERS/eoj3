@@ -12,7 +12,7 @@ from ..base_views import BaseCreateView, BaseUpdateView
 
 class ServerCreate(BaseCreateView):
     form_class = ServerEditForm
-    template_name = 'backstage/server/server_add.html'
+    template_name = 'backstage/server/server_add.jinja2'
 
     def get_redirect_url(self, instance):
         return reverse('backstage:server')
@@ -20,12 +20,12 @@ class ServerCreate(BaseCreateView):
 
 class ServerUpdate(BaseUpdateView):
     form_class = ServerEditForm
-    template_name = 'backstage/server/server_edit.html'
+    template_name = 'backstage/server/server_edit.jinja2'
     queryset = Server.objects.all()
 
 
 class ServerList(ListView):
-    template_name = 'backstage/server/server.html'
+    template_name = 'backstage/server/server.jinja2'
     queryset = Server.objects.all()
     context_object_name = 'server_list'
 

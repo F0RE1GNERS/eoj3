@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    return render(request, 'backstage/index.html')
+    return render(request, 'backstage/index.jinja2')
 
 
 @method_decorator(login_required(), name='dispatch')

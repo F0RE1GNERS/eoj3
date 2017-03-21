@@ -25,11 +25,11 @@ def submission_view(request, pk):
         pass
     except Exception as e:
         print(e)
-    return render(request, 'submission.html', context=context)
+    return render(request, 'submission.jinja2', context=context)
 
 
 class StatusList(ListView):
-    template_name = 'status.html'
+    template_name = 'status.jinja2'
     queryset = Submission.objects.filter(contest__isnull=True).all()
     paginate_by = 50
     context_object_name = 'submission_list'

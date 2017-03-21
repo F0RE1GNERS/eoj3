@@ -1,0 +1,47 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Contest #{{ contest.pk }}</h1>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+
+      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+        <div class="contest-progress">
+          <h5>Contest {{ contest_status }}</h5>
+          <div class="progress">
+            <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          {% if remaining_time %}
+            <p>{{ remaining_time }}</p>
+          {% endif %}
+        </div>
+        <a class="link-lg {{ active('contest:dashboard') }}" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
+        <a class="link-lg {{  active('contest:problem') }}">Problem</a>
+        {# TODO: active link #}
+        {% for contest_problem in contest_problem_list %}
+          <a class="{{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+             href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+            {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+          </a>
+        {% endfor %}
+        <a class="link-lg {{ active('contest:submit') }}" href="{{ url('contest:submit', contest.pk) }}">Submit</a>
+        <a class="link-lg {{ active('contest:submission') }}" href="{{ url('contest:submission', contest.pk) }}">My submissions</a>
+        <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>
+        <a class="link-lg {{ active('contest:standings') }}" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
+        <a class="link-lg {{ active('contest:clarification') }}" href="#">Clarification <span class="badge badge-pill badge-info">NEW</span></a>
+
+      </div>
+      <div class="col-12 col-md-9 pull-md-3 bd-content">
+        {% block contest_content %}
+        {% endblock %}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}
