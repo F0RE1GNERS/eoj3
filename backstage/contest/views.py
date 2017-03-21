@@ -1,3 +1,5 @@
+import shortuuid
+
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,7 +10,7 @@ from django.utils import timezone
 from django.db import IntegrityError
 
 from .forms import ContestEditForm
-from contest.models import Contest, ContestProblem
+from contest.models import Contest, ContestProblem, ContestInvitation
 from problem.models import Problem
 from group.models import Group
 from contest.tasks import update_contest
@@ -28,11 +30,10 @@ class ContestManage(View):
     def get_context_data(**kwargs):
         contest = Contest.objects.get(**kwargs)
         contest_problem_list = ContestProblem.objects.filter(contest=contest).all()
-        group_list = contest.groups.all()
         profile = [('Title', contest.title), ('Description', contest.description),
                    ('Rule', contest.get_rule_display()), ('Start time', contest.start_time),
-                   ('End time', contest.end_time), ('Visible', contest.visible)]
-        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
+                   ('End time', contest.end_time), ('Visible', contest.visible), ('Public', contest.public)]
+        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list)
 
     def post(self, request, **kwargs):
         group_pk = request.POST.get('group')
@@ -118,3 +119,43 @@ def contest_problem_delete(request, contest_pk, contest_problem_pk):
     update_contest(contest)
     messages.success(request, "This problem has been successfully deleted.")
     return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))
+
+
+class ContestInvitationList(ListView):
+    template_name = 'backstage/contest/contest_invitation.html'
+    paginate_by = 50
+    context_object_name = 'invitation_list'
+
+    def get_queryset(self):
+        print(Contest.objects.get(pk=self.kwargs.get('pk')))
+        print(Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all())
+        print(Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all())
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestInvitationList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data
+
+
+def contest_invitation_create(request, pk):
+
+    def _create(contest, comment):
+        while True:
+            try:
+                ContestInvitation.objects.create(contest=contest, comment=comment,
+                                                 code=shortuuid.ShortUUID().random(12))
+                break
+            except IntegrityError:
+                import sys
+                print('Invitation code collision just happened', file=sys.stderr)
+
+    if request.method == 'POST':
+        try:
+            comments = [''] * int(request.POST['number'])
+        except KeyError:
+            comments = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
+        contest = Contest.objects.get(pk=pk)
+        for comment in comments:
+            _create(contest, comment)
+        return HttpResponseRedirect(request.POST['next'])

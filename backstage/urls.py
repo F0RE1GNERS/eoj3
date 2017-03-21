@@ -5,6 +5,7 @@ from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, testdata, 
 from .group.views import GroupList, GroupUpdate, GroupCreate, GroupManage, group_member_delete
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
 from .contest.views import contest_problem_delete, contest_problem_create
+from .contest.views import ContestInvitationList, contest_invitation_create
 from .server.views import ServerCreate, ServerUpdate, ServerList, server_delete
 
 urlpatterns = [
@@ -28,6 +29,9 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/manage/', ContestManage.as_view(), name='contest_manage'),
     url(r'^contest/(?P<contest_pk>\d+)/problem/(?P<contest_problem_pk>\d+)/delete/', contest_problem_delete, name='contest_problem_delete'),
     url(r'^contest/(?P<contest_pk>\d+)/problem/create/', contest_problem_create, name='contest_problem_create'),
+    url(r'^contest/(?P<pk>\d+)/invitation/$', ContestInvitationList.as_view(), name='contest_invitation'),
+    url(r'^contest/(?P<pk>\d+)/invitation/create/', contest_invitation_create, name='contest_invitation_create'),
+    # url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/delete/', contest_invitation_delete, name='contest_invitation_delete'),
 
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/', ServerCreate.as_view(), name='server_create'),

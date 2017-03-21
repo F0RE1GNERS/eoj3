@@ -62,36 +62,17 @@
   </div>
 
   <div class="content-section">
-    <h3>Contest Group</h3>
-    {% if group_list %}
-    <div class="scrollable">
-      <table class="table">
-        <thead>
-          <tr>
-            <th width="10%">#</th>
-            <th width="60%">Name</th>
-            <th width="30%">Members</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for group in group_list %}
-            <tr>
-            <th scope="row">{{ group.pk }}</th>
-            <td>{{ group.name }}</td>
-            <td><a href="{% url 'backstage:group_manage' group.pk %}"
-                   class="text-primary">&times; {{ group.members.count }}</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <h3>Contest Participants</h3>
+    {% if not contest.public %}
+      <div class="row mb-1">
+        <div class="col-3 font-weight-bold">Invitation code:</div>
+        <div class="col-9"><a href="{% url 'backstage:contest_invitation' contest.pk %}">3 unused</a></div>
+      </div>
     {% endif %}
-    <form class="form-inline mb-5" action="{{ request.path }}" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.path }}">
-      <input type="text" class="form-control mr-2 mb-2" id="group" name="group" placeholder="Group ID">
-      <button type="submit" class="btn btn-primary mb-2">Add a group</button>
-    </form>
+    <div class="row mb-1">
+      <div class="col-3 font-weight-bold">Participants</div>
+      <div class="col-9"><a href="#">&times; 3</a></div>
+    </div>
   </div>
 
   <div class="modal fade" id="problemConfirmModal" tabindex="-1" role="dialog"
@@ -133,7 +114,6 @@
               <label for="problems" class="form-control-label">Problems:</label>
               <textarea class="form-control" name="problems" id="problems" rows="7" placeholder="One problem per line"></textarea>
             </div>
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -150,13 +130,6 @@
     var url = button.data('problem');
     $(this).find('.modal-submit').attr('href', url);
   });
-{#  $('#problemBulkAddModal').on('show.bs.modal', function (event) {#}
-{#    var button = $(event.relatedTarget);#}
-{#    var url = button.data('action');#}
-{#    $(this).find('.modal-submit').on('click', function(e) {#}
-{#      $(this).#}
-{#    }.bind(this));#}
-{#  });#}
   </script>
 
 {% endblock %}

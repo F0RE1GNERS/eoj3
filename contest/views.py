@@ -62,7 +62,6 @@ class ContestStandings(BaseContestMixin, TemplateView):
     template_name = 'contest/standings.html'
 
     def get_queryset(self):
-        print(self.kwargs)
         return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipants_set.all()
 
     def get_context_data(self, **kwargs):

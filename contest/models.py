@@ -1,9 +1,15 @@
 from django.db import models
+from django.db import IntegrityError
 from django.utils import timezone
 
 from account.models import User
 from problem.models import Problem
 from group.models import Group
+import shortuuid
+
+
+def get_invitation_code():
+    return shortuuid.ShortUUID().random(12)
 
 
 class ContestManager(models.Manager):
@@ -37,6 +43,7 @@ class Contest(models.Model):
     participants = models.ManyToManyField(User, through='ContestParticipants', related_name='contests')
 
     visible = models.BooleanField(default=False)
+    public = models.BooleanField(default=False)
 
     objects = ContestManager() # ???
     contest_header = models.TextField('Header of standings', blank=True)
@@ -85,6 +92,7 @@ class ContestClarification(models.Model):
 
 class ContestParticipants(models.Model):
     user = models.ForeignKey(User)
+    comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
@@ -92,3 +100,14 @@ class ContestParticipants(models.Model):
 
     class Meta:
         ordering = ["-score", "penalty"]
+
+
+class ContestInvitation(models.Model):
+
+    contest = models.ForeignKey(Contest)
+    code = models.CharField(max_length=24)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('contest', 'code')
+        ordering = ['-pk']
