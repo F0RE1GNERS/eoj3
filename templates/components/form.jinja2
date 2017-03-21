@@ -8,8 +8,8 @@
       {% if field.label in ['Visible', 'Public'] %}  {# TODO hard code #}
         <div class="form-check mb-3">
           <label class="form-check-label">
-            {{ field.label }}
             {{ render_field(field, {'class': 'form-check-input', 'placeholder': field.help_text}) }}
+            {{ field.label }}
           </label>
         </div>
       {% else %}

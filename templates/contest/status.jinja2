@@ -23,7 +23,7 @@
           <td>{{ submission.author }}</td>
           <td>{{ submission.problem }}</td>
           <td>{{ submission.create_time }}</td>
-          <td class="text-{{ submission.get_verdict_color }}">{{ submission.get_status_display }}</td>
+          <td class="text-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
         </tr>
       {% endfor %}
     </tbody>
