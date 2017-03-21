@@ -4,7 +4,12 @@
 @import "layout";
 @import "problem";
 @import "contest";
+@import "datatable";
 
 input, button, select, textarea, a {
   outline: none !important;
+}
+
+td, th {
+  vertical-align: middle !important;
 }

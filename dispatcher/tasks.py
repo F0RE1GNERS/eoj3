@@ -9,7 +9,7 @@ from .models import ServerProblemStatus, Server
 from eoj3.settings import TESTDATA_DIR
 from account.models import User
 from problem.models import Problem
-from contest.tasks import update_contest
+from contest.tasks import update_problem_and_participant
 from submission.models import Submission, SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
@@ -103,6 +103,10 @@ class Dispatcher:
                 submission.status_detail = json.dumps(response['detail'])
                 submission.status_time = response['time']
                 submission.status_memory = response['memory']
+                # Get percent (just for OI)
+                accept_case_number = len([x for x in response['detail'] if x['verdict'] == SubmissionStatus.ACCEPTED])
+                if response['detail']:
+                    submission.status_percent = int(accept_case_number / len(response['detail']) * 100)
             submission.save()
 
             problem.add_accept(accept_increment)
@@ -110,7 +114,7 @@ class Dispatcher:
 
         if submission.contest is not None:
             user_id = submission.author.pk
-            update_contest(submission.contest.pk, self.problem_id, user_id, accept_increment)
+            update_problem_and_participant(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
         try:

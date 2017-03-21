@@ -11,9 +11,17 @@ def index(request):
 
 @method_decorator(login_required(), name='dispatch')
 class BaseCreateView(CreateView):
+
+    def post_create(self, instance):
+        """
+        Do something here
+        """
+        pass
+
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
+        self.post_create(instance)
         instance.save()
         messages.success(self.request, "%s was successfully added." % self.form_class.Meta.model.__name__)
         return HttpResponseRedirect(self.get_redirect_url(instance))
@@ -24,7 +32,16 @@ class BaseCreateView(CreateView):
 
 @method_decorator(login_required(), name='dispatch')
 class BaseUpdateView(UpdateView):
+
+    def post_update(self, instance):
+        """
+        Do something here
+        """
+        pass
+
     def form_valid(self, form):
-        form.save()
+        instance = form.save(commit=False)
+        self.post_update(instance)
+        instance.save()
         messages.success(self.request, "Your changes have been saved.")
         return HttpResponseRedirect(self.request.path)
