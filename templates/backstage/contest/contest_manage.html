@@ -10,30 +10,12 @@
 
   <div class="content-section">
     <h3>Contest Profile</h3>
+    {% for pro in profile %}
     <div class="row mb-1">
-      <div class="col-3 font-weight-bold">Title</div>
-      <div class="col-9">{{ contest.title }}</div>
+      <div class="col-3 font-weight-bold">{{ pro.0 }}</div>
+      <div class="col-9">{{ pro.1 | safe }}</div>
     </div>
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">Description</div>
-      <div class="col-9">{{ contest.description }}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">Rule</div>
-      <div class="col-9">{{ contest.get_rule_display }}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">Start time</div>
-      <div class="col-9">{{ contest.start_time }}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">End time</div>
-      <div class="col-9">{{ contest.end_time }}</div>
-    </div>
-    <div class="row mb-2">
-      <div class="col-3 font-weight-bold">Visible</div>
-      <div class="col-9">{{ contest.visible }}</div>
-    </div>
+    {% endfor %}
     <a role="button" href="{% url 'backstage:contest_edit' contest.pk %}" class="btn btn-outline-primary">
       Edit Profile</a>
   </div>
@@ -57,7 +39,7 @@
             {% with contest_problem.problem as problem %}
               <tr>
                 <td scope="row">{{ contest_problem.identifier }}</td>
-                <td>{{ problem.title }}</td>
+                <td>{{ contest_problem.problem.pk }} - {{ problem.title }}</td>
                 <td><a href="{% url 'backstage:problem_edit' problem.pk %}" class="text-primary">Edit</a></td>
                 <td><a href="{% url 'backstage:problem_testdata' problem.pk %}" class="text-primary">Testdata</a></td>
                 <td><a data-toggle="modal" href="#problemConfirmModal" class="text-danger"
@@ -72,9 +54,10 @@
     <form class="form-inline" action="{% url 'backstage:contest_problem_create' contest.pk %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.path }}">
-      <input type="text" class="form-control mr-2 mb-2" id="problem" name="problem" placeholder="Original problem ID">
-      <input type="text" class="form-control mr-2 mb-2" id="identifier" name="identifier" placeholder="ID during contest">
-      <button type="submit" class="btn btn-primary mb-2">Add a problem</button>
+      <input type="text" class="form-control mr-2 mb-2" id="problem" name="problem" placeholder="Original problem ID" required>
+      <button type="submit" class="btn btn-primary mr-2 mb-2">Add a problem</button>
+      <button type="button" class="btn btn-secondary mb-2" data-toggle="modal" data-target="#problemBulkAddModal"
+        data-action="{% url 'backstage:contest_problem_create' contest.pk %}">Bulk add</button>
     </form>
   </div>
 
@@ -132,12 +115,48 @@
     </div>
   </div>
 
+  <div class="modal fade" id="problemBulkAddModal" tabindex="-1" role="dialog"
+       aria-labelledby="problemBulkAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="problemBulkAddModalLabel">Add problems to contest</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form class="mb-0" action="{% url 'backstage:contest_problem_create' contest.pk %}" method="post">
+        <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="form-group">
+              <label for="problems" class="form-control-label">Problems:</label>
+              <textarea class="form-control" name="problems" id="problems" rows="7" placeholder="One problem per line"></textarea>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary modal-submit">Save</button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
   $('#problemConfirmModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var url = button.data('problem');
     $(this).find('.modal-submit').attr('href', url);
   });
+{#  $('#problemBulkAddModal').on('show.bs.modal', function (event) {#}
+{#    var button = $(event.relatedTarget);#}
+{#    var url = button.data('action');#}
+{#    $(this).find('.modal-submit').on('click', function(e) {#}
+{#      $(this).#}
+{#    }.bind(this));#}
+{#  });#}
   </script>
 
 {% endblock %}

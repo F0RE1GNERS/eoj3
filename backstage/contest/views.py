@@ -12,6 +12,7 @@ from contest.models import Contest, ContestProblem
 from problem.models import Problem
 from group.models import Group
 from contest.tasks import update_contest
+from utils import markdown3
 
 from ..base_views import BaseCreateView, BaseUpdateView
 
@@ -28,7 +29,10 @@ class ContestManage(View):
         contest = Contest.objects.get(**kwargs)
         contest_problem_list = ContestProblem.objects.filter(contest=contest).all()
         group_list = contest.groups.all()
-        return dict(contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
+        profile = [('Title', contest.title), ('Description', contest.description),
+                   ('Rule', contest.get_rule_display()), ('Start time', contest.start_time),
+                   ('End time', contest.end_time), ('Visible', contest.visible)]
+        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list, group_list=group_list)
 
     def post(self, request, **kwargs):
         group_pk = request.POST.get('group')
@@ -55,13 +59,16 @@ class ContestCreate(BaseCreateView):
         update_contest(instance)
 
 
-class ContestUpdate(BaseUpdateView):
+class ContestProfileUpdate(BaseUpdateView):
     form_class = ContestEditForm
     template_name = 'backstage/contest/contest_edit.html'
     queryset = Contest.objects.all()
 
+    def get_redirect_url(self, instance):
+        return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
+
     def post_update(self, instance):
-        super(ContestUpdate, self).post_update(instance)
+        super(ContestProfileUpdate, self).post_update(instance)
         update_contest(instance)
 
 
@@ -74,20 +81,34 @@ class ContestList(ListView):
 
 
 def contest_problem_create(request, contest_pk):
+
+    def get_next_identifier(identifiers):
+        from collections import deque
+        q = deque()
+        q.append('')
+        while q:
+            u = q.popleft()
+            if u and u not in identifiers:
+                return u
+            for i in range(ord('A'), ord('Z') + 1):
+                q.append(u + chr(i))
+
     if request.method == 'POST':
         try:
-            contest = Contest.objects.get(pk=contest_pk)
-            problem_pk = request.POST['problem']
-            identifier = request.POST['identifier']
-            if problem_pk == '':
-                raise KeyError
-            ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem_pk),
-                                          identifier=identifier)
-            update_contest(contest)
-        except (ValueError, KeyError, Contest.DoesNotExist, Problem.DoesNotExist):
-            messages.error(request, 'Contest problem or tag might be illegal.')
-        except IntegrityError:
-            messages.error(request, 'Problem and ID must be unique.')
+            problems = [request.POST['problem']]
+        except KeyError:
+            problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split('\n'))))
+        contest = Contest.objects.get(pk=contest_pk)
+        for problem in problems:
+            identifier = get_next_identifier([x.identifier for x in contest.contestproblem_set.all()])
+            try:
+                ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem),
+                                              identifier=identifier)
+            except (ValueError, Problem.DoesNotExist):
+                messages.error(request, 'There is no such thing as Problem #%s.' % problem)
+            except IntegrityError:
+                messages.error(request, 'Problem and ID must be unique.')
+        update_contest(contest)
         return HttpResponseRedirect(request.POST['next'])
 
 

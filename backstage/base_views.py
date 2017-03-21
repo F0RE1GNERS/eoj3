@@ -44,4 +44,7 @@ class BaseUpdateView(UpdateView):
         self.post_update(instance)
         instance.save()
         messages.success(self.request, "Your changes have been saved.")
-        return HttpResponseRedirect(self.request.path)
+        return HttpResponseRedirect(self.get_redirect_url(instance))
+
+    def get_redirect_url(self, instance):
+        return self.request.path

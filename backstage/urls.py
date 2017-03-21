@@ -3,7 +3,7 @@ from django.conf.urls import url
 from .base_views import index
 from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, testdata, problem_delete
 from .group.views import GroupList, GroupUpdate, GroupCreate, GroupManage, group_member_delete
-from .contest.views import ContestList, ContestCreate, ContestUpdate, ContestManage
+from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
 from .contest.views import contest_problem_delete, contest_problem_create
 from .server.views import ServerCreate, ServerUpdate, ServerList, server_delete
 
@@ -24,7 +24,7 @@ urlpatterns = [
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),
-    url(r'^contest/(?P<pk>\d+)/edit/', ContestUpdate.as_view(), name='contest_edit'),
+    url(r'^contest/(?P<pk>\d+)/edit/', ContestProfileUpdate.as_view(), name='contest_edit'),
     url(r'^contest/(?P<pk>\d+)/manage/', ContestManage.as_view(), name='contest_manage'),
     url(r'^contest/(?P<contest_pk>\d+)/problem/(?P<contest_problem_pk>\d+)/delete/', contest_problem_delete, name='contest_problem_delete'),
     url(r'^contest/(?P<contest_pk>\d+)/problem/create/', contest_problem_create, name='contest_problem_create'),

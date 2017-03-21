@@ -42,7 +42,7 @@ class Contest(models.Model):
     contest_header = models.TextField('Header of standings', blank=True)
 
     class Meta:
-        ordering = ['-start_time']
+        ordering = ['-pk']
 
     def get_status(self):
         now = timezone.now()
@@ -63,6 +63,7 @@ class ContestProblem(models.Model):
 
     class Meta:
         unique_together = ('problem', 'contest')
+        ordering = ['identifier']
 
     def add_submit(self, add=1):
         # Added when submitting
