@@ -66,12 +66,12 @@
     {% if not contest.public %}
       <div class="row mb-1">
         <div class="col-3 font-weight-bold">Invitation code:</div>
-        <div class="col-9"><a href="{% url 'backstage:contest_invitation' contest.pk %}">3 unused</a></div>
+        <div class="col-9"><a href="{% url 'backstage:contest_invitation' contest.pk %}">{{ invitation_count }} unused</a></div>
       </div>
     {% endif %}
     <div class="row mb-1">
       <div class="col-3 font-weight-bold">Participants</div>
-      <div class="col-9"><a href="#">&times; 3</a></div>
+      <div class="col-9"><a href="{% url 'backstage:contest_participant' contest.pk %}">&times; {{ participant_count }}</a></div>
     </div>
   </div>
 

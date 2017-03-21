@@ -7,10 +7,11 @@ from django.views.generic.list import ListView
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from .forms import ContestEditForm
-from contest.models import Contest, ContestProblem, ContestInvitation
+from account.models import User
+from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
 from group.models import Group
 from contest.tasks import update_contest
@@ -33,7 +34,9 @@ class ContestManage(View):
         profile = [('Title', contest.title), ('Description', contest.description),
                    ('Rule', contest.get_rule_display()), ('Start time', contest.start_time),
                    ('End time', contest.end_time), ('Visible', contest.visible), ('Public', contest.public)]
-        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list)
+        return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list,
+                    invitation_count=contest.contestinvitation_set.count(),
+                    participant_count=contest.contestparticipant_set.count())
 
     def post(self, request, **kwargs):
         group_pk = request.POST.get('group')
@@ -127,9 +130,6 @@ class ContestInvitationList(ListView):
     context_object_name = 'invitation_list'
 
     def get_queryset(self):
-        print(Contest.objects.get(pk=self.kwargs.get('pk')))
-        print(Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all())
-        print(Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all())
         return Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all()
 
     def get_context_data(self, **kwargs):
@@ -139,7 +139,6 @@ class ContestInvitationList(ListView):
 
 
 def contest_invitation_create(request, pk):
-
     def _create(contest, comment):
         while True:
             try:
@@ -159,3 +158,42 @@ def contest_invitation_create(request, pk):
         for comment in comments:
             _create(contest, comment)
         return HttpResponseRedirect(request.POST['next'])
+
+
+def contest_invitation_delete(request, pk, invitation_pk):
+    contest = Contest.objects.get(pk=pk)
+    contest.contestinvitation_set.get(pk=invitation_pk).delete()
+    return HttpResponseRedirect(reverse('backstage:contest_invitation', kwargs={'pk': pk}))
+
+
+def contest_invitation_assign(request, pk, invitation_pk):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            with transaction.atomic():
+                user = User.objects.get(username=username)
+                contest = Contest.objects.get(pk=pk)
+                invitation = contest.contestinvitation_set.get(pk=invitation_pk)
+                ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
+                invitation.delete()
+                update_contest(contest)
+            messages.success(request, 'The user <strong>%s</strong> has been successfully added to the contest.' % username)
+        except User.DoesNotExist:
+            messages.error(request, 'The user <strong>%s</strong> does not exist. Please check again.' % username)
+        except IntegrityError:
+            messages.error(request, 'You cannot add one user twice.')
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantList(ListView):
+    template_name = 'backstage/contest/contest_participant.html'
+    paginate_by = 50
+    context_object_name = 'participant_list'
+
+    def get_queryset(self):
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestParticipantList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data

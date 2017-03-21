@@ -40,7 +40,7 @@ class Contest(models.Model):
 
     groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
-    participants = models.ManyToManyField(User, through='ContestParticipants', related_name='contests')
+    participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
@@ -90,7 +90,7 @@ class ContestClarification(models.Model):
     username = models.CharField(max_length=30)
 
 
-class ContestParticipants(models.Model):
+class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
     comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
@@ -99,6 +99,7 @@ class ContestParticipants(models.Model):
     html_cache = models.TextField(blank=True)
 
     class Meta:
+        unique_together = ["user", "contest"]
         ordering = ["-score", "penalty"]
 
 
