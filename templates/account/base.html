@@ -9,10 +9,11 @@
   </div>
   <div class="container">
     <div class="row">
+
       <div class="col-12 col-md-3 push-md-9 bd-sidebar">
-        {% link_active 'account:security' 'Security' %}
-        {% link_active 'account:profile' 'Profile' %}
-        {% link_active 'account:group' 'Groups' %}
+        <a href="{% url 'account:security' %}" class="{% navitem_active 'account:security' %}">Security</a>
+        <a href="{% url 'account:profile' %}" class="{% navitem_active 'account:profile' %}">Profile</a>
+        <a href="{% url 'account:group' %}" class="{% navitem_active 'account:group' %}">Groups</a>
       </div>
       <div class="col-12 col-md-9 pull-md-3 bd-content">
         {% block account_setting %}

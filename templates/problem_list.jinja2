@@ -1,0 +1,44 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Problem List</h1>
+    </div>
+  </div>
+
+  <div class="container scrollable">
+
+    <form class="form-inline mb-3" action="{{ request.path }}" method="get">
+      {% csrf_token %}
+      <input type="text" class="form-control mb-2 mr-4" id="keyword" name="keyword" placeholder="Keyword">
+      <button type="submit" class="btn btn-primary mb-2">Search</button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="8%">#</th>
+          <th width="47%">Title</th>
+          <th width="30%">Source</th>
+          <th width="15%" align="center">AC / Submit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for problem in problem_list %}
+          <tr>
+            <th scope="row">{{ problem.pk }}</th>
+            <td><a href="{{ url('problem', problem.pk) }}">{{ problem.title }}</a></td>
+            <td>{{ problem.source }}</td>
+            <td align="center">{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {{ my_paginator() }}
+
+  </div>
+
+
+{% endblock %}

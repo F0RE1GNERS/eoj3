@@ -9,14 +9,14 @@ from dispatcher.tasks import DispatcherThread
 
 
 class ProblemList(ListView):
-    template_name = 'problem_list.html'
+    template_name = 'problem_list.jinja2'
     queryset = Problem.objects.filter(visible=True).all()
     paginate_by = 50
     context_object_name = 'problem_list'
 
 
 class ProblemView(View):
-    template_name = 'problem.html'
+    template_name = 'problem.jinja2'
     form_class = SubmitForm
     form_initial = {'lang': 'cpp'}  # TODO
 

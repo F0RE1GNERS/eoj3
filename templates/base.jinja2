@@ -1,0 +1,90 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="{{ static('favicon.ico') }}">
+  <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+  <script src="//cdn.bootcss.com/tether/1.4.0/js/tether.min.js"></script>
+  <script src="//cdn.bootcss.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+  <link href="{{ static('css/main.css') }}" rel="stylesheet">
+  {% block css %}
+  {% endblock %}
+  <title>{% block title %}ECNU Online Judge{% endblock %}</title>
+</head>
+
+<body>
+
+<div class="container">
+  <nav class="navbar navbar-toggleable-sm navbar-light bd-navbar">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <span class="navbar-brand">EOJ</span>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item {{ active('home') }}">
+          <a class="nav-link" href="{{ url('home') }}">Home</a>
+        </li>
+        <li class="nav-item {{ active('problem') }}">
+          <a class="nav-link" href="{{ url('problem_list') }}">Problems</a>
+        </li>
+        <li class="nav-item {{ active('contest:list') }}">
+          <a class="nav-link" href="{{ url('contest:list') }}">Contests</a>
+        </li>
+        <li class="nav-item {{ active('status') }}">
+          <a class="nav-link" href="{{ url('status') }}">Status</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+          <li class="nav-item {{ active('backstage') }}">
+            <a class="nav-link" href="{{ url('backstage:index') }}">Backstage</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-gray-dark" href="{{ url('account:security') }}">{{ request.user.username }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('logout') }}">Logout</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('register') }}">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('backstage:index') }}">Admin</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+</div>
+
+
+  {% block content %}
+  {% endblock %}
+
+  <footer class="bd-footer text-muted">
+    <div class="container">
+      <ul class="bd-footer-links">
+        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>
+        <li><a href="{{ url('home') }}">Homepage</a></li>
+      </ul>
+      <p>Team: <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
+      <p>Proudly powered by <a href="https://v4-alpha.getbootstrap.com/">Bootstrap v4-alpha</a>.</p>
+    </div>
+  </footer>
+
+
+{% block script %}
+{% endblock %}
+</body>
+</html>

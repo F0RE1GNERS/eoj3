@@ -1,0 +1,43 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Problem #{{ problem.pk }}</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="problem-header">
+      <h2>{{ problem.title }}</h2>
+      <div class="property">
+        <p><strong>Time limit per test: </strong>{{ problem.time_limit / 1000 }} seconds</p>
+        <p><strong>Time limit all tests: </strong>{{ problem.sum_time_limit / 1000 }} seconds</p>
+        <p><strong>Memory limit: </strong>{{ problem.memory_limit }} megabytes</p>
+        <p><strong>Accept / Submit: </strong><a href="#">{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</a></p>
+      </div>
+    </div>
+
+{#    <div>{{ problem.description_html }}</div>#}
+  <div class="problem-body">
+    {{ problem.body | safe }}
+  </div>
+
+  <form class="form" action="{{ request.path }}" method="post">
+    {% csrf_token %}
+    <div class="form-group form-inline">
+      {{ form.lang.label_tag() }}
+      {{ render_field(form.lang, add_attrs={'class': 'form-control'}) }}
+    </div>
+    <div class="form-group">
+      {{ form.code.label_tag() }}
+      {{ render_field(form.code, add_attrs={'class': 'form-control'}) }}
+    </div>
+    <button class="btn btn-lg btn-outline-primary" type="submit">Submit my code</button>
+  </form>
+  </div>
+
+  {% include 'components/math_support.html' %}
+
+{% endblock %}

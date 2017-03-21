@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     # third-party packages
     'widget_tweaks',
+    'django_jinja',
 ]
 
 MIDDLEWARE = [
@@ -68,9 +69,29 @@ ROOT_URLCONF = 'eoj3.urls'
 
 TEMPLATES = [
     {
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        # 'OPTIONS': {'environment': 'eoj3.jinja2.environment'},
+        'APP_DIRS': True,
+        'OPTIONS': {
+            "undefined": None,
+            "match_extension": ".jinja2",
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            "globals": {
+                "myGlobal": "utils.jinja2.globals.is_active",
+                "myGlobal2": "utils.jinja2.globals.paginator",
+                "myGlobal3": "utils.jinja2.globals.render_field",
+            },
+        },
+    },
+    {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
