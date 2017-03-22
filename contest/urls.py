@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestStandings, ContestSubmit, DashboardView
-from .views import ContestMySubmission, ContestStatus
+from .views import ContestMySubmission, ContestStatus, ContestBoundUser
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/submit/$', ContestSubmit.as_view(), name='submit'),
     url(r'^(?P<cid>\d+)/submission/$', ContestMySubmission.as_view(), name='submission'),
     url(r'^(?P<cid>\d+)/status/$', ContestStatus.as_view(), name='status'),
+    url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation')
 ]

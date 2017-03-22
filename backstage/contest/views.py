@@ -13,7 +13,7 @@ from .forms import ContestEditForm
 from account.models import User
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
-from contest.tasks import update_contest
+from contest.tasks import update_contest, add_participant_with_invitation
 from utils import markdown3
 
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
@@ -163,13 +163,8 @@ class ContestInvitationAssign(BaseBackstageMixin, View):
     def post(self, request, pk, invitation_pk):
         username = request.POST.get('username')
         try:
-            with transaction.atomic():
-                user = User.objects.get(username=username)
-                contest = Contest.objects.get(pk=pk)
-                invitation = contest.contestinvitation_set.get(pk=invitation_pk)
-                ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
-                invitation.delete()
-                update_contest(contest)
+            user = User.objects.get(username=username)
+            add_participant_with_invitation(pk, invitation_pk, user)
             messages.success(request,
                              'The user <strong>%s</strong> has been successfully added to the contest.' % username)
         except User.DoesNotExist:

@@ -8,8 +8,10 @@ from django.views.generic import TemplateView, View
 from django.utils import timezone
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib import messages
 
-from .models import Contest, ContestProblem, ContestParticipant
+from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
+from .tasks import add_participant_with_invitation
 from submission.models import Submission, SubmissionStatus
 from account.models import Privilege
 from problem.models import Problem
@@ -79,6 +81,10 @@ class DashboardView(BaseContestMixin, TemplateView):
 
         for contest_problem in data['contest_problem_list']:
             contest_problem.status = problem_status.get(contest_problem.identifier)
+
+        if contest.contestparticipant_set.filter(user=user).exists():
+            data['registered'] = True
+
         return data
 
 
@@ -184,3 +190,14 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
         data['problem'] = data['contest_problem'].problem.get_markdown()
         return data
 
+
+class ContestBoundUser(View):
+    def post(self, request, cid):
+        invitation_code = request.POST.get('code', '')
+        try:
+            invitation = ContestInvitation.objects.get(code=invitation_code)
+            add_participant_with_invitation(cid, invitation.pk, request.user)
+            messages.success(request, 'You have successfully joined this contest.')
+        except ContestInvitation.DoesNotExist:
+            messages.error(request, 'There seems to be something wrong with your invitation code.')
+        return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))

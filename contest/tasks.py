@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from .models import Contest
+from .models import Contest, ContestParticipant
 from account.models import User
 from submission.models import SubmissionStatus
 
@@ -179,3 +179,12 @@ def update_contest(contest):
         participants = contest.contestparticipant_set.select_for_update().all()
         for participant in participants:
             _update_participant(contest, participant)
+
+
+def add_participant_with_invitation(contest_pk, invitation_pk, user):
+    with transaction.atomic():
+        contest = Contest.objects.get(pk=contest_pk)
+        invitation = contest.contestinvitation_set.get(pk=invitation_pk)
+        ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
+        invitation.delete()
+        update_contest(contest)
