@@ -119,8 +119,8 @@ WSGI_APPLICATION = 'eoj3.wsgi.application'
 
 def get_database():
     try:
-        import local_settings
-        return local_settings.DATABASES
+        from .local_settings import DATABASES
+        return DATABASES
     except ImportError:
         return {
             'default': {
