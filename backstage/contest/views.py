@@ -13,7 +13,6 @@ from .forms import ContestEditForm
 from account.models import User
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
-from group.models import Group
 from contest.tasks import update_contest
 from utils import markdown3
 
@@ -37,14 +36,6 @@ class ContestManage(View):
         return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list,
                     invitation_count=contest.contestinvitation_set.count(),
                     participant_count=contest.contestparticipant_set.count())
-
-    def post(self, request, **kwargs):
-        group_pk = request.POST.get('group')
-        contest = Contest.objects.get(**kwargs)
-        if group_pk:
-            contest.groups.add(Group.objects.get(pk=group_pk))
-        update_contest(contest)
-        return render(request, self.template_name, self.get_context_data(**kwargs))
 
     def get(self, request, **kwargs):
         return render(request, self.template_name, self.get_context_data(**kwargs))

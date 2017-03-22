@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from .base_views import index
 from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, testdata, problem_delete
-from .group.views import GroupList, GroupUpdate, GroupCreate, GroupManage, group_member_delete
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
 from .contest.views import contest_problem_delete, contest_problem_create, ContestParticipantList
 from .contest.views import ContestInvitationList, contest_invitation_create, contest_invitation_delete, contest_invitation_assign
@@ -16,12 +15,6 @@ urlpatterns = [
     url(r'^problem/(?P<pk>\d+)/edit/', ProblemUpdate.as_view(), name='problem_edit'),
     url(r'^problem/(?P<pk>\d+)/testdata/', testdata, name='problem_testdata'),
     url(r'^problem/(?P<pk>\d+)/delete/', problem_delete, name='problem_delete'),
-
-    url(r'^group/$', GroupList.as_view(), name='group'),
-    url(r'^group/create/$', GroupCreate.as_view(), name='group_create'),
-    url(r'^group/(?P<pk>\d+)/edit/', GroupUpdate.as_view(), name='group_edit'),
-    url(r'^group/(?P<pk>\d+)/manage/', GroupManage.as_view(), name='group_manage'),
-    url(r'^group/(?P<pk>\d+)/member/(?P<membership_pk>\d+)/delete/', group_member_delete, name='group_delete'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),
