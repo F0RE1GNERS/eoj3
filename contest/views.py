@@ -7,8 +7,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic import TemplateView, View
 from django.utils import timezone
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
-from .models import Contest, ContestProblem
+from .models import Contest, ContestProblem, ContestParticipant
 from submission.models import Submission
 from problem.models import Problem
 from submission.forms import ContestSubmitForm
@@ -25,7 +26,13 @@ def get_contest_problem(contest, problem):
     return contest.contestproblem_set.get(problem=problem)
 
 
-class BaseContestMixin(TemplateResponseMixin, ContextMixin):
+class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
+    def test_func(self):
+        return ContestParticipant.objects.filter(
+            contest=Contest.objects.get(pk=self.kwargs.get('cid')),
+            user=self.request.user
+        ).exists()
+
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])

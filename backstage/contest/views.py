@@ -125,7 +125,7 @@ def contest_problem_delete(request, contest_pk, contest_problem_pk):
 
 
 class ContestInvitationList(ListView):
-    template_name = 'backstage/contest/contest_invitation.html'
+    template_name = 'backstage/contest/contest_invitation.jinja2'
     paginate_by = 50
     context_object_name = 'invitation_list'
 
@@ -186,7 +186,7 @@ def contest_invitation_assign(request, pk, invitation_pk):
 
 
 class ContestParticipantList(ListView):
-    template_name = 'backstage/contest/contest_participant.html'
+    template_name = 'backstage/contest/contest_participant.jinja2'
     paginate_by = 50
     context_object_name = 'participant_list'
 

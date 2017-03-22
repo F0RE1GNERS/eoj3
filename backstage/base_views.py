@@ -3,14 +3,21 @@ from django.contrib import messages
 from django.shortcuts import HttpResponseRedirect, render
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 
+from account.models import Privilege
 
 def index(request):
     return render(request, 'backstage/index.jinja2')
 
 
+class BaseBackstageMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.privilege in (Privilege.ADMIN, Privilege.ROOT)
+
+
 @method_decorator(login_required(), name='dispatch')
-class BaseCreateView(CreateView):
+class BaseCreateView(BaseBackstageMixin, CreateView):
 
     def post_create(self, instance):
         """
@@ -31,7 +38,7 @@ class BaseCreateView(CreateView):
 
 
 @method_decorator(login_required(), name='dispatch')
-class BaseUpdateView(UpdateView):
+class BaseUpdateView(BaseBackstageMixin, UpdateView):
 
     def post_update(self, instance):
         """
