@@ -30,12 +30,21 @@ def get_contest_problem(contest, problem):
 
 
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
+    raise_exception = True  # TODO show permission denied message
+
     def test_func(self):
         user = self.request.user
-        return user.is_authenticated and (ContestParticipant.objects.filter(
-            contest=Contest.objects.get(pk=self.kwargs.get('cid')),
-            user=user
-        ).exists() or user.privilege in (Privilege.ROOT, Privilege.ADMIN))
+        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        if contest.start_time > timezone.now():
+            self.permission_denied_message = "Contest hasn't started."
+            return False
+        if user.is_authenticated and (ContestParticipant.objects.filter(contest=contest, user=user).exists()
+                                          or contest.public
+                                          or user.privilege in (Privilege.ROOT, Privilege.ADMIN)):
+            return True
+        else:
+            self.permission_denied_message = "Did you forget to register the contest?"
+            return False
 
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
@@ -53,11 +62,15 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             before_start_time_seconds = int((contest.start_time - timezone.now()).total_seconds())
             data['remaining_time'] = 'Before start ' + time_formatter(before_start_time_seconds)
         data['contest_problem_list'] = contest.contestproblem_set.all()
+        data['contest_started'] = contest.start_time <= timezone.now()
         return data
 
 
 class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
+
+    def test_func(self):
+        return True
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)

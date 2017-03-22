@@ -4,6 +4,7 @@
   <div class="content-header">
     <h2>Dashboard</h2>
   </div>
+{% if contest_started %}
   <div class="scrollable content-section">
     <table class="table table-bordered">
       <thead>
@@ -14,7 +15,7 @@
         </tr>
       </thead>
       <tbody>
-      {% for contest_problem in contest_problem_list %}
+        {% for contest_problem in contest_problem_list %}
         <tr>
           <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
           <td style="text-align: center;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
@@ -26,7 +27,8 @@
       </tbody>
     </table>
   </div>
-  {% if not registered or contest_status == 'Pending' %}
+{% endif %}
+  {% if not contest.public and (not registered or contest_status == 'Pending') %}
     <div class="content-section">
       <h4>Register</h4>
       {% include 'components/message.jinja2' %}
@@ -38,8 +40,7 @@
           <input type="text" class="form-control mr-2 mb-2" id="code" name="code" placeholder="Invitation code" required>
           <button type="submit" class="btn btn-primary mr-2 mb-2">Save</button>
         </form>
-      {% endif %}
-      {% if registered and contest_status == 'Pending' %}
+      {% else %}
         <p>You have already registered for this contest, but the contest is yet to begin.<br>
           Before start <span>{{ remaining_time }}</span></p>
       {% endif %}
