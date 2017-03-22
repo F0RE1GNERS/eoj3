@@ -3,9 +3,16 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Privilege(object):
-    REGULAR_USER = "Regular User"
-    ADMIN = "Admin"
-    ROOT = "Root"
+    REGULAR_USER = "user"
+    ADMIN = "admin"
+    ROOT = "root"
+
+
+PRIVILEGE_CHOICE = (
+    ('user', 'Regular User'),
+    ('admin', 'Admin'),
+    ('root', 'Root')
+)
 
 
 class User(AbstractUser):
@@ -15,6 +22,6 @@ class User(AbstractUser):
     email = models.EmailField('email', max_length=256, unique=True, error_messages={
         'unique': "This email has already been registered."
     })
-    privilege = models.CharField(max_length=24, default=Privilege.REGULAR_USER)
+    privilege = models.CharField(choices=PRIVILEGE_CHOICE, max_length=12, default=Privilege.REGULAR_USER)
     school = models.CharField('school', max_length=256, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)

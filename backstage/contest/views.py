@@ -16,14 +16,14 @@ from problem.models import Problem
 from contest.tasks import update_contest
 from utils import markdown3
 
-from ..base_views import BaseCreateView, BaseUpdateView
+from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 
 def get_formatted_time():
     return timezone.now().strftime("%Y-%m-%d 00:00")
 
 
-class ContestManage(View):
+class ContestManage(BaseBackstageMixin, View):
     template_name = 'backstage/contest/contest_manage.jinja2'
 
     @staticmethod
@@ -67,16 +67,15 @@ class ContestProfileUpdate(BaseUpdateView):
         update_contest(instance)
 
 
-@method_decorator(login_required(), name='dispatch')
-class ContestList(ListView):
+class ContestList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest.jinja2'
     queryset = Contest.objects.all()
     paginate_by = 20
     context_object_name = 'contest_list'
 
 
-def contest_problem_create(request, contest_pk):
-
+class ContestProblemCreate(BaseBackstageMixin, View):
+    @staticmethod
     def get_next_identifier(identifiers):
         from collections import deque
         q = deque()
@@ -88,14 +87,14 @@ def contest_problem_create(request, contest_pk):
             for i in range(ord('A'), ord('Z') + 1):
                 q.append(u + chr(i))
 
-    if request.method == 'POST':
+    def post(self, request, contest_pk):
         try:
             problems = [request.POST['problem']]
         except KeyError:
             problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split('\n'))))
         contest = Contest.objects.get(pk=contest_pk)
         for problem in problems:
-            identifier = get_next_identifier([x.identifier for x in contest.contestproblem_set.all()])
+            identifier = self.get_next_identifier([x.identifier for x in contest.contestproblem_set.all()])
             try:
                 ContestProblem.objects.create(contest=contest, problem=Problem.objects.get(pk=problem),
                                               identifier=identifier)
@@ -107,15 +106,16 @@ def contest_problem_create(request, contest_pk):
         return HttpResponseRedirect(request.POST['next'])
 
 
-def contest_problem_delete(request, contest_pk, contest_problem_pk):
-    contest = Contest.objects.get(pk=contest_pk)
-    contest.contestproblem_set.get(pk=contest_problem_pk).delete()
-    update_contest(contest)
-    messages.success(request, "This problem has been successfully deleted.")
-    return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))
+class ContestProblemDelete(BaseBackstageMixin, View):
+    def get(self, request, contest_pk, contest_problem_pk):
+        contest = Contest.objects.get(pk=contest_pk)
+        contest.contestproblem_set.get(pk=contest_problem_pk).delete()
+        update_contest(contest)
+        messages.success(request, "This problem has been successfully deleted.")
+        return HttpResponseRedirect(reverse('backstage:contest_manage', kwargs={'pk': contest_pk}))
 
 
-class ContestInvitationList(ListView):
+class ContestInvitationList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest_invitation.jinja2'
     paginate_by = 50
     context_object_name = 'invitation_list'
@@ -129,7 +129,8 @@ class ContestInvitationList(ListView):
         return data
 
 
-def contest_invitation_create(request, pk):
+class ContestInvitationCreate(BaseBackstageMixin, View):
+    @staticmethod
     def _create(contest, comment):
         while True:
             try:
@@ -140,25 +141,26 @@ def contest_invitation_create(request, pk):
                 import sys
                 print('Invitation code collision just happened', file=sys.stderr)
 
-    if request.method == 'POST':
+    def post(self, request, pk):
         try:
             comments = [''] * int(request.POST['number'])
         except KeyError:
             comments = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
         contest = Contest.objects.get(pk=pk)
         for comment in comments:
-            _create(contest, comment)
+            self._create(contest, comment)
         return HttpResponseRedirect(request.POST['next'])
 
 
-def contest_invitation_delete(request, pk, invitation_pk):
-    contest = Contest.objects.get(pk=pk)
-    contest.contestinvitation_set.get(pk=invitation_pk).delete()
-    return HttpResponseRedirect(reverse('backstage:contest_invitation', kwargs={'pk': pk}))
+class ContestInvitationDelete(BaseBackstageMixin, View):
+    def get(self, request, pk, invitation_pk):
+        contest = Contest.objects.get(pk=pk)
+        contest.contestinvitation_set.get(pk=invitation_pk).delete()
+        return HttpResponseRedirect(reverse('backstage:contest_invitation', kwargs={'pk': pk}))
 
 
-def contest_invitation_assign(request, pk, invitation_pk):
-    if request.method == 'POST':
+class ContestInvitationAssign(BaseBackstageMixin, View):
+    def post(self, request, pk, invitation_pk):
         username = request.POST.get('username')
         try:
             with transaction.atomic():
@@ -168,7 +170,8 @@ def contest_invitation_assign(request, pk, invitation_pk):
                 ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
                 invitation.delete()
                 update_contest(contest)
-            messages.success(request, 'The user <strong>%s</strong> has been successfully added to the contest.' % username)
+            messages.success(request,
+                             'The user <strong>%s</strong> has been successfully added to the contest.' % username)
         except User.DoesNotExist:
             messages.error(request, 'The user <strong>%s</strong> does not exist. Please check again.' % username)
         except IntegrityError:
@@ -176,7 +179,7 @@ def contest_invitation_assign(request, pk, invitation_pk):
         return HttpResponseRedirect(request.POST['next'])
 
 
-class ContestParticipantList(ListView):
+class ContestParticipantList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest_participant.jinja2'
     paginate_by = 50
     context_object_name = 'participant_list'

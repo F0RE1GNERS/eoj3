@@ -88,6 +88,9 @@ TEMPLATES = [
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice"
+            },
+            "tests": {
+                "myTest": "utils.jinja2.tests.is_admin"
             }
         },
     },

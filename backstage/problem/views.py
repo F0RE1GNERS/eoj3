@@ -3,21 +3,23 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
+from django.views.generic import View
 
 from .forms import ProblemEditForm
 from problem.models import Problem
 from eoj3.settings import TESTDATA_DIR
 from utils.testdata_preview import sort_data_from_zipfile
 
-from ..base_views import BaseCreateView, BaseUpdateView
+from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 
-def testdata(request, pk):
-    import os
-    file_path = os.path.join(TESTDATA_DIR, str(pk) + '.zip')
-    problem = Problem.objects.get(pk=pk)
+class TestData(BaseBackstageMixin, View):
+    template_name = 'backstage/problem/problem_testdata.jinja2'
 
-    if request.method == 'POST':
+    def post(self, request, pk):
+        import os
+        file_path = os.path.join(TESTDATA_DIR, str(pk) + '.zip')
+        problem = Problem.objects.get(pk=pk)
         if request.FILES['data'].size > 128 * 1048576:
             print('Warning: the file is too large.')
             # TODO: file size should not be too large
@@ -28,19 +30,24 @@ def testdata(request, pk):
             destination.write(data)
         problem.testdata_hash = hashlib.md5(data).hexdigest()
         problem.save()
+        return HttpResponseRedirect(request.path)
 
-    return render(request, 'backstage/problem/problem_testdata.jinja2',
-                  {'data_set': sort_data_from_zipfile(file_path),
-                   'hash': problem.testdata_hash,
-                   'pid': pk})
+    def get(self, request, pk):
+        import os
+        problem = Problem.objects.get(pk=pk)
+        file_path = os.path.join(TESTDATA_DIR, str(pk) + '.zip')
+        data = {'data_set': sort_data_from_zipfile(file_path),
+                'hash': problem.testdata_hash,
+                'pid': pk}
+        return render(request, self.template_name, data)
 
 
-def problem_delete(request, pk):
-    # TODO: check whether is problem is included in a contest problem
-    name = str(Problem.objects.get(pk=pk))
-    Problem.objects.get(pk=pk).delete()
-    messages.success(request, "Problem <strong>%s</strong> has been successfully deleted." % name)
-    return HttpResponseRedirect(reverse('backstage:problem'))
+class ProblemDelete(BaseBackstageMixin, View):
+    def get(self, request, pk):
+        name = str(Problem.objects.get(pk=pk))
+        Problem.objects.get(pk=pk).delete()
+        messages.success(request, "Problem <strong>%s</strong> has been successfully deleted." % name)
+        return HttpResponseRedirect(reverse('backstage:problem'))
 
 
 class ProblemCreate(BaseCreateView):
@@ -57,8 +64,7 @@ class ProblemUpdate(BaseUpdateView):
     template_name = 'backstage/problem/problem_edit.jinja2'
 
 
-@method_decorator(login_required(), name='dispatch')
-class ProblemList(ListView):
+class ProblemList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem/problem.jinja2'
     queryset = Problem.objects.all()
     paginate_by = 20

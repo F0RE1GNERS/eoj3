@@ -34,7 +34,7 @@
         <li class="nav-item {{ active('problem') }}">
           <a class="nav-link" href="{{ url('problem_list') }}">Problems</a>
         </li>
-        <li class="nav-item {{ active('contest:list') }}">
+        <li class="nav-item {{ active('contest:*') }}">
           <a class="nav-link" href="{{ url('contest:list') }}">Contests</a>
         </li>
         <li class="nav-item {{ active('status') }}">
@@ -42,10 +42,12 @@
         </li>
       </ul>
       <ul class="navbar-nav">
-        {% if user.is_authenticated %}
+        {% if user is admin %}
           <li class="nav-item {{ active('backstage') }}">
             <a class="nav-link" href="{{ url('backstage:index') }}">Backstage</a>
           </li>
+        {% endif %}
+        {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link text-gray-dark" href="{{ url('account:security') }}">{{ request.user.username }}</a>
           </li>
@@ -58,9 +60,6 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url('register') }}">Register</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url('backstage:index') }}">Admin</a>
           </li>
         {% endif %}
       </ul>

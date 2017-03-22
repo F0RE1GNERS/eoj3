@@ -1,4 +1,5 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView
 from django.contrib import messages
 from django.shortcuts import HttpResponseRedirect, render
 from django.utils.decorators import method_decorator
@@ -7,16 +8,15 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 
 from account.models import Privilege
 
-def index(request):
-    return render(request, 'backstage/index.jinja2')
-
 
 class BaseBackstageMixin(UserPassesTestMixin):
+    raise_exception = True
+
     def test_func(self):
-        return self.request.user.privilege in (Privilege.ADMIN, Privilege.ROOT)
+        user = self.request.user
+        return user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN)
 
 
-@method_decorator(login_required(), name='dispatch')
 class BaseCreateView(BaseBackstageMixin, CreateView):
 
     def post_create(self, instance):
@@ -37,7 +37,6 @@ class BaseCreateView(BaseBackstageMixin, CreateView):
         raise NotImplementedError("Method get_redirect_url should be implemented")
 
 
-@method_decorator(login_required(), name='dispatch')
 class BaseUpdateView(BaseBackstageMixin, UpdateView):
 
     def post_update(self, instance):
@@ -55,3 +54,7 @@ class BaseUpdateView(BaseBackstageMixin, UpdateView):
 
     def get_redirect_url(self, instance):
         return self.request.path
+
+
+class Index(BaseBackstageMixin, TemplateView):
+    template_name = 'backstage/index.jinja2'

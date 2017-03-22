@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse, get_object_o
 from django.views.generic.list import ListView
 from django.views import View
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
 
 from .models import Problem
 from submission.forms import SubmitForm
@@ -20,6 +21,7 @@ class ProblemView(View):
     form_class = SubmitForm
     form_initial = {'lang': 'cpp'}  # TODO
 
+    @login_required
     def post(self, request, **kwargs):
         problem = get_object_or_404(Problem, **kwargs)
         form = self.form_class(request.POST, initial=self.form_initial)
