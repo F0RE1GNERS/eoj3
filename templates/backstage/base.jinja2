@@ -7,6 +7,8 @@
     <h1>Backstage</h1>
   </div>
 </div>
+
+
   <div class="container">
     <div class="row">
 
@@ -20,6 +22,9 @@
         <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }}">Servers</a>
       </div>
       <div class="col-12 col-md-9 pull-md-3 bd-content">
+        <div class="content-header">
+          <h2>{% block content_header %}{% endblock %}</h2>
+        </div>
         {% block backstage_content %}
         {% endblock %}
       </div>

@@ -1,9 +1,10 @@
 {% extends 'backstage/base.jinja2' %}
 
+{% block content_header %}
+  Judge Server List
+{% endblock %}
+
 {% block backstage_content %}
-  <div class="content-header">
-    <h2>Judge Server List</h2>
-  </div>
 
   {% include 'components/message.jinja2' %}
 
@@ -29,12 +30,11 @@
           <td>{{ server.ip }}</td>
           <td>{{ server.port }}</td>
           <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-default">Update</a></td>
-          <td>{{ server.last_seen_time }}</td>
+          <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
           <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-primary">Edit</a></td>
           <td><a href="{{ url('backstage:server_delete', server.pk) }}" class="text-primary">Remove</a></td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
-  {# TODO: not deletable?! #}
 {% endblock %}

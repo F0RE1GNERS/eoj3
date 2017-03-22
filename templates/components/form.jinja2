@@ -5,11 +5,11 @@
   <input type="hidden" name="next" value="{{ request.path }}">
   {% for field in form %}
     {% if not field.errors %}
-      {% if field.label in ['Visible', 'Public'] %}  {# TODO hard code #}
+      {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
         <div class="form-check mb-3">
           <label class="form-check-label">
-            {{ field.label }}
             {{ render_field(field, {'class': 'form-check-input', 'placeholder': field.help_text}) }}
+            {{ field.label }}
           </label>
         </div>
       {% else %}

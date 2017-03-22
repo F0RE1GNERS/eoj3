@@ -148,8 +148,6 @@ LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 
 
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
@@ -163,7 +161,7 @@ LOGIN_URL = '/login/'
 TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-DATETIME_FORMAT = 'Y-m-d H:i'
+DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
 
 # modified
 TIME_ZONE = 'Asia/Shanghai'

@@ -1,9 +1,13 @@
 {% extends 'backstage/base.jinja2' %}
 
+{% block content_header %}
+  Contests
+{% endblock %}
+
 {% block backstage_content %}
-  <div class="content-header">
-    <h2>Contests</h2>
-  </div>
+
+  {% include 'components/message.jinja2' %}
+
   <div class="mb-3">
     <a role="button" class="btn btn-primary" href="{{ url('backstage:contest_create') }}">Add a contest</a>
   </div>
