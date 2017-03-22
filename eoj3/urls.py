@@ -26,13 +26,13 @@ urlpatterns = [
     url(r'^$', home_view, name='home'),
     # url('^', include('django.contrib.auth.urls')),
     url(r'^problem/$', ProblemList.as_view(), name='problem_list'),
-    url(r'^problem/(?P<pk>\d+)/', ProblemView.as_view(), name='problem'),
-    url(r'^submission/(?P<pk>\d+)', SubmissionView.as_view(), name='submission'),
+    url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view(), name='problem'),
+    url(r'^submission/(?P<pk>\d+)/$', SubmissionView.as_view(), name='submission'),
     url(r'^contest/', include('contest.urls', namespace='contest')),
     url(r'^status/$', StatusList.as_view(), name='status'),
-    url(r'^login/', my_login, name='login'),
-    url(r'^register/', register_view, name='register'),
-    url(r'^logout/', logout, name='logout'),
+    url(r'^login/$', my_login, name='login'),
+    url(r'^register/$', register_view, name='register'),
+    url(r'^logout/$', logout, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account'))
 ]
