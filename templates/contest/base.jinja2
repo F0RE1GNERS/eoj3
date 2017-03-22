@@ -28,7 +28,7 @@
             {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
           </a>
         {% endfor %}
-        <a class="link-lg {{ active('contest:submit') }}" href="{{ url('contest:submit', contest.pk) }}">Submit</a>
+        <a class="link-lg {{ active('contest:submit') }}" href="{{ url('contest:submit', contest.pk) }}{% if contest_problem %}?pid={{ contest_problem.identifier }}{% endif %}">Submit</a>
         <a class="link-lg {{ active('contest:submission') }}" href="{{ url('contest:submission', contest.pk) }}">My submissions</a>
         <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>
         <a class="link-lg {{ active('contest:standings') }}" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
