@@ -59,6 +59,20 @@
 .highlight .vg { color: #B8860B } /* Name.Variable.Global */
 .highlight .vi { color: #B8860B } /* Name.Variable.Instance */
 .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
-.highlight .lineno {
-    color: grey;
+.highlight .lineno { color: grey; }
+
+.code-submit, .code-block {
+  font-size: 100%;
+  font-family: "Courier New", "Courier", monospace;
+}
+
+.code-block {
+  border: 1px;
+  border-radius: 4px;
+  border-color: #ccc;
+  border-style: solid;
+  padding: 20px;
+  margin-bottom: 4rem;
+  font-size: 1.2em;
+  background-color: #fdfdfd;
 }

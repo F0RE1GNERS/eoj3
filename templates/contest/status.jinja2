@@ -10,10 +10,10 @@
     <thead>
       <tr>
         <th width="9%">#</th>
-        <th width="14%">Author</th>
-        <th width="27%">Problem</th>
-        <th width="25%">Submit time</th>
+        <th width="14%">Who</th>
+        <th width="32%">Problem</th>
         <th width="25%">Verdict</th>
+        <th width="20%">When</th>
       </tr>
     </thead>
     <tbody>
@@ -22,8 +22,8 @@
           <td scope="row">{{ submission.pk }}</td>
           <td>{{ submission.author }}</td>
           <td>{{ submission.problem }}</td>
-          <td>{{ submission.create_time }}</td>
           <td class="text-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
+          <td>{{ submission.create_time }}</td>
         </tr>
       {% endfor %}
     </tbody>

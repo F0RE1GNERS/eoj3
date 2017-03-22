@@ -27,8 +27,8 @@
           <tr>
             <td scope="row">{{ contest.pk }}</td>
             <td>{{ contest.title }}</td>
-            <td>{{ contest.start_time }}</td>
-            <td>{{ contest.end_time }}</td>
+            <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
+            <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
             <td><a href="{{ url('backstage:contest_manage', contest.pk) }}" class="text-primary">Manage</a></td>
             {# NOTE: Contest cannot be deleted once created #}
           </tr>
