@@ -23,19 +23,21 @@
     {{ problem.body | safe }}
   </div>
 
+  <h2>Submit your code</h2>
   <form class="form" action="{{ request.path }}" method="post">
     {% csrf_token %}
     <div class="form-group form-inline">
       {{ form.lang.label_tag() }}
-      {{ render_field(form.lang, {'class': 'form-control'}) }}
+      {{ render_field(form.lang, {'class': 'form-control mx-2'}) }}
     </div>
     <div class="form-group">
-      {{ form.code.label_tag() }}
-      {{ render_field(form.code, {'class': 'form-control'}) }}
+      {{ render_field(form.code, {'class': 'form-control code-submit', 'rows': "18", "spellcheck": "false"}) }}
     </div>
-    <button class="btn btn-lg btn-outline-primary" type="submit">Submit my code</button>
+    <button class="btn btn-outline-primary" type="submit">Submit my code</button>
   </form>
   </div>
+
+  {% include 'components/code_submit_support.jinja2' %}
 
   {% include 'components/math_support.html' %}
 

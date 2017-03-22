@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
 from django.views import View
-from utils.auth_view import password_change, login
 from django.contrib import messages
+
+from utils.auth_view import password_change, login
 from .forms import RegisterForm, MyPasswordChangeForm
-from utils.invitation import activate
 
 
 def profile_view(request):
@@ -20,27 +20,6 @@ def register_view(request):
     else:
         form = RegisterForm()
     return render(request, 'register.jinja2', {'form': form})
-
-
-class MyGroup(View):
-    template_name = 'account/group.jinja2'
-
-    def get_context_data(self):
-        user = self.request.user
-        group_list = user.group_set.all()
-        return dict(group_list=group_list)
-
-    def post(self, request):
-        code = request.POST.get('code')
-        group_membership, error = activate(request.user, code)
-        if group_membership:
-            messages.success(request, "You successfully join group <strong>%s</strong>." % group_membership.group.name)
-        else:
-            messages.error(request, error)
-        return render(request, self.template_name, self.get_context_data())
-
-    def get(self, request):
-        return render(request, self.template_name, self.get_context_data())
 
 
 def my_password_change(request):

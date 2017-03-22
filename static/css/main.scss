@@ -10,6 +10,11 @@ input, button, select, textarea, a {
   outline: none !important;
 }
 
+.code-submit, .code-block {
+  font-size: 100%;
+  font-family: "Courier New", "Courier", monospace;
+}
+
 td, th {
   vertical-align: middle !important;
 }

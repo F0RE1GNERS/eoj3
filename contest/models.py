@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from account.models import User
 from problem.models import Problem
-from group.models import Group
 import shortuuid
 
 
@@ -38,7 +37,6 @@ class Contest(models.Model):
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
 
-    groups = models.ManyToManyField(Group)
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
