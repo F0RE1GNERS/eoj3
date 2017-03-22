@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
 from .models import Contest, ContestProblem, ContestParticipant
 from submission.models import Submission
+from account.models import Privilege
 from problem.models import Problem
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import DispatcherThread
@@ -28,10 +29,12 @@ def get_contest_problem(contest, problem):
 
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
     def test_func(self):
+        user = self.request.user
         return ContestParticipant.objects.filter(
             contest=Contest.objects.get(pk=self.kwargs.get('cid')),
-            user=self.request.user
-        ).exists()
+            user=user
+        ).exists() or (
+        user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN))
 
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
@@ -112,7 +115,7 @@ class ContestSubmit(BaseContestMixin, FormView):
 
 class ContestMySubmission(BaseContestMixin, ListView):
     template_name = 'contest/submission.jinja2'
-    paginate_by = 1
+    paginate_by = 50
     context_object_name = 'submission_list'
 
     def get_queryset(self):
@@ -129,7 +132,7 @@ class ContestMySubmission(BaseContestMixin, ListView):
 
 class ContestStatus(BaseContestMixin, ListView):
     template_name = 'contest/status.jinja2'
-    paginate_by = 20
+    paginate_by = 50
     context_object_name = 'submission_list'
 
     def get_queryset(self):
