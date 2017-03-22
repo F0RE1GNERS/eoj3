@@ -80,21 +80,21 @@ class Dispatcher:
             return False
 
     def update_submission_and_problem(self, response):
-        submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-        if submission.judge_start_time > self.submission.judge_start_time:
-            raise SystemError('There has been a newer judge')
-        prev_status = submission.status
-
-        accept_increment = 0
-        problem = Problem.objects.select_for_update().get(pk=self.problem_id)
-        if prev_status != SubmissionStatus.ACCEPTED \
-                and response['verdict'] == SubmissionStatus.ACCEPTED:
-            accept_increment = 1
-        elif prev_status == SubmissionStatus.ACCEPTED \
-                and response['verdict'] != SubmissionStatus.ACCEPTED:
-            accept_increment = -1
-
         with transaction.atomic():
+            submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+            if submission.judge_start_time > self.submission.judge_start_time:
+                raise SystemError('There has been a newer judge')
+            prev_status = submission.status
+
+            accept_increment = 0
+            problem = Problem.objects.select_for_update().get(pk=self.problem_id)
+            if prev_status != SubmissionStatus.ACCEPTED \
+                    and response['verdict'] == SubmissionStatus.ACCEPTED:
+                accept_increment = 1
+            elif prev_status == SubmissionStatus.ACCEPTED \
+                    and response['verdict'] != SubmissionStatus.ACCEPTED:
+                accept_increment = -1
+
             submission.status = response['verdict']
             submission.judge_end_time = timezone.now()
             if submission.status == SubmissionStatus.COMPILE_ERROR:
@@ -120,10 +120,11 @@ class Dispatcher:
         try:
             self.update_data_for_server()
 
-            self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-            self.submission.judge_start_time = timezone.now()
-            self.submission.status = SubmissionStatus.JUDGING
-            self.submission.save()
+            with transaction.atomic():
+                self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+                self.submission.judge_start_time = timezone.now()
+                self.submission.status = SubmissionStatus.JUDGING
+                self.submission.save()
 
             problem = Problem.objects.get(pk=self.problem_id)
             request = {
