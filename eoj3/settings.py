@@ -21,6 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
+# TODO: secret key secret
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -116,13 +117,19 @@ WSGI_APPLICATION = 'eoj3.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+def get_database():
+    try:
+        import local_settings
+        return local_settings.DATABASES
+    except ImportError:
+        return {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
 
+DATABASES = get_database()
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -171,11 +178,3 @@ TIME_ZONE = 'Asia/Shanghai'
 # TIME_ZONE = 'UTC'
 USE_L10N = False
 USE_TZ = False
-
-try:
-    import local_settings
-    global DATABASES
-    DATABASES = local_settings.DATABASES
-    SECRET_KEY = local_settings.SECRET_KEY
-except ImportError:
-    pass
