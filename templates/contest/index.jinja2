@@ -4,8 +4,43 @@
   <div class="content-header">
     <h2>Dashboard</h2>
   </div>
-  <div>
-  hello
+  <div class="scrollable content-section">
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="10%" class="text-center">ID</th>
+          <th width="80%">Title</th>
+          <th width="10%" class="text-center">AC / all</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for contest_problem in contest_problem_list %}
+        <tr>
+          <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
+          <td><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+            {{ contest_problem.problem.title }}</a></td>
+          <td align="center" class="{% if contest_problem.status %}table-{{ contest_problem.status }}{% endif %}">
+            {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="content-section">
+    <h4>Register</h4>
+    <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
+    <form class="form-inline" action="#" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input type="text" class="form-control mr-2 mb-2" id="problem" name="problem" placeholder="Invitation code" required>
+      <button type="submit" class="btn btn-primary mr-2 mb-2">Save</button>
+    </form>
+    <p>You have already registered for this contest, but the contest is yet to begin.<br>
+      Before start <span>5:30:00</span></p>
+  </div>
+  <div class="content-section">
+    <h4>Announcement</h4>
+    <div>{{ contest.description }}</div>
   </div>
 
 {% endblock %}
