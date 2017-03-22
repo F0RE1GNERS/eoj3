@@ -10,7 +10,7 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
 from .models import Contest, ContestProblem, ContestParticipant
-from submission.models import Submission
+from submission.models import Submission, SubmissionStatus
 from account.models import Privilege
 from problem.models import Problem
 from submission.forms import ContestSubmitForm
@@ -57,6 +57,29 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
 
 class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(DashboardView, self).get_context_data(**kwargs)
+        contest = data['contest']
+        user = self.request.user
+        problem_as_contest_problem = {}
+        problem_status = {}
+        for contest_problem in data['contest_problem_list']:
+            problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
+        submissions = contest.submission_set.filter(author=user).all()
+        for submission in submissions:
+            contest_problem = problem_as_contest_problem[submission.problem.pk]
+            if problem_status.get(contest_problem) != 'success':
+                if submission.status == SubmissionStatus.ACCEPTED:
+                    problem_status[contest_problem] = 'success'
+                elif not SubmissionStatus.is_judged(submission.status):
+                    problem_status[contest_problem] = 'warning'
+                elif SubmissionStatus.is_penalty(submission.status):
+                    problem_status[contest_problem] = 'danger'
+
+        for contest_problem in data['contest_problem_list']:
+            contest_problem.status = problem_status.get(contest_problem.identifier)
+        return data
 
 
 class ContestList(ListView):
