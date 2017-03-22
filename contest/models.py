@@ -18,6 +18,8 @@ class ContestManager(models.Manager):
         contest_list = super(ContestManager, self).get_queryset().all()
         for contest in contest_list:
             contest.status = contest.get_status()
+            contest.participant_size = contest.participants.count()
+            contest.length = contest.end_time - contest.start_time
         contest_list = sorted(contest_list, key=lambda c: cmp[c.status])
         return contest_list
 
