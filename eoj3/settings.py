@@ -87,10 +87,11 @@ TEMPLATES = [
                 "myGlobal3": "utils.jinja2.globals.render_field",
             },
             "filters": {
-                "myFilter": "utils.jinja2.filters.status_choice"
+                "myFilter": "utils.jinja2.filters.status_choice",
+                "myFilter2": "utils.jinja2.filters.timedelta_format",
             },
             "tests": {
-                "myTest": "utils.jinja2.tests.is_admin"
+                "myTest": "utils.jinja2.tests.is_admin",
             }
         },
     },

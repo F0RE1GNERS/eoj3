@@ -13,13 +13,7 @@
       <div class="form-group row">
         <label for="problem_identifier" class="col-2 col-form-label">Problem:</label>
         <div class="col-10 col-md-8">
-          <select class="form-control" id="problem_identifier" name="problem_identifier">
-            {% for contest_problem in contest_problem_list %}
-              <option value="{{ contest_problem.identifier }}">
-                {{ contest_problem.identifier }} - {{ contest_problem.problem.title }}
-              </option>
-            {% endfor %}
-          </select>
+          {{ render_field(form.problem_identifier, {'class': "form-control"}) }}
         </div>
       </div>
   <div class="form-group row">
@@ -36,6 +30,7 @@
   <button class="btn btn-outline-primary" type="submit">Submit</button>
 
   {% include 'components/code_submit_support.jinja2' %}
+
 
 </form>
 

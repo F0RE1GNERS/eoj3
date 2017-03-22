@@ -26,8 +26,8 @@
           <tr>
             <td scope="row">{{ contest.pk }}</td>
             <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
-            <td>{{ contest.start_time }}</td>
-            <td>{{ contest.length }}</td>
+            <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
+            <td>{{ contest.length | timedelta }}</td>
             <td>&times; {{ contest.participant_size }}</td>
             <td>{{ contest.status }}</td>
           </tr>

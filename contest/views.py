@@ -92,6 +92,11 @@ class ContestSubmit(BaseContestMixin, FormView):
     def get_initial(self):
         return {'problem_identifier': self.request.GET.get('pid', '')}
 
+    def get_form_kwargs(self):
+        kwargs = super(ContestSubmit, self).get_form_kwargs()
+        kwargs['contest_problem_list'] = get_object_or_404(Contest, pk=self.kwargs['cid']).contestproblem_set.all()
+        return kwargs
+
     def form_valid(self, form):
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         with transaction.atomic():
