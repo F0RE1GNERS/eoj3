@@ -30,11 +30,10 @@ def get_contest_problem(contest, problem):
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
     def test_func(self):
         user = self.request.user
-        return ContestParticipant.objects.filter(
+        return user.is_authenticated and (ContestParticipant.objects.filter(
             contest=Contest.objects.get(pk=self.kwargs.get('cid')),
             user=user
-        ).exists() or (
-        user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN))
+        ).exists() or user.privilege in (Privilege.ROOT, Privilege.ADMIN))
 
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
