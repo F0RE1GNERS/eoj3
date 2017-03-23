@@ -11,3 +11,4 @@ DATABASES = {
 }
 
 SECRET_KEY = 'naive'
+DEBUG = True

@@ -51,7 +51,6 @@ def sample_format(value):
     </div>
     """
     res = ''
-    print(lst)
     for i in range(0, len(lst), 2):
         if i + 1 < len(lst):
             res += template.format(input=lst[i], output=lst[i+1])
