@@ -47,8 +47,10 @@
     </div>
   {% endif %}
   <div class="content-section">
-    <h4>Announcement</h4>
-    <div>{{ contest.description }}</div>
+    {% if contest.description %}
+      <h4>Announcement</h4>
+      <div>{{ contest.description | markdown | safe }}</div>
+    {% endif %}
   </div>
 
 {% endblock %}

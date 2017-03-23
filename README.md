@@ -11,6 +11,7 @@ eoj3: A new version of eoj.
 + remember me on login page
 + a lot about contest todo: privilege, public/private
 + images and files in problems
++ submission privileges
 
 ## Installation
 
