@@ -64,6 +64,9 @@
 .code-submit, .code-block {
   font-size: 100%;
   font-family: "Courier New", "Courier", monospace;
+  pre {
+    margin-bottom: 0;
+  }
 }
 
 .code-block {
