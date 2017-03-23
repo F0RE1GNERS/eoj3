@@ -147,13 +147,17 @@ class Dispatcher:
                                      timeout=3600).json()
             print(response)
             if response['status'] != 'received':
+                with transaction.atomic():
+                    self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+                    self.submission.status = SubmissionStatus.SYSTEM_ERROR
+                    self.submission.save()
                 raise ConnectionError('Remote server rejected the request.')
 
             self.update_submission_and_problem(response)
             return True
         except Exception as e:
             print('Something wrong during dispatch:')
-            print(e)
+            print(repr(e))
             return False
 
 

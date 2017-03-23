@@ -1,11 +1,11 @@
 {% extends 'contest/base.jinja2' %}
+
 {% block contest_content %}
 
-<div>
-  <div class="content-header">
-    <h2>Submit your code</h2>
-  </div>
+<div class="content-header">
+  <h2>Submit your code</h2>
 </div>
+{% include 'components/message.jinja2' %}
 <form class="form" action="{{ request.path }}" method="post">
   {% csrf_token %}
 

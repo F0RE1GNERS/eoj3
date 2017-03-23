@@ -43,7 +43,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
                                           or user.privilege in (Privilege.ROOT, Privilege.ADMIN)):
             return True
         else:
-            self.permission_denied_message = "Did you forget to register the contest?"
+            self.permission_denied_message = "Did you forget to register for the contest?"
             return False
 
     def get_context_data(self, **kwargs):
@@ -140,6 +140,9 @@ class ContestSubmit(BaseContestMixin, FormView):
 
     def form_valid(self, form):
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
+        if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
+            messages.error(self.request, 'You are currently not in the period of the contest.')
+            return HttpResponseRedirect(self.request.path)
         with transaction.atomic():
             submission = form.save(commit=False)
             problem_identifier = form.cleaned_data['problem_identifier']
