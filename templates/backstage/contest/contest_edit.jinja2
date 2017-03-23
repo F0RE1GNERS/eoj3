@@ -1,13 +1,10 @@
 {% extends 'backstage/base.jinja2' %}
 
 {% block content_header %}
-  Judge Server List
+  Edit contest profile - {{ contest.title }}
 {% endblock %}
 
 {% block backstage_content %}
-  <div class="content-header">
-    <h2>Edit Contest Profile - {{ contest.title }}</h2>
-  </div>
   <div class="content-section">
   {% include 'components/form.jinja2' %}
   </div>

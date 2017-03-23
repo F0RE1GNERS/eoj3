@@ -2,19 +2,16 @@ import shortuuid
 
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from django.views import View
-from django.utils.decorators import method_decorator
 from django.utils import timezone
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 
 from .forms import ContestEditForm
 from account.models import User
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
 from contest.tasks import update_contest, add_participant_with_invitation
-from utils import markdown3
 
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 

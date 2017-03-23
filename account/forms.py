@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Privilege
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm
 
@@ -24,6 +24,8 @@ class RegisterForm(forms.ModelForm):
     def create(self):
         instance = self.save(commit=False)
         instance.set_password(self.cleaned_data.get('password'))
+        if not User.objects.exists():
+            instance.privilege = Privilege.ROOT
         instance.save()
         return instance
 

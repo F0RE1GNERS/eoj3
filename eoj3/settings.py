@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django.contrib.humanize',
 
     'home',
@@ -90,6 +89,8 @@ TEMPLATES = [
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",
                 "myFilter2": "utils.jinja2.filters.timedelta_format",
+                "myFilter3": "utils.jinja2.filters.markdown_format",
+                "myFilter4": "utils.jinja2.filters.sample_format",
             },
             "tests": {
                 "myTest": "utils.jinja2.tests.is_admin",

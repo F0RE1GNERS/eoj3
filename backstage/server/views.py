@@ -24,11 +24,22 @@ class ServerUpdate(BaseUpdateView):
     template_name = 'backstage/server/server_edit.jinja2'
     queryset = Server.objects.all()
 
+    def get_redirect_url(self, instance):
+        return reverse('backstage:server')
+
 
 class ServerList(BaseBackstageMixin, ListView):
     template_name = 'backstage/server/server.jinja2'
     queryset = Server.objects.all()
     context_object_name = 'server_list'
+
+
+class ServerRefresh(BaseBackstageMixin, View):
+    def get(self, request, pk):
+        server = Server.objects.get(pk=pk)
+        server.serverproblemstatus_set.all().delete()
+        messages.success(request, "Server status has been refreshed.")
+        return HttpResponseRedirect(reverse('backstage:server'))
 
 
 class ServerDelete(BaseBackstageMixin, View):

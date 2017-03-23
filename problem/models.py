@@ -6,6 +6,10 @@ from utils import markdown3
 class Problem(models.Model):
     title = models.CharField('Title', max_length=128, blank=True)
     description = models.TextField('Description', blank=True)
+    input = models.TextField('Input', blank=True)
+    output = models.TextField('Output', blank=True)
+    sample = models.TextField('Sample', blank=True)
+    hint = models.TextField('Hint', blank=True)
     source = models.CharField('Source', max_length=128, blank=True)
     created_by = models.ForeignKey(User)
 

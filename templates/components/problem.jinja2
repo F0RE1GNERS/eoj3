@@ -10,6 +10,28 @@
   </div>
 
   <div class="problem-body">
-    {{ problem.body | safe }}
+    {% if problem.description %}
+      <div class="passage">
+        {{ problem.description | markdown | safe }}
+      </div>
+    {% endif %}
+    {% if problem.input %}
+      <h3 class="title">Input</h3>
+      {{ problem.input | markdown | safe }}
+    {% endif %}
+    {% if problem.output %}
+      <h3 class="title">Output</h3>
+      {{ problem.output | markdown | safe }}
+    {% endif %}
+    {% if problem.sample %}
+      <div class="passage examples">
+        <h3 class="title">Examples</h3>
+        {{ problem.sample | sample | safe }}
+      </div>
+    {% endif %}
+    {% if problem.hint %}
+      <h3 class="title">Note</h3>
+      {{ problem.hint | markdown | safe }}
+    {% endif %}
   </div>
 {% endmacro %}

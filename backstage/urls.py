@@ -5,10 +5,14 @@ from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, 
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
-from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete
+from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
+from .account.views import AccountList, AccountPrivilegeSwitch
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
+
+    url(r'^account/$', AccountList.as_view(), name='account'),
+    url(r'^account/privilege/(?P<pk>\d+)/', AccountPrivilegeSwitch.as_view(), name='account_privilege_switch'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
     url(r'^problem/create/$', ProblemCreate.as_view(), name='problem_create'),
@@ -31,6 +35,7 @@ urlpatterns = [
 
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/$', ServerCreate.as_view(), name='server_create'),
-    url(r'^server/edit/(?P<pk>\d+)/$', ServerUpdate.as_view(), name='server_edit'),
-    url(r'^server/delete/(?P<pk>\d+)/$', ServerDelete.as_view(), name='server_delete'),
+    url(r'^server/(?P<pk>\d+)/edit/$', ServerUpdate.as_view(), name='server_edit'),
+    url(r'^server/(?P<pk>\d+)/delete/$', ServerDelete.as_view(), name='server_delete'),
+    url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh')
 ]

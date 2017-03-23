@@ -29,6 +29,7 @@
           <td class="text-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
           <td>{{ submission.create_time }}</td>
           {# TODO: create time delta #}
+          {# TODO: not display before judge #}
         </tr>
       {% endfor %}
     </tbody>

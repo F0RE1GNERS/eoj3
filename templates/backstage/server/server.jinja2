@@ -1,7 +1,7 @@
 {% extends 'backstage/base.jinja2' %}
 
 {% block content_header %}
-  Judge Server List
+  Judge Servers
 {% endblock %}
 
 {% block backstage_content %}
@@ -11,30 +11,38 @@
   <div class="mb-1">
     <a role="button" class="btn btn-primary" href="{{ url('backstage:server_create') }}">Add a judge server</a>
   </div>
-  <table class="table table-responsive full-width-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>IP</th>
-        <th>Port</th>
-        <th>Token</th>
-        <th>Last Seen</th>
-        <th>Edit</th>
-        <th>Remove</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for server in server_list %}
+  <div class="scrollable">
+    <table class="table">
+      <thead>
         <tr>
-          <td scope="row">{{ server.name }}</td>
-          <td>{{ server.ip }}</td>
-          <td>{{ server.port }}</td>
-          <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-default">Update</a></td>
-          <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
-          <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-primary">Edit</a></td>
-          <td><a href="{{ url('backstage:server_delete', server.pk) }}" class="text-primary">Remove</a></td>
+          <th class="15%">Name</th>
+          <th class="15%">IP</th>
+          <th class="10%">Port</th>
+          <th class="12%">Update</th>
+          <th class="25%">Last Seen</th>
+          <th class="10%">Refresh</th>
+          <th class="13%">Delete</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for server in server_list %}
+          <tr>
+            <td scope="row">{{ server.name }}</td>
+            <td>{{ server.ip }}</td>
+            <td>{{ server.port }}</td>
+            <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-default">Update</a></td>
+            <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
+            <td><a href="{{ url('backstage:server_refresh', server.pk) }}" class="text-danger">Refresh</a></td>
+            <td><a href="{{ url('backstage:server_delete', server.pk) }}" class="text-danger">Delete</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Warning!</strong> Double check before you hit <strong>Refresh</strong> and <strong>Delete</strong>!
+  </div>
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Privileges
+{% endblock %}
+
+{% block backstage_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <div class="scrollable">
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="50%">Who</th>
+          <th width="50%">Privilege</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in user_list %}
+          <tr>
+            <td scope="row">{{ user.username }}</td>
+            <td scope="row"><a class="{% if user.privilege != 'user' %}text-danger{% endif %}" href="{{ url('backstage:account_privilege_switch', user.pk) }}">
+              {{ user.get_privilege_display() }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {{ my_paginator() }}
+
+{% endblock %}

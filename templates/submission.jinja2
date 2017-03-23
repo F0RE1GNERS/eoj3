@@ -20,9 +20,9 @@
       <p><strong>Language: </strong>{{ submission.get_lang_display() }}</p>
       <p><strong>Problem: </strong>{{ submission.problem }}</p>
       <p><strong>Author: </strong>{{ submission.author.username }}</p>
-      <p><strong>Created: </strong>{{ submission.create_time }}</p>
-      {% if submission.is_judged %}
-        <p><strong>Judged: </strong>{{ submission.judge_end_time }}</p>
+      <p><strong>Created: </strong>{{ submission.create_time | date('Y-m-d H:i:s') }}</p>
+      {% if submission.is_judged() %}
+        <p><strong>Judged: </strong>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</p>
         <p><strong>Code length: </strong>{{ submission.code_length }}B</p>
         <p><strong>Time: </strong>{{ submission.get_time_display() }}</p>
         <p><strong>Memory: </strong>{{ submission.get_memory_display() }}</p>
@@ -34,7 +34,7 @@
     {% if detail %}
       <h3>Detail</h3>
       {% for message in detail %}
-        <div class="card card-outline-{{ message.color }} mb-2">
+        <div style="font-weight: normal;" class="card card-outline-{{ message.color }} mb-2">
           <div class="card-block detail">
             <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms, memory: {{ message.memory }}KB,
               verdict: <strong>{{ message.verdict | status_choice }}</strong></p>
