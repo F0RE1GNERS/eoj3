@@ -29,7 +29,15 @@
             <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
             <td>{{ contest.length | timedelta }}</td>
             <td>&times; {{ contest.participant_size }}</td>
-            <td>{{ contest.status }}</td>
+            <td style="text-transform: capitalize;">
+              {% if contest.status == 'running' %}
+              <span class="text-danger font-weight-bold">{{ contest.status }}</span>
+              {% elif contest.status == 'pending' %}
+              <span class="text-success">{{ contest.status }}</span>
+              {% else %}
+              {{ contest.status }}
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

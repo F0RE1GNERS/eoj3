@@ -18,6 +18,13 @@ def timedelta_format(value):
     return "{:02}:{:02}".format(hours, minutes)
 
 
+@library.filter(name="minute_filter")
+def minute_format(seconds):
+    return "%d:%.2d:%.2d" % (seconds // 3600,
+                             seconds % 3600 // 60,
+                             seconds % 60)
+
+
 @library.filter(name='markdown')
 def markdown_format(value):
     return md3.convert(value)

@@ -14,7 +14,7 @@ def get_invitation_code():
 class ContestManager(models.Manager):
 
     def get_status_list(self):
-        cmp = dict(Running=-1, Pending=0, Ended=1)
+        cmp = dict(running=-1, pending=0, ended=1)
         contest_list = super(ContestManager, self).get_queryset().all()
         for contest in contest_list:
             contest.status = contest.get_status()
@@ -54,11 +54,11 @@ class Contest(models.Model):
     def get_status(self):
         now = timezone.now()
         if self.start_time <= now <= self.end_time:
-            return 'Running'
-        elif now <= self.start_time:
-            return 'Pending'
+            return 'running'
+        elif now < self.start_time:
+            return 'pending'
         else:
-            return 'Ended'
+            return 'ended'
 
 
 class ContestProblem(models.Model):

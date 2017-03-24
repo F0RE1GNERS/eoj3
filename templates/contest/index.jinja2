@@ -4,6 +4,7 @@
   <div class="content-header">
     <h2>Dashboard</h2>
   </div>
+  {% include 'components/message.jinja2' %}
 {% if contest_started %}
   <div class="scrollable content-section">
     <table class="table table-bordered">
@@ -28,10 +29,9 @@
     </table>
   </div>
 {% endif %}
-  {% if not contest.public and (not registered or contest_status == 'Pending') %}
+  {% if not contest.public and (not registered or contest_status == 'pending') %}
     <div class="content-section">
       <h4>Register</h4>
-      {% include 'components/message.jinja2' %}
       {% if not registered %}
         <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
         <form class="form-inline" action="{{ url('contest:invitation', contest.pk) }}" method="post">
@@ -42,7 +42,7 @@
         </form>
       {% else %}
         <p>You have already registered for this contest, but the contest is yet to begin.<br>
-          Before start <span>{{ remaining_time }}</span></p>
+          Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
       {% endif %}
     </div>
   {% endif %}

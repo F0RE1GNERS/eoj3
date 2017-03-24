@@ -23,10 +23,11 @@ class ProblemView(FormView):
     form_class = SubmitForm
 
     def get_initial(self):
-        return {'lang': 'cpp'}  # TODO
+        return {'lang': 'cpp'}  # TODO: preferred language
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
+        self.kwargs['visible'] = True   # TODO: visible for admin
         data['problem'] = get_object_or_404(Problem, **self.kwargs).get_markdown()
         return data
 

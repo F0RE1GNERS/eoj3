@@ -14,10 +14,14 @@
         <div class="contest-progress">
           <h5>Contest {{ contest_status }}</h5>
           <div class="progress">
-            <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar bg-info countdown-progress" role="progressbar" style="width: {{ progress }}%"
+                 data-status="{{ contest_status }}" data-acc="{{ progress_acc }}" data-all="{{ progress_all }}"
+                 aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
-          {% if remaining_time %}
-            <p>{{ remaining_time }}</p>
+          {% if contest_status == 'pending' %}
+            <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
+          {% elif contest_status == 'running' %}
+            <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
           {% endif %}
         </div>
         <a class="link-lg {{ active('contest:dashboard') }}" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
@@ -46,5 +50,56 @@
 
     </div>
   </div>
+
+  <div class="modal fade" id="refreshNotification" tabindex="-1" role="dialog" aria-labelledby="refreshNotificationLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ contest.title }}</h5>
+        </div>
+        <div class="modal-body">
+          Contest status has changed. Click to refresh the page.
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="location.reload(true);" class="btn btn-primary">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var timer = setInterval(function() {
+      function fixedTwo(number) {
+        if (number == 0) return "00";
+        return number < 10 ? ("0" + number) : ("" + number);
+      }
+
+      var countdowns = $(".countdown");
+      for (var i = 0; i < countdowns.length; ++i) {
+        var countdown = $(countdowns[i]);
+        var seconds = countdown.data("delta-seconds") - 1;
+        countdown.data("delta-seconds", seconds);
+        var show_time = Math.floor(seconds / 3600) + ":" + fixedTwo(Math.floor((seconds % 3600) / 60)) + ":" + fixedTwo(seconds % 60);
+        countdown.html(show_time);
+        if (seconds <= 0) {
+          clearInterval(timer);
+          $('#refreshNotification').modal('show');
+        }
+      }
+
+      // There is only one progress bar
+      var progress = $(".countdown-progress");
+      if (progress.data('status') == 'running') {
+        progress.data('acc', progress.data('acc') + 1);
+        console.log(progress.data('acc'));
+        var now_progress = Math.round(progress.data('acc') / progress.data('all') * 100);
+        progress.css("width", now_progress + "%");
+        progress.attr("aria-valuenow", now_progress);
+      }
+
+
+    }, 1000);
+
+  </script>
 
 {% endblock %}

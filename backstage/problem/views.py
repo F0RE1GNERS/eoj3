@@ -93,9 +93,9 @@ class FileDelete(BaseBackstageMixin, View):
 
 class ProblemDelete(BaseBackstageMixin, View):
     def get(self, request, pk):
-        name = str(Problem.objects.get(pk=pk))
-        Problem.objects.get(pk=pk).delete()
-        messages.success(request, "Problem <strong>%s</strong> has been successfully deleted." % name)
+        problem = Problem.objects.get(pk=pk)
+        problem.delete()
+        messages.success(request, "Problem <strong>%s</strong> has been successfully deleted." % str(problem))
         return HttpResponseRedirect(reverse('backstage:problem'))
 
 

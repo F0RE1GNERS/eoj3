@@ -51,16 +51,17 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         data['contest'] = contest
         data['contest_status'] = contest.get_status()
-        if data['contest_status'] == 'Ended':
+
+        if data['contest_status'] == 'ended':
             data['progress'] = 100
-        elif data['contest_status'] == 'Running':
-            remaining_time_seconds = int((contest.end_time - timezone.now()).total_seconds())
-            data['progress'] = 100 - int(100 * remaining_time_seconds / (contest.end_time - contest.start_time).total_seconds())
-            data['remaining_time'] = 'Remaining ' + time_formatter(remaining_time_seconds)
-        elif data['contest_status'] == 'Pending':
+        elif data['contest_status'] == 'running':
+            data['progress_acc'] = int((timezone.now() - contest.start_time).total_seconds())
+            data['progress_all'] = int((contest.end_time - contest.start_time).total_seconds())
+            data['progress'] = int(data['progress_acc'] / data['progress_all'] * 100)
+            data['time_delta'] = data['progress_all'] - data['progress_acc']
+        elif data['contest_status'] == 'pending':
             data['progress'] = 0
-            before_start_time_seconds = int((contest.start_time - timezone.now()).total_seconds())
-            data['remaining_time'] = 'Before start ' + time_formatter(before_start_time_seconds)
+            data['time_delta'] = int((contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = contest.contestproblem_set.all()
         data['contest_started'] = contest.start_time <= timezone.now()
         return data
