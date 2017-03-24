@@ -20,6 +20,8 @@ from problem.views import ProblemList, ProblemView
 from submission.views import SubmissionView, StatusList
 from account.views import my_login, register_view
 from django.contrib.auth.views import logout
+from django.views.static import serve
+from .settings import UPLOAD_DIR
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -34,5 +36,6 @@ urlpatterns = [
     url(r'^register/$', register_view, name='register'),
     url(r'^logout/$', logout, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
-    url(r'^account/', include('account.urls', namespace='account'))
+    url(r'^account/', include('account.urls', namespace='account')),
+    url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
 ]

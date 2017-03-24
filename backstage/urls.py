@@ -1,12 +1,13 @@
 from django.conf.urls import url
 
 from .base_views import Index
-from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, ProblemDelete
+from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemDelete
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
 from .account.views import AccountList, AccountPrivilegeSwitch
+
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
@@ -18,6 +19,8 @@ urlpatterns = [
     url(r'^problem/create/$', ProblemCreate.as_view(), name='problem_create'),
     url(r'^problem/(?P<pk>\d+)/edit/$', ProblemUpdate.as_view(), name='problem_edit'),
     url(r'^problem/(?P<pk>\d+)/testdata/$', TestData.as_view(), name='problem_testdata'),
+    url(r'^problem/(?P<pk>\d+)/file/$', FileManager.as_view(), name='problem_file'),
+    url(r'^problem/(?P<pk>\d+)/file/delete/(?P<path>.*)$', FileDelete.as_view(), name='problem_file_delete'),
     url(r'^problem/(?P<pk>\d+)/delete/$', ProblemDelete.as_view(), name='problem_delete'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),

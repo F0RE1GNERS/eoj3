@@ -1,0 +1,45 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Static files of Problem #{{ pid }}
+{% endblock %}
+
+{% block backstage_content %}
+  {% include 'components/message.jinja2' %}
+  <form class="mb-5" enctype="multipart/form-data" method="post" action="{{ request.path }}">
+    <h5>Upload files</h5>
+    {% csrf_token %}
+    <div class="form-group">
+      <input type="file" name="file" class="form-control-file">
+    </div>
+    <button class="btn btn-primary">Submit</button>
+  </form>
+  <h5>Static files list</h5>
+  <div class="scrollable">
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="58%">Filename</th>
+          <th width="18%">Size</th>
+          <th width="12%">Link</th>
+          <th width="12%">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for file in file_set %}
+        <tr>
+          <td scope="row" style="word-break: break-all;">{{ file.filename }}</td>
+          <td>{{ file.size }}</td>
+          <td><a class="clipboard" href="javascript:void(0)" data-clipboard-text="{{ file.path }}">Copy</a></td>
+          <td><a class="text-danger" href="{{ url('backstage:problem_file_delete', pid, file.filename) }}">Delete</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    new Clipboard('.clipboard');
+  </script>
+
+{% endblock %}

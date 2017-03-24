@@ -5,5 +5,8 @@
 {% endblock %}
 
 {% block backstage_content %}
+  <div class="mb-2">
+    <a class="btn btn-secondary" target="_blank" href="{{ url('backstage:problem_file', problem.pk) }}">Static files</a>
+  </div>
   {% include 'components/form.jinja2' %}
 {% endblock %}

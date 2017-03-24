@@ -1,6 +1,8 @@
 import zipfile
 import os
 import re
+from django.shortcuts import reverse
+
 
 def sort_data_from_zipfile(file_path):
     try:
@@ -26,4 +28,21 @@ def sort_data_from_zipfile(file_path):
 
         return sorted(result)
     except Exception as e:
+        return []
+
+
+def get_file_list(file_path, prefix):
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError
+        result = []
+        for file in os.listdir(file_path):
+            result.append(dict(
+                filename=file,
+                size="%dKB" % (os.path.getsize(os.path.join(file_path, file)) // 1024),
+                path=reverse('upload', kwargs={'path': os.path.join(prefix, file)})
+            ))
+        return result
+    except Exception as e:
+        print(repr(e))
         return []

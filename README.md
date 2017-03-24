@@ -12,6 +12,7 @@ eoj3: A new version of eoj.
 + a lot about contest todo: privilege, public/private
 + images and files in problems
 + submission privileges
++ special judge (already available on judge server but n/a on this side)
 
 ## Installation
 
@@ -34,7 +35,7 @@ Make sure things like apache2, mysql and python3 are already installed and well 
 </VirtualHost>
 ```
 3. Config locally: `cp local_settings.example.py local_settings.py` and change it if you want.
-4. Create data dir and add privilege:
+4. ~~Create data dir and add privilege:~~
 ```
 cd eoj3
 mkdir data
@@ -43,6 +44,9 @@ sudo chmod -R g+w data
 ```
 5. Migrate Now!
 ```
+mysql -u root -p
+CREATE DATABASE eoj DEFAULT CHARACTER SET utf8;
+DROP DATABASE eoj; (in case you want to delete)
 python3 manage.py makemigrations
 python3 manage.py migrate
 ```
