@@ -192,3 +192,11 @@ TIME_ZONE = 'Asia/Shanghai'
 # TIME_ZONE = 'UTC'
 USE_L10N = False
 USE_TZ = False
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'utils.authentication.UnsafeSessionAuthentication',
+    )
+}
