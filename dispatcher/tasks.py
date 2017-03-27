@@ -2,12 +2,12 @@ import requests
 import os
 import threading
 import json
+import time
 from django.utils import timezone
 from django.db import transaction
 
 from .models import ServerProblemStatus, Server
 from eoj3.settings import TESTDATA_DIR
-from contest.models import Contest
 from problem.models import Problem
 from contest.tasks import update_problem_and_participant
 from submission.models import Submission, SubmissionStatus
@@ -113,52 +113,56 @@ class Dispatcher:
             update_problem_and_participant(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
-        try:
-            if not self.get_server():
-                raise SystemError('No server available.')
-            if not self.update_data_for_server():
-                raise SystemError('Data file is not found.')
+        # Attempt: 3 times
+        for attempt in range(3):
+            try:
+                if not self.get_server():
+                    raise SystemError('No server available.')
+                if not self.update_data_for_server():
+                    raise SystemError('Data file is not found.')
 
-            with transaction.atomic():
-                self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-                self.submission.judge_start_time = timezone.now()
-                self.submission.status = SubmissionStatus.JUDGING
-                self.submission.save()
+                with transaction.atomic():
+                    self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+                    self.submission.judge_start_time = timezone.now()
+                    self.submission.status = SubmissionStatus.JUDGING
+                    self.submission.save()
 
-            problem = Problem.objects.get(pk=self.problem_id)
-            request = {
-                "id": self.submission.pk,
-                "lang": self.submission.lang,
-                "code": self.submission.code,
-                "settings": {
-                    "max_time": problem.time_limit,
-                    "max_sum_time": problem.sum_time_limit,
-                    "max_memory": problem.memory_limit,
-                    "problem_id": problem.pk
-                },
-                "judge": problem.judge
-            }
+                problem = Problem.objects.get(pk=self.problem_id)
+                request = {
+                    "id": self.submission.pk,
+                    "lang": self.submission.lang,
+                    "code": self.submission.code,
+                    "settings": {
+                        "max_time": problem.time_limit,
+                        "max_sum_time": problem.sum_time_limit,
+                        "max_memory": problem.memory_limit,
+                        "problem_id": problem.pk
+                    },
+                    "judge": problem.judge
+                }
 
-            # Request: wait for one hour
-            server = Server.objects.get(pk=self.server_id)
-            response = requests.post(judge_linker(server.ip, server.port),
-                                     json=request, auth=('token', server.token),
-                                     timeout=3600).json()
-            # print(response)
-            if response['status'] != 'received':
-                raise ConnectionError('Remote server rejected the request.')
+                # Request: wait for one hour
+                server = Server.objects.get(pk=self.server_id)
+                response = requests.post(judge_linker(server.ip, server.port),
+                                         json=request, auth=('token', server.token),
+                                         timeout=3600).json()
+                # print(response)
+                if response['status'] != 'received':
+                    raise ConnectionError('Remote server rejected the request.')
 
-            self.update_submission_and_problem(response)
-            return True
-        except Exception as e:
-            print('Something wrong during dispatch.')
-            print(self.submission_id)
-            print(repr(e))
-            with transaction.atomic():
-                self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-                self.submission.status = SubmissionStatus.SYSTEM_ERROR
-                self.submission.save()
-            return False
+                self.update_submission_and_problem(response)
+                return True
+            except Exception as e:
+                print('Something wrong during dispatch of %s.' % str(self.submission_id))
+                print(repr(e))
+            # Wait for 10 seconds
+            time.sleep(10)
+
+        with transaction.atomic():
+            self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
+            self.submission.status = SubmissionStatus.SYSTEM_ERROR
+            self.submission.save()
+        return False
 
 
 class DispatcherThread(threading.Thread):
