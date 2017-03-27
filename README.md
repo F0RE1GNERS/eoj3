@@ -35,26 +35,32 @@ Make sure things like apache2, mysql and python3 are already installed and well 
 </VirtualHost>
 ```
 3. Config locally: `cp local_settings.example.py local_settings.py` and change it if you want.
-4. ~~Create data dir and add privilege:~~
+4. Create data dir and add privilege:
 ```
 cd eoj3
-mkdir data
+mkdir data upload
 sudo chgrp -R www-data data
 sudo chmod -R g+w data
 sudo chgrp -R www-data upload
 sudo chmod -R g+w upload
 ```
-5. Migrate Now!
+5. css migrate
+```
+sudo apt-get install ruby-sass
+scss main.scss:main.css
+```
+6. Migrate Now!
 ```
 sudo apt-get install libmysqlclient-dev
 pip3 install -r requirements.txt
 mysql -u root -p
+set global max_connections = 1000;
 CREATE DATABASE eoj DEFAULT CHARACTER SET utf8;
 DROP DATABASE eoj; (in case you want to delete)
 python3 manage.py makemigrations
 python3 manage.py migrate
 ```
-6. Enable: `sudo a2ensite eoj`.
+7. Enable: `sudo a2ensite eoj`.
 
 So close! You still have to create a judge server.
 

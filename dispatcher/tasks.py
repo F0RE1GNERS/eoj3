@@ -144,7 +144,7 @@ class Dispatcher:
             response = requests.post(judge_linker(server.ip, server.port),
                                      json=request, auth=('token', server.token),
                                      timeout=3600).json()
-            print(response)
+            # print(response)
             if response['status'] != 'received':
                 raise ConnectionError('Remote server rejected the request.')
 
