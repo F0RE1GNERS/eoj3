@@ -4,20 +4,27 @@ from django.views.generic.edit import FormView
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.http.response import Http404
+from django.core.exceptions import PermissionDenied
 
 from .models import Problem
 from submission.forms import SubmitForm
 from dispatcher.tasks import DispatcherThread
+from account.permissions import is_admin_or_root
 
 
 class ProblemList(ListView):
     template_name = 'problem_list.jinja2'
-    queryset = Problem.objects.filter(visible=True).all()
     paginate_by = 50
     context_object_name = 'problem_list'
 
+    def get_queryset(self):
+        if is_admin_or_root(self.request.user):
+            return Problem.objects.all()
+        else:
+            return Problem.objects.filter(visible=True).all()
 
-@method_decorator(login_required, name='post')
+
 class ProblemView(FormView):
     template_name = 'problem.jinja2'
     form_class = SubmitForm
@@ -27,12 +34,16 @@ class ProblemView(FormView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
-        self.kwargs['visible'] = True   # TODO: visible for admin
-        data['problem'] = get_object_or_404(Problem, **self.kwargs).get_markdown()
+        problem = get_object_or_404(Problem, **self.kwargs)
+        if not is_admin_or_root(self.request.user) and not problem.visible:
+            raise Http404("You don't have the access.")
+        data['problem'] = problem.get_markdown()
         return data
 
     def form_valid(self, form):
         problem = get_object_or_404(Problem, **self.kwargs)
+        if not problem.visible and not is_admin_or_root(self.request.user) or not self.request.user.is_authenticated:
+            raise PermissionDenied()
         with transaction.atomic():
             submission = form.save(commit=False)
             submission.problem = problem

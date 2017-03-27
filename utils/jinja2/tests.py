@@ -1,8 +1,10 @@
 from django_jinja import library
 import jinja2
-from account.models import Privilege
+
+from account.permissions import is_admin_or_root
 
 
 @library.test(name="admin")
 def is_admin(user):
-    return user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN)
+    return is_admin_or_root(user)
+

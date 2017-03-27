@@ -6,15 +6,14 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 
-from account.models import Privilege
+from account.permissions import is_admin_or_root
 
 
 class BaseBackstageMixin(UserPassesTestMixin):
     raise_exception = True
 
     def test_func(self):
-        user = self.request.user
-        return user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN)
+        return is_admin_or_root(self.request.user)
 
 
 class BaseCreateView(BaseBackstageMixin, CreateView):
