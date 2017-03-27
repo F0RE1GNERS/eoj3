@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
+    url(r'^api/', include('eoj3.api_urls', namespace='api'))
 ]
 
 if DEBUG:

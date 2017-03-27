@@ -7,15 +7,14 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 
-from account.models import Privilege
+from account.permissions import is_admin_or_root
 from .models import Submission, get_color_from_status
 
 
 class SubmissionView(UserPassesTestMixin, View):
     def test_func(self):
         user = self.request.user
-        return user.is_authenticated and (user.privilege in (Privilege.ROOT, Privilege.ADMIN)
-                                          or Submission.objects.get(pk=self.kwargs.get('pk')).author == user)
+        return is_admin_or_root(user) or Submission.objects.get(pk=self.kwargs.get('pk')).author == user
 
     def get(self, request, pk):
         submission = Submission.objects.get(pk=pk)
@@ -38,9 +37,13 @@ class SubmissionView(UserPassesTestMixin, View):
         return render(request, 'submission.jinja2', context=context)
 
 
-
 class StatusList(ListView):
     template_name = 'status.jinja2'
-    queryset = Submission.objects.filter(contest__isnull=True).all()
     paginate_by = 50
     context_object_name = 'submission_list'
+
+    def get_queryset(self):
+        if is_admin_or_root(self.request.user):
+            return Submission.objects.filter(contest__isnull=True).all()
+        else:
+            return Submission.objects.filter(contest__isnull=True, problem__visible=True).all()
