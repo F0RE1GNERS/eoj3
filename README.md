@@ -41,9 +41,13 @@ cd eoj3
 mkdir data
 sudo chgrp -R www-data data
 sudo chmod -R g+w data
+sudo chgrp -R www-data upload
+sudo chmod -R g+w upload
 ```
 5. Migrate Now!
 ```
+sudo apt-get install libmysqlclient-dev
+pip3 install -r requirements.txt
 mysql -u root -p
 CREATE DATABASE eoj DEFAULT CHARACTER SET utf8;
 DROP DATABASE eoj; (in case you want to delete)

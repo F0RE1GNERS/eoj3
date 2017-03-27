@@ -68,7 +68,7 @@ def recalculate_for_participant(contest, submissions, problems):
     # From beginning to the end
     for sub in reversed(subs):
         problem, status, score, create_time = sub
-        print(problem, status, score, create_time)
+        # print(problem, status, score, create_time)
         max_score[problem] = max(max_score[problem], score)
         if problem not in accept:
             if status == SubmissionStatus.ACCEPTED:
@@ -118,7 +118,7 @@ def recalculate_for_participant(contest, submissions, problems):
             cache += html_column.format(column=sub_cache)
     cache = html_column.format(column=score) + html_column.format(column=int(penalty // 60)) + cache
 
-    print(score, penalty, cache)
+    # print(score, penalty, cache)
     return score, penalty, cache
 
 

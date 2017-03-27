@@ -16,7 +16,7 @@ from submission.models import Submission, SubmissionStatus
 from account.models import Privilege
 from problem.models import Problem
 from submission.forms import ContestSubmitForm
-from dispatcher.tasks import DispatcherThread
+from dispatcher.tasks import submit_code_for_contest
 
 
 def time_formatter(seconds):
@@ -144,23 +144,10 @@ class ContestSubmit(BaseContestMixin, FormView):
         if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
             messages.error(self.request, 'You are currently not in the period of the contest.')
             return HttpResponseRedirect(self.request.path)
-        with transaction.atomic():
-            submission = form.save(commit=False)
-            problem_identifier = form.cleaned_data['problem_identifier']
-            contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
-            submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem.pk)
-            submission.contest = contest
-            submission.author = self.request.user
-            submission.code_length = len(submission.code)
-            submission.save()
-
-            contest_problem.add_submit()
-            submission.problem.add_submit()
-            contest_problem.save()
-            submission.problem.save()
-
-            DispatcherThread(submission.problem.pk, submission.pk).start()
-        return HttpResponseRedirect(reverse('contest:submission', kwargs={'cid': contest.pk}))
+        submission = form.save(commit=False)
+        problem_identifier = form.cleaned_data['problem_identifier']
+        submit_code_for_contest(submission, self.request.user, problem_identifier, contest)
+        return HttpResponseRedirect(reverse('contest:submission', kwargs={'cid': self.kwargs['cid']}))
 
 
 class ContestMySubmission(BaseContestMixin, ListView):

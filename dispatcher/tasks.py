@@ -7,7 +7,7 @@ from django.db import transaction
 
 from .models import ServerProblemStatus, Server
 from eoj3.settings import TESTDATA_DIR
-from account.models import User
+from contest.models import Contest
 from problem.models import Problem
 from contest.tasks import update_problem_and_participant
 from submission.models import Submission, SubmissionStatus
@@ -23,24 +23,19 @@ class Dispatcher:
         self.submission_id = submission_id
         # Get, never used...
         self.submission = Submission.objects.get(pk=submission_id)
+        self.server_id = 0
 
-        try:
-            # Get a server
-            with transaction.atomic():
-                servers = Server.objects.select_for_update().all()
-                if servers.exists():
-                    server = servers.first()
-                    server.last_seen_time = timezone.now()
-                    self.server_id = server.pk
-                    server.save()
-                else:
-                    raise SystemError
-        except SystemError:
-            # If the program goes here, there is no server available
-            with transaction.atomic():
-                submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-                submission.status = SubmissionStatus.SYSTEM_ERROR
-                submission.save()
+    def get_server(self):
+        with transaction.atomic():
+            servers = Server.objects.select_for_update().all()
+            if servers.exists():
+                server = servers.first()
+                server.last_seen_time = timezone.now()
+                self.server_id = server.pk
+                server.save()
+                return True
+        # If the program goes here, there is no server available
+        return False
 
     def is_latest_data_for_server(self):
         server_status, _ = ServerProblemStatus.objects.get_or_create(
@@ -58,18 +53,18 @@ class Dispatcher:
             return True
         try:
             file_path = os.path.join(TESTDATA_DIR, str(self.problem_id) + '.zip')
+            server = Server.objects.get(pk=self.server_id)
+            problem_hash = Problem.objects.get(pk=self.problem_id).testdata_hash
+            with open(file_path, 'rb') as f:
+                response = requests.post(upload_linker(server.ip, server.port, self.problem_id),
+                                         data=f.read(), auth=('token', server.token)).json()
+                if response['status'] != 'received':
+                    raise ConnectionError('Remote server rejected the request.')
             with transaction.atomic():
                 server_status = ServerProblemStatus.objects.select_for_update().get(problem__pk=self.problem_id,
                                                                                     server__pk=self.server_id)
-                server = Server.objects.get(pk=self.server_id)
-                problem_hash = Problem.objects.get(pk=self.problem_id).testdata_hash
-                with open(file_path, 'rb') as f:
-                    response = requests.post(upload_linker(server.ip, server.port, self.problem_id),
-                                             data=f.read(), auth=('token', server.token)).json()
-                    if response['status'] != 'received':
-                        raise ConnectionError('Remote server rejected the request.')
-                    server_status.testdata_hash = problem_hash
-                    server_status.save(update_fields=["testdata_hash"])
+                server_status.testdata_hash = problem_hash
+                server_status.save(update_fields=["testdata_hash"])
             return True
         except FileNotFoundError:
             print('Data file not found. Why?')
@@ -80,13 +75,14 @@ class Dispatcher:
             return False
 
     def update_submission_and_problem(self, response):
+        accept_increment = 0
         with transaction.atomic():
             submission = Submission.objects.select_for_update().get(pk=self.submission_id)
             if submission.judge_start_time > self.submission.judge_start_time:
-                raise SystemError('There has been a newer judge')
+                print('There has been a newer judge')
+                return
             prev_status = submission.status
 
-            accept_increment = 0
             problem = Problem.objects.select_for_update().get(pk=self.problem_id)
             if prev_status != SubmissionStatus.ACCEPTED \
                     and response['verdict'] == SubmissionStatus.ACCEPTED:
@@ -118,8 +114,10 @@ class Dispatcher:
 
     def dispatch(self):
         try:
+            if not self.get_server():
+                raise SystemError('No server available.')
             if not self.update_data_for_server():
-                raise ConnectionError('Data file is not found.')
+                raise SystemError('Data file is not found.')
 
             with transaction.atomic():
                 self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
@@ -152,16 +150,14 @@ class Dispatcher:
 
             self.update_submission_and_problem(response)
             return True
-        except ConnectionError as e:
+        except Exception as e:
+            print('Something wrong during dispatch.')
+            print(self.submission_id)
             print(repr(e))
             with transaction.atomic():
                 self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
                 self.submission.status = SubmissionStatus.SYSTEM_ERROR
                 self.submission.save()
-            return False
-        except Exception as e:
-            print('Something wrong during dispatch:')
-            print(repr(e))
             return False
 
 
@@ -174,3 +170,35 @@ class DispatcherThread(threading.Thread):
 
     def run(self):
         Dispatcher(self.problem_id, self.submission_id).dispatch()
+
+
+def submit_code(submission, author, problem_pk):
+    with transaction.atomic():
+        submission.problem = Problem.objects.select_for_update().get(pk=problem_pk)
+        submission.author = author
+        submission.code_length = len(submission.code)
+        submission.save()
+
+        submission.problem.add_submit()
+        submission.problem.save()
+
+    DispatcherThread(problem_pk, submission.pk).start()
+
+
+def submit_code_for_contest(submission, author, problem_identifier, contest):
+    with transaction.atomic():
+        contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
+        submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem.pk)
+
+        submission.contest = contest
+        submission.author = author
+        submission.code_length = len(submission.code)
+        submission.save()
+
+        contest_problem.add_submit()
+        contest_problem.save()
+
+        submission.problem.add_submit()
+        submission.problem.save()
+
+    DispatcherThread(submission.problem.pk, submission.pk).start()

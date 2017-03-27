@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 
 from .models import Problem
 from submission.forms import SubmitForm
-from dispatcher.tasks import DispatcherThread
+from dispatcher.tasks import submit_code
 
 
 class ProblemList(ListView):
@@ -32,15 +32,6 @@ class ProblemView(FormView):
         return data
 
     def form_valid(self, form):
-        problem = get_object_or_404(Problem, **self.kwargs)
-        with transaction.atomic():
-            submission = form.save(commit=False)
-            submission.problem = problem
-            submission.author = self.request.user
-            submission.code_length = len(submission.code)
-            submission.save()
-            update_problem = Problem.objects.select_for_update().get(**self.kwargs)
-            update_problem.add_submit()
-            update_problem.save()
-        DispatcherThread(problem.pk, submission.pk).start()
+        submission = form.save(commit=False)
+        submit_code(submission, self.request.user, self.kwargs['pk'])
         return HttpResponseRedirect(reverse('submission', args=[submission.pk]))

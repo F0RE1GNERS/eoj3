@@ -21,7 +21,8 @@ from submission.views import SubmissionView, StatusList
 from account.views import my_login, register_view
 from django.contrib.auth.views import logout
 from django.views.static import serve
-from .settings import UPLOAD_DIR
+from .settings import UPLOAD_DIR, DEBUG
+from tests.views import test_view, test_contest_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -39,3 +40,9 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
 ]
+
+if DEBUG:
+    urlpatterns += [
+        url(r'^test/', test_view, name='test'),
+        url(r'^test_contest', test_contest_view, name='test_contest')
+    ]

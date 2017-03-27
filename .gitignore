@@ -5,3 +5,6 @@ db.sqlite3
 !migrations/__init__.py
 data/
 upload/
+testdata/
+local_settings.py
+cases/
