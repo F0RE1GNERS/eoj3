@@ -1,7 +1,7 @@
 from django import forms
 from .models import User, Privilege
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
 
 class RegisterForm(forms.ModelForm):
@@ -58,6 +58,15 @@ class RegisterForm(forms.ModelForm):
 
 
 class MyPasswordChangeForm(PasswordChangeForm):
+    new_password1 = forms.CharField(
+        label="New password",
+        widget=forms.PasswordInput,
+        strip=False,
+        help_text='',
+    )
+
+
+class MySetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
         label="New password",
         widget=forms.PasswordInput,
