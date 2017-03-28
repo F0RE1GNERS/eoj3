@@ -113,8 +113,8 @@ class Dispatcher:
             update_problem_and_participant(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
-        # Attempt: 3 times
-        for attempt in range(3):
+        # Attempt: 5 times
+        for attempt in range(5):
             try:
                 if not self.get_server():
                     raise SystemError('No server available.')
@@ -176,6 +176,16 @@ class DispatcherThread(threading.Thread):
         Dispatcher(self.problem_id, self.submission_id).dispatch()
 
 
+def concurrency_limiter(func):
+    def wrapper(*args, **kwargs):
+        # Every server can handle at most 10 submissions at the same time
+        while len(threading.enumerate()) > Server.objects.count() * 10:
+            time.sleep(5)
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@concurrency_limiter
 def submit_code(submission, author, problem_pk):
     with transaction.atomic():
         submission.problem = Problem.objects.select_for_update().get(pk=problem_pk)
@@ -189,6 +199,7 @@ def submit_code(submission, author, problem_pk):
     DispatcherThread(problem_pk, submission.pk).start()
 
 
+@concurrency_limiter
 def submit_code_for_contest(submission, author, problem_identifier, contest):
     with transaction.atomic():
         contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
@@ -204,5 +215,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
 
         submission.problem.add_submit()
         submission.problem.save()
+
+        update_problem_and_participant(contest.pk, contest_problem.problem.pk, author.pk)
 
     DispatcherThread(submission.problem.pk, submission.pk).start()

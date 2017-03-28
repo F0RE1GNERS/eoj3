@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block backstage_content %}
+  {% include 'components/message.jinja2' %}
   <form class="mb-5" enctype="multipart/form-data" method="post" action="{{ request.path }}">
     <h5>Upload testdata</h5>
     {% csrf_token %}

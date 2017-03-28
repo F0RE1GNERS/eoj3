@@ -28,12 +28,12 @@ class SubmissionView(UserPassesTestMixin, View):
             for d in detail:
                 d['color'] = get_color_from_status(d['verdict'])
             detail.sort(key=lambda x: x['count'])
-            print(detail)
+            # print(detail)
             context.update({'detail': detail})
         except ValueError:
             pass
         except Exception as e:
-            print(e)
+            print(repr(e))
         return render(request, 'submission.jinja2', context=context)
 
 

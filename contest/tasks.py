@@ -55,6 +55,7 @@ def recalculate_for_participant(contest, submissions, problems):
     from collections import Counter, defaultdict
     wrong = Counter()
     accept = set()
+    waiting = set()
     max_score = defaultdict(int)
     accept_time = dict()
     penalty = 0
@@ -70,13 +71,24 @@ def recalculate_for_participant(contest, submissions, problems):
         problem, status, score, create_time = sub
         # print(problem, status, score, create_time)
         max_score[problem] = max(max_score[problem], score)
-        if problem not in accept:
-            if status == SubmissionStatus.ACCEPTED:
-                accept.add(problem)
-                accept_time[problem] = get_penalty(contest.start_time, create_time)
-                penalty += accept_time[problem] + wrong[problem] * 1200
-            elif SubmissionStatus.is_penalty(status):
-                wrong[problem] += 1
+        # If problem is waiting, then it is waiting
+        if problem not in waiting:
+            if status == SubmissionStatus.WAITING or status == SubmissionStatus.JUDGING:
+                waiting.add(problem)
+                if problem in accept:
+                    accept.remove(problem)
+            if problem not in accept:
+                if status == SubmissionStatus.ACCEPTED:
+                    accept.add(problem)
+                    accept_time[problem] = get_penalty(contest.start_time, create_time)
+                    penalty += accept_time[problem] + wrong[problem] * 1200
+                elif SubmissionStatus.is_penalty(status):
+                    wrong[problem] += 1
+
+    # Clear waiting problems in accept
+    for problem in waiting:
+        if problem in accept:
+            accept.remove(problem)
 
     score = 0
     cache = ''
@@ -85,6 +97,7 @@ def recalculate_for_participant(contest, submissions, problems):
     html_danger = '<span class="text-danger">{text}</span>'
     html_success = '<span class="font-weight-bold text-success">{text}</span>'
     html_warning = '<span class="text-warning">{text}</span>'
+    html_info = '<span class="font-weight-bold text-info">{text}</span>'
     html_small = '<span class="text-small">{text}</span>'
     html_column = '<td>{column}</td>'
 
@@ -92,7 +105,9 @@ def recalculate_for_participant(contest, submissions, problems):
     if contest.rule == 'acm':
         score = len(accept)
         for problem in sorted(identify_problem.values()):
-            if problem in accept:
+            if problem in waiting:
+                sub_cache = html_info.format(text='?')
+            elif problem in accept:
                 success_cache = '+' + (str(wrong[problem]) if wrong[problem] > 0 else '')
                 sub_cache = html_success.format(text=success_cache)
                 sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
@@ -106,7 +121,9 @@ def recalculate_for_participant(contest, submissions, problems):
         score = sum(max_score.values())
         for problem in sorted(identify_problem.values()):
             local_score = max_score[problem]
-            if local_score == 100:
+            if problem in waiting:
+                sub_cache = html_info.format(text='?')
+            elif local_score == 100:
                 sub_cache = html_success.format(text=local_score)
                 sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
             elif local_score > 0:
