@@ -3,6 +3,7 @@ import os
 import threading
 import json
 import time
+import queue
 from django.utils import timezone
 from django.db import transaction
 
@@ -14,15 +15,19 @@ from submission.models import Submission, SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
 
+_WORKER_THREAD_NUM = 0
+_WORKER_QUEUE = queue.Queue()
+
+
 class Dispatcher:
 
-    def __init__(self, problem_id, submission_id):
+    def __init__(self, submission_id):
         # The problem and submission are not bound to be the latest one, therefore
         # each time they are updated, remember: ALWAYS REDO THE QUERY AND CHECK TIME
-        self.problem_id = problem_id
         self.submission_id = submission_id
         # Get, never used...
         self.submission = Submission.objects.get(pk=submission_id)
+        self.problem_id = self.submission.problem_id
         self.server_id = 0
 
     def get_server(self):
@@ -113,8 +118,8 @@ class Dispatcher:
             update_problem_and_participant(submission.contest.pk, self.problem_id, user_id, accept_increment)
 
     def dispatch(self):
-        # Attempt: 3 times
-        for attempt in range(3):
+        # Attempt: 5 times
+        for attempt in range(5):
             try:
                 if not self.get_server():
                     raise SystemError('No server available.')
@@ -167,13 +172,26 @@ class Dispatcher:
 
 class DispatcherThread(threading.Thread):
 
-    def __init__(self, problem_id, submission_id):
+    def __init__(self, submission_id):
         super().__init__()
-        self.problem_id = problem_id
         self.submission_id = submission_id
 
     def run(self):
-        Dispatcher(self.problem_id, self.submission_id).dispatch()
+        global _WORKER_THREAD_NUM, _WORKER_QUEUE
+        _WORKER_QUEUE.put(self.submission_id)
+
+        if _WORKER_THREAD_NUM <= Server.objects.count() * 10:
+            # Thread number within range
+            _WORKER_THREAD_NUM += 1
+            print('establishing', _WORKER_THREAD_NUM)
+            while True:
+                try:
+                    item = _WORKER_QUEUE.get_nowait()
+                    Dispatcher(item).dispatch()
+                except queue.Empty:
+                    break
+            _WORKER_THREAD_NUM -= 1
+            print('killing', _WORKER_THREAD_NUM)
 
 
 def submit_code(submission, author, problem_pk):
@@ -186,7 +204,7 @@ def submit_code(submission, author, problem_pk):
         submission.problem.add_submit()
         submission.problem.save()
 
-    DispatcherThread(problem_pk, submission.pk).start()
+    DispatcherThread(submission.pk).start()
 
 
 def submit_code_for_contest(submission, author, problem_identifier, contest):
@@ -205,4 +223,6 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.problem.add_submit()
         submission.problem.save()
 
-    DispatcherThread(submission.problem.pk, submission.pk).start()
+        update_problem_and_participant(contest.pk, contest_problem.problem.pk, author.pk)
+
+    DispatcherThread(submission.pk).start()
