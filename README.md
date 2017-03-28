@@ -16,6 +16,9 @@ eoj3: A new version of eoj.
 + async send email
 + concurrency limiter
 + online compiler v
++ online compiler
++ sum time limit in oi rules
++ contest accept / submit
 
 ## Installation
 

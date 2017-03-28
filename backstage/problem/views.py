@@ -32,6 +32,7 @@ class TestData(BaseBackstageMixin, View):
             with transaction.atomic():
                 problem = Problem.objects.select_for_update().get(pk=pk)
                 problem.testdata_hash = hashlib.md5(data).hexdigest()
+                problem.testdata_size = len(sort_data_from_zipfile(file_path))
                 problem.save()
             messages.success(request, 'Testdata has been successfully updated.')
         return HttpResponseRedirect(request.path)
