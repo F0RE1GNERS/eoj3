@@ -106,8 +106,8 @@ class Dispatcher:
                 submission.status_memory = response['memory']
                 # Get percent (just for OI)
                 accept_case_number = len([x for x in response['detail'] if x['verdict'] == SubmissionStatus.ACCEPTED])
-                if response['detail']:
-                    submission.status_percent = int(accept_case_number / len(response['detail']) * 100)
+                submission.status_percent = int(accept_case_number / max(submission.problem.testdata_size, 1) * 100)
+                # to avoid no testdata problem
             submission.save()
 
             problem.add_accept(accept_increment)
@@ -183,7 +183,7 @@ class DispatcherThread(threading.Thread):
         if _WORKER_THREAD_NUM <= Server.objects.count() * 10:
             # Thread number within range
             _WORKER_THREAD_NUM += 1
-            print('establishing', _WORKER_THREAD_NUM)
+            # print('establishing', _WORKER_THREAD_NUM)
             while True:
                 try:
                     item = _WORKER_QUEUE.get_nowait()
@@ -191,7 +191,7 @@ class DispatcherThread(threading.Thread):
                 except queue.Empty:
                     break
             _WORKER_THREAD_NUM -= 1
-            print('killing', _WORKER_THREAD_NUM)
+            # print('killing', _WORKER_THREAD_NUM)
 
 
 def submit_code(submission, author, problem_pk):

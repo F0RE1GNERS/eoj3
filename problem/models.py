@@ -25,6 +25,7 @@ class Problem(models.Model):
     total_accept_number = models.IntegerField('Accept', default=0)
 
     testdata_hash = models.CharField('Testdata zip hash value', max_length=64, blank=True)
+    testdata_size = models.IntegerField('Number of testdata cases', default=1)
 
     def __str__(self):
         return '%d - %s' % (self.pk, self.title)
