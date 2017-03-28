@@ -6,8 +6,7 @@
 
 {% block backstage_content %}
   {% include 'components/message.jinja2' %}
-  <form class="mb-5" enctype="multipart/form-data" method="post" action="{{ request.path }}">
-    <h5>Upload testdata</h5>
+  <form enctype="multipart/form-data" method="post" action="{{ request.path }}">
     {% csrf_token %}
     <div class="form-group">
       <label for="data">File input</label>
@@ -15,7 +14,8 @@
     </div>
     <button class="btn btn-primary">Submit</button>
   </form>
-  <h5>Latest uploaded testdata</h5>
+  <br>
+  <h4>Latest uploaded testdata</h4>
   <p>md5: {{ hash }}</p>
   <table class="table">
     <thead>

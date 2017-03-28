@@ -1,16 +1,24 @@
-.bd-navbar {
-  padding: 10px 0 10px 0;
+.navbar-header, #bs-navbar {
   .navbar-nav {
-    .nav-link {
+    a {
       color: #888;
+      font-weight: 400;
     }
-    .nav-link.active, .bd-navbar .navbar-nav .nav-link:hover, .bd-navbar .navbar-nav .nav-link:focus {
+    a:hover, a:focus {
       color: #373a3c;
       background-color: transparent;
     }
-    .nav-link.active {
+    li.active a {
       font-weight: 500;
       color: #121314;
     }
+  }
+  vertical-align: middle;
+}
+
+@media(min-width: 768px) {
+  .navbar-container {
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 }

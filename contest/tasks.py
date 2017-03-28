@@ -94,10 +94,10 @@ def recalculate_for_participant(contest, submissions, problems):
     cache = ''
 
     # HTML Caching and global score
-    html_danger = '<span class="text-danger">{text}</span>'
-    html_success = '<span class="font-weight-bold text-success">{text}</span>'
-    html_warning = '<span class="text-warning">{text}</span>'
-    html_info = '<span class="font-weight-bold text-info">{text}</span>'
+    html_danger = '<span class="verdict-danger">{text}</span>'
+    html_success = '<span class="verdict-success">{text}</span>'
+    html_warning = '<span class="verdict-warning">{text}</span>'
+    html_info = '<span class="verdict-info">{text}</span>'
     html_small = '<span class="text-small">{text}</span>'
     html_column = '<td>{column}</td>'
 

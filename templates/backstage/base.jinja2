@@ -12,7 +12,7 @@
   <div class="container">
     <div class="row">
 
-      <div class="col-12 col-md-3 push-md-9 bd-sidebar">
+      <div class="col-12 col-md-3 col-md-push-9 bd-sidebar">
         <a href="{{ url('backstage:index') }}" class="{{ active('backstage:index') }}">Go to homepage</a>
         <a href="#" class="">Site</a>
         <a href="{{ url('backstage:problem') }}" class="{{ active('backstage:problem') }}">Problems</a>
@@ -20,7 +20,7 @@
         <a href="{{ url('backstage:account') }}" class="{{ active('backstage:account') }}">Accounts</a>
         <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }}">Servers</a>
       </div>
-      <div class="col-12 col-md-9 pull-md-3 bd-content">
+      <div class="col-12 col-md-9 col-md-pull-3 bd-content">
         <div class="content-header">
           <h2>{% block content_header %}{% endblock %}</h2>
         </div>

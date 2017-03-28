@@ -78,4 +78,11 @@
   margin-bottom: 4rem;
   font-size: 1em;
   background-color: #fdfdfd;
+  pre, code {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+    background-color: transparent;
+  }
 }

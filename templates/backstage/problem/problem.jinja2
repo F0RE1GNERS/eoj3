@@ -6,18 +6,17 @@
 
 {% block backstage_content %}
   {% include 'components/message.jinja2' %}
-  <div class="mb-3">
-    <a role="button" class="btn btn-primary" href="{{ url('backstage:problem_create') }}">Add a problem</a>
-  </div>
+  <p>
+    <a role="button" class="btn btn-default" href="{{ url('backstage:problem_create') }}">Add a problem</a>
+  </p>
   <div class="scrollable">
     <table class="table">
       <thead>
         <tr>
           <th width="10%">#</th>
-          <th width="46%">Title</th>
-          <th width="12%">Edit</th>
-          <th width="16%">Testdata</th>
-          <th width="16%">Delete</th>
+          <th width="60%">Name</th>
+          <th width="15%">Profile</th>
+          <th width="15%">Testdata</th>
         </tr>
       </thead>
       <tbody>
@@ -27,43 +26,11 @@
             <td>{{ problem.title }}</td>
             <td><a href="{{ url('backstage:problem_edit', problem.pk) }}" class="text-primary">Edit</a></td>
             <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}" class="text-primary">Testdata</a></td>
-{#            <td><a href="{% url 'backstage:problem_delete' problem.pk %}" class="text-danger">Delete</a></td>#}
-            <td><a class="text-danger" data-toggle="modal" href="#problemConfirmModal"
-                   data-problem="{{ url('backstage:problem_delete', problem.pk) }}">Delete</a></td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-  <div class="modal fade" id="problemConfirmModal" tabindex="-1" role="dialog"
-       aria-labelledby="problemConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="problemConfirmModalLabel">Confirm</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete this problem? This operation cannot be undone.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <a class="btn btn-danger modal-submit" href="#" role="button">I'm sure</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  $('#problemConfirmModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var url = button.data('problem');
-    $(this).find('.modal-submit').attr('href', url);
-  });
-  </script>
 
   {{ my_paginator() }}
 

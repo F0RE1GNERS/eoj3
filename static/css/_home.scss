@@ -1,146 +1,52 @@
-.bd-masthead {
-  background-image: -webkit-linear-gradient(315deg, #141738, #2c337d, #505ac9);
-  background-image: -o-linear-gradient(315deg, #141738, #2c337d, #505ac9);
-  background-image: linear-gradient(135deg, #141738, #2c337d, #505ac9);
-  padding-top: 8rem;
-  padding-bottom: 6rem;
-  color: #cdbfe3;
+.masthead {
+  -ms-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+  -moz-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+  -webkit-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+  transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  background-color: #2c337d;
-  p {
-    margin-bottom: 0;
-    font-size: 1.15rem;
-    font-weight: 200;
-    color: #fff;
-    opacity: .65;
+  color: rgba(255, 255, 255, 0.9);
+  background-size: cover;
+  margin-bottom: 3em;
+  border-bottom: none;
+  background-color: #333;
+  background-position: 50% 50%;
+  h1, h2, h3, h4, h5, p, span {
+    color: rgba(255, 255, 255, 1);
+    line-height: 1.5;
+    margin: 0 0 0;
+    padding-bottom: 0;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 2;
   }
   h1 {
-    font-size: 3rem;
-    font-weight: normal;
-    color: #fff;
-    @media (max-width: 768px) {
-      font-size: 2.5rem;
+    font-size: 5em;
+    white-space: nowrap;
+  }
+  span {
+    font-size: 2em;
+  }
+  .masthead-container {
+    padding: 15em 0;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    min-height: 600px;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+  @media(max-width: 768px) {
+    .masthead-container {
+      min-height: 400px;
+      h1 {
+        font-size: 3.5em;
+      }
+      span {
+        font-size: 1.8em;
+      }
     }
   }
 }
-
-@media (min-width: 768px) {
-  .bd-masthead p {
-    margin-bottom: 0;
-    font-size: 1.4rem;
-    letter-spacing: 1px;
-    font-weight: 200;
-    color: #fff;
-    opacity: .65;
-  }
-}
-
-.bd-pageheader {
-  padding-top: 2rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.bd-pageheader h1 {
-  font-size: 3rem;
-  font-weight: normal;
-}
-
-.bd-masthead .btn:hover {
-  background-color: #fff;
-  border-color: #fff;
-  color: #1d1d40;
-}
-
-.bd-masthead .btn {
-  background-color: transparent;
-  color: #eee;
-  border-color: #eee;
-  font-size: 1.5rem;
-}
-
-.bd-booticon {
-  display: block;
-  margin: 0 auto 2rem;
-  width: 9rem;
-  height: 9rem;
-  font-size: 6.5rem;
-  line-height: 9rem;
-  color: #ddd;
-  text-align: center;
-  cursor: default;
-  background-color: transparent;
-  opacity: .8;
-  border-radius: 15%;
-  border: 1px solid #ddd;
-}
-
-.bd-featurette {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #555;
-  text-align: center;
-  background-color: #fff;
-  border-top: 1px solid #eee;
-  h4 {
-    margin-top: 1rem;
-    margin-bottom: .5rem;
-    font-weight: normal;
-    color: #333;
-  }
-  .lead {
-    margin-right: auto;
-    margin-bottom: 2rem;
-    margin-left: auto;
-    font-size: 1rem;
-    text-align: center;
-  }
-}
-
-.bd-featurette-title {
-  margin-bottom: .5rem;
-  font-size: 2rem;
-  font-weight: normal;
-  color: #333;
-  text-align: center;
-}
-
-.btn-bs {
-  font-weight: 500;
-  color: #1a237e;
-  border-color: #1a237e;
-  background-color: transparent;
-}
-
-.btn-bs:hover {
-  background-color: #1a237e;
-  color: #fff;
-}
-
-@media (min-width: 768px) {
-  .bd-featurette {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
-  }
-  .bd-featurette-title {
-    font-size: 2.5rem;
-  }
-  .bd-featurette-title + .lead {
-    font-size: 1.5rem;
-  }
-  .bd-featurette .lead {
-    max-width: 80%;
-  }
-  .bd-featurette .img-fluid {
-    margin-top: 0;
-  }
-}
-
-@media (min-width: 576px) {
-  .bd-featurette {
-    text-align: left;
-  }
-}
-

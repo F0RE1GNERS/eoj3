@@ -21,7 +21,7 @@ from submission.views import SubmissionView, StatusList
 from account.views import my_login, register_view
 from django.contrib.auth.views import logout
 from django.views.static import serve
-from .settings import UPLOAD_DIR, DEBUG
+from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR
 from tests.views import test_view, test_contest_view
 
 urlpatterns = [
@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
+    url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
     url(r'^api/', include('eoj3.api_urls', namespace='api'))
 ]
 

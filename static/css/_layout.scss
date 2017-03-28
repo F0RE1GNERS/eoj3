@@ -2,13 +2,11 @@
   padding: 2rem 15px;
   margin-bottom: 3rem;
   color: #fff;
-  text-align: center;
   background-color: #444486;
   @media (min-width: 544px) {
     padding-top: 3rem;
     padding-bottom: 2rem;
     margin-bottom: 2rem;
-    text-align: left;
   }
   h1 {
     font-weight: normal;
@@ -27,9 +25,6 @@
     display: block;
     padding: .25rem .75rem;
     color: #99979c;
-    @media (min-width: 768px) {
-      font-size: 90%;
-    }
     &.active {
       font-weight: 500;
       color: #121314;
@@ -45,20 +40,13 @@
   }
 }
 
-.scrollable {
-  overflow-x: visible;
-  @media (max-width: 544px) {
-    overflow-x: scroll;
-  }
-}
-
 .content-header {
   margin-top: .5rem;
   margin-bottom: 1.5rem;
 }
 
 .content-section, .problem-body {
-  margin-bottom: 3rem;
+  margin-bottom: 3em;
 }
 
 table {
@@ -66,4 +54,10 @@ table {
     text-align: center;
     vertical-align: middle !important;
   }
+  font-size: 1em;
+}
+
+.row-with-space {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }

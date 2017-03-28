@@ -50,3 +50,12 @@ class StatusList(ListView):
             return Submission.objects.filter(contest__isnull=True).all()
         else:
             return Submission.objects.filter(contest__isnull=True, problem__visible=True).all()
+
+    def get_context_data(self, **kwargs):
+        data = super(StatusList, self).get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            for submission in data['submission_list']:
+                if is_admin_or_root(user) or submission.author == user:
+                    submission.is_privileged = True
+        return data

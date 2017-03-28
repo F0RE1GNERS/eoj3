@@ -25,3 +25,6 @@ class User(AbstractUser):
     privilege = models.CharField(choices=PRIVILEGE_CHOICE, max_length=12, default=Privilege.REGULAR_USER)
     school = models.CharField('school', max_length=192, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.username

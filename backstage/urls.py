@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^problem/(?P<pk>\d+)/testdata/$', TestData.as_view(), name='problem_testdata'),
     url(r'^problem/(?P<pk>\d+)/file/$', FileManager.as_view(), name='problem_file'),
     url(r'^problem/(?P<pk>\d+)/file/delete/(?P<path>.*)$', FileDelete.as_view(), name='problem_file_delete'),
-    url(r'^problem/(?P<pk>\d+)/delete/$', ProblemDelete.as_view(), name='problem_delete'),
+    # url(r'^problem/(?P<pk>\d+)/delete/$', ProblemDelete.as_view(), name='problem_delete'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),

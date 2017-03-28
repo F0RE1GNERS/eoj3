@@ -8,33 +8,29 @@
     </div>
   </div>
 
-  <div class="container scrollable">
+  <div class="container">
 
-    <form class="form-inline mb-3" action="{{ request.path }}" method="get">
-      {% csrf_token %}
-      <input type="text" class="form-control mb-2 mr-4" id="keyword" name="keyword" placeholder="Keyword">
-      <button type="submit" class="btn btn-primary mb-2">Search</button>
-    </form>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th width="8%">#</th>
-          <th width="47%">Title</th>
-          <th width="30%">Source</th>
-          <th width="15%" class="text-center">AC / Submit</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for problem in problem_list %}
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
           <tr>
-            <th scope="row">{{ problem.pk }}</th>
-            <td><a href="{{ url('problem', problem.pk) }}">{{ problem.title }}</a></td>
-            <td>{{ problem.source }}</td>
-            <td align="center">{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
+            <th style="width: 4em;">#</th>
+            <th>Name</th>
+            <th style="width: 7em" class="text-center">Solved</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for problem in problem_list %}
+            <tr>
+              <th scope="row">{{ problem.pk }}</th>
+              <td><span style="float:left; padding-left:2px;"><a href="{{ url('problem', problem.pk) }}">{{ problem.title }}</a></span>
+                  <span class="text-muted" style="float:right; padding-right:2px;"><small>{{ problem.source }}</small></span></td>
+              <td>{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
     {{ my_paginator() }}
 

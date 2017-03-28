@@ -5,31 +5,33 @@
     <h2>Dashboard</h2>
   </div>
   {% include 'components/message.jinja2' %}
-{% if contest_started %}
-  <div class="scrollable content-section">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th width="10%">ID</th>
-          <th width="80%" style="text-align: left;">Title</th>
-          <th width="10%">*</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for contest_problem in contest_problem_list %}
-        <tr>
-          <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
-          <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-            {{ contest_problem.problem.title }}</a></td>
-          <td align="center" class="{% if contest_problem.status %}table-{{ contest_problem.status }}{% endif %}">
-            {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+{% if has_permission %}
+  <div class="content-section">
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th width="8%">#</th>
+            <th width="82%" style="text-align: left;">Name</th>
+            <th width="10%">*</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for contest_problem in contest_problem_list %}
+          <tr>
+            <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
+            <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+              {{ contest_problem.problem.title }}</a></td>
+            <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
+              {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endif %}
-  {% if not contest.public and not registered and contest_status == 'pending' %}
+  {% if not registered %}
     <div class="content-section">
       <h4>Register</h4>
       {% if not registered %}
@@ -37,8 +39,8 @@
         <form class="form-inline" action="{{ url('contest:invitation', contest.pk) }}" method="post">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.path }}">
-          <input type="text" class="form-control mr-2 mb-2" id="code" name="code" placeholder="Invitation code" required>
-          <button type="submit" class="btn btn-primary mr-2 mb-2">Save</button>
+          <input type="text" class="form-control" id="code" name="code" placeholder="Invitation code" required>
+          <button type="submit" class="btn btn-primary">OK</button>
         </form>
       {% else %}
         <p>You have already registered for this contest, but the contest is yet to begin.<br>

@@ -11,19 +11,19 @@
   <div class="content-section">
     <h3>Contest Profile</h3>
     {% for pro in profile %}
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">{{ pro.0 }}</div>
-      <div class="col-9">{{ pro.1 | safe }}</div>
+    <div class="row row-with-space">
+      <div class="col-sm-3"><strong>{{ pro.0 }}</strong></div>
+      <div class="col-sm-9">{{ pro.1 | safe }}</div>
     </div>
     {% endfor %}
-    <a role="button" href="{{ url('backstage:contest_edit', contest.pk) }}" class="btn btn-outline-primary">
+    <a role="button" href="{{ url('backstage:contest_edit', contest.pk) }}" class="btn btn-default">
       Edit Profile</a>
   </div>
 
   <div class="content-section">
     <h3>Contest Problems</h3>
     {% if contest_problem_list %}
-    <div class="scrollable">
+    <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
@@ -55,7 +55,7 @@
       <input type="hidden" name="next" value="{{ request.path }}">
       <input type="text" class="form-control mr-2 mb-2" id="problem" name="problem" placeholder="Original problem ID" required>
       <button type="submit" class="btn btn-primary mr-2 mb-2">Add a problem</button>
-      <button type="button" class="btn btn-secondary mb-2" data-toggle="modal" data-target="#problemBulkAddModal"
+      <button type="button" class="btn btn-default mb-2" data-toggle="modal" data-target="#problemBulkAddModal"
         data-action="{{ url('backstage:contest_problem_create', contest.pk) }}">Bulk add</button>
     </form>
   </div>
@@ -63,14 +63,14 @@
   <div class="content-section">
     <h3>Contest Participants</h3>
     {% if not contest.public %}
-      <div class="row mb-1">
-        <div class="col-3 font-weight-bold">Invitation code:</div>
-        <div class="col-9"><a href="{{ url('backstage:contest_invitation', contest.pk) }}">{{ invitation_count }} unused</a></div>
+      <div class="row row-with-space">
+        <div class="col-sm-3"><strong>Invitation code</strong></div>
+        <div class="col-sm-9"><a href="{{ url('backstage:contest_invitation', contest.pk) }}">{{ invitation_count }} unused</a></div>
       </div>
     {% endif %}
-    <div class="row mb-1">
-      <div class="col-3 font-weight-bold">Participants</div>
-      <div class="col-9"><a href="{{ url('backstage:contest_participant', contest.pk) }}">&times; {{ participant_count }}</a></div>
+    <div class="row row-with-space">
+      <div class="col-sm-3"><strong>Participants</strong></div>
+      <div class="col-sm-9"><a href="{{ url('backstage:contest_participant', contest.pk) }}">&times; {{ participant_count }}</a></div>
     </div>
   </div>
 
@@ -79,16 +79,16 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="problemConfirmModalLabel">Confirm</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+          <h4 class="modal-title" id="problemConfirmModalLabel">Confirm</h4>
         </div>
         <div class="modal-body">
           Are you sure you want to delete this problem? Contest information will be lost.
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <a class="btn btn-danger modal-submit" href="#" role="button">I'm sure</a>
         </div>
       </div>

@@ -32,6 +32,9 @@
   .text-small {
     font-size: .8em;
     color: #222;
+    &.text-muted {
+      color: #777;
+    }
   }
   .col-width-2 {
     width: 2em !important;

@@ -7,11 +7,11 @@
 {% block backstage_content %}
 
   {% include 'components/message.jinja2' %}
-  <div class="mb-3">
+  <p>
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvitationModal">Add invitations</button>
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#importInvitationModal">Import from namelist</button>
-  </div>
-  <div class="scrollable">
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importInvitationModal">Import from namelist</button>
+  </p>
+  <div class="table-responsive">
     <table class="table">
       <thead>
         <tr>
@@ -39,24 +39,24 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addInvitationModalLabel">Add invitations</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+          <h4 class="modal-title" id="addInvitationModalLabel">Add invitations</h4>
         </div>
-        <form class="mb-0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
+        <form class="form-horizontal" style="margin-bottom:0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group row">
-              <label for="number" class="col-2 col-form-label">Number</label>
-              <div class="col-10">
+            <div class="form-group">
+              <label for="number" class="col-sm-2 control-label">Number</label>
+              <div class="col-sm-10">
                 <input class="form-control" type="number" value="1" id="number" name="number">
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary modal-submit">Save</button>
           </div>
         </form>
@@ -69,24 +69,24 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="assignInvitationModalLabel">Assign invitations</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+          <h4 class="modal-title" id="assignInvitationModalLabel">Assign invitations</h4>
         </div>
-        <form class="mb-0" id="assignInvitationModalForm" action="" method="post">
+        <form class="form-horizontal" style="margin-bottom:0" id="assignInvitationModalForm" action="" method="post">
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group row">
-              <label for="username" class="col-2 col-form-label">Username</label>
-              <div class="col-10">
+            <div class="form-group">
+              <label for="username" class="col-sm-2 control-label">Username</label>
+              <div class="col-sm-10">
                 <input class="form-control" id="username" name="username">
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary modal-submit">Save</button>
           </div>
         </form>
@@ -99,13 +99,13 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="importInvitationModalLabel">Paste your namelist</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+          <h4 class="modal-title" id="importInvitationModalLabel">Paste your namelist</h4>
         </div>
 
-        <form class="mb-0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
+        <form style="margin-bottom:0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.path }}">
@@ -115,7 +115,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary modal-submit">Save</button>
           </div>
         </form>

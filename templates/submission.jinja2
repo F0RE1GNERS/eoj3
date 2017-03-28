@@ -10,32 +10,54 @@
   </div>
 
   <div class="container">
-    <div class="alert alert-{{ submission.get_verdict_color() }} mb-4" role="alert">
+    <div class="alert alert-{{ submission.get_verdict_color() }}" role="alert">
       <span class="verdict-lg">{{ submission.get_status_display() }}</span>
     </div>
-    <div class="property">
-      <p><strong>Verdict: </strong>{{ submission.get_status_display() }}</p>
-      <p><strong>Language: </strong>{{ submission.get_lang_display() }}</p>
-      <p><strong>Problem: </strong>{{ submission.problem }}</p>
-      <p><strong>Author: </strong>{{ submission.author.username }}</p>
-      <p><strong>Created: </strong>{{ submission.create_time | date('Y-m-d H:i:s') }}</p>
-      {% if submission.is_judged() %}
-        <p><strong>Judged: </strong>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</p>
-        <p><strong>Code length: </strong>{{ submission.code_length }}B</p>
-        <p><strong>Time: </strong>{{ submission.get_time_display() }}</p>
-        <p><strong>Memory: </strong>{{ submission.get_memory_display() }}</p>
-      {% endif %}
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Who</th>
+            <th>Problem</th>
+            <th>Lang</th>
+            <th>Verdict</th>
+            <th>Sent</th>
+            {% if submission.is_judged() %}
+            <th>Judged</th>
+            <th>Time</th>
+            <th>Memory</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td scope="row">{{ submission.pk }}</td>
+            <td>{{ submission.author }}</td>
+            <td><a href="{{ url('problem', submission.problem_id) }}">{{ submission.problem }}</a></td>
+            <td>{{ submission.get_lang_display() }}</td>
+            <td>{{ submission.get_status_display() }}</td>
+            <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+            {% if submission.is_judged() %}
+            <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
+            <td>{{ submission.get_time_display() }}</td>
+            <td>{{ submission.get_memory_display() }}</td>
+            {% endif %}
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="code-block">
       {{ code | safe }}
     </div>
     {% if detail %}
-      <h3>Detail</h3>
       {% for message in detail %}
-        <div style="font-weight: normal;" class="card card-outline-{{ message.color }} mb-2">
-          <div class="card-block detail">
-            <p><strong>Case #{{ message.count }}:</strong> time: {{ message.time }}ms, memory: {{ message.memory }}KB,
-              verdict: <strong>{{ message.verdict | status_choice }}</strong></p>
+        <div class="panel panel-{{ message.color }}">
+          <div class="panel-heading">
+            <h3 class="panel-title">Case #{{ message.count }}</h3>
+          </div>
+          <div class="panel-body">
+            time: {{ message.time }}ms, memory: {{ message.memory }}KB, verdict: <strong>{{ message.verdict | status_choice }}</strong>
           </div>
         </div>
       {% endfor %}

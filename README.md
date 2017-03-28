@@ -19,6 +19,7 @@ eoj3: A new version of eoj.
 + online compiler
 + sum time limit in oi rules
 + contest accept / submit
++ keyword and search
 
 ## Installation
 

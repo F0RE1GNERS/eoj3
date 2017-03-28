@@ -8,10 +8,10 @@
 
   {% include 'components/message.jinja2' %}
 
-  <div class="mb-3">
-    <a role="button" class="btn btn-primary" href="{{ url('backstage:contest_create') }}">Add a contest</a>
-  </div>
-  <div class="scrollable">
+  <p>
+    <a role="button" class="btn btn-default" href="{{ url('backstage:contest_create') }}">Add a contest</a>
+  </p>
+  <div class="table-responsive">
     <table class="table">
       <thead>
         <tr>

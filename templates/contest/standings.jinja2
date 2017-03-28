@@ -1,10 +1,25 @@
-{% extends 'contest/base.jinja2' %}
-{% block contest_content %}
+{% extends 'base.jinja2' %}
+{% block content %}
 
-  <div class="content-header">
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>{{ contest.title }}</h1>
+    </div>
+  </div>
+
+  <div class="container">
+  <div class="content-header" style="text-align: center">
     <h2>Standings</h2>
+    {% if contest_status == 'pending' %}
+      <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
+    {% elif contest_status == 'running' %}
+      <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
+    {% else %}
+      <p>Final standings</p>
+    {% endif %}
   </div>
   <div>
+    <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
     <p>Your standing: {{ my_rank }}</p>
     <table class="datatable">
       <thead>
@@ -28,5 +43,7 @@
     </table>
 
   </div>
+  </div>
+  <script src="{{ url('static', 'js/countdown.js') }}"></script>
 
 {% endblock %}

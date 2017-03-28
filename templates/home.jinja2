@@ -2,36 +2,41 @@
 {% block content %}
 
 
-  <div class="bd-masthead">
-    <div class="container">
-      <span class="bd-booticon">E</span>
-      <h1>Welcome to ECNU Online Judge</h1>
-      <p class="lead mb-2">A new way to start coding.</p>
-      <a role="button" class="btn btn-outline btn-lg" href="{{ url('problem_list') }}">Get started</a>
+  <div class="masthead" style="background-image: url({{ bg }});">
+    <div class="masthead-container">
+      <h1>ECNU Online Judge</h1>
+      <span>It is more than coding.</span>
     </div>
   </div>
 
-  <div class="bd-featurette">
     <div class="container">
-      <h2 class="bd-featurette-title">Features</h2>
-      <p class="lead">Problems for all to explore.</p>
-      <div class="row">
-        <div class="col-sm-6 mb-3">
-          <h4>OI Rules</h4>
-          <p>Interesting AI Problems! Basically, you can submit your program and compete with others.
-            OI Problems are graded according to test cases. It is even possible to gain some score when your
-            algorithm is not completely correct.</p>
+      <h1>Features</h1>
+      <div class="content-section">
+        <h2>Problems</h2>
+        <p class="lead">for all to explore.</p>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <h4>OI Rules</h4>
+            <p>Interesting AI Problems! Basically, you can submit your program and compete with others.
+              OI Problems are graded according to test cases. It is even possible to gain some score when your
+              algorithm is not completely correct.</p>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <h4>ACM Rules</h4>
+            <p>Many traditional problems, based on standard input and output, using the
+              rule of ACM-ICPC contest. You can practice your programming skills here. The verdict will only be
+              Yes or No. Note that this is also widely used in college examinations.</p>
+          </div>
         </div>
-        <div class="col-sm-6 mb-3">
-          <h4>ACM Rules</h4>
-          <p>Many traditional problems, based on standard input and output, using the
-            rule of ACM-ICPC contest. You can practice your programming skills here. The verdict will only be
-            Yes or No. Note that this is also widely used in college examinations.</p>
-        </div>
+        <p class="lead">
+          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">Explore problems</a>
+        </p>
       </div>
-      <p class="lead">
-        <a role="button" class="btn btn-bs btn-outline" href="{{ url('problem_list') }}">Explore problems</a>
-      </p>
+      <hr>
+      <div class="content-section">
+        <h2>Contests</h2>
+        <p>TODO</p>
+      </div>
     </div>
   </div>
 

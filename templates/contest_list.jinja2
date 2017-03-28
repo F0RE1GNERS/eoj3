@@ -9,39 +9,40 @@
   </div>
 
   <div class="container">
-
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th width="8%">#</th>
-          <th width="42%">Title</th>
-          <th width="22%">Start</th>
-          <th width="10%">Length</th>
-          <th width="8%"><i class="material-icons">person</i></th>
-          <th width="10%">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for contest in contest_list %}
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
           <tr>
-            <td scope="row">{{ contest.pk }}</td>
-            <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
-            <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
-            <td>{{ contest.length | timedelta }}</td>
-            <td>&times; {{ contest.participant_size }}</td>
-            <td style="text-transform: capitalize;">
-              {% if contest.status == 'running' %}
-              <span class="text-danger font-weight-bold">{{ contest.status }}</span>
-              {% elif contest.status == 'pending' %}
-              <span class="text-success">{{ contest.status }}</span>
-              {% else %}
-              {{ contest.status }}
-              {% endif %}
-            </td>
+            <th width="42%">Name</th>
+            <th width="20%">Start</th>
+            <th width="10%">Length</th>
+            <th width="10%">Public</th>
+            <th width="8%"><i class="material-icons">person</i></th>
+            <th width="10%">Status</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for contest in contest_list %}
+            <tr>
+              <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
+              <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
+              <td>{{ contest.length | timedelta }}</td>
+              <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
+              <td>&times; {{ contest.participant_size }}</td>
+              <td style="text-transform: capitalize;">
+                {% if contest.status == 'running' %}
+                <span class="contest-running">{{ contest.status }}</span>
+                {% elif contest.status == 'pending' %}
+                <span class="contest-pending">{{ contest.status }}</span>
+                {% else %}
+                {{ contest.status }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
     {{ my_paginator() }}
   </div>

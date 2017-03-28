@@ -5,11 +5,12 @@
   {% for field in form %}
     {% if not field.errors %}
       {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
-        <div class="form-check mb-3">
-          <label class="form-check-label">
-            {{ render_field(field, {'class': 'form-check-input', 'placeholder': field.help_text}) }}
-            {{ field.label }}
-          </label>
+        <div class="form-group">
+          <div class="checkbox">
+            <label>
+              {{ render_field(field, {'placeholder': field.help_text}) }} {{ field.label }}
+            </label>
+          </div>
         </div>
       {% else %}
         <div class="form-group">
@@ -20,9 +21,9 @@
     {% else %}
       <div class="form-group has-warning">
         {{ field.label_tag() }}
-      {{ render_field(field, {'class': 'form-control form-control-warning', 'placeholder': field.help_text}) }}
+      {{ render_field(field, {'class': 'form-control form-control-warning', 'placeholder': field.help_text, 'aria-describedby': 'help-block'}) }}
         {% for error in field.errors %}
-          <div class="form-control-feedback">{{ error | escape }}</div>
+        <span id="help-block" class="help-block">{{ error | escape }}</span>
         {% endfor %}
       </div>
     {% endif %}

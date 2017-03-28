@@ -36,11 +36,17 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
     def test_func(self):
         user = self.request.user
         contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        if is_admin_or_root(user):
+            return True
+        if not contest.visible:
+            self.permission_denied_message = 'Contest is not visible.'
+            return False
         if contest.start_time > timezone.now():
             self.permission_denied_message = "Contest hasn't started."
             return False
-        if user.is_authenticated and (ContestParticipant.objects.filter(contest=contest, user=user).exists()
-                                      or contest.public or is_admin_or_root(user)):
+        if contest.public:
+            return True         # Public does not need user verification
+        if user.is_authenticated and ContestParticipant.objects.filter(contest=contest, user=user).exists():
             return True
         else:
             self.permission_denied_message = "Did you forget to register for the contest?"
@@ -63,6 +69,8 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             data['progress'] = 0
             data['time_delta'] = int((contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = contest.contestproblem_set.all()
+        if contest.start_time <= timezone.now():
+            data['contest_started'] = True
         data['has_permission'] = self.test_func()
         return data
 
@@ -71,6 +79,7 @@ class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
 
     def get_test_func(self):
+        self.access_test = super(DashboardView, self).test_func()
         return lambda: True
 
     def get_context_data(self, **kwargs):
@@ -79,26 +88,31 @@ class DashboardView(BaseContestMixin, TemplateView):
         user = self.request.user
         problem_as_contest_problem = {}
         problem_status = {}
-        for contest_problem in data['contest_problem_list']:
-            problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
-        if user.is_authenticated:
 
-            submissions = contest.submission_set.filter(author=user).all()
-            for submission in submissions:
-                contest_problem = problem_as_contest_problem[submission.problem.pk]
-                if problem_status.get(contest_problem) != 'success':
-                    if submission.status == SubmissionStatus.ACCEPTED:
-                        problem_status[contest_problem] = 'success'
-                    elif not SubmissionStatus.is_judged(submission.status):
-                        problem_status[contest_problem] = 'warning'
-                    elif SubmissionStatus.is_penalty(submission.status):
-                        problem_status[contest_problem] = 'danger'
+        if contest.public:
+            data['registered'] = True
+        elif user.is_authenticated and contest.contestparticipant_set.filter(user=user).exists():
+            data['registered'] = True
 
+        if self.access_test:
+            data['has_permission'] = True
             for contest_problem in data['contest_problem_list']:
-                contest_problem.status = problem_status.get(contest_problem.identifier)
+                problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
+            if user.is_authenticated:
 
-            if contest.contestparticipant_set.filter(user=user).exists():
-                data['registered'] = True
+                submissions = contest.submission_set.filter(author=user).all()
+                for submission in submissions:
+                    contest_problem = problem_as_contest_problem[submission.problem.pk]
+                    if problem_status.get(contest_problem) != 'success':
+                        if submission.status == SubmissionStatus.ACCEPTED:
+                            problem_status[contest_problem] = 'success'
+                        elif not SubmissionStatus.is_judged(submission.status):
+                            problem_status[contest_problem] = 'warning'
+                        elif SubmissionStatus.is_penalty(submission.status):
+                            problem_status[contest_problem] = 'danger'
+
+                for contest_problem in data['contest_problem_list']:
+                    contest_problem.status = problem_status.get(contest_problem.identifier)
 
         return data
 
@@ -165,7 +179,7 @@ class ContestMySubmission(BaseContestMixin, ListView):
         data = super(ContestMySubmission, self).get_context_data(**kwargs)
         for submission in data['submission_list']:
             submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
-            submission.contest_problem = str(get_contest_problem(data['contest'], submission.problem))
+            submission.contest_problem = get_contest_problem(data['contest'], submission.problem)
         return data
 
 
@@ -179,6 +193,8 @@ class ContestStatus(BaseContestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
+        if is_admin_or_root(self.request.user):
+            data['is_privileged'] = True
         for submission in data['submission_list']:
             submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
         return data
@@ -198,11 +214,14 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
 
 class ContestBoundUser(View):
     def post(self, request, cid):
-        invitation_code = request.POST.get('code', '')
-        try:
-            invitation = ContestInvitation.objects.get(code=invitation_code)
-            add_participant_with_invitation(cid, invitation.pk, request.user)
-            messages.success(request, 'You have successfully joined this contest.')
-        except ContestInvitation.DoesNotExist:
-            messages.error(request, 'There seems to be something wrong with your invitation code.')
-        return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please login first.')
+        else:
+            invitation_code = request.POST.get('code', '')
+            try:
+                invitation = ContestInvitation.objects.get(code=invitation_code)
+                add_participant_with_invitation(cid, invitation.pk, request.user)
+                messages.success(request, 'You have successfully joined this contest.')
+            except ContestInvitation.DoesNotExist:
+                messages.error(request, 'There seems to be something wrong with your invitation code.')
+            return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))

@@ -7,14 +7,14 @@
 {% block backstage_content %}
   {% include 'components/message.jinja2' %}
   <form class="mb-5" enctype="multipart/form-data" method="post" action="{{ request.path }}">
-    <h5>Upload files</h5>
     {% csrf_token %}
     <div class="form-group">
       <input type="file" name="file" class="form-control-file">
     </div>
     <button class="btn btn-primary">Submit</button>
   </form>
-  <h5>Static files list</h5>
+  <br>
+  <h4>Static files list</h4>
   <div class="scrollable">
     <table class="table">
       <thead>
