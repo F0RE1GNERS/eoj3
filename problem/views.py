@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http.response import Http404
 from django.core.exceptions import PermissionDenied
+from tagging.models import Tag, TaggedItem
 
 from .models import Problem
 from submission.forms import SubmitForm
@@ -30,6 +31,9 @@ class ProblemList(ListView):
             if kw.isdigit():
                 q |= Q(pk__exact=kw)
             queryset = queryset.filter(q)
+            tag = Tag.objects.filter(name=kw)
+            if tag.exists():
+                queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
         return queryset.all()
 
 
