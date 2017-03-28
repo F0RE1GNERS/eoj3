@@ -23,4 +23,4 @@ class ProblemEditForm(forms.ModelForm):
                      'input', 'output','sample', 'hint', 'visible']
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
-            self.fields['tags'].initial = ' '.join(map(str, self.instance.tags))
+            self.fields['tags'].initial = ', '.join(map(str, self.instance.tags))
