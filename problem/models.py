@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import User
 from utils import markdown3
+from tagging.registry import register
 
 
 class Problem(models.Model):
@@ -39,3 +40,6 @@ class Problem(models.Model):
     def get_markdown(self):
         self.body = markdown3.convert(self.description)
         return self
+
+
+register(Problem)
