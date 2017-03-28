@@ -8,7 +8,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 
 from account.permissions import is_admin_or_root
-from .models import Submission, get_color_from_status
+from .models import Submission, get_color_from_status, SubmissionStatus
 
 
 class SubmissionView(UserPassesTestMixin, View):
@@ -20,20 +20,23 @@ class SubmissionView(UserPassesTestMixin, View):
         submission = Submission.objects.get(pk=pk)
         context = dict(submission=submission)
         context['code'] = highlight(submission.code, get_lexer_by_name(submission.lang), HtmlFormatter())
-        try:
-            detail_msg = submission.status_detail
-            if detail_msg == '':
-                raise ValueError
-            detail = json.loads(detail_msg)
-            for d in detail:
-                d['color'] = get_color_from_status(d['verdict'])
-            detail.sort(key=lambda x: x['count'])
-            # print(detail)
-            context.update({'detail': detail})
-        except ValueError:
-            pass
-        except Exception as e:
-            print(repr(e))
+        if submission.status == SubmissionStatus.COMPILE_ERROR:
+            context.update({'detail_ce': submission.status_detail})
+        else:
+            try:
+                detail_msg = submission.status_detail
+                if detail_msg == '':
+                    raise ValueError
+                detail = json.loads(detail_msg)
+                for d in detail:
+                    d['color'] = get_color_from_status(d['verdict'])
+                detail.sort(key=lambda x: x['count'])
+                # print(detail)
+                context.update({'detail': detail})
+            except ValueError:
+                pass
+            except Exception as e:
+                print(repr(e))
         return render(request, 'submission.jinja2', context=context)
 
 

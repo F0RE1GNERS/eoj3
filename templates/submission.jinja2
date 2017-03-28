@@ -39,6 +39,11 @@
           </div>
         </div>
       {% endfor %}
+    {% elif detail_ce %}
+      <h3>Compile Error Message</h3>
+      <div class="code-block">
+        {{ detail_ce }}
+      </div>
     {% endif %}
 
   </div>
