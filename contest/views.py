@@ -39,8 +39,8 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         if contest.start_time > timezone.now():
             self.permission_denied_message = "Contest hasn't started."
             return False
-        if user.is_authenticated and (ContestParticipant.objects.filter(contest=contest, user=user).exists()
-                                      or contest.public or is_admin_or_root(user)):
+        if (user.is_authenticated and (ContestParticipant.objects.filter(contest=contest, user=user).exists()
+                                       or contest.public) and contest.visible or is_admin_or_root(user)):
             return True
         else:
             self.permission_denied_message = "Did you forget to register for the contest?"

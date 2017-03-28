@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
+
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
@@ -43,7 +45,14 @@ class StatusList(ListView):
     context_object_name = 'submission_list'
 
     def get_queryset(self):
+        kw = self.request.GET.get('keyword')
         if is_admin_or_root(self.request.user):
-            return Submission.objects.filter(contest__isnull=True).all()
+            queryset = Submission.objects.filter(contest__isnull=True)
         else:
-            return Submission.objects.filter(contest__isnull=True, problem__visible=True).all()
+            queryset = Submission.objects.filter(contest__isnull=True, problem__visible=True)
+        if kw:
+            q = Q(author__username__iexact=kw)
+            if kw.isdigit():
+                q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
+            queryset = queryset.filter(q)
+        return queryset.all()
