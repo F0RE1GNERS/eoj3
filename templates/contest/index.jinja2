@@ -29,7 +29,7 @@
     </table>
   </div>
 {% endif %}
-  {% if not contest.public and (not registered or contest_status == 'pending') %}
+  {% if not contest.public and not registered and contest_status == 'pending' %}
     <div class="content-section">
       <h4>Register</h4>
       {% if not registered %}

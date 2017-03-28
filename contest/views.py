@@ -17,6 +17,7 @@ from account.models import Privilege
 from problem.models import Problem
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import submit_code_for_contest
+from account.permissions import is_admin_or_root
 
 
 def time_formatter(seconds):
@@ -39,8 +40,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             self.permission_denied_message = "Contest hasn't started."
             return False
         if user.is_authenticated and (ContestParticipant.objects.filter(contest=contest, user=user).exists()
-                                          or contest.public
-                                          or user.privilege in (Privilege.ROOT, Privilege.ADMIN)):
+                                      or contest.public or is_admin_or_root(user)):
             return True
         else:
             self.permission_denied_message = "Did you forget to register for the contest?"
@@ -63,15 +63,15 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             data['progress'] = 0
             data['time_delta'] = int((contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = contest.contestproblem_set.all()
-        data['contest_started'] = contest.start_time <= timezone.now()
+        data['has_permission'] = self.test_func()
         return data
 
 
 class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
 
-    def test_func(self):
-        return True
+    def get_test_func(self):
+        return lambda: True
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)
@@ -81,22 +81,24 @@ class DashboardView(BaseContestMixin, TemplateView):
         problem_status = {}
         for contest_problem in data['contest_problem_list']:
             problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
-        submissions = contest.submission_set.filter(author=user).all()
-        for submission in submissions:
-            contest_problem = problem_as_contest_problem[submission.problem.pk]
-            if problem_status.get(contest_problem) != 'success':
-                if submission.status == SubmissionStatus.ACCEPTED:
-                    problem_status[contest_problem] = 'success'
-                elif not SubmissionStatus.is_judged(submission.status):
-                    problem_status[contest_problem] = 'warning'
-                elif SubmissionStatus.is_penalty(submission.status):
-                    problem_status[contest_problem] = 'danger'
+        if user.is_authenticated:
 
-        for contest_problem in data['contest_problem_list']:
-            contest_problem.status = problem_status.get(contest_problem.identifier)
+            submissions = contest.submission_set.filter(author=user).all()
+            for submission in submissions:
+                contest_problem = problem_as_contest_problem[submission.problem.pk]
+                if problem_status.get(contest_problem) != 'success':
+                    if submission.status == SubmissionStatus.ACCEPTED:
+                        problem_status[contest_problem] = 'success'
+                    elif not SubmissionStatus.is_judged(submission.status):
+                        problem_status[contest_problem] = 'warning'
+                    elif SubmissionStatus.is_penalty(submission.status):
+                        problem_status[contest_problem] = 'danger'
 
-        if contest.contestparticipant_set.filter(user=user).exists():
-            data['registered'] = True
+            for contest_problem in data['contest_problem_list']:
+                contest_problem.status = problem_status.get(contest_problem.identifier)
+
+            if contest.contestparticipant_set.filter(user=user).exists():
+                data['registered'] = True
 
         return data
 

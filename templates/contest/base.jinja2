@@ -26,16 +26,14 @@
         </div>
         <a class="link-lg {{ active('contest:dashboard') }}" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
         <a class="link-lg {{  active('contest:problem') }}">Problem</a>
-        {% for contest_problem in contest_problem_list %}
-          <a class="link-sm {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
-             href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-            {% if contest_started %}
-              {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
-            {% else %}
-              {{ contest_problem.identifier }}
-            {% endif %}
-          </a>
-        {% endfor %}
+        {% if has_permission %}
+          {% for contest_problem in contest_problem_list %}
+            <a class="link-sm {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+               href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+            </a>
+          {% endfor %}
+        {% endif %}
         <a class="link-lg {{ active('contest:submit') }}" href="{{ url('contest:submit', contest.pk) }}{% if contest_problem %}?pid={{ contest_problem.identifier }}{% endif %}">Submit</a>
         <a class="link-lg {{ active('contest:submission') }}" href="{{ url('contest:submission', contest.pk) }}">My submissions</a>
         <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>

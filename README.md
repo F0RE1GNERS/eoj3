@@ -13,6 +13,9 @@ eoj3: A new version of eoj.
 + images and files in problems
 + submission privileges
 + special judge (already available on judge server but n/a on this side)
++ async send email
++ concurrency limiter
++ online compiler v
 + online compiler
 + sum time limit in oi rules
 + contest accept / submit
