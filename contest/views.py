@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
 from .tasks import add_participant_with_invitation
@@ -156,6 +157,8 @@ class ContestSubmit(BaseContestMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied('Please login first.')
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
             messages.error(self.request, 'You are currently not in the period of the contest.')
@@ -224,4 +227,4 @@ class ContestBoundUser(View):
                 messages.success(request, 'You have successfully joined this contest.')
             except ContestInvitation.DoesNotExist:
                 messages.error(request, 'There seems to be something wrong with your invitation code.')
-            return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
+        return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))

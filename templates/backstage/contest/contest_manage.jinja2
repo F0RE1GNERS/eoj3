@@ -100,24 +100,24 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="problemBulkAddModalLabel">Add problems to contest</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+          <h4 class="modal-title" id="problemBulkAddModalLabel">Add problems to contest</h4>
         </div>
-        <form class="mb-0" action="{{ url('backstage:contest_problem_create', contest.pk) }}" method="post">
-        <div class="modal-body">
+        <form style="margin-bottom:0" action="{{ url('backstage:contest_problem_create', contest.pk) }}" method="post">
+          <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.path }}">
             <div class="form-group">
-              <label for="problems" class="form-control-label">Problems:</label>
+              <label for="problems" class="form-control-label">Problems</label>
               <textarea class="form-control" name="problems" id="problems" rows="7" placeholder="One problem per line"></textarea>
             </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary modal-submit">Save</button>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-submit">Save</button>
+          </div>
         </form>
       </div>
     </div>

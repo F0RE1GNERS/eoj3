@@ -1,6 +1,7 @@
 .datatable {
   width: 100%;
   position: relative;
+  table-layout: fixed;
   td {
     width: auto;
     max-width: 20em;
@@ -26,9 +27,6 @@
       }
     }
   }
-  table {
-    width: 100%;
-  }
   .text-small {
     font-size: .8em;
     color: #222;
@@ -48,4 +46,14 @@
   .col-width-5 {
     width: 5em !important;
   }
+}
+
+.scrollable-wrapper {
+  @media(max-width: 920px) {
+    overflow-x: scroll;
+  }
+}
+
+.datatable-wrapper {
+  min-width: 920px;
 }

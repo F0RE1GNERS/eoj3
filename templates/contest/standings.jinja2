@@ -18,29 +18,31 @@
       <p>Final standings</p>
     {% endif %}
   </div>
-  <div>
-    <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
-    <p>Your standing: {{ my_rank }}</p>
-    <table class="datatable">
-      <thead>
-        <tr>
-        <th class="col-width-2">#</th>
-        <th class="col-width-large" style="text-align: left;">Who</th>
-        {{ contest.contest_header | safe }}
-        </tr>
-      </thead>
-      <tbody>
-        {% for participant in rank_list %}
+  <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
+  <p>Your standing: {{ my_rank }}</p>
+  <div class="scrollable-wrapper">
+    <div class="datatable-wrapper">
+      <table class="datatable">
+        <thead>
           <tr>
-            <td scope="row">{{ participant.0 }}</td>
-            {% set rank = participant.1 %}
-              <td class="col-width-large" style="text-align: left;">{{ rank.user.username }}
-                <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
-              {{ rank.html_cache | safe }}
+          <th class="col-width-4">#</th>
+          <th class="col-width-large" style="min-width: 4em; text-align: left;">Who</th>
+          {{ contest.contest_header | safe }}
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for participant in rank_list %}
+            <tr>
+              <td scope="row">{{ participant.0 }}</td>
+              {% set rank = participant.1 %}
+                <td class="col-width-large" style="text-align: left;">{{ rank.user.username }}
+                  <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
+                {{ rank.html_cache | safe }}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
   </div>
   </div>
