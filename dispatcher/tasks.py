@@ -4,6 +4,7 @@ import threading
 import json
 import time
 import queue
+import traceback
 from django.utils import timezone
 from django.db import transaction
 
@@ -160,6 +161,7 @@ class Dispatcher:
             except Exception as e:
                 print('Something wrong during dispatch of %s.' % str(self.submission_id))
                 print(repr(e))
+                traceback.print_exc()
             # Wait for 10 seconds
             time.sleep(10)
 
