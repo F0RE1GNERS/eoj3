@@ -6,7 +6,7 @@ class ProblemEditForm(forms.ModelForm):
     class Meta:
         model = Problem
         fields = ['title', 'time_limit', 'sum_time_limit', 'memory_limit', 'judge', 'description', 'input', 'output',
-                  'sample', 'hint', 'visible']
+                  'sample', 'hint', 'source', 'visible']
         error_messages = {
         }
 

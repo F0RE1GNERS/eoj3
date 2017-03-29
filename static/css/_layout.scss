@@ -2,7 +2,11 @@
   padding: 2rem 0;
   margin-bottom: 3rem;
   color: #fff;
-  background-color: #444486;
+  background-color: #4c4c90;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#35356c),to(#4c4c90));
+  background-image: -webkit-linear-gradient(top,#35356c 0,#4c4c90 100%);
+  background-image: -o-linear-gradient(top,#35356c 0,#4c4c90 100%);
+  background-image: linear-gradient(to bottom,#35356c 0,#4c4c90 100%);
   @media (min-width: 544px) {
     padding-top: 3rem;
     padding-bottom: 2rem;
