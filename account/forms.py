@@ -73,3 +73,14 @@ class MySetPasswordForm(SetPasswordForm):
         strip=False,
         help_text='',
     )
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'nickname', 'school', 'magic']
+        help_texts = {
+            'magic': 'See what is going to happen!'
+        }
+        error_messages = {
+        }

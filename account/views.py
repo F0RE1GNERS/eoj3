@@ -1,13 +1,23 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
 from django.views import View
+from django.views.generic.edit import UpdateView
 from django.contrib import messages
 from django.contrib.auth import login
 from utils import auth_view
-from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm
+from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm
+from .models import User
 
 
-def profile_view(request):
-    return render(request, 'account/profile.jinja2')
+def update_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your changes have been saved.')
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'account/profile.jinja2', {'form': form})
 
 
 def register_view(request):
@@ -51,3 +61,6 @@ def my_password_reset_confirm(request, **kwargs):
                                             post_reset_redirect=reverse('login'),
                                             set_password_form=MySetPasswordForm,
                                             **kwargs)
+
+def generic_view(request, name):
+    pass

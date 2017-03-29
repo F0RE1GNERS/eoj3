@@ -20,7 +20,7 @@ class ProblemEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
         new_order = ['title', 'time_limit', 'sum_time_limit', 'memory_limit', 'judge', 'description', 'tags',
-                     'input', 'output','sample', 'hint', 'visible']
+                     'input', 'output','sample', 'hint', 'source', 'visible']
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
             self.fields['tags'].initial = ', '.join(map(str, self.instance.tags))

@@ -28,6 +28,9 @@ class ProblemList(ListView):
         else:
             queryset = Problem.objects.filter(visible=True)
         if tg:
+            tag = Tag.objects.filter(name=tg)
+            if tag.exists():
+                queryset = TaggedItem.objects.get_by_model(Problem, tag.first()).distinct()
             pass
         # TODO: filter for tag
         if kw:
