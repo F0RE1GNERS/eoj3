@@ -126,21 +126,27 @@ class ContestList(ListView):
         return Contest.objects.get_status_list()
 
 
-class ContestStandings(BaseContestMixin, TemplateView):
+class ContestStandings(BaseContestMixin, ListView):
     template_name = 'contest/standings.jinja2'
+    paginate_by = 100
+    context_object_name = 'rank_list'
 
     def get_queryset(self):
         return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
 
+    def get_my_rank(self):
+        i = 1
+        for rank in Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all():
+            if rank.user == self.request.user:
+                return str(i)
+            i += 1
+        return 'N/A'
+
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
         contest = data['contest']
-        data['rank_list'] = list(enumerate(contest.contestparticipant_set.all(), start=1))
-        data['my_rank'] = 'N/A'
+        data['my_rank'] = self.get_my_rank()
         data['update_time'] = contest.standings_update_time
-        for (rank, detail) in data['rank_list']:
-            if detail.user == self.request.user:
-                data['my_rank'] = rank
         return data
 
 

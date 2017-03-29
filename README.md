@@ -3,7 +3,6 @@ eoj3: A new version of eoj.
 
 ## TODO
 + rewrite hint messages
-+ pagination on standings page
 + friendly time input
 + markdown safe
 + csrf_protect on function-based views

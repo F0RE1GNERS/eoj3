@@ -34,13 +34,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for participant in rank_list %}
+            {% for rank in rank_list %}
               <tr>
-                <td scope="row">{{ participant.0 }}</td>
-                {% set rank = participant.1 %}
-                  <td class="col-width-large" style="text-align: left;">{{ rank.user.get_username_display() | safe }}
-                    <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
-                  {{ rank.html_cache | safe }}
+                <td scope="row">{{ page_obj.start_index() + loop.index0 }}</td>
+                <td class="col-width-large" style="text-align: left;">{{ rank.user.get_username_display() | safe }}
+                  <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
+                {{ rank.html_cache | safe }}
               </tr>
             {% endfor %}
           </tbody>
@@ -51,6 +50,8 @@
     {% if is_privileged %}<p style="text-align: right"><br>
       <a role="button" class="btn btn-default" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
     </p>{% endif %}
+
+    {{ my_paginator() }}
   </div>
   <script src="{{ url('static', 'js/countdown.js') }}"></script>
 
