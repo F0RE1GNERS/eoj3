@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
@@ -14,7 +15,10 @@ from .models import Submission, get_color_from_status, SubmissionStatus
 class SubmissionView(UserPassesTestMixin, View):
     def test_func(self):
         user = self.request.user
-        return is_admin_or_root(user) or Submission.objects.get(pk=self.kwargs.get('pk')).author == user
+        if not user.is_authenticated:
+            return False
+        if not is_admin_or_root(user) and Submission.objects.get(pk=self.kwargs.get('pk')).author != user:
+            raise PermissionDenied("You don't have access to this code.")
 
     def get(self, request, pk):
         submission = Submission.objects.get(pk=pk)

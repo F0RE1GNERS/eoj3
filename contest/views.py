@@ -72,16 +72,14 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['contest_problem_list'] = contest.contestproblem_set.all()
         if contest.start_time <= timezone.now():
             data['contest_started'] = True
-        data['has_permission'] = self.test_func()
         return data
 
 
 class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
 
-    def get_test_func(self):
-        self.access_test = super(DashboardView, self).test_func()
-        return lambda: True
+    def test_func(self):
+        return True
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)
@@ -95,8 +93,8 @@ class DashboardView(BaseContestMixin, TemplateView):
         elif user.is_authenticated and contest.contestparticipant_set.filter(user=user).exists():
             data['registered'] = True
 
-        if self.access_test:
-            data['has_permission'] = True
+        data['has_permission'] = super(DashboardView, self).test_func()
+        if data['has_permission']:
             for contest_problem in data['contest_problem_list']:
                 problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
             if user.is_authenticated:
@@ -175,6 +173,8 @@ class ContestMySubmission(BaseContestMixin, ListView):
     context_object_name = 'submission_list'
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied('Please login first.')
         return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid')),
                                          author=self.request.user).all()
 

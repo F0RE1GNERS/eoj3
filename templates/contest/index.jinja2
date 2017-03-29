@@ -5,32 +5,32 @@
     <h2>Dashboard</h2>
   </div>
   {% include 'components/message.jinja2' %}
-{% if has_permission %}
-  <div class="content-section">
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th width="8%">#</th>
-            <th width="82%" style="text-align: left;">Name</th>
-            <th width="10%">*</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for contest_problem in contest_problem_list %}
-          <tr>
-            <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
-            <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-              {{ contest_problem.problem.title }}</a></td>
-            <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
-              {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+  {% if has_permission %}
+    <div class="content-section">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th width="8%">#</th>
+              <th width="82%" style="text-align: left;">Name</th>
+              <th width="10%">*</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contest_problem in contest_problem_list %}
+            <tr>
+              <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
+              <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                {{ contest_problem.problem.title }}</a></td>
+              <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
+                {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-{% endif %}
+  {% endif %}
   {% if not registered %}
     <div class="content-section">
       <h4>Register</h4>
