@@ -8,7 +8,9 @@ eoj3: A new version of eoj.
 + csrf_protect on function-based views
 + remember me on login page
 + async send email
-+ online compiler
++ ~~online compiler~~
++ 403, 404 pages
++ Unify 404 and 500
 
 ## Installation
 

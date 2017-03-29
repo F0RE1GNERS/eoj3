@@ -49,3 +49,7 @@ if DEBUG:
         url(r'^test/', test_view, name='test'),
         url(r'^test_contest', test_contest_view, name='test_contest')
     ]
+
+handler403 = 'home.views.forbidden_view'
+handler404 = 'home.views.not_found_view'
+handler500 = 'home.views.server_error_view'
