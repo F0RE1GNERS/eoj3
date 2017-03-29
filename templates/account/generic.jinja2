@@ -1,0 +1,18 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Profile</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>{{ profile.get_username_display() | safe }}{% if profile.nickname %} <small>({{ profile.username }})</small>{% endif %}</h2>
+    {% if profile.school %}<p>From {{ profile.school }}</p>{% endif %}
+    <p>Registered at {{ profile.create_time | date('Y-m-d H:i:s') }}</p>
+    <a href="{{ url('status') }}?author={{ profile.username }}">See all submissions</a>
+  </div>
+
+{% endblock %}

@@ -31,8 +31,6 @@ class ProblemList(ListView):
             tag = Tag.objects.filter(name=tg)
             if tag.exists():
                 queryset = TaggedItem.objects.get_by_model(Problem, tag.first()).distinct()
-            pass
-        # TODO: filter for tag
         if kw:
             q = Q(title__icontains=kw)
             if kw.isdigit():
@@ -46,9 +44,6 @@ class ProblemList(ListView):
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
-        for problem in data['problem_list']:
-            for tag in problem.tags:
-                print(tag)
         return data
 
 

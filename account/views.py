@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, HttpResponseRedirect, reverse
+from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
 from django.views import View
 from django.views.generic.edit import UpdateView
 from django.contrib import messages
@@ -63,4 +63,4 @@ def my_password_reset_confirm(request, **kwargs):
                                             **kwargs)
 
 def generic_view(request, name):
-    pass
+    return render(request, 'account/generic.jinja2', {'profile': get_object_or_404(User, username=name)})

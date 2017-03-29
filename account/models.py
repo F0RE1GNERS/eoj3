@@ -18,10 +18,11 @@ PRIVILEGE_CHOICE = (
 MAGIC_CHOICE = (
     ('red', 'Red'),
     ('green', 'Green'),
-    ('aquamarine', 'Aquamarine'),
+    ('cyan', 'Cyan'),
     ('blue', 'Blue'),
     ('purple', 'Purple'),
-    ('orange', 'Orange')
+    ('orange', 'Orange'),
+    ('grey', 'Grey'),
 )
 
 
@@ -40,3 +41,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def get_username_display(self):
+        if self.nickname:
+            name = self.nickname
+        else:
+            name = self.username
+        if self.magic:
+            return '<span class="magic %s">%s</span>' % (self.magic, name)
+        else:
+            return '<span class="no-magic">%s</span>' % name

@@ -27,7 +27,7 @@
               {% endif %}
             </td>
             <td>{{ submission.create_time }}</td>
-            <td>{{ submission.author.username }}</td>
+            <td><a class="decoration-free" href="{{ url('account:generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
             <td><a href="{{ url('problem', submission.problem_id) }}">{{ submission.problem }}</a></td>
             <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
           </tr>
