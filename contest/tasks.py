@@ -1,5 +1,5 @@
+from django.utils import timezone
 from django.db import transaction
-
 from .models import Contest, ContestParticipant
 from account.models import User
 from submission.models import SubmissionStatus
@@ -69,7 +69,10 @@ def recalculate_for_participant(contest, submissions, problems):
     # From beginning to the end
     for sub in reversed(subs):
         problem, status, score, create_time = sub
-        # print(problem, status, score, create_time)
+        # After freeze time, everything becomes waiting
+        if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
+            status = SubmissionStatus.WAITING
+
         max_score[problem] = max(max_score[problem], score)
         # If problem is waiting, then it is waiting
         if problem not in waiting:
@@ -169,7 +172,9 @@ def _update_participant(contest, participant):
     problems = contest.contestproblem_set.all()
     participant.score, participant.penalty, participant.html_cache = \
         recalculate_for_participant(contest, submissions, problems)
-    participant.save()
+    participant.save(update_fields=["score", "penalty", "html_cache"])
+    contest.standings_update_time = timezone.now()
+    contest.save(update_fields=["standings_update_time"])
 
 
 def _update_header(contest):

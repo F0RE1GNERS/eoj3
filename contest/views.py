@@ -12,10 +12,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
 from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
-from .tasks import add_participant_with_invitation
+from .tasks import add_participant_with_invitation, update_contest
 from submission.models import Submission, SubmissionStatus
-from account.models import Privilege
-from problem.models import Problem
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import submit_code_for_contest
 from account.permissions import is_admin_or_root
@@ -71,6 +69,10 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             data['time_delta'] = int((contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = contest.contestproblem_set.all()
         data['has_permission'] = self.test_func()
+
+        if is_admin_or_root(self.request.user):
+            data['is_privileged'] = True
+
         return data
 
 
@@ -135,6 +137,7 @@ class ContestStandings(BaseContestMixin, TemplateView):
         contest = data['contest']
         data['rank_list'] = list(enumerate(contest.contestparticipant_set.all(), start=1))
         data['my_rank'] = 'N/A'
+        data['update_time'] = contest.standings_update_time
         for (rank, detail) in data['rank_list']:
             if detail.user == self.request.user:
                 data['my_rank'] = rank
@@ -191,12 +194,14 @@ class ContestStatus(BaseContestMixin, ListView):
     context_object_name = 'submission_list'
 
     def get_queryset(self):
-        return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid'))).all()
+        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        if contest.freeze:
+            return Submission.objects.filter(contest=contest, create_time__lt=contest.freeze_time).all()
+        else:
+            return Submission.objects.filter(contest=contest).all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
-        if is_admin_or_root(self.request.user):
-            data['is_privileged'] = True
         for submission in data['submission_list']:
             submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
         return data
@@ -227,3 +232,11 @@ class ContestBoundUser(View):
             except ContestInvitation.DoesNotExist:
                 messages.error(request, 'There seems to be something wrong with your invitation code.')
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
+
+
+class ContestUpdateStandings(View):
+    def get(self, request, cid):
+        if not is_admin_or_root(request.user):
+            raise PermissionDenied('You cannot update the standings')
+        update_contest(Contest.objects.get(pk=cid))
+        return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))

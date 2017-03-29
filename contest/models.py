@@ -38,6 +38,9 @@ class Contest(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
+    freeze = models.BooleanField(default=False)
+    freeze_time = models.DateTimeField(blank=True, null=True)
+    standings_update_time = models.DateTimeField(blank=True, null=True)
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
@@ -104,7 +107,6 @@ class ContestParticipant(models.Model):
 
 
 class ContestInvitation(models.Model):
-
     contest = models.ForeignKey(Contest)
     code = models.CharField(max_length=24)
     comment = models.TextField(blank=True)

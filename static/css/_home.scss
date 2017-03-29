@@ -32,10 +32,10 @@
     left: 0;
     top: 0;
     background: #333;
-    -ms-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
-    -moz-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
-    -webkit-transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
-    transition: background 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 6s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+    -ms-transition: background 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+    -moz-transition: background 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+    -webkit-transition: background 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
+    transition: background 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s, opacity 5s cubic-bezier(0.680, -0.550, 0.265, 1.4) 0s;
     z-index: 1;
   }
   @media(max-width: 768px) {

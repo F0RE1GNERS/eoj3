@@ -8,43 +8,49 @@
   </div>
 
   <div class="container">
-  <div class="content-header" style="text-align: center">
-    <h2>Standings</h2>
-    {% if contest_status == 'pending' %}
-      <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
-    {% elif contest_status == 'running' %}
-      <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
-    {% else %}
-      <p>Final standings</p>
-    {% endif %}
-  </div>
-  <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
-  <p>Your standing: {{ my_rank }}</p>
-  <div class="scrollable-wrapper">
-    <div class="datatable-wrapper">
-      <table class="datatable">
-        <thead>
-          <tr>
-          <th class="col-width-4">#</th>
-          <th class="col-width-large" style="min-width: 4em; text-align: left;">Who</th>
-          {{ contest.contest_header | safe }}
-          </tr>
-        </thead>
-        <tbody>
-          {% for participant in rank_list %}
-            <tr>
-              <td scope="row">{{ participant.0 }}</td>
-              {% set rank = participant.1 %}
-                <td class="col-width-large" style="text-align: left;">{{ rank.user.username }}
-                  <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
-                {{ rank.html_cache | safe }}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    {% if update_time %}<span class="text-muted">Updated at {{ update_time | date('Y-m-d H:i:s') }}</span>{% endif %}
+    <div class="content-header" style="text-align: center">
+      <h2>Standings</h2>
+      <p>
+        {% if contest_status == 'pending' %}
+          Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span>
+        {% elif contest_status == 'running' %}
+          Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span>
+        {% else %}
+          Final standings
+        {% endif %}
+      </p>
     </div>
+    <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
+    <p>Your standing: {{ my_rank }}</p>
+    <div class="scrollable-wrapper">
+      <div class="datatable-wrapper">
+        <table class="datatable">
+          <thead>
+            <tr>
+            <th class="col-width-4">#</th>
+            <th class="col-width-large" style="min-width: 4em; text-align: left;">Who</th>
+            {{ contest.contest_header | safe }}
+            </tr>
+          </thead>
+          <tbody>
+            {% for participant in rank_list %}
+              <tr>
+                <td scope="row">{{ participant.0 }}</td>
+                {% set rank = participant.1 %}
+                  <td class="col-width-large" style="text-align: left;">{{ rank.user.username }}
+                    <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
+                  {{ rank.html_cache | safe }}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
-  </div>
+    </div>
+    {% if is_privileged %}<p style="text-align: right"><br>
+      <a role="button" class="btn btn-default" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
+    </p>{% endif %}
   </div>
   <script src="{{ url('static', 'js/countdown.js') }}"></script>
 
