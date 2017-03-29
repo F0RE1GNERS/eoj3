@@ -11,7 +11,6 @@ class Problem(models.Model):
     output = models.TextField('Output', blank=True)
     sample = models.TextField('Sample', blank=True)
     hint = models.TextField('Hint', blank=True)
-    source = models.CharField('Source', max_length=128, blank=True)
     created_by = models.ForeignKey(User)
 
     visible = models.BooleanField('Visible', default=False)

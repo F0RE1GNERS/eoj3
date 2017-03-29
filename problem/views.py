@@ -36,6 +36,11 @@ class ProblemList(ListView):
                 queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
         return queryset.all()
 
+    def get_context_data(self, **kwargs):
+        data = super(ProblemList, self).get_context_data(**kwargs)
+        data['keyword'] = self.request.GET.get('keyword')
+        return data
+
 
 class ProblemView(FormView):
     template_name = 'problem.jinja2'

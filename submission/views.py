@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -66,6 +66,8 @@ class StatusList(ListView):
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)
         user = self.request.user
+        # print(reverse('status') + '?keyword=' + str(1))
+        data['keyword'] = self.request.GET.get('keyword')
         if user.is_authenticated:
             for submission in data['submission_list']:
                 if is_admin_or_root(user) or submission.author == user:
