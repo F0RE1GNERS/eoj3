@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, HttpResponseRedirect
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -11,6 +11,7 @@ from pygments.formatters.html import HtmlFormatter
 
 from account.permissions import is_admin_or_root
 from .models import Submission, get_color_from_status, SubmissionStatus
+from dispatcher.tasks import send_rejudge
 
 
 class SubmissionView(UserPassesTestMixin, View):
@@ -20,11 +21,16 @@ class SubmissionView(UserPassesTestMixin, View):
             return False
         if not is_admin_or_root(user) and Submission.objects.get(pk=self.kwargs.get('pk')).author != user:
             raise PermissionDenied("You don't have access to this code.")
+        return True
 
     def get(self, request, pk):
         submission = Submission.objects.get(pk=pk)
         context = dict(submission=submission)
         context['code'] = highlight(submission.code, get_lexer_by_name(submission.lang), HtmlFormatter())
+        if is_admin_or_root(request.user):
+            context['rejudge_available'] = True
+        if SubmissionStatus.is_judged(submission.status):
+            context['is_judged'] = True
         if submission.status == SubmissionStatus.COMPILE_ERROR:
             context.update({'detail_ce': submission.status_detail})
         else:
@@ -73,3 +79,15 @@ class StatusList(ListView):
                 if is_admin_or_root(user) or submission.author == user:
                     submission.is_privileged = True
         return data
+
+
+class SubmissionRejudgeView(UserPassesTestMixin, View):
+    def test_func(self):
+        if not is_admin_or_root(self.request.user):
+            self.permission_denied_message = "You don't have the access."
+            return False
+        return True
+
+    def get(self, request, pk):
+        send_rejudge(pk)
+        return HttpResponseRedirect(reverse('submission', kwargs={'pk': pk}))

@@ -28,6 +28,9 @@
             <th>Time</th>
             <th>Memory</th>
             {% endif %}
+            {% if rejudge_available %}
+            <th>Rejudge</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -43,6 +46,9 @@
             <td>{{ submission.get_time_display() }}</td>
             <td>{{ submission.get_memory_display() }}</td>
             {% endif %}
+            {% if rejudge_available %}
+            <td><a role="button" class="btn btn-default" href="{{ url('rejudge', submission.pk) }}">Rejudge</a></td>
+            {% endif %}
           </tr>
         </tbody>
       </table>
@@ -50,22 +56,24 @@
     <div class="code-block">
       {{ code | safe }}
     </div>
-    {% if detail %}
-      {% for message in detail %}
-        <div class="panel panel-{{ message.color }}">
-          <div class="panel-heading">
-            <h3 class="panel-title">Case #{{ message.count }}</h3>
+    {% if is_judged %}
+      {% if detail %}
+        {% for message in detail %}
+          <div class="panel panel-{{ message.color }}">
+            <div class="panel-heading">
+              <h3 class="panel-title">Case #{{ message.count }}</h3>
+            </div>
+            <div class="panel-body">
+              time: {{ message.time }}ms, memory: {{ message.memory }}KB, verdict: <strong>{{ message.verdict | status_choice }}</strong>
+            </div>
           </div>
-          <div class="panel-body">
-            time: {{ message.time }}ms, memory: {{ message.memory }}KB, verdict: <strong>{{ message.verdict | status_choice }}</strong>
-          </div>
+        {% endfor %}
+      {% elif detail_ce %}
+        <h3>Compile Error Message</h3>
+        <div class="code-block">
+          {{ detail_ce }}
         </div>
-      {% endfor %}
-    {% elif detail_ce %}
-      <h3>Compile Error Message</h3>
-      <div class="code-block">
-        {{ detail_ce }}
-      </div>
+      {% endif %}
     {% endif %}
 
   </div>

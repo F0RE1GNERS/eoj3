@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from home.views import home_view
 from problem.views import ProblemList, ProblemView
-from submission.views import SubmissionView, StatusList
+from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
 from account.views import my_login, register_view
 from django.contrib.auth.views import logout
 from django.views.static import serve
@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^problem/$', ProblemList.as_view(), name='problem_list'),
     url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view(), name='problem'),
     url(r'^submission/(?P<pk>\d+)/$', SubmissionView.as_view(), name='submission'),
+    url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
     url(r'^contest/', include('contest.urls', namespace='contest')),
     url(r'^status/$', StatusList.as_view(), name='status'),
     url(r'^login/$', my_login, name='login'),

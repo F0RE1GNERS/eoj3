@@ -7,8 +7,10 @@ from django.views.generic import View
 
 from .forms import ProblemEditForm
 from problem.models import Problem
+from submission.models import Submission
 from eoj3.settings import TESTDATA_DIR, UPLOAD_DIR
 from utils.file_preview import sort_data_from_zipfile, get_file_list
+from dispatcher.tasks import send_rejudge
 
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
@@ -119,3 +121,17 @@ class ProblemList(BaseBackstageMixin, ListView):
     queryset = Problem.objects.all()
     paginate_by = 20
     context_object_name = 'problem_list'
+
+
+class ProblemRejudge(BaseBackstageMixin, View):
+    def post(self, request):
+        try:
+            problem = request.POST['problem']
+            submissions = Submission.objects.filter(problem__pk=problem).all()
+            for submission in submissions:
+                send_rejudge(submission.pk)
+            messages.error(request, 'Rejudge has been sent.')
+        except Exception as e:
+            print(repr(e))
+            messages.error(request, 'Rejudge failed.')
+        return HttpResponseRedirect(request.POST['next'])

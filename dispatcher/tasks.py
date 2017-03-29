@@ -115,8 +115,7 @@ class Dispatcher:
             problem.save(update_fields=['total_accept_number'])
 
         if submission.contest is not None:
-            user_id = submission.author.pk
-            update_problem_and_participant(submission.contest.pk, self.problem_id, user_id, accept_increment)
+            update_problem_and_participant(submission.contest.pk, self.problem_id, submission.author_id, accept_increment)
 
     def dispatch(self):
         # Attempt: 5 times
@@ -210,6 +209,12 @@ def submit_code(submission, author, problem_pk):
 
 
 def submit_code_for_contest(submission, author, problem_identifier, contest):
+    """
+    :param submission: submission with lang and code
+    :param author: submission do not have author yet
+    :param problem_identifier: submission do not have a problem yet
+    :param contest: submission even do not have a contest
+    """
     with transaction.atomic():
         contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
         submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem.pk)
@@ -225,6 +230,27 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.problem.add_submit()
         submission.problem.save()
 
-        update_problem_and_participant(contest.pk, contest_problem.problem.pk, author.pk)
+    update_problem_and_participant(contest.pk, contest_problem.problem.pk, author.pk)
 
     DispatcherThread(submission.pk).start()
+
+
+def send_rejudge(submission_id):
+    accept_increment, problem_id, author_id, contest_id = 0, 0, 0, 0
+
+    with transaction.atomic():
+        submission = Submission.objects.select_for_update().get(pk=submission_id)
+        if submission.status == SubmissionStatus.ACCEPTED:
+            accept_increment = -1
+        submission.status = SubmissionStatus.WAITING
+        submission.save()
+        problem_id, author_id, contest_id = submission.problem_id, submission.author_id, submission.contest_id
+
+        problem = Problem.objects.select_for_update().get(pk=problem_id)
+        problem.add_accept(accept_increment)
+        problem.save(update_fields=['total_accept_number'])
+
+    if contest_id:
+        update_problem_and_participant(contest_id, problem_id, author_id, accept_increment)
+
+    DispatcherThread(submission_id).start()
