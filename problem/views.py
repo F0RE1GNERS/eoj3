@@ -11,6 +11,7 @@ from tagging.models import Tag, TaggedItem
 
 from .models import Problem
 from submission.forms import SubmitForm
+from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
 from account.permissions import is_admin_or_root
 
@@ -44,6 +45,13 @@ class ProblemList(ListView):
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
+        if self.request.user.is_authenticated:
+            for problem in data['problem_list']:
+                queryset = problem.submission_set.filter(author=self.request.user)
+                if queryset.exists():
+                    problem.status = 'danger'
+                if queryset.filter(status=SubmissionStatus.ACCEPTED).exists():
+                    problem.status = 'success'
         return data
 
 

@@ -89,7 +89,6 @@ class Submission(models.Model):
     judge_start_time = models.DateTimeField(blank=True, null=True)
     judge_end_time = models.DateTimeField(blank=True, null=True)
 
-    # TODO: add choices?
     status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.WAITING)
     status_percent = models.IntegerField(default=0)
     status_detail = models.TextField(blank=True)
