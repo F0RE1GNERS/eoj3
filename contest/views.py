@@ -80,7 +80,7 @@ class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
 
     def test_func(self):
-        return True
+        return Contest.objects.get(pk=self.kwargs.get('cid')).visible
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)
