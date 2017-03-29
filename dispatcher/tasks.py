@@ -254,3 +254,14 @@ def send_rejudge(submission_id):
         update_problem_and_participant(contest_id, problem_id, author_id, accept_increment)
 
     DispatcherThread(submission_id).start()
+
+
+class ProblemRejudgeThread(threading.Thread):
+
+    def __init__(self, submissions):
+        super().__init__()
+        self.submissions = submissions
+
+    def run(self):
+        for sub in self.submissions:
+            send_rejudge(sub)

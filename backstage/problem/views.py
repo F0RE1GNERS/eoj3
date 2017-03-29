@@ -10,7 +10,7 @@ from problem.models import Problem
 from submission.models import Submission
 from eoj3.settings import TESTDATA_DIR, UPLOAD_DIR
 from utils.file_preview import sort_data_from_zipfile, get_file_list
-from dispatcher.tasks import send_rejudge
+from dispatcher.tasks import ProblemRejudgeThread
 
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
@@ -124,13 +124,13 @@ class ProblemList(BaseBackstageMixin, ListView):
 
 
 class ProblemRejudge(BaseBackstageMixin, View):
+
     def post(self, request):
         try:
             problem = request.POST['problem']
-            submissions = Submission.objects.filter(problem__pk=problem).all()
-            for submission in submissions:
-                send_rejudge(submission.pk)
-            messages.error(request, 'Rejudge has been sent.')
+            submissions = [x.pk for x in Submission.objects.filter(problem__pk=problem).all().reverse()]
+            ProblemRejudgeThread(submissions).start()
+            messages.success(request, 'Rejudge has been sent.')
         except Exception as e:
             print(repr(e))
             messages.error(request, 'Rejudge failed.')

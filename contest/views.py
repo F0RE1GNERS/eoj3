@@ -195,7 +195,7 @@ class ContestStatus(BaseContestMixin, ListView):
 
     def get_queryset(self):
         contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        if contest.freeze:
+        if not is_admin_or_root(self.request.user) and contest.freeze and contest.get_status() == 'running':
             return Submission.objects.filter(contest=contest, create_time__lt=contest.freeze_time).all()
         else:
             return Submission.objects.filter(contest=contest).all()

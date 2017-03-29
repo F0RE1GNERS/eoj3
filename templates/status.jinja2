@@ -32,7 +32,7 @@
         <tbody>
           {% for submission in submission_list %}
             <tr>
-              <td scope="row">
+              <td style="{% if submission.contest %}text-decoration: line-through;{% endif %}" scope="row">
                 {% if submission.is_privileged %}
                 <a href="{{ url('submission', submission.pk) }}">{{ submission.pk }}</a>
                 {% else %}
