@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     # third-party packages
     'widget_tweaks',
     'django_jinja',
+    'tagging',
 ]
 
 MIDDLEWARE = [

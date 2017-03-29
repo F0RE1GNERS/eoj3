@@ -70,8 +70,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             data['progress'] = 0
             data['time_delta'] = int((contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = contest.contestproblem_set.all()
-        if contest.start_time <= timezone.now():
-            data['contest_started'] = True
+        data['has_permission'] = self.test_func()
         return data
 
 

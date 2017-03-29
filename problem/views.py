@@ -1,11 +1,13 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
+from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http.response import Http404
 from django.core.exceptions import PermissionDenied
+from tagging.models import Tag, TaggedItem
 
 from .models import Problem
 from submission.forms import SubmitForm
@@ -19,10 +21,20 @@ class ProblemList(ListView):
     context_object_name = 'problem_list'
 
     def get_queryset(self):
+        kw = self.request.GET.get('keyword')
         if is_admin_or_root(self.request.user):
-            return Problem.objects.all()
+            queryset = Problem.objects.filter()
         else:
-            return Problem.objects.filter(visible=True).all()
+            queryset = Problem.objects.filter(visible=True)
+        if kw:
+            q = Q(title__icontains=kw)
+            if kw.isdigit():
+                q |= Q(pk__exact=kw)
+            queryset = queryset.filter(q)
+            tag = Tag.objects.filter(name=kw)
+            if tag.exists():
+                queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
+        return queryset.all()
 
 
 class ProblemView(FormView):
