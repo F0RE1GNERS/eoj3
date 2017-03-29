@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
+from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation, ContestClarification
 from .tasks import add_participant_with_invitation, update_contest
 from submission.models import Submission, SubmissionStatus
 from submission.forms import ContestSubmitForm
@@ -240,3 +240,35 @@ class ContestUpdateStandings(View):
             raise PermissionDenied('You cannot update the standings')
         update_contest(Contest.objects.get(pk=cid))
         return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
+
+
+class ContestClarificationView(BaseContestMixin, ListView):
+    template_name = 'contest/clarification.jinja2'
+    context_object_name = 'clarification_list'
+
+    def get_queryset(self):
+        cmp = dict(note=-1, open=0, close=1, solve=1)
+        return sorted(Contest.objects.get(pk=self.kwargs.get('cid')).contestclarification_set.all(),
+                      key=lambda x: cmp[x.status])
+
+    def post(self, request, cid):
+        if is_admin_or_root(request.user):
+            status = 'note'
+        else:
+            status = 'open'
+        ContestClarification.objects.create(contest_id=self.kwargs['cid'], author=request.user,
+                                            text=request.POST['message'], status=status)
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestClarificationToggle(BaseContestMixin, View):
+    def get(self, request, cid, clarification_id, operation):
+        if not is_admin_or_root(request.user):
+            raise PermissionDenied("You don't have the access.")
+        if operation != 'close' and operation != 'solve':
+            raise PermissionDenied("Bad operation code.")
+        clarification = ContestClarification.objects.get(pk=clarification_id)
+        clarification.status = operation
+        clarification.save(update_fields=["status"])
+        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
+

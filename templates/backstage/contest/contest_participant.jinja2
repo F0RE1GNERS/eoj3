@@ -11,8 +11,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th width="50%">Username</th>
-          <th width="50%">Comment</th>
+          <th width="30%">Username</th>
+          <th>Comment</th>
+          <th>Edit</th>
         </tr>
       </thead>
       <tbody>
@@ -20,6 +21,7 @@
           <tr>
             <td>{{ participant.user.username }}</td>
             <td>{{ participant.comment }}</td>
+            <td><a href="#">Edit</a></td>
           </tr>
         {% endfor %}
       </tbody>

@@ -87,10 +87,21 @@ class ContestProblem(models.Model):
 
 
 class ContestClarification(models.Model):
+    STATUS_CHOICE = (
+        ('open', 'Question'),
+        ('solve', 'Solved'),
+        ('close', 'No Response'),
+        ('note', 'Clarification')
+    )
+
     contest = models.ForeignKey(Contest)
-    question = models.TextField()
-    answer = models.TextField(blank=True)
-    username = models.CharField(max_length=30)
+    text = models.TextField(blank=True)
+    time = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICE)
+    author = models.ForeignKey(User)
+
+    class Meta:
+        ordering = ["-time"]
 
 
 class ContestParticipant(models.Model):
