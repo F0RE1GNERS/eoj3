@@ -29,6 +29,7 @@
             <tr>
               <th scope="row">{{ problem.pk }}</th>
               <td><span style="float:left; padding-left:2px;"><a href="{{ url('problem', problem.pk) }}">{{ problem.title }}</a></span>
+                <div class="pull-right">{% for tag in problem.tags %}<a href="?{{ url_replace(request, 'tag', tag) }}" class="badge" style="margin-right:2px;">{{ tag }}</a>{% endfor %}</div>
 {#                  {# <span class="text-muted" style="float:right; padding-right:2px;"><small>{{ problem.source }}</small></span>#}</td>
               <td>{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
             </tr>

@@ -22,10 +22,14 @@ class ProblemList(ListView):
 
     def get_queryset(self):
         kw = self.request.GET.get('keyword')
+        tg = self.request.GET.get('tag')
         if is_admin_or_root(self.request.user):
             queryset = Problem.objects.filter()
         else:
             queryset = Problem.objects.filter(visible=True)
+        if tg:
+            pass
+        # TODO: filter for tag
         if kw:
             q = Q(title__icontains=kw)
             if kw.isdigit():
@@ -39,6 +43,9 @@ class ProblemList(ListView):
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
+        for problem in data['problem_list']:
+            for tag in problem.tags:
+                print(tag)
         return data
 
 

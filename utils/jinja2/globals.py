@@ -54,6 +54,7 @@ def paginator(context, adjacent_pages=3):
     return {
         'page_obj': page_obj,
         'page_numbers': page_numbers,
+        'request': context['request'],
     }
 
 
@@ -63,3 +64,10 @@ def render_field(field, attrs):
     soup = BeautifulSoup(str(field), "html.parser")
     soup.contents[0].attrs.update(add_attrs)
     return markupsafe.Markup(soup)
+
+
+@library.global_function(name='url_replace')
+def url_replace(request, field, value):
+    dict_ = request.GET.copy()
+    dict_[field] = value
+    return dict_.urlencode()

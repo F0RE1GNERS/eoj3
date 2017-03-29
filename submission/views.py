@@ -58,10 +58,16 @@ class StatusList(ListView):
 
     def get_queryset(self):
         kw = self.request.GET.get('keyword')
+        author = self.request.GET.get('author')
+        prob = self.request.GET.get('problem')
         if is_admin_or_root(self.request.user):
             queryset = Submission.objects
         else:
             queryset = Submission.objects.filter(contest__isnull=True, problem__visible=True)
+        if author:
+            queryset = queryset.filter(author__username=author)
+        if prob:
+            queryset = queryset.filter(problem_id=prob)
         if kw:
             q = Q(author__username__iexact=kw)
             if kw.isdigit():

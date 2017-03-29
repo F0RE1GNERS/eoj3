@@ -119,7 +119,7 @@ class ProblemUpdate(BaseUpdateView):
 class ProblemList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem/problem.jinja2'
     queryset = Problem.objects.all()
-    paginate_by = 20
+    paginate_by = 50
     context_object_name = 'problem_list'
 
 
