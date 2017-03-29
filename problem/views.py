@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 from django.http.response import Http404
 from django.core.exceptions import PermissionDenied
 from tagging.models import Tag, TaggedItem
@@ -75,5 +76,8 @@ class ProblemView(FormView):
         if not problem.visible and not is_admin_or_root(self.request.user) or not self.request.user.is_authenticated:
             raise PermissionDenied()
         submission = form.save(commit=False)
+        if len(submission.code) > 128 * 1024:
+            messages.error(self.request, 'Your code is too long.')
+            return HttpResponseRedirect(self.request.path)
         submit_code(submission, self.request.user, self.kwargs['pk'])
         return HttpResponseRedirect(reverse('submission', args=[submission.pk]))

@@ -3,23 +3,13 @@ eoj3: A new version of eoj.
 
 ## TODO
 + rewrite hint messages
-+ allowed_lang in Contest
 + pagination on standings page
 + friendly time input
 + markdown safe
 + csrf_protect on function-based views
 + remember me on login page
-+ a lot about contest todo: privilege, public/private
-+ images and files in problems
-+ submission privileges
-+ special judge (already available on judge server but n/a on this side)
 + async send email
-+ concurrency limiter
-+ online compiler v
 + online compiler
-+ sum time limit in oi rules
-+ contest accept / submit
-+ keyword and search
 
 ## Installation
 

@@ -28,8 +28,9 @@ class ContestManage(BaseBackstageMixin, View):
         contest = Contest.objects.get(**kwargs)
         contest_problem_list = ContestProblem.objects.filter(contest=contest).all()
         profile = [('Title', contest.title), ('Description', contest.description),
-                   ('Rule', contest.get_rule_display()), ('Start time', contest.start_time),
-                   ('End time', contest.end_time), ('Visible', contest.visible), ('Public', contest.public),
+                   ('Rule', contest.get_rule_display()), ('Allowed lang', contest.allowed_lang),
+                   ('Start time', contest.start_time), ('End time', contest.end_time),
+                   ('Visible', contest.visible), ('Public', contest.public),
                    ('Freeze', contest.freeze)]
         if contest.freeze:
             profile.append(('Freeze time', contest.freeze_time))

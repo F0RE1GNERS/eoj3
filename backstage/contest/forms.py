@@ -6,7 +6,7 @@ from django.utils import timezone
 class ContestEditForm(forms.ModelForm):
     class Meta:
         model = Contest
-        fields = ['title', 'description', 'rule', 'start_time', 'end_time', 'freeze', 'freeze_time', 'visible', 'public']
+        fields = ['title', 'description', 'rule', 'allowed_lang', 'start_time', 'end_time', 'freeze', 'freeze_time', 'visible', 'public']
         help_texts = {
             'start_time': 'YYYY-MM-DD --:--(:--)',
             'end_time': 'YYYY-MM-DD --:--(:--)',

@@ -2,6 +2,7 @@ from django.db import models
 from account.models import User
 from problem.models import Problem
 from contest.models import Contest
+from utils.language import LANG_CHOICE
 
 
 class SubmissionStatus(object):
@@ -27,27 +28,20 @@ class SubmissionStatus(object):
         return SubmissionStatus.is_judged(status) and status != SubmissionStatus.COMPILE_ERROR
 
 
-LANG_CHOICE = (
-    ('c', 'C'),
-    ('cpp', 'C++'),
-    ('python', 'Python'),
-    ('java', 'Java')
-)
-
 STATUS_CHOICE = (
-        (-3, 'Waiting'),
-        (-2, 'Judging'),
-        (-1, 'Wrong Answer'),
-        (0, 'Accepted'),
-        (1, 'Time Limit Exceeded'),
-        (2, 'Time Limit Exceeded'),
-        (3, 'Memory Limit Exceeded'),
-        (4, 'Runtime Error'),
-        (5, 'System Error'),
-        (6, 'Compile Error'),
-        (7, 'Idleness Limit Exceeded'),
-        (8, 'Time Limit Exceeded')
-    )
+    (-3, 'Waiting'),
+    (-2, 'Judging'),
+    (-1, 'Wrong Answer'),
+    (0, 'Accepted'),
+    (1, 'Time Limit Exceeded'),
+    (2, 'Time Limit Exceeded'),
+    (3, 'Memory Limit Exceeded'),
+    (4, 'Runtime Error'),
+    (5, 'System Error'),
+    (6, 'Compile Error'),
+    (7, 'Idleness Limit Exceeded'),
+    (8, 'Time Limit Exceeded')
+)
 
 
 def get_color_from_status(status):

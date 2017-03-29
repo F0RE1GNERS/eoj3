@@ -1,14 +1,18 @@
+import shortuuid
 from django.db import models
-from django.db import IntegrityError
 from django.utils import timezone
 
 from account.models import User
 from problem.models import Problem
-import shortuuid
+from utils.language import LANG_CHOICE
 
 
 def get_invitation_code():
     return shortuuid.ShortUUID().random(12)
+
+
+def get_language_all_list():
+    return ', '.join(sorted(dict(LANG_CHOICE).keys()))
 
 
 class ContestManager(models.Manager):
@@ -25,6 +29,7 @@ class ContestManager(models.Manager):
 
 
 class Contest(models.Model):
+
     RULE_CHOICE = (
         ('acm', 'ACM Rule'),
         ('oi', 'OI Rule')
@@ -33,6 +38,7 @@ class Contest(models.Model):
     title = models.CharField(max_length=48)
     description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
+    allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
     created_by = models.ForeignKey(User, related_name='created_contests')
 
     start_time = models.DateTimeField()
@@ -48,7 +54,7 @@ class Contest(models.Model):
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
 
-    objects = ContestManager() # ???
+    objects = ContestManager()
     contest_header = models.TextField('Header of standings', blank=True)
 
     class Meta:

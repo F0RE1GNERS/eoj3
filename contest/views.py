@@ -148,22 +148,37 @@ class ContestSubmit(BaseContestMixin, FormView):
     template_name = 'contest/submit.jinja2'
     form_class = ContestSubmitForm
 
+    @staticmethod
+    def get_allowed_lang(contest):
+        return sorted(list(filter(lambda x: x, map(lambda x: x.strip(), contest.allowed_lang.split(',')))))
+
     def get_initial(self):
         return {'problem_identifier': self.request.GET.get('pid', '')}
 
     def get_form_kwargs(self):
         kwargs = super(ContestSubmit, self).get_form_kwargs()
-        kwargs['contest_problem_list'] = get_object_or_404(Contest, pk=self.kwargs['cid']).contestproblem_set.all()
+        contest = Contest.objects.get(pk=self.kwargs['cid'])
+        kwargs['contest_problem_list'] = contest.contestproblem_set.all()
+        kwargs['contest_allowed_lang'] = self.get_allowed_lang(contest)
         return kwargs
 
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
             raise PermissionDenied('Please login first.')
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
+
         if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
             messages.error(self.request, 'You are currently not in the period of the contest.')
             return HttpResponseRedirect(self.request.path)
+
         submission = form.save(commit=False)
+        if not submission.lang in self.get_allowed_lang(contest):
+            messages.error(self.request, '%s is not supported.' % submission.lang)
+            return HttpResponseRedirect(self.request.path)
+        if len(submission.code) > 128 * 1024:
+            messages.error(self.request, 'Your code is too long.')
+            return HttpResponseRedirect(self.request.path)
+
         problem_identifier = form.cleaned_data['problem_identifier']
         submit_code_for_contest(submission, self.request.user, problem_identifier, contest)
         return HttpResponseRedirect(reverse('contest:submission', kwargs={'cid': self.kwargs['cid']}))
