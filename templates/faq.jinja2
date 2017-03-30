@@ -11,10 +11,75 @@
   <div class="container">
 
     <div class="content-mini-section">
-      <h4>TODO</h4>
-      <p>TODO</p>
+      <h4>Q: What does "EOJ" stand for?</h4>
+      <p>A: EOJ is short for ECNU Online Judge.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Which languages have you supported?</h4>
+      <p>A: We have already supported C, C++, Java, Python(3).</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: What does a typical solution look like?</h4>
+      <p>A: Here is an A + B Solution for each language:</p>
+      <p>For language C:</p>
+      <pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    int a, b;
+    scanf("%d%d", &a, &b);
+    printf("%d\n", a + b);
+}</code></pre>
+      <p>For language C++:</p>
+      <pre><code>#include &lt;iostream&gt;
+using namespace std;
+int main()
+{
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
+    return 0;
+}</code></pre>
+      <p>For language Java:</p>
+      <pre><code>import java.util.*;
+public class Main {
+    public static void main(String args[]) {
+        Scanner cin = new Scanner(System.in);
+        int a, b;
+        a = cin.nextInt();
+        b = cin.nextInt();
+        System.out.println(a + b);
+    }
+}</code></pre>
+      <p>For Python:</p>
+      <pre><code>a, b = map(int, input().split())
+print(a + b)</code></pre>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Is there a way to tell whether the environment is on Online Judge or not?</h4>
+      <p>A: For C/C++, macro ONLINE_JUDGE is predefined in the program. For Java and Python, currently, no.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Should I use %lld or %I64d?</h4>
+      <p>A: We are under Linux environment. So definitely %lld.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Is there any another difference on judge strategy between languages?</h4>
+      <p>A: Java has a -150ms bonus on the time record for each test case. Memory display in Java is currently not
+        available (always 0 sadly), but you can still get an error if you ask for too much memory.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: What is the length limit of our code?</h4>
+      <p>A: No more than 128KB.</p>
     </div>
 
   </div>
+
+
 
 {% endblock %}
