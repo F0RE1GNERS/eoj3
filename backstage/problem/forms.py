@@ -10,7 +10,7 @@ class ProblemEditForm(forms.ModelForm):
         error_messages = {
         }
 
-    tags = forms.CharField()
+    tags = forms.CharField(required=False)
 
     def save(self, commit=True):
         instance = super(ProblemEditForm, self).save(commit=commit)
