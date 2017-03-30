@@ -38,7 +38,7 @@ class BaseCreateView(BaseBackstageMixin, CreateView):
 
 class BaseUpdateView(BaseBackstageMixin, UpdateView):
 
-    def post_update(self, instance):
+    def post_update(self, instance, form):
         """
         Do something here
         """
@@ -46,7 +46,7 @@ class BaseUpdateView(BaseBackstageMixin, UpdateView):
 
     def form_valid(self, form):
         instance = form.save(commit=False)
-        self.post_update(instance)
+        self.post_update(instance, form)
         instance.save()
         messages.success(self.request, "Your changes have been saved.")
         return HttpResponseRedirect(self.get_redirect_url(instance))

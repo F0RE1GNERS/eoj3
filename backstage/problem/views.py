@@ -118,6 +118,9 @@ class ProblemUpdate(BaseUpdateView):
     queryset = Problem.objects.all()
     template_name = 'backstage/problem/problem_edit.jinja2'
 
+    def post_update(self, instance, form):
+        instance.tags = form.cleaned_data['tags']
+
 
 class ProblemList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem/problem.jinja2'

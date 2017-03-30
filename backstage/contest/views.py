@@ -62,7 +62,7 @@ class ContestProfileUpdate(BaseUpdateView):
     def get_redirect_url(self, instance):
         return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
 
-    def post_update(self, instance):
+    def post_update(self, instance, form):
         update_contest(instance)
 
 
