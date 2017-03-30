@@ -103,12 +103,9 @@ class Dispatcher:
                 submission.status_detail = response['message']
             else:
                 submission.status_detail = json.dumps(response['detail'])
+                submission.status_percent = response['score']
                 submission.status_time = response['time']
                 submission.status_memory = response['memory']
-                # Get percent (just for OI)
-                accept_case_number = len([x for x in response['detail'] if x['verdict'] == SubmissionStatus.ACCEPTED])
-                submission.status_percent = int(accept_case_number / max(submission.problem.testdata_size, 1) * 100)
-                # to avoid no testdata problem
             submission.save()
 
             problem.add_accept(accept_increment)

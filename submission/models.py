@@ -113,3 +113,9 @@ class Submission(models.Model):
             return str(self.status_memory) + "KB"
         else:
             return "N/A"
+
+    def get_status_display_in_contest(self):
+        addition = ''
+        if self.contest is not None and self.contest.rule == 'oi' and self.is_judged():
+            addition = ' %d%%' % self.status_percent
+        return self.get_status_display() + addition

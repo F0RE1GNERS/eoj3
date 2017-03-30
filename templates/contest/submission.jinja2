@@ -26,7 +26,7 @@
             <td>{{ submission.create_time }}</td>
             <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
             <td>{{ submission.get_lang_display() }}</td>
-            <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
+            <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display_in_contest() }}</td>
             <td>{{ submission.get_time_display() }}</td>
             <td>{{ submission.get_memory_display() }}</td>
 
