@@ -26,7 +26,10 @@
   }
   .title {
     font-size: 1.4em;
-    margin-bottom: 0.2em;
+    margin-bottom: 0.4em;
+  }
+  p {
+    line-height: 1.6;
   }
   .examples {
     .example {
@@ -54,6 +57,7 @@
         margin: 0;
         background-color: #f7f7f7;
         color: #ad1457;
+        border: none;
       }
     }
   }
