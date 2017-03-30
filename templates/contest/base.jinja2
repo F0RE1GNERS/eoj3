@@ -1,5 +1,7 @@
 {% extends 'base.jinja2' %}
 
+{% block title %}{% block contest_title %}{% endblock %}{{ contest.title }} - {% endblock %}
+
 {% block content %}
 
   <div class="bd-pageheader">

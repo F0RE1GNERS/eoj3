@@ -1,6 +1,8 @@
 {% extends 'base.jinja2' %}
 {% from 'components/problem.jinja2' import problem_view with context %}
 
+{% block title %}Problem #{{ problem.pk }} - {% endblock %}
+
 {% block content %}
 
   <div class="bd-pageheader">
