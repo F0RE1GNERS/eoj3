@@ -137,6 +137,14 @@ class ContestStandings(BaseContestMixin, ListView):
     paginate_by = 100
     context_object_name = 'rank_list'
 
+    def test_func(self):
+        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        if not contest.visible:
+            return False
+        if contest.standings_public:
+            return True
+        return super(ContestStandings, self).test_func()
+
     def get_queryset(self):
         return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
 

@@ -56,6 +56,7 @@ class Contest(models.Model):
 
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
+    standings_public = models.BooleanField(default=True)
 
     objects = ContestManager()
     contest_header = models.TextField('Header of standings', blank=True)

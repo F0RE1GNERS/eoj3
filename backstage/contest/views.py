@@ -31,7 +31,7 @@ class ContestManage(BaseBackstageMixin, View):
                    ('Rule', contest.get_rule_display()), ('Allowed lang', contest.allowed_lang),
                    ('Start time', contest.start_time), ('End time', contest.end_time),
                    ('Visible', contest.visible), ('Public', contest.public),
-                   ('Freeze', contest.freeze)]
+                   ('Freeze', contest.freeze), ('Standings public', contest.standings_public)]
         if contest.freeze:
             profile.append(('Freeze time', contest.freeze_time))
         return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list,
