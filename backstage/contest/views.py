@@ -63,7 +63,6 @@ class ContestProfileUpdate(BaseUpdateView):
         return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
 
     def post_update(self, instance):
-        super(ContestProfileUpdate, self).post_update(instance)
         update_contest(instance)
 
 
