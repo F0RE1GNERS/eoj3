@@ -17,9 +17,12 @@ def get_language_all_list():
 
 class ContestManager(models.Manager):
 
-    def get_status_list(self):
+    def get_status_list(self, all=False):
         cmp = dict(running=-1, pending=0, ended=1)
-        contest_list = super(ContestManager, self).get_queryset().filter(visible=True).all()
+        if all:
+            contest_list = super(ContestManager, self).get_queryset().all()
+        else:
+            contest_list = super(ContestManager, self).get_queryset().filter(visible=True).all()
         for contest in contest_list:
             contest.status = contest.get_status()
             contest.participant_size = contest.participants.count()

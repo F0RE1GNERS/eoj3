@@ -123,7 +123,7 @@ class ContestList(ListView):
     context_object_name = 'contest_list'
 
     def get_queryset(self):
-        return Contest.objects.get_status_list()
+        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user))
 
 
 class ContestStandings(BaseContestMixin, ListView):

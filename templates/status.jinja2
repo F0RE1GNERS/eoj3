@@ -32,9 +32,9 @@
         <tbody>
           {% for submission in submission_list %}
             <tr>
-              <td scope="row">
+              <td {% if submission.contest %}style="text-decoration: line-through"{% endif %} scope="row">
                 {% if submission.is_privileged %}
-                <a href="{{ url('submission', submission.pk) }}">{{ submission.pk }}{% if submission.contest %}C{% endif %}</a>
+                <a href="{{ url('submission', submission.pk) }}">{{ submission.pk }}</a>
                 {% else %}
                 {{ submission.pk }}
                 {% endif %}

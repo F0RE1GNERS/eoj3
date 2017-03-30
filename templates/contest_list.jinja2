@@ -24,7 +24,7 @@
         <tbody>
           {% for contest in contest_list %}
             <tr>
-              <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
+              <td {% if not contest.visible %}style="text-decoration: line-through"{% endif %} ><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
               <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
               <td>{{ contest.length | timedelta }}</td>
               <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
