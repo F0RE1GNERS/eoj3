@@ -26,7 +26,10 @@ def time_formatter(seconds):
 
 
 def get_contest_problem(contest, problem):
-    return contest.contestproblem_set.get(problem=problem)
+    try:
+        return contest.contestproblem_set.get(problem=problem)
+    except ContestProblem.DoesNotExist:
+        return 'N/A'
 
 
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
@@ -102,14 +105,17 @@ class DashboardView(BaseContestMixin, TemplateView):
 
                 submissions = contest.submission_set.filter(author=user).all()
                 for submission in submissions:
-                    contest_problem = problem_as_contest_problem[submission.problem.pk]
-                    if problem_status.get(contest_problem) != 'success':
-                        if submission.status == SubmissionStatus.ACCEPTED:
-                            problem_status[contest_problem] = 'success'
-                        elif not SubmissionStatus.is_judged(submission.status):
-                            problem_status[contest_problem] = 'warning'
-                        elif SubmissionStatus.is_penalty(submission.status):
-                            problem_status[contest_problem] = 'danger'
+                    try:
+                        contest_problem = problem_as_contest_problem[submission.problem.pk]
+                        if problem_status.get(contest_problem) != 'success':
+                            if submission.status == SubmissionStatus.ACCEPTED:
+                                problem_status[contest_problem] = 'success'
+                            elif not SubmissionStatus.is_judged(submission.status):
+                                problem_status[contest_problem] = 'warning'
+                            elif SubmissionStatus.is_penalty(submission.status):
+                                problem_status[contest_problem] = 'danger'
+                    except KeyError:
+                        pass
 
                 for contest_problem in data['contest_problem_list']:
                     contest_problem.status = problem_status.get(contest_problem.identifier)
@@ -229,6 +235,7 @@ class ContestStatus(BaseContestMixin, ListView):
         data = super(ContestStatus, self).get_context_data(**kwargs)
         for submission in data['submission_list']:
             submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
+            submission.contest_problem = get_contest_problem(data['contest'], submission.problem)
         return data
 
 

@@ -28,7 +28,13 @@
             </td>
             <td>{{ submission.create_time }}</td>
             <td><a class="decoration-free" href="{{ url('account:generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
-            <td><a href="{{ url('problem', submission.problem_id) }}">{{ submission.problem }}</a></td>
+            <td>
+              {% if submission.contest_problem == 'N/A' %}
+              N/A
+              {% else %}
+              <a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a>
+              {% endif %}
+            </td>
             <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display_in_contest() }}</td>
           </tr>
         {% endfor %}

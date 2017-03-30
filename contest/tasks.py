@@ -64,7 +64,7 @@ def recalculate_for_participant(contest, submissions, problems):
     for problem in problems:
         identify_problem[problem.problem.pk] = problem.identifier
     subs = [(identify_problem[submission.problem.pk], submission.status, submission.status_percent,
-             submission.create_time) for submission in submissions]
+             submission.create_time) for submission in submissions if identify_problem.get(submission.problem.pk)]
 
     # From beginning to the end
     for sub in reversed(subs):
