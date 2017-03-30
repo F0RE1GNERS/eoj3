@@ -21,7 +21,7 @@
           <tr>
             <td>{{ participant.user.username }}</td>
             <td>{{ participant.comment }}</td>
-            <td><a href="#">Edit</a></td>
+            <td><a data-toggle="modal" data-url="{{ url('backstage:contest_participant_change', contest.pk, participant.pk) }}" href="#commentUser">Edit</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -29,5 +29,45 @@
   </div>
 
   {{ my_paginator() }}
+
+  <div class="modal fade" id="commentUser" tabindex="-1" role="dialog"
+       aria-labelledby="commentUserLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="commentUserLabel">Comment a user</h4>
+        </div>
+        <form class="form-horizontal" style="margin-bottom:0" id="commentUserForm" action="" method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="form-group">
+              <label for="comment" class="col-sm-2 control-label">Comment</label>
+              <div class="col-sm-10">
+                <input class="form-control" id="comment" name="comment">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  $('#commentUser').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var url = button.data('url');
+    $(this).find('#commentUserForm').attr('action', url);
+    console.log($(this).find('#commentUserForm').attr('action'));
+  });
+  </script>
+
 
 {% endblock %}

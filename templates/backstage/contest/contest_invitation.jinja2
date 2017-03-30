@@ -127,7 +127,6 @@
   $('#assignInvitationModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var url = button.data('url');
-    console.log(url);
     $(this).find('#assignInvitationModalForm').attr('action', url);
     console.log($(this).find('#assignInvitationModalForm').attr('action'));
   });

@@ -187,3 +187,12 @@ class ContestParticipantList(BaseBackstageMixin, ListView):
         data = super(ContestParticipantList, self).get_context_data(**kwargs)
         data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
         return data
+
+
+class ContestParticipantCommentUpdate(BaseBackstageMixin, View):
+    def post(self, request, pk, participant_pk):
+        comment = request.POST.get('comment')
+        participant = ContestParticipant.objects.select_for_update().get(pk=participant_pk)
+        participant.comment = comment
+        participant.save(update_fields=["comment"])
+        return HttpResponseRedirect(request.POST['next'])
