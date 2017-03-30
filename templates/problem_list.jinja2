@@ -19,9 +19,10 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th style="width: 4em;">#</th>
-            <th>Name</th>
-            <th style="width: 7em" class="text-center">Solved</th>
+            <th width="8%">#</th>
+            <th style="text-align:left">Name</th>
+            <th width="25%">Source</th>
+            <th width="12%">Solved</th>
           </tr>
         </thead>
         <tbody>
@@ -29,8 +30,8 @@
             <tr>
               <th scope="row">{{ problem.pk }}</th>
               <td><span style="float:left; padding-left:2px;"><a href="{{ url('problem', problem.pk) }}">{{ problem.title }}</a></span>
-                <div class="pull-right">{% for tag in problem.tags %}<a href="?{{ url_replace(request, 'tag', tag) }}" class="badge" style="margin-right:2px;">{{ tag }}</a>{% endfor %}</div>
-{#                  {# <span class="text-muted" style="float:right; padding-right:2px;"><small>{{ problem.source }}</small></span>#}</td>
+  {% if show_tags %}<div class="pull-right">{% for tag in problem.tags %}<a href="?{{ url_replace(request, 'tag', tag) }}" class="badge" style="margin-right:2px;">{{ tag }}</a>{% endfor %}</div>{% endif %}</td>
+              <td>{{ problem.source }}</td>
               <td class="{% if problem.status %}bg-{{ problem.status }}{% endif %}">{{ problem.total_accept_number }} / {{ problem.total_submit_number }}</td>
             </tr>
           {% endfor %}

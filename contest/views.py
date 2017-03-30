@@ -159,7 +159,11 @@ class ContestSubmit(BaseContestMixin, FormView):
         return sorted(list(filter(lambda x: x, map(lambda x: x.strip(), contest.allowed_lang.split(',')))))
 
     def get_initial(self):
-        return {'problem_identifier': self.request.GET.get('pid', '')}
+        res = {'problem_identifier': self.request.GET.get('pid', '')}
+        if self.request.user.is_authenticated and self.request.user.preferred_lang in \
+            self.get_allowed_lang(Contest.objects.get(pk=self.kwargs['cid'])):
+            res.update({'lang': self.request.user.preferred_lang})
+        return res
 
     def get_form_kwargs(self):
         kwargs = super(ContestSubmit, self).get_form_kwargs()

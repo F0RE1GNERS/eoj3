@@ -84,3 +84,9 @@ class ProfileForm(forms.ModelForm):
         }
         error_messages = {
         }
+
+
+class PreferenceForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['show_tags', 'preferred_lang']

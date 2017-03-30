@@ -4,7 +4,7 @@ from django.views.generic.edit import UpdateView
 from django.contrib import messages
 from django.contrib.auth import login
 from utils import auth_view
-from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm
+from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm
 from .models import User
 
 
@@ -18,6 +18,18 @@ def update_profile(request):
         form = ProfileForm(instance=request.user)
 
     return render(request, 'account/profile.jinja2', {'form': form})
+
+
+def update_preferences(request):
+    if request.method == 'POST':
+        form = PreferenceForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your changes have been saved.')
+    else:
+        form = PreferenceForm(instance=request.user)
+
+    return render(request, 'account/preference.jinja2', {'form': form})
 
 
 def register_view(request):

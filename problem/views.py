@@ -38,21 +38,27 @@ class ProblemList(ListView):
             if kw.isdigit():
                 q |= Q(pk__exact=kw)
             queryset = queryset.filter(q)
-            tag = Tag.objects.filter(name=kw)
-            if tag.exists():
-                queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
+            if not self.request.user.is_authenticated or self.request.user.show_tags:
+                tag = Tag.objects.filter(name=kw)
+                if tag.exists():
+                    queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
         return queryset.all()
 
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
+        data['show_tags'] = True
         if self.request.user.is_authenticated:
+            # Get AC / Wrong
             for problem in data['problem_list']:
                 queryset = problem.submission_set.filter(author=self.request.user)
                 if queryset.exists():
                     problem.status = 'danger'
                 if queryset.filter(status=SubmissionStatus.ACCEPTED).exists():
                     problem.status = 'success'
+            # Get tags
+            data['show_tags'] = self.request.user.show_tags
+
         return data
 
 
@@ -61,7 +67,9 @@ class ProblemView(FormView):
     form_class = SubmitForm
 
     def get_initial(self):
-        return {'lang': 'cpp'}  # TODO: preferred language
+        if self.request.user.is_authenticated:
+            return {'lang': self.request.user.preferred_lang}
+        return {'lang': 'cpp'}
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
