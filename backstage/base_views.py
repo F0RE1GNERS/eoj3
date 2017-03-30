@@ -18,7 +18,7 @@ class BaseBackstageMixin(UserPassesTestMixin):
 
 class BaseCreateView(BaseBackstageMixin, CreateView):
 
-    def post_create(self, instance):
+    def post_create(self, instance, form):
         """
         Do something here
         """
@@ -27,8 +27,8 @@ class BaseCreateView(BaseBackstageMixin, CreateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
-        self.post_create(instance)
         instance.save()
+        self.post_create(instance, form=form)
         messages.success(self.request, "%s was successfully added." % self.form_class.Meta.model.__name__)
         return HttpResponseRedirect(self.get_redirect_url(instance))
 

@@ -50,8 +50,7 @@ class ContestCreate(BaseCreateView):
     def get_redirect_url(self, instance):
         return reverse('backstage:contest_manage', kwargs={'pk': instance.pk})
 
-    def post_create(self, instance):
-        super(ContestCreate, self).post_create(instance)
+    def post_create(self, instance, form):
         update_contest(instance)
 
 

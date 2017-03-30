@@ -10,12 +10,7 @@ class ProblemEditForm(forms.ModelForm):
         error_messages = {
         }
 
-    tags = forms.CharField()
-
-    def save(self, commit=True):
-        instance = super(ProblemEditForm, self).save(commit=commit)
-        instance.tags = self.cleaned_data['tags']
-        return instance
+    tags = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)

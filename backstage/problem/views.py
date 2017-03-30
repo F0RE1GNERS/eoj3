@@ -106,6 +106,9 @@ class ProblemCreate(BaseCreateView):
     form_class = ProblemEditForm
     template_name = 'backstage/problem/problem_add.jinja2'
 
+    def post_create(self, instance, form):
+        instance.tags = form.cleaned_data['tags']
+
     def get_redirect_url(self, instance):
         return reverse("backstage:problem")
 
