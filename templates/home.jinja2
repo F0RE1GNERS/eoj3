@@ -10,10 +10,35 @@
   </div>
 
     <div class="container">
-      <h1>Features</h1>
+      <h1 class="text-center">Features</h1>
+
       <div class="content-section">
-        <h2>Problems</h2>
-        <p class="lead">for all to explore.</p>
+        <h2 class="text-center">Problems</h2>
+        <p class="text-center lead">For all to explore</p>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <h4>Well tagged</h4>
+            <p>Problems have been well tagged. You can search problems by their names, sources and tags.
+            If you dislike them, you can still turn that off. There can be also task-oriented sources, with which
+            students can easily find their school assignment in just one click.</p>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <h4>Well judged</h4>
+            <p>There have been always complains about the irrationality of the judge system, including the 'time limit
+            exceeded' case which cannot be explained, and 'Presentation Error' becoming 'Wrong Answer' as a frustrating
+            mistake. We are dedicated to solve such problems and special judges are used to prevent these kinds of mistakes
+            from happening.</p>
+          </div>
+        </div>
+        <p class="text-center lead">
+          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">Explore problems</a>
+        </p>
+      </div>
+
+      <hr>
+      <div class="content-section">
+        <h2 class="text-center">Contests</h2>
+        <p class="text-center lead">For all kinds of situations</p>
         <div class="row">
           <div class="col-sm-6 mb-3">
             <h4>OI Rules</h4>
@@ -28,15 +53,18 @@
               Yes or No. Note that this is also widely used in college examinations.</p>
           </div>
         </div>
-        <p class="lead">
-          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">Explore problems</a>
+        <p class="text-center lead">
+          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">View contests</a>
         </p>
       </div>
+
       <hr>
+
       <div class="content-section">
-        <h2>Contests</h2>
-        <p>TODO</p>
+        <h2 class="text-center">F.A.Q.</h2>
+        <p class="text-center lead">Need any help? We hope <a href="{{ url('faq') }}">this</a> will solve your problem.</p>
       </div>
+
     </div>
 
     <script>

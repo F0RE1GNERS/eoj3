@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from home.views import home_view
+from home.views import home_view, faq_view
 from problem.views import ProblemList, ProblemView
 from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
 from account.views import my_login, register_view
@@ -27,6 +27,7 @@ from tests.views import test_view, test_contest_view
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', home_view, name='home'),
+    url(r'^faq/$', faq_view, name='faq'),
     # url('^', include('django.contrib.auth.urls')),
     url(r'^problem/$', ProblemList.as_view(), name='problem_list'),
     url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view(), name='problem'),

@@ -15,3 +15,7 @@ def not_found_view(request):
 
 def server_error_view(request):
     return render(request, 'error/500.jinja2')
+
+
+def faq_view(request):
+    return render(request, 'faq.jinja2')
