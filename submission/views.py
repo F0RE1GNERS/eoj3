@@ -32,7 +32,12 @@ class SubmissionView(UserPassesTestMixin, View):
         if SubmissionStatus.is_judged(submission.status):
             context['is_judged'] = True
         if submission.status == SubmissionStatus.COMPILE_ERROR:
-            context.update({'detail_ce': submission.status_detail})
+            context['detail_ce'] = submission.status_detail
+        if submission.contest is not None:
+            try:
+                context['contest_problem'] = submission.contest.contestproblem_set.get(problem=submission.problem)
+            except:
+                context['contest_problem'] = 'N/A'
         else:
             try:
                 detail_msg = submission.status_detail

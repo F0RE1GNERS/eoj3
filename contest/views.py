@@ -73,6 +73,9 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['contest_problem_list'] = contest.contestproblem_set.all()
         data['has_permission'] = self.test_func()
 
+        if contest.freeze and data['contest_status'] == 'running' and timezone.now() > contest.freeze_time:
+            data['is_frozen'] = True
+
         if is_admin_or_root(self.request.user):
             data['is_privileged'] = True
 
@@ -83,6 +86,8 @@ class DashboardView(BaseContestMixin, TemplateView):
     template_name = 'contest/index.jinja2'
 
     def test_func(self):
+        if is_admin_or_root(self.request.user):
+            return True
         return Contest.objects.get(pk=self.kwargs.get('cid')).visible
 
     def get_context_data(self, **kwargs):
