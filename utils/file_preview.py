@@ -11,15 +11,15 @@ def sort_data_from_zipfile(file_path):
     def compare(a, b):
         x, y = a[0], b[0]
         try:
-            cx = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'([^\d]+)', x)))
-            cy = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'([^\d]+)', y)))
+            cx = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', x)))
+            cy = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', y)))
             if operator.eq(cx, cy):
                 raise ArithmeticError
             return (-1 if operator.lt(cx, cy) else 1)
         except Exception:
             if x == y:
                 return 0
-            return (-1 if x < y else 1)
+            return -1 if x < y else 1
 
     try:
         if not os.path.exists(file_path):
@@ -43,7 +43,7 @@ def sort_data_from_zipfile(file_path):
                             break
 
         return sorted(result, key=cmp_to_key(compare))
-    except Exception as e:
+    except Exception:
         return []
 
 
