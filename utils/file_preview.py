@@ -29,7 +29,8 @@ def sort_data_from_zipfile(file_path):
         # print(raw_namelist)
         result = []
         file_set = set(raw_namelist)
-        patterns = {'.in$': ['.out', '.ans'], 'input': ['output', 'answer']}
+        patterns = {'.in$': ['.out', '.ans'], '.IN$': ['.OUT', '.ANS'],
+                    'input': ['output', 'answer'], 'INPUT': ['OUTPUT', 'ANSWER']}
 
         for file in raw_namelist:
             for pattern_in, pattern_out in patterns.items():
