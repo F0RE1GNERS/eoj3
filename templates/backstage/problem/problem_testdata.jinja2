@@ -20,6 +20,7 @@
   <table class="table">
     <thead>
       <tr>
+        <th width="10%">#</th>
         <th>Input file</th>
         <th>Output file</th>
       </tr>
@@ -27,6 +28,7 @@
     <tbody>
     {% for data in data_set %}
       <tr>
+        <td>{{ loop.index }}</td>
         <td>{{ data.0 }}</td>
         <td>{{ data.1 }}</td>
       </tr>
