@@ -41,7 +41,7 @@
                 {{ submission.pk }}
                 {% endif %}
               </td>
-              <td>{{ submission.create_time | date('Y-m-d H:i') }}</td>
+              <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
               <td><a class="decoration-free" href="{{ url('account:generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
               <td><a href="{{ url('problem', submission.problem_id) }}">{{ submission.problem }}</a></td>
               <td>{{ submission.get_lang_display() }}</td>
