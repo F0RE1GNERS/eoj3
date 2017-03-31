@@ -94,6 +94,7 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
     for problem in waiting:
         if problem in accept:
             accept.remove(problem)
+        max_score[problem] = 0
 
     score = 0
     cache = ''
