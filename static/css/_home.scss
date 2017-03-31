@@ -10,16 +10,17 @@
   background-position: 50% 50%;
   h1, h2, h3, h4, h5, p, span {
     color: rgba(255, 255, 255, 1);
-    line-height: 1.5;
+    @media(min-width: 768px) {
+      line-height: 1.5;
+    }
     margin: 0 0 0;
-    padding-bottom: 0;
+    padding-bottom: .2em;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     z-index: 2;
   }
   h1 {
     font-size: 5em;
-    white-space: nowrap;
   }
   span {
     font-size: 2em;
@@ -41,8 +42,9 @@
   @media(max-width: 768px) {
     .masthead-container {
       min-height: 400px;
+      padding: 10em 0;
       h1 {
-        font-size: 3.5em;
+        font-size: 3.2em;
       }
       span {
         font-size: 1.8em;
