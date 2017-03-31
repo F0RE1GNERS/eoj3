@@ -169,7 +169,7 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         contest = Contest.objects.get(pk=contest_id)
         if accept_increment != 0:
             problem = contest.contestproblem_set.select_for_update().get(problem__pk=problem_id)
-            if problem.accept == 0:
+            if problem.total_accept_number == 0:
                 problem.first_solved_by = user_id
             problem.add_accept(accept_increment)
             problem.save()

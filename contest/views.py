@@ -144,6 +144,8 @@ class ContestStandings(BaseContestMixin, ListView):
 
     def test_func(self):
         contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        if is_admin_or_root(self.request.user):
+            return True
         if not contest.visible:
             return False
         if contest.standings_public:
