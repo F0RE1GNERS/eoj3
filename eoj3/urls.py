@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import re
 from django.conf.urls import url, include
 from django.contrib import admin
 from home.views import home_view, faq_view
@@ -23,6 +24,10 @@ from django.contrib.auth.views import logout
 from django.views.static import serve
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR
 from tests.views import test_view, test_contest_view
+from django.conf.urls.static import static
+
+UPLOAD_ROOT = '/upload/'
+STATIC_ROOT = '/static/'
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -40,15 +45,17 @@ urlpatterns = [
     url(r'^logout/$', logout, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account')),
-    url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
-    url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
-    url(r'^api/', include('eoj3.api_urls', namespace='api'))
+    #url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
+    # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
+    url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload', kwargs={'document_root': UPLOAD_DIR}),
+    url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static', kwargs={'document_root': STATIC_DIR}),
 ]
 
 if DEBUG:
     urlpatterns += [
         url(r'^test/', test_view, name='test'),
-        url(r'^test_contest', test_contest_view, name='test_contest')
+        url(r'^test_contest', test_contest_view, name='test_contest'),
+        url(r'^api/', include('eoj3.api_urls', namespace='api')),
     ]
 
 handler403 = 'home.views.forbidden_view'
