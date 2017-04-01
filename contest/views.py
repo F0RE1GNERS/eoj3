@@ -10,6 +10,10 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+from django.db.models import Q
+import json
+import datetime
 
 from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation, ContestClarification
 from .tasks import add_participant_with_invitation, update_contest
@@ -320,3 +324,21 @@ class ContestClarificationToggle(BaseContestMixin, View):
         clarification.save(update_fields=["status"])
         return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
 
+
+class ContestClarificationQuery(BaseContestMixin, View):
+    def get(self, request, cid):
+        contest = Contest.objects.get(pk=cid)
+        data = {"time": timezone.now().timestamp()}
+        try:
+            time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
+            if is_admin_or_root(request.user):
+                response = contest.contestclarification_set.filter(status='open', time__gt=time).all()
+                data['type'] = 'New Question:'
+            else:
+                response = contest.contestclarification_set.filter(status='note', time__gt=time).all()
+                data['type'] = 'New Clarification:'
+            data['response'] = '\n\n----------\n\n'.join(map(str, response))
+        except Exception as e:
+            # print(repr(e))
+            pass
+        return HttpResponse(json.dumps(data))

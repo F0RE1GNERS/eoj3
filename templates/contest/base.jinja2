@@ -40,7 +40,7 @@
         <a class="link-lg {{ active('contest:submission') }}" href="{{ url('contest:submission', contest.pk) }}">My submissions</a>
         <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>
         <a class="link-lg {{ active('contest:standings') }}" target="_blank" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
-        <a class="link-lg {{ active('contest:clarification') }}" href="{{ url('contest:clarification', contest.pk) }}">Clarification</a>
+        <a class="link-lg {{ active('contest:clarification') }}" href="{{ url('contest:clarification', contest.pk) }}">Clarification <span class="badge" id="clarification-badge" style="display:none;">NEW</span></a>
 
       </div>
       <div class="col-12 col-md-9 col-md-pull-3 bd-content">
@@ -68,5 +68,28 @@
   </div>
 
   <script src="{{ url('static', 'js/countdown.js') }}"></script>
+  <script>
+    var last_update_time = "";
+    function get_clarification() {
+      $.ajax({
+        url: "{{ url('contest:clarification_update', contest.pk) }}",
+        data: { 'time': last_update_time },
+        type: "GET",
+        complete: function(data, status) {
+          new_data = JSON.parse(data.responseText);
+          last_update_time = new_data['time'];
+          if (new_data['response']) {
+            alert(new_data['type'] + new_data['response']);
+            $("#clarification-badge").show();
+          }
+          setTimeout(function() {
+            get_clarification()
+          }, 10000);
+        }
+      });
+    }
+    get_clarification();
+
+  </script>
 
 {% endblock %}

@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestStandings, ContestSubmit, DashboardView
 from .views import ContestMySubmission, ContestStatus, ContestBoundUser, ContestUpdateStandings
-from .views import ContestClarificationView, ContestClarificationToggle
+from .views import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/status/$', ContestStatus.as_view(), name='status'),
     url(r'^(?P<cid>\d+)/clarification/$', ContestClarificationView.as_view(), name='clarification'),
     url(r'^(?P<cid>\d+)/clarification/(?P<clarification_id>\d+)/(?P<operation>\w+)/$', ContestClarificationToggle.as_view(), name='clarification_toggle'),
+    url(r'^(?P<cid>\d+)/clarification/update/$', ContestClarificationQuery.as_view(), name='clarification_update'),
     url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation'),
     url(r'^(?P<cid>\d+)/update_standings/$', ContestUpdateStandings.as_view(), name='update_standings'),
 ]

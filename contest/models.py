@@ -114,6 +114,9 @@ class ContestClarification(models.Model):
     class Meta:
         ordering = ["-time"]
 
+    def __str__(self):
+        return self.text
+
 
 class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
