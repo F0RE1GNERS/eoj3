@@ -161,7 +161,7 @@ class ContestStandings(BaseContestMixin, ListView):
         return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
 
     def get_my_rank(self):
-        for index, rank in enumerate(Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()):
+        for index, rank in enumerate(Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all(), start=1):
             if rank.user == self.request.user:
                 return str(index)
         return 'N/A'
