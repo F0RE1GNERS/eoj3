@@ -59,6 +59,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         data['contest'] = contest
         data['contest_status'] = contest.get_status()
+        data['current_time'] = timezone.now()
 
         if data['contest_status'] == 'ended':
             data['progress'] = 100

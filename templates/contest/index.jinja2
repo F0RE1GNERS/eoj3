@@ -4,7 +4,8 @@
   <div class="content-header">
     <h2>Dashboard</h2>
     <p><strong>Start time:</strong> {{ contest.start_time | date('Y-m-d H:i:s') }}<br>
-      <strong>End time:</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}
+      <strong>End time:</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}<br>
+      <strong>Server time (last checked): </strong>{{ current_time | date('Y-m-d H:i:s') }}
     </p>
   </div>
   {% include 'components/message.jinja2' %}

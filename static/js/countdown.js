@@ -21,7 +21,6 @@ var timer = setInterval(function() {
   var progress = $(".countdown-progress");
   if (progress.data('status') == 'running') {
     progress.data('acc', progress.data('acc') + 1);
-    console.log(progress.data('acc'));
     var now_progress = Math.round(progress.data('acc') / progress.data('all') * 100);
     progress.css("width", now_progress + "%");
     progress.attr("aria-valuenow", now_progress);
