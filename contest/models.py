@@ -80,6 +80,7 @@ class ContestProblem(models.Model):
     identifier = models.CharField(max_length=12)
     total_submit_number = models.IntegerField(default=0)
     total_accept_number = models.IntegerField(default=0)
+    first_solved_by = models.IntegerField(default=-1)
 
     class Meta:
         unique_together = ('problem', 'contest')

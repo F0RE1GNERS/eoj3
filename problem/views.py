@@ -34,7 +34,7 @@ class ProblemList(ListView):
             if tag.exists():
                 queryset = TaggedItem.objects.get_by_model(Problem, tag.first()).distinct()
         if kw:
-            q = Q(title__icontains=kw)
+            q = Q(title__icontains=kw) | Q(source__icontains=kw)
             if kw.isdigit():
                 q |= Q(pk__exact=kw)
             queryset = queryset.filter(q)

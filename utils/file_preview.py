@@ -5,15 +5,32 @@ from django.shortcuts import reverse
 
 
 def sort_data_from_zipfile(file_path):
+    import operator
+    from functools import cmp_to_key
+
+    def compare(a, b):
+        x, y = a[0], b[0]
+        try:
+            cx = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', x)))
+            cy = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', y)))
+            if operator.eq(cx, cy):
+                raise ArithmeticError
+            return -1 if operator.lt(cx, cy) else 1
+        except Exception:
+            if x == y:
+                return 0
+            return -1 if x < y else 1
+
     try:
         if not os.path.exists(file_path):
             raise FileNotFoundError
         saved_file = zipfile.ZipFile(file_path)
         raw_namelist = list(filter(lambda x: os.path.split(x)[0] == '', saved_file.namelist()))
-        print(raw_namelist)
+        # print(raw_namelist)
         result = []
         file_set = set(raw_namelist)
-        patterns = {'.in$': ['.out', '.ans'], 'input': ['output', 'answer']}
+        patterns = {'.in$': ['.out', '.ans'], '.IN$': ['.OUT', '.ANS'],
+                    'input': ['output', 'answer'], 'INPUT': ['OUTPUT', 'ANSWER']}
 
         for file in raw_namelist:
             for pattern_in, pattern_out in patterns.items():
@@ -26,8 +43,8 @@ def sort_data_from_zipfile(file_path):
                             result.append((file, try_str))
                             break
 
-        return sorted(result)
-    except Exception as e:
+        return sorted(result, key=cmp_to_key(compare))
+    except Exception:
         return []
 
 

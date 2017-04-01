@@ -5,7 +5,7 @@ from account.models import User
 from submission.models import SubmissionStatus
 
 
-def recalculate_for_participant(contest, submissions, problems):
+def recalculate_for_participant(contest, submissions, problems, user_id):
     """
     :param contest: contest
     :param submissions: submissions
@@ -58,11 +58,13 @@ def recalculate_for_participant(contest, submissions, problems):
     waiting = set()
     max_score = defaultdict(int)
     accept_time = dict()
+    first_blood = dict()
     penalty = 0
 
     identify_problem = dict()
     for problem in problems:
         identify_problem[problem.problem.pk] = problem.identifier
+        first_blood[problem.identifier] = problem.first_solved_by
     subs = [(identify_problem[submission.problem.pk], submission.status, submission.status_percent,
              submission.create_time) for submission in submissions if identify_problem.get(submission.problem.pk)]
 
@@ -92,6 +94,7 @@ def recalculate_for_participant(contest, submissions, problems):
     for problem in waiting:
         if problem in accept:
             accept.remove(problem)
+        max_score[problem] = 0
 
     score = 0
     cache = ''
@@ -99,6 +102,7 @@ def recalculate_for_participant(contest, submissions, problems):
     # HTML Caching and global score
     html_danger = '<span class="verdict-danger">{text}</span>'
     html_success = '<span class="verdict-success">{text}</span>'
+    html_first_blood = '<span class="verdict-first-blood">{text}</span>'
     html_warning = '<span class="verdict-warning">{text}</span>'
     html_info = '<span class="verdict-info">{text}</span>'
     html_small = '<span class="text-small">{text}</span>'
@@ -112,7 +116,10 @@ def recalculate_for_participant(contest, submissions, problems):
                 sub_cache = html_info.format(text='?')
             elif problem in accept:
                 success_cache = '+' + (str(wrong[problem]) if wrong[problem] > 0 else '')
-                sub_cache = html_success.format(text=success_cache)
+                if user_id == first_blood[problem]:
+                    sub_cache = html_first_blood.format(text=success_cache)
+                else:
+                    sub_cache = html_success.format(text=success_cache)
                 sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
             elif wrong[problem] > 0:
                 danger_cache = '-' + (str(wrong[problem]))
@@ -127,7 +134,10 @@ def recalculate_for_participant(contest, submissions, problems):
             if problem in waiting:
                 sub_cache = html_info.format(text='?')
             elif local_score == 100:
-                sub_cache = html_success.format(text=local_score)
+                if user_id == first_blood[problem]:
+                    sub_cache = html_first_blood.format(text=local_score)
+                else:
+                    sub_cache = html_success.format(text=local_score)
                 sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
             elif local_score > 0:
                 sub_cache = html_warning.format(text=local_score)
@@ -159,6 +169,8 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         contest = Contest.objects.get(pk=contest_id)
         if accept_increment != 0:
             problem = contest.contestproblem_set.select_for_update().get(problem__pk=problem_id)
+            if problem.total_accept_number == 0:
+                problem.first_solved_by = user_id
             problem.add_accept(accept_increment)
             problem.save()
 
@@ -171,7 +183,7 @@ def _update_participant(contest, participant):
     submissions = contest.submission_set.filter(author=participant.user).all()
     problems = contest.contestproblem_set.all()
     participant.score, participant.penalty, participant.html_cache = \
-        recalculate_for_participant(contest, submissions, problems)
+        recalculate_for_participant(contest, submissions, problems, participant.user_id)
     participant.save(update_fields=["score", "penalty", "html_cache"])
     contest.standings_update_time = timezone.now()
     contest.save(update_fields=["standings_update_time"])

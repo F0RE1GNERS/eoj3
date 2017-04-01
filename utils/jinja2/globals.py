@@ -26,6 +26,8 @@ def is_active(context, match, **kwargs):
         return True
 
     resolve_path = context['request'].resolver_match
+    if not resolve_path:
+        return ""
     if kwargs and not check_kwargs(kwargs, resolve_path.kwargs):
         return ""
     (namespace, name) = match.split(':', 1) if ':' in match else ('', match)

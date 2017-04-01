@@ -115,8 +115,8 @@ class Dispatcher:
             update_problem_and_participant(submission.contest.pk, self.problem_id, submission.author_id, accept_increment)
 
     def dispatch(self):
-        # Attempt: 5 times
-        for attempt in range(5):
+        # Attempt: 3 times
+        for attempt in range(3):
             try:
                 if not self.get_server():
                     raise SystemError('No server available.')

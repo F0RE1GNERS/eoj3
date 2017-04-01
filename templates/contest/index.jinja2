@@ -3,6 +3,9 @@
 
   <div class="content-header">
     <h2>Dashboard</h2>
+    <p><strong>From</strong> {{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}<br>
+      <strong>Server time (last checked): </strong>{{ current_time | date('Y-m-d H:i:s') }}
+    </p>
   </div>
   {% include 'components/message.jinja2' %}
   {% if has_permission %}
@@ -23,7 +26,11 @@
               <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
                 {{ contest_problem.problem.title }}</a></td>
               <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
-                {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}</td>
+              {% if not is_frozen %}
+                {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}
+              {% else %}
+                N/A
+              {% endif %}</td>
             </tr>
           {% endfor %}
           </tbody>
