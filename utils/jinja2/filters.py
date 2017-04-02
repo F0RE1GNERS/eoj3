@@ -3,6 +3,7 @@ import re
 from django_jinja import library
 from submission.models import STATUS_CHOICE
 import utils.markdown3 as md3
+from bs4 import BeautifulSoup
 
 
 @library.filter(name='status_choice')
@@ -62,3 +63,9 @@ def sample_format(value):
         if i + 1 < len(lst):
             res += template.format(input=lst[i], output=lst[i+1])
     return res
+
+
+@library.filter(name='get_intro')
+def get_intro(value):
+    soup = BeautifulSoup(value)
+    return re.sub(r'[\n]+', '<br>', soup.get_text('\n')[:2048])

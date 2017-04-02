@@ -107,6 +107,7 @@ TEMPLATES = [
                 "myFilter3": "utils.jinja2.filters.markdown_format",
                 "myFilter4": "utils.jinja2.filters.sample_format",
                 "myFilter5": "utils.jinja2.filters.minute_format",
+                "myFilter6": "utils.jinja2.filters.get_intro",
             },
             "tests": {
                 "myTest": "utils.jinja2.tests.is_admin",
