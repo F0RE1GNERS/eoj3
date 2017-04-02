@@ -3,7 +3,6 @@ from eoj3.settings import GENERATE_DIR
 from django.template.loader import get_template
 from contest.models import Contest
 from bs4 import BeautifulSoup
-import pandas
 import datetime
 import os
 
