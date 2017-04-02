@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'contest',
     'utils',
     'tests',
+    'blog',
 
     # third-party packages
     'widget_tweaks',

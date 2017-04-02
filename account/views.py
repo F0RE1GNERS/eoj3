@@ -74,5 +74,3 @@ def my_password_reset_confirm(request, **kwargs):
                                             set_password_form=MySetPasswordForm,
                                             **kwargs)
 
-def generic_view(request, name):
-    return render(request, 'account/generic.jinja2', {'profile': get_object_or_404(User, username=name)})

@@ -37,7 +37,7 @@
         <tbody>
           <tr>
             <td scope="row">{{ submission.pk }}</td>
-            <td><a class="decoration-free" href="{{ url('account:generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
+            <td><a class="decoration-free" href="{{ url('generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
             {% if contest_problem %}
               <td>{{ contest_problem }}</td>
             {% else %}

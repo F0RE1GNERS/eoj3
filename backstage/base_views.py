@@ -2,8 +2,6 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView
 from django.contrib import messages
 from django.shortcuts import HttpResponseRedirect, render
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 from account.permissions import is_admin_or_root
