@@ -8,6 +8,7 @@
     <h2>Clarification</h2>
   </div>
 
+  {% include 'components/message.jinja2' %}
   <form action="{{ url('contest:clarification', contest.pk) }}" method="post">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.path }}">

@@ -78,13 +78,15 @@
         complete: function(data, status) {
           new_data = JSON.parse(data.responseText);
           last_update_time = new_data['time'];
-          if (new_data['response']) {
-            alert(new_data['type'] + new_data['response']);
-            $("#clarification-badge").show();
+          if (new_data['response'] != 'reject') {
+            if (new_data['response']) {
+              alert(new_data['type'] + new_data['response']);
+              $("#clarification-badge").show();
+            }
+            setTimeout(function () {
+              get_clarification()
+            }, 10000);
           }
-          setTimeout(function() {
-            get_clarification()
-          }, 10000);
         }
       });
     }

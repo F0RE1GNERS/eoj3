@@ -1,9 +1,10 @@
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic.list import ListView
-from django.views.generic import TemplateView, View
+from django.views.generic import View
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.contrib import messages
 import json
 import datetime
 
@@ -22,6 +23,11 @@ class ContestClarificationView(BaseContestMixin, ListView):
                       key=lambda x: cmp[x.status])
 
     def post(self, request, cid):
+        contest = Contest.objects.get(pk=cid)
+        if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
+            messages.error(self.request, 'You are currently not in the period of the contest.')
+            return HttpResponseRedirect(self.request.path)
+
         if is_admin_or_root(request.user):
             status = 'note'
         else:
@@ -56,6 +62,8 @@ class ContestClarificationQuery(BaseContestMixin, View):
                 response = contest.contestclarification_set.filter(status='note', time__gt=time).all()
                 data['type'] = 'New Clarification:\n\n'
             data['response'] = '\n\n----------\n\n'.join(map(str, response))
+            if contest.get_status() == 'ended':
+                data['response'] = 'reject'
         except Exception as e:
             # print(repr(e))
             pass
