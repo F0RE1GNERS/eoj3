@@ -60,19 +60,19 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
     waiting = set()
     max_score = defaultdict(int)
     accept_time = dict()
-    first_blood = dict()
+    first_blood = set()
     penalty = 0
 
     identify_problem = dict()
     for problem in problems:
         identify_problem[problem.problem.pk] = problem.identifier
-        first_blood[problem.identifier] = problem.first_solved_by
     subs = [(identify_problem[submission.problem.pk], submission.status, submission.status_percent,
-             submission.create_time) for submission in submissions if identify_problem.get(submission.problem.pk)]
+             submission.create_time, submission.problem.pk, submission.pk)
+            for submission in submissions if identify_problem.get(submission.problem.pk)]
 
     # From beginning to the end
     for sub in reversed(subs):
-        problem, status, score, create_time = sub
+        problem, status, score, create_time, original_problem, id = sub
         # After freeze time, everything becomes waiting
         if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
             status = SubmissionStatus.WAITING
@@ -89,6 +89,10 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
                     accept.add(problem)
                     accept_time[problem] = get_penalty(contest.start_time, create_time)
                     penalty += accept_time[problem] + wrong[problem] * 1200
+                    # check if it is first blood
+                    if contest.submission_set.filter(problem_id=original_problem,
+                                                     status=SubmissionStatus.ACCEPTED).last().pk == id:
+                        first_blood.add(problem)
                 elif SubmissionStatus.is_penalty(status):
                     wrong[problem] += 1
 
@@ -118,7 +122,7 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
                 sub_cache = html_info.format(text='?')
             elif problem in accept:
                 success_cache = '+' + (str(wrong[problem]) if wrong[problem] > 0 else '')
-                if user_id == first_blood[problem]:
+                if problem in first_blood:
                     sub_cache = html_first_blood.format(text=success_cache)
                 else:
                     sub_cache = html_success.format(text=success_cache)
@@ -136,7 +140,7 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
             if problem in waiting:
                 sub_cache = html_info.format(text='?')
             elif local_score == 100:
-                if user_id == first_blood[problem]:
+                if problem in first_blood:
                     sub_cache = html_first_blood.format(text=local_score)
                 else:
                     sub_cache = html_success.format(text=local_score)
@@ -171,8 +175,6 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         contest = Contest.objects.get(pk=contest_id)
         if accept_increment != 0:
             problem = contest.contestproblem_set.select_for_update().get(problem_id=problem_id)
-            if problem.total_accept_number == 0:
-                problem.first_solved_by = user_id
             problem.add_accept(accept_increment)
             problem.save()
 
