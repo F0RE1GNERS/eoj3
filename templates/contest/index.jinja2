@@ -5,7 +5,7 @@
     <h2>Dashboard</h2>
     <p><strong>From</strong> {{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}<br>
       <strong>Server time (last checked): </strong>{{ current_time | date('Y-m-d H:i:s') }}
-      {% if is_frozen %}<br>Standings is frozen now.{% endif %}
+      {% if is_frozen %}<br>Standing is frozen now.{% endif %}
     </p>
   </div>
   {% include 'components/message.jinja2' %}
