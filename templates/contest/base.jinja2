@@ -67,6 +67,22 @@
     </div>
   </div>
 
+  <div class="modal fade" id="stayNotification" tabindex="-1" role="dialog" aria-labelledby="refreshNotificationLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{{ contest.title }}</h4>
+        </div>
+        <div class="modal-body" id="stayNotificationBody">
+          Notification
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="{{ url('static', 'js/countdown.js') }}"></script>
   <script>
     var last_update_time = "";
@@ -80,11 +96,12 @@
           last_update_time = new_data['time'];
           if (new_data['response'] != 'reject') {
             if (new_data['response']) {
-              alert(new_data['type'] + new_data['response']);
+              $("#stayNotificationBody").html(new_data['type'] + new_data['response']);
+              $("#stayNotification").modal('show');
               $("#clarification-badge").show();
             }
             setTimeout(function () {
-              get_clarification()
+              get_clarification();
             }, 10000);
           }
         }
