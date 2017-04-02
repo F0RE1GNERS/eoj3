@@ -3,6 +3,7 @@ from django.db import transaction
 from .models import Contest, ContestParticipant
 from account.models import User
 from submission.models import SubmissionStatus
+from functools import cmp_to_key
 
 
 def recalculate_for_participant(contest, submissions, problems, user_id):
@@ -10,6 +11,7 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
     :param contest: contest
     :param submissions: submissions
     :param problems: contest problems
+    :param user_id: user id
     :return: (calculated score, penalty, cache)
 
     Penalty is the same for all rules: Every failed submission till the accepted one
@@ -168,7 +170,7 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
     with transaction.atomic():
         contest = Contest.objects.get(pk=contest_id)
         if accept_increment != 0:
-            problem = contest.contestproblem_set.select_for_update().get(problem__pk=problem_id)
+            problem = contest.contestproblem_set.select_for_update().get(problem_id=problem_id)
             if problem.total_accept_number == 0:
                 problem.first_solved_by = user_id
             problem.add_accept(accept_increment)
@@ -177,6 +179,9 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         participant, _ = contest.contestparticipant_set.select_for_update().\
             get_or_create(user__pk=user_id, defaults={'user': User.objects.get(pk=user_id), 'contest': contest})
         _update_participant(contest, participant)
+        recalculate_rank(contest)
+        contest.standings_update_time = timezone.now()
+        contest.save(update_fields=["standings_update_time"])
 
 
 def _update_participant(contest, participant):
@@ -185,8 +190,6 @@ def _update_participant(contest, participant):
     participant.score, participant.penalty, participant.html_cache = \
         recalculate_for_participant(contest, submissions, problems, participant.user_id)
     participant.save(update_fields=["score", "penalty", "html_cache"])
-    contest.standings_update_time = timezone.now()
-    contest.save(update_fields=["standings_update_time"])
 
 
 def _update_header(contest):
@@ -213,6 +216,29 @@ def update_contest(contest):
         participants = contest.contestparticipant_set.select_for_update().all()
         for participant in participants:
             _update_participant(contest, participant)
+        recalculate_rank(contest)
+        contest.standings_update_time = timezone.now()
+        contest.save(update_fields=["standings_update_time"])
+
+
+def recalculate_rank(contest):
+
+    def compare(a, b):
+        if a.score == b.score:
+            if a.penalty == b.penalty:
+                return 0
+            return -1 if a.penalty < b.penalty else 1
+        return -1 if a.score > b.score else 1
+
+    with transaction.atomic():
+        participants = contest.contestparticipant_set.select_for_update().all()
+        for ind, par in enumerate(sorted(participants, key=cmp_to_key(compare)), start=1):
+            new_rank = ind
+            if ind > 1 and compare(participants[ind - 1], par) == 0:
+                new_rank = participants[ind - 1].rank
+            if new_rank != par.rank:
+                par.rank = new_rank
+                par.save(update_fields=["rank"])
 
 
 def add_participant_with_invitation(contest_pk, invitation_pk, user):

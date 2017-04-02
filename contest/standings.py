@@ -30,16 +30,13 @@ class ContestStandings(BaseContestMixin, ListView):
     def get_queryset(self):
         return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
 
-    def get_my_rank(self):
-        for index, rank in enumerate(Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all(), start=1):
-            if rank.user == self.request.user:
-                return str(index)
-        return 'N/A'
-
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
         contest = data['contest']
-        data['my_rank'] = self.get_my_rank()
+        try:
+            data['my_rank'] = contest.contestparticipant_set.get(user=self.request.user).rank
+        except:
+            data['my_rank'] = 'N/A'
         data['update_time'] = contest.standings_update_time
         return data
 

@@ -37,7 +37,7 @@
           <tbody>
             {% for rank in rank_list %}
               <tr>
-                <td scope="row">{{ page_obj.start_index() + loop.index0 }}</td>
+                <td scope="row">{{ rank.rank }}</td>
                 <td class="col-width-large" style="text-align: left;">{{ rank.user.get_username_display() | safe }}
                   <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
                 {{ rank.html_cache | safe }}

@@ -8,7 +8,7 @@
   <link rel="icon" href="{{ url('static', path='favicon.ico') }}">
   <link href="{{ url('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url('static', path='css/material-icons.css') }}" rel="stylesheet">
-  <link href="{{ url('static', path='css/main.css') }}" rel="stylesheet">
+  <link href="{{ url('static', path='css/main.css') }}?v=20170402" rel="stylesheet">
   <script src="{{ url('static', path='js/jquery.min.js') }}"></script>
   {% block css %}
   {% endblock %}
@@ -21,14 +21,13 @@
   <div class="navbar-header">
     <button aria-controls="bs-navbar" aria-expanded="false" class="collapsed navbar-toggle" data-target="#bs-navbar" data-toggle="collapse" type="button">
       <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button>
-    <span class="navbar-brand">EOJ</span>
+    <a href="{{ url('home') }}" class="navbar-brand">EOJ</a>
   </div>
   <nav class="collapse navbar-collapse" id="bs-navbar">
     <ul class="nav navbar-nav">
-      <li class="{{ active('home') }}"> <a href="{{ url('home') }}">Home</a> </li>
-      <li class="{{ active('problem') }}"> <a href="{{ url('problem_list') }}">Problems</a> </li>
-      <li class="{{ active('contest:*') }}"> <a href="{{ url('contest:list') }}">Contests</a> </li>
-      <li class="{{ active('status') }}"> <a href="{{ url('status') }}">Status</a> </li>
+      <li class="{{ active('problem') }}"> <a href="{{ url('problem_list') }}">Problems</a></li>
+      <li class="{{ active('contest:*') }}"> <a href="{{ url('contest:list') }}">Contests</a></li>
+      <li class="{{ active('status') }}"> <a href="{{ url('status') }}">Status</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       {% if user is admin %}

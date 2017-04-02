@@ -7,7 +7,7 @@
   </tr>
   {% for rank in rank_list %}
     <tr>
-      <td scope="row">{{ loop.index }}</td>
+      <td scope="row">{{ rank.rank }}</td>
       <td>{{ rank.comment }}</td>
       <td>{{ rank.user.get_username_display() | safe }}</td>
       {{ rank.html_cache | safe }}
