@@ -6,12 +6,11 @@ from submission.models import SubmissionStatus
 from functools import cmp_to_key
 
 
-def recalculate_for_participant(contest, submissions, problems, user_id):
+def recalculate_for_participant(contest, submissions, problems):
     """
     :param contest: contest
     :param submissions: submissions
     :param problems: contest problems
-    :param user_id: user id
     :return: (calculated score, penalty, cache)
 
     Penalty is the same for all rules: Every failed submission till the accepted one
@@ -70,16 +69,24 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
              submission.create_time, submission.problem.pk, submission.pk)
             for submission in submissions if identify_problem.get(submission.problem.pk)]
 
-    # From beginning to the end
+    # pre-processing: find all waiting problems
     for sub in reversed(subs):
-        problem, status, score, create_time, original_problem, id = sub
+        problem, status, _, create_time, _, _ = sub
         # After freeze time, everything becomes waiting
         if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
             status = SubmissionStatus.WAITING
+        if status == SubmissionStatus.WAITING or status == SubmissionStatus:
+            waiting.add(problem)
 
-        max_score[problem] = max(max_score[problem], score)
-        # If problem is waiting, then it is waiting
+    # From beginning to the end
+    for sub in reversed(subs):
+        problem, status, score, create_time, original_problem, submission_id = sub
+
+        # If problem is waiting, then nothing can be done to this problem
+        # It is waiting forever......
         if problem not in waiting:
+            max_score[problem] = max(max_score[problem], score)
+
             if status == SubmissionStatus.WAITING or status == SubmissionStatus.JUDGING:
                 waiting.add(problem)
                 if problem in accept:
@@ -91,16 +98,10 @@ def recalculate_for_participant(contest, submissions, problems, user_id):
                     penalty += accept_time[problem] + wrong[problem] * 1200
                     # check if it is first blood
                     if contest.submission_set.filter(problem_id=original_problem,
-                                                     status=SubmissionStatus.ACCEPTED).last().pk == id:
+                                                     status=SubmissionStatus.ACCEPTED).last().pk == submission_id:
                         first_blood.add(problem)
                 elif SubmissionStatus.is_penalty(status):
                     wrong[problem] += 1
-
-    # Clear waiting problems in accept
-    for problem in waiting:
-        if problem in accept:
-            accept.remove(problem)
-        max_score[problem] = 0
 
     score = 0
     cache = ''
@@ -171,8 +172,8 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
     :param user_id: the user that is going to be affected
     :param accept_increment: does the submission increase AC or decrease?
     """
+    contest = Contest.objects.get(pk=contest_id)
     with transaction.atomic():
-        contest = Contest.objects.get(pk=contest_id)
         if accept_increment != 0:
             problem = contest.contestproblem_set.select_for_update().get(problem_id=problem_id)
             problem.add_accept(accept_increment)
@@ -181,16 +182,17 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         participant, _ = contest.contestparticipant_set.select_for_update().\
             get_or_create(user__pk=user_id, defaults={'user': User.objects.get(pk=user_id), 'contest': contest})
         _update_participant(contest, participant)
-        recalculate_rank(contest)
-        contest.standings_update_time = timezone.now()
-        contest.save(update_fields=["standings_update_time"])
+
+    _recalculate_rank(contest)
+    contest.standings_update_time = timezone.now()
+    contest.save(update_fields=["standings_update_time"])
 
 
 def _update_participant(contest, participant):
     submissions = contest.submission_set.filter(author=participant.user).all()
     problems = contest.contestproblem_set.all()
     participant.score, participant.penalty, participant.html_cache = \
-        recalculate_for_participant(contest, submissions, problems, participant.user_id)
+        recalculate_for_participant(contest, submissions, problems)
     participant.save(update_fields=["score", "penalty", "html_cache"])
 
 
@@ -218,12 +220,12 @@ def update_contest(contest):
         participants = contest.contestparticipant_set.select_for_update().all()
         for participant in participants:
             _update_participant(contest, participant)
-        recalculate_rank(contest)
+        _recalculate_rank(contest)
         contest.standings_update_time = timezone.now()
         contest.save(update_fields=["standings_update_time"])
 
 
-def recalculate_rank(contest):
+def _recalculate_rank(contest):
 
     def compare(a, b):
         if a.score == b.score:
