@@ -8,3 +8,4 @@ upload/
 testdata/
 local_settings.py
 cases/
+generate/

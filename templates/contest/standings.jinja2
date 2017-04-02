@@ -50,6 +50,7 @@
     </div>
     {% if is_privileged %}<p style="text-align: right"><br>
       <a role="button" class="btn btn-default" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
+      <a role="button" class="btn btn-default" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
     </p>{% endif %}
 
     {{ my_paginator() }}

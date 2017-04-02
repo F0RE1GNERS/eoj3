@@ -1,25 +1,14 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse
-from django.db import transaction
 from django.views.generic.list import ListView
-from django.views.generic.base import TemplateResponseMixin, TemplateView
-from django.views.generic.edit import FormView
-from django.views.generic.detail import DetailView
 from django.views.generic import TemplateView, View
 from django.utils import timezone
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
-from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
-from django.db.models import Q
-import json
-import datetime
 
-from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation, ContestClarification
-from .tasks import add_participant_with_invitation, update_contest
-from submission.models import Submission, SubmissionStatus
-from submission.forms import ContestSubmitForm
-from dispatcher.tasks import submit_code_for_contest
+from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
+from .tasks import add_participant_with_invitation
+from submission.models import SubmissionStatus
 from account.permissions import is_admin_or_root
 
 
@@ -142,121 +131,6 @@ class ContestList(ListView):
         return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user))
 
 
-class ContestStandings(BaseContestMixin, ListView):
-    template_name = 'contest/standings.jinja2'
-    paginate_by = 100
-    context_object_name = 'rank_list'
-
-    def test_func(self):
-        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        if is_admin_or_root(self.request.user):
-            return True
-        if not contest.visible:
-            return False
-        if contest.standings_public:
-            return True
-        return super(ContestStandings, self).test_func()
-
-    def get_queryset(self):
-        return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
-
-    def get_my_rank(self):
-        for index, rank in enumerate(Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all(), start=1):
-            if rank.user == self.request.user:
-                return str(index)
-        return 'N/A'
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestStandings, self).get_context_data(**kwargs)
-        contest = data['contest']
-        data['my_rank'] = self.get_my_rank()
-        data['update_time'] = contest.standings_update_time
-        return data
-
-
-class ContestSubmit(BaseContestMixin, FormView):
-    template_name = 'contest/submit.jinja2'
-    form_class = ContestSubmitForm
-
-    @staticmethod
-    def get_allowed_lang(contest):
-        return sorted(list(filter(lambda x: x, map(lambda x: x.strip(), contest.allowed_lang.split(',')))))
-
-    def get_initial(self):
-        res = {'problem_identifier': self.request.GET.get('pid', '')}
-        if self.request.user.is_authenticated and self.request.user.preferred_lang in \
-            self.get_allowed_lang(Contest.objects.get(pk=self.kwargs['cid'])):
-            res.update({'lang': self.request.user.preferred_lang})
-        return res
-
-    def get_form_kwargs(self):
-        kwargs = super(ContestSubmit, self).get_form_kwargs()
-        contest = Contest.objects.get(pk=self.kwargs['cid'])
-        kwargs['contest_problem_list'] = contest.contestproblem_set.all()
-        kwargs['contest_allowed_lang'] = self.get_allowed_lang(contest)
-        return kwargs
-
-    def form_valid(self, form):
-        if not self.request.user.is_authenticated:
-            raise PermissionDenied('Please login first.')
-        contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
-
-        if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
-            messages.error(self.request, 'You are currently not in the period of the contest.')
-            return HttpResponseRedirect(self.request.path)
-
-        submission = form.save(commit=False)
-        if not submission.lang in self.get_allowed_lang(contest):
-            messages.error(self.request, '%s is not supported.' % submission.lang)
-            return HttpResponseRedirect(self.request.path)
-        if len(submission.code) > 128 * 1024:
-            messages.error(self.request, 'Your code is too long.')
-            return HttpResponseRedirect(self.request.path)
-
-        problem_identifier = form.cleaned_data['problem_identifier']
-        submit_code_for_contest(submission, self.request.user, problem_identifier, contest)
-        return HttpResponseRedirect(reverse('contest:submission', kwargs={'cid': self.kwargs['cid']}))
-
-
-class ContestMySubmission(BaseContestMixin, ListView):
-    template_name = 'contest/submission.jinja2'
-    paginate_by = 50
-    context_object_name = 'submission_list'
-
-    def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            raise PermissionDenied('Please login first.')
-        return Submission.objects.filter(contest=Contest.objects.get(pk=self.kwargs.get('cid')),
-                                         author=self.request.user).all()
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestMySubmission, self).get_context_data(**kwargs)
-        for submission in data['submission_list']:
-            submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
-            submission.contest_problem = get_contest_problem(data['contest'], submission.problem)
-        return data
-
-
-class ContestStatus(BaseContestMixin, ListView):
-    template_name = 'contest/status.jinja2'
-    paginate_by = 50
-    context_object_name = 'submission_list'
-
-    def get_queryset(self):
-        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        if not is_admin_or_root(self.request.user) and contest.freeze and contest.get_status() == 'running':
-            return Submission.objects.filter(contest=contest, create_time__lt=contest.freeze_time).all()
-        else:
-            return Submission.objects.filter(contest=contest).all()
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestStatus, self).get_context_data(**kwargs)
-        for submission in data['submission_list']:
-            submission.create_time = time_formatter((submission.create_time - data['contest'].start_time).seconds)
-            submission.contest_problem = get_contest_problem(data['contest'], submission.problem)
-        return data
-
-
 class ContestProblemDetail(BaseContestMixin, TemplateView):
     template_name = 'contest/problem.jinja2'
 
@@ -282,61 +156,3 @@ class ContestBoundUser(View):
             except ContestInvitation.DoesNotExist:
                 messages.error(request, 'There seems to be something wrong with your invitation code.')
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
-
-
-class ContestUpdateStandings(View):
-    def get(self, request, cid):
-        if not is_admin_or_root(request.user):
-            raise PermissionDenied('You cannot update the standings')
-        update_contest(Contest.objects.get(pk=cid))
-        return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
-
-
-class ContestClarificationView(BaseContestMixin, ListView):
-    template_name = 'contest/clarification.jinja2'
-    context_object_name = 'clarification_list'
-
-    def get_queryset(self):
-        cmp = dict(note=-1, open=0, close=1, solve=1)
-        return sorted(Contest.objects.get(pk=self.kwargs.get('cid')).contestclarification_set.all(),
-                      key=lambda x: cmp[x.status])
-
-    def post(self, request, cid):
-        if is_admin_or_root(request.user):
-            status = 'note'
-        else:
-            status = 'open'
-        ContestClarification.objects.create(contest_id=self.kwargs['cid'], author=request.user,
-                                            text=request.POST['message'], status=status)
-        return HttpResponseRedirect(request.POST['next'])
-
-
-class ContestClarificationToggle(BaseContestMixin, View):
-    def get(self, request, cid, clarification_id, operation):
-        if not is_admin_or_root(request.user):
-            raise PermissionDenied("You don't have the access.")
-        if operation != 'close' and operation != 'solve':
-            raise PermissionDenied("Bad operation code.")
-        clarification = ContestClarification.objects.get(pk=clarification_id)
-        clarification.status = operation
-        clarification.save(update_fields=["status"])
-        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
-
-
-class ContestClarificationQuery(BaseContestMixin, View):
-    def get(self, request, cid):
-        contest = Contest.objects.get(pk=cid)
-        data = {"time": timezone.now().timestamp()}
-        try:
-            time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
-            if is_admin_or_root(request.user):
-                response = contest.contestclarification_set.filter(status='open', time__gt=time).all()
-                data['type'] = 'New Question:'
-            else:
-                response = contest.contestclarification_set.filter(status='note', time__gt=time).all()
-                data['type'] = 'New Clarification:'
-            data['response'] = '\n\n----------\n\n'.join(map(str, response))
-        except Exception as e:
-            # print(repr(e))
-            pass
-        return HttpResponse(json.dumps(data))

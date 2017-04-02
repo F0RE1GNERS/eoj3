@@ -1,8 +1,9 @@
 from django.conf.urls import url
 
-from .views import ContestList, ContestProblemDetail, ContestStandings, ContestSubmit, DashboardView
-from .views import ContestMySubmission, ContestStatus, ContestBoundUser, ContestUpdateStandings
-from .views import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery
+from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView
+from .submit import ContestMySubmission, ContestStatus, ContestSubmit
+from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings
+from .clarification import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -16,5 +17,6 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/clarification/(?P<clarification_id>\d+)/(?P<operation>\w+)/$', ContestClarificationToggle.as_view(), name='clarification_toggle'),
     url(r'^(?P<cid>\d+)/clarification/update/$', ContestClarificationQuery.as_view(), name='clarification_update'),
     url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation'),
-    url(r'^(?P<cid>\d+)/update_standings/$', ContestUpdateStandings.as_view(), name='update_standings'),
+    url(r'^(?P<cid>\d+)/standings/update/$', ContestUpdateStandings.as_view(), name='update_standings'),
+    url(r'^(?P<cid>\d+)/standings/download/$', ContestDownloadStandings.as_view(), name='download_standings'),
 ]

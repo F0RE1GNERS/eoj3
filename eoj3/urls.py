@@ -60,4 +60,4 @@ if DEBUG:
 
 handler403 = 'home.views.forbidden_view'
 handler404 = 'home.views.not_found_view'
-handler500 = 'home.views.server_error_view'
+# handler500 = 'home.views.server_error_view'
