@@ -52,6 +52,7 @@ class User(AbstractUser):
     alien = models.CharField('alien', choices=ALIEN_CHOICE, max_length=18, blank=True)
     show_tags = models.BooleanField('show tags', default=True)
     preferred_lang = models.CharField('preferred language', choices=LANG_CHOICE, max_length=12, default='cpp')
+    motto = models.CharField('motto', max_length=192, blank=True)
 
     def __str__(self):
         return self.username

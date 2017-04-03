@@ -17,14 +17,36 @@
     <div class="row">
 
       <div class="col-12 col-sm-4 col-sm-push-8">
-        <div style="margin-top:0" class="id-card">
-          <h3 style="margin-top:0">{{ profile.get_username_display() | safe }}{% if profile.nickname %} <small>({{ profile.username }})</small>{% endif %}</h3>
-          <p>{% if profile.school %}From {{ profile.school }}.{% endif %}<br>
-          Registered at {{ profile.create_time | date('Y-m-d H:i:s') }}</p>
-          <a href="{{ url('status') }}?author={{ profile.username }}">See all submissions</a><br>
+        <div style="margin-top:0" class="text-center id-card">
+          <div>
+            <img width=80%" src="{{ profile.get_alien_large_src() }}">
+            <h3>{{ profile.get_username_display() | safe }}</h3>
+          </div>
+          <br>
+          <p>{% if profile.school %}From {{ profile.school }}<br>{% endif %}
+          Register: {{ profile.create_time | date('Y-m-d H:i:s') }}
+          </p>
+          {% if profile.motto %}<p><strong>{{ profile.motto }}</strong></p>{% endif %}
+          <p><a href="{{ url('status') }}?author={{ profile.username }}">See all submissions</a></p>
         </div>
-
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Go to</h3>
+          </div>
+          <div class="panel-body">
+            <form action="{{ url('blog:goto') }}" method="post">
+              {% csrf_token %}
+              <div class="input-group">
+                <input type="text" class="form-control" name="name" placeholder="Username please">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="submit">Go</button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
+
       <div class="col-12 col-sm-8 col-sm-pull-4 bd-content">
         {% if is_author %}<p><a href="{{ url('blog:create') }}">Create a new blog</a></p>{% endif %}
         {% if blog_list %}
@@ -41,7 +63,6 @@
         {% else %}
           <p>This guy is too lazy to write a blog.</p>
         {% endif %}
-
       </div>
     </div>
   </div>

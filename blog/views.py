@@ -38,6 +38,12 @@ class GenericView(ListView):
         return res
 
 
+class BlogGoto(View):
+
+    def post(self, request):
+        return HttpResponseRedirect(reverse('generic', kwargs={'name': request.POST.get('name')}))
+
+
 class BlogView(UserPassesTestMixin, ListView):
     template_name = 'blog/blog_detail.jinja2'
     paginate_by = 100
@@ -58,6 +64,9 @@ class BlogView(UserPassesTestMixin, ListView):
         context['blog'] = blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
         if is_admin_or_root(self.request.user) or self.request.user == blog.author:
             context['is_privileged'] = True
+        for comment in context['comment_list']:
+            if context.get('is_privileged') or self.request.user == comment.author:
+                comment.is_privileged = True
         return context
 
 
@@ -100,3 +109,18 @@ class BlogAddComment(UserPassesTestMixin, View):
         Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
 
+
+class BlogDeleteComment(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def get(self, request, pk, comment_id):
+        instance = get_object_or_404(Comment, pk=comment_id)
+        if is_admin_or_root(request.user) or request.user == instance.author:
+            instance.delete()
+        elif instance.blog is not None and instance.blog.author == request.author:
+            instance.delete()
+        else:
+            return PermissionDenied("You don't have the access.")
+        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))

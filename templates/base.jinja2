@@ -25,9 +25,9 @@
   </div>
   <nav class="collapse navbar-collapse" id="bs-navbar">
     <ul class="nav navbar-nav">
-      <li class="{{ active('problem') }}"> <a href="{{ url('problem_list') }}">Problems</a></li>
-      <li class="{{ active('contest:*') }}"> <a href="{{ url('contest:list') }}">Contests</a></li>
-      <li class="{{ active('status') }}"> <a href="{{ url('status') }}">Status</a></li>
+      <li class="{{ active('problem') }}"><a href="{{ url('problem_list') }}">Problems</a></li>
+      <li class="{{ active('contest:*') }}"><a href="{{ url('contest:list') }}">Contests</a></li>
+      <li class="{{ active('status') }}"><a href="{{ url('status') }}">Status</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       {% if user is admin %}
@@ -36,8 +36,15 @@
         </li>
       {% endif %}
       {% if user.is_authenticated %}
-        <li class="active">
-          <a href="{{ url('account:security') }}">{{ request.user.username }}</a>
+        <li class="active dropdown">
+          <a href="javascript:void(0)" id="username-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ request.user.username }}
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="username-dropdown">
+            <li><a href="{{ url('generic', request.user.username) }}">Blog</a></li>
+            <li><a href="{{ url('account:security') }}">Settings</a></li>
+          </ul>
         </li>
         <li>
           <a href="{{ url('logout') }}">Logout</a>
