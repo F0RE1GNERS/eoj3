@@ -52,16 +52,17 @@
       <div class="col-12 col-sm-8 col-sm-pull-4 bd-content">
         {% if is_author %}<p><a href="{{ url('blog:create') }}">Create a new blog</a></p>{% endif %}
         {% if blog_list %}
+          <ul class="media-list content-section">
           {% for blog in blog_list %}
-          <div class="content-section">
-            <h3><a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></h3>
-            <div class="bs-callout">
-              {{ blog.text | markdown | get_intro | safe }}
-            </div>
-            <div class="text-right">{{ clickable_nickname(blog.author) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
-            {% if is_privileged and not blog.visible %}invisible{% endif %}</div>
-          </div>
+
+            <li class="media content-mini-section">
+              <h3 class="media-heading"><a style="color: #333;" href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></h3>
+              <p>{{ clickable_nickname(blog.author) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
+                {% if is_privileged and not blog.visible %}<span class="text-muted">invisible</span>{% endif %}</p>
+              <p>{{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a></p>
+            </li>
           {% endfor %}
+          </ul>
           {{ my_paginator() }}
         {% else %}
           <p>This guy is too lazy to write a blog.</p>

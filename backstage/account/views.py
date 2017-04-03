@@ -25,3 +25,13 @@ class AccountPrivilegeSwitch(BaseBackstageMixin, View):
                 user.privilege = 'user'
             user.save()
         return HttpResponseRedirect(reverse('backstage:account'))
+
+
+class AccountPasswordChange(BaseBackstageMixin, View):
+    def post(self, request, pk):
+        with transaction.atomic():
+            instance = User.objects.select_for_update().get(pk=pk)
+            if request.POST.get('password'):
+                instance.set_password(request.POST.get('password'))
+            instance.save()
+        return HttpResponseRedirect(reverse('backstage:account'))

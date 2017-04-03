@@ -6,14 +6,15 @@ from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, Con
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
-from .account.views import AccountList, AccountPrivilegeSwitch
+from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
 
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
 
     url(r'^account/$', AccountList.as_view(), name='account'),
-    url(r'^account/privilege/(?P<pk>\d+)/', AccountPrivilegeSwitch.as_view(), name='account_privilege_switch'),
+    url(r'^account/privilege/(?P<pk>\d+)/$', AccountPrivilegeSwitch.as_view(), name='account_privilege_switch'),
+    url(r'^account/password/(?P<pk>\d+)/$', AccountPasswordChange.as_view(), name='account_password_change'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
     url(r'^problem/create/$', ProblemCreate.as_view(), name='problem_create'),

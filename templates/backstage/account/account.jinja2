@@ -26,7 +26,7 @@
               <a href="{{ url('backstage:account_privilege_switch', user.pk) }}">
               {{ user.get_privilege_display() }}</a>
             {% endif %}</td>
-            <td><a class="text-danger" href="#">Reset</a></td>
+            <td><a data-toggle="modal" data-url="{{ url('backstage:account_password_change', user.pk) }}" href="#changePassword" class="text-danger">Reset</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -34,5 +34,44 @@
   </div>
 
   {{ my_paginator() }}
+
+  <div class="modal fade" id="changePassword" tabindex="-1" role="dialog"
+       aria-labelledby="changePasswordLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="changePasswordLabel">Reset password</h4>
+        </div>
+        <form class="form-horizontal" style="margin-bottom:0" id="changePasswordForm" action="" method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="form-group">
+              <label for="password" class="col-sm-2 control-label">Password</label>
+              <div class="col-sm-10">
+                <input class="form-control" id="password" name="password">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  $('#changePassword').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var url = button.data('url');
+    $(this).find('#changePasswordForm').attr('action', url);
+    console.log($(this).find('#changePasswordForm').attr('action'));
+  });
+  </script>
 
 {% endblock %}
