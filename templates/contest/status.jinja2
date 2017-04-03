@@ -1,4 +1,5 @@
 {% extends 'contest/base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname with context %}
 {% block contest_title %}Status - {% endblock %}
 {% block contest_content %}
 
@@ -28,7 +29,7 @@
               {% endif %}
             </td>
             <td>{{ submission.create_time }}</td>
-            <td><a class="decoration-free" href="{{ url('generic', submission.author) }}">{{ submission.author.get_username_display() | safe }}</a></td>
+            <td>{{ clickable_nickname(submission.author) }}</td>
             <td>
               {% if submission.contest_problem == 'N/A' %}
               N/A

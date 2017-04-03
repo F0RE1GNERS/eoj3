@@ -1,0 +1,3 @@
+{% macro clickable_nickname(user) %}
+  <a class="decoration-free" href="{{ url('generic', user.username) }}">{{ user.get_username_display() | safe }}</a>
+{% endmacro %}

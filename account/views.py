@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
 from django.views import View
 from django.views.generic.edit import UpdateView
@@ -5,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from utils import auth_view
 from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm
-from .models import User
+from .models import User, ALIEN_CHOICE
 
 
 def update_profile(request):
@@ -37,6 +38,8 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.create()
+            user.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
+            user.save(update_fields=["alien"])
             login(request, user)
             return HttpResponseRedirect('/')
     else:

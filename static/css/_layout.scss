@@ -74,3 +74,31 @@ table {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+.bd-content {
+  div:first-child {
+    margin-top: 0;
+  }
+}
+
+.comment {
+  margin: .5em 0 0;
+  padding: .5em 0 0;
+  .avatar {
+    display: block;
+    width: 2.5em;
+    height: auto;
+    float: left;
+    margin: .2em 0 0;
+    img {
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      height: auto;
+      border-radius: .25rem;
+    }
+  }
+  &>.avatar~.content {
+    margin-left: 3.5em;
+  }
+}
