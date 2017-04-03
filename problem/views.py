@@ -81,11 +81,8 @@ class ProblemView(FormView):
 
     def form_valid(self, form):
         problem = get_object_or_404(Problem, **self.kwargs)
-        if not problem.visible and not is_admin_or_root(self.request.user) or not self.request.user.is_authenticated:
+        if (not problem.visible and not is_admin_or_root(self.request.user)) or not self.request.user.is_authenticated:
             raise PermissionDenied()
         submission = form.save(commit=False)
-        if len(submission.code) > 128 * 1024:
-            messages.error(self.request, 'Your code is too long.')
-            return HttpResponseRedirect(self.request.path)
         submit_code(submission, self.request.user, self.kwargs['pk'])
         return HttpResponseRedirect(reverse('submission', args=[submission.pk]))

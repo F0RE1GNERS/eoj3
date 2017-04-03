@@ -51,7 +51,7 @@ def my_password_change(request):
     return auth_view.password_change(request, template_name='account/security.jinja2',
                                      post_change_redirect=reverse('account:profile'),
                                      password_change_form=MyPasswordChangeForm,
-                                     message="Your password was changed successfully")
+                                     message="Your password was changed successfully.")
 
 
 def my_login(request):

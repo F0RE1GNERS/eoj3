@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib import messages
 from .models import Submission
 from submission.models import LANG_CHOICE
 
@@ -7,6 +8,12 @@ class SubmitForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ['code', 'lang']
+
+    def clean_code(self):
+        data = self.cleaned_data['code']
+        if len(data) == 0 or len(data) > 65536:
+            raise forms.ValidationError('Code should not be empty or contain more than 65536 characters.')
+        return data
 
 
 class ContestSubmitForm(forms.ModelForm):
@@ -25,4 +32,8 @@ class ContestSubmitForm(forms.ModelForm):
         model = Submission
         fields = ['code', 'lang']
 
-    # problem_identifier = forms.CharField(max_length=12)
+    def clean_code(self):
+        data = self.cleaned_data['code']
+        if len(data) == 0 or len(data) > 65536:
+            raise forms.ValidationError('Code should not be empty or contain more than 65536 characters.')
+        return data

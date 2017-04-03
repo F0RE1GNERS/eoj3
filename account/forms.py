@@ -9,7 +9,7 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ['email', 'username']
         help_texts = {
-            'email': 'Enter an email',
+            'email': 'Email cannot be changed once created',
             'username': 'Username cannot be changed once created'
         }
         error_messages = {
@@ -53,7 +53,7 @@ class RegisterForm(forms.ModelForm):
                                       widget=forms.PasswordInput,
                                       required=True,
                                       error_messages={
-                                          'require': 'Please repeat your password'
+                                          'require': 'Please repeat your password.'
                                       })
 
 

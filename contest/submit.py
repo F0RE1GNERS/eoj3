@@ -48,9 +48,6 @@ class ContestSubmit(BaseContestMixin, FormView):
         if not submission.lang in self.get_allowed_lang(contest):
             messages.error(self.request, '%s is not supported.' % submission.lang)
             return HttpResponseRedirect(self.request.path)
-        if len(submission.code) > 128 * 1024:
-            messages.error(self.request, 'Your code is too long.')
-            return HttpResponseRedirect(self.request.path)
 
         problem_identifier = form.cleaned_data['problem_identifier']
         submit_code_for_contest(submission, self.request.user, problem_identifier, contest)
