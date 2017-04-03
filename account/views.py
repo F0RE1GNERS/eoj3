@@ -41,7 +41,7 @@ def register_view(request):
             user.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
             user.save(update_fields=["alien"])
             login(request, user)
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(request.POST.get('next', request.GET.get('next', '/')))
     else:
         form = RegisterForm()
     return render(request, 'register.jinja2', {'form': form})
@@ -55,6 +55,8 @@ def my_password_change(request):
 
 
 def my_login(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('home'))
     return auth_view.login(request, template_name='login.jinja2')
 
 

@@ -74,12 +74,41 @@ print(a + b)</code></pre>
     </div>
 
     <div class="content-mini-section">
+      <h4>Q: Why is my memory status ridiculously high / low?</h4>
+      <p>A: Unfortunately there are no known solution to the memory problem. We are able to get a MLE correctly, but not a memory
+      status. When it comes to Java, this problem gets worse. That's why all memory status for Java are 0KB.</p>
+    </div>
+
+    <div class="content-mini-section">
       <h4>Q: What is the length limit of our code?</h4>
       <p>A: No more than 128KB.</p>
     </div>
 
+    <div class="content-mini-section">
+      <h4>Q: What is the version of compiler on the server?</h4>
+      <p>A: We have Ubuntu 14.04 on the server, with Java version 1.7.0_121, g++ 4.8.4 and Python 3.4.3. Python 2 is
+      currently not supported on the server.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: What are the compile commands?</h4>
+      <p>A: Below are the compile commands for C, C++, Java, Python.</p>
+      <div>C: <pre>gcc -DONLINE_JUDGE -O2 -w -std=c99 main.c -lm -o main</pre></div>
+      <div>C++: <pre>g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 main.cpp -lm -o main</pre></div>
+      <div>Java: <pre>javac Main.java -encoding UTF8</pre></div>
+      <div>Python: <pre>python3 -m py_compile solution.py</pre></div>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Why did my solution disappear from online status?</h4>
+      <p>A: Normally it is because the problem is hidden, or you have submitted it in a contest.</p>
+    </div>
+
+    <div class="content-mini-section">
+      <h4>Q: Can I delete my blog?</h4>
+      <p>A: Currently you can't. You can hide it though. Still, be careful when you create a blog.</p>
+    </div>
+
   </div>
-
-
 
 {% endblock %}

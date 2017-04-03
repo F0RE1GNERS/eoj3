@@ -8,3 +8,6 @@ class BlogEditForm(forms.ModelForm):
         fields = ['title', 'text', 'visible']
         error_messages = {
         }
+        help_texts = {
+            'text': 'Markdown and MathJax are supported. Use \\( and \\) for formulas.'
+        }

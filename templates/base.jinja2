@@ -47,14 +47,14 @@
           </ul>
         </li>
         <li>
-          <a href="{{ url('logout') }}">Logout</a>
+          <a href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
         </li>
       {% else %}
         <li>
-          <a href="{{ url('login') }}">Login</a>
+          <a href="{{ url('login') }}?next={{ request.path }}">Login</a>
         </li>
         <li>
-          <a href="{{ url('register') }}">Register</a>
+          <a href="{{ url('register') }}?next={{ request.path }}">Register</a>
         </li>
       {% endif %}
     </ul>
@@ -68,12 +68,13 @@
   <footer class="bd-footer text-muted">
     <div class="container">
       <ul class="bd-footer-links">
-        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>
         <li><a href="{{ url('home') }}">Homepage</a></li>
+        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>
         <li><a href="{{ url('faq') }}">FAQ</a></li>
       </ul>
-      <p>Team: <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
-      <p>Proudly powered by <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+      <p>Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
+      <p>Proudly powered by <a href="https://getbootstrap.com/">Bootstrap</a> and inspired by <a href="https://semantic-ui.com/">Semantic-UI</a>.</p>
+      <p>Based on <a href="https://www.djangoproject.com/">Django</a> among other fantastic frameworks.</p>
     </div>
   </footer>
 
