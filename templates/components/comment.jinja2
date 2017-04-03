@@ -1,0 +1,16 @@
+{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+
+{% macro comment_view(comment) %}
+  <div class="comment">
+    <a href="{{ url('generic', comment.author.username) }}" class="avatar">
+      <img src="{{ comment.author.get_alien_small_src() }}">
+    </a>
+    <div class="content">
+      <div><a class="author">{{ clickable_nickname(comment.author) }}</a> <small class="text-muted"><span class="date">{{ comment.create_time | date('Y-m-d H:i:s') }}</span></small>
+        {% if comment.is_privileged %}<a class="text-danger" href="{% if comment.problem %}{{ url('blog:problem_delete_comment', pk, comment.pk) }}{% elif comment.blog %}{{ url('blog:delete_comment', comment.blog.pk, comment.pk) }}{% endif %}">delete</a>{% endif %}</div>
+      <div class="text">
+        {{ comment.text }}
+      </div>
+    </div>
+  </div>
+{% endmacro %}

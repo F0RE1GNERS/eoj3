@@ -13,6 +13,7 @@
         {% endif %}
       {% else %}
         <p><strong>Accept / Submit: </strong><a href="{{ url('status') }}?problem={{ problem.pk }}">{{ ac }} / {{ all }}</a></p>
+        <p><strong>Discussion: </strong><a href="{{ url('blog:discuss', problem.pk) }}">View</a></p>
       {% endif %}
     </div>
   </div>

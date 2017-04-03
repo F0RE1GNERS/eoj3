@@ -1,5 +1,6 @@
 {% extends 'base.jinja2' %}
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
+{% from 'components/comment.jinja2' import comment_view with context %}
 
 {% block title %}{{ blog.title }} - Blog - {% endblock %}
 
@@ -22,29 +23,20 @@
     <div style="margin-top: 4em" class="content-section">
       <h3>Comments</h3>
       {% for comment in comment_list %}
-        <div class="comment">
-          <a href="{{ url('generic', comment.author.username) }}" class="avatar">
-            <img src="{{ comment.author.get_alien_small_src() }}">
-          </a>
-          <div class="content">
-            <div><a class="author">{{ clickable_nickname(comment.author) }}</a> <small class="text-muted"><span class="date">{{ comment.create_time | date('Y-m-d H:i:s') }}</span></small>
-              {% if comment.is_privileged %}<a class="text-danger" href="{{ url('blog:delete_comment', blog.pk, comment.pk) }}">delete</a>{% endif %}</div>
-            <div class="text">
-              {{ comment.text }}
-            </div>
-          </div>
-        </div>
+        {{ comment_view(comment) }}
       {% endfor %}
       {{ my_paginator() }}
     </div>
-    <form action="{{ url('blog:add_comment', blog.pk) }}" method="POST">
-      <h4>Add a comment</h4>
-      {% csrf_token %}
-      <div class="form-group">
-        <textarea class="form-control" id="comment-text" name="text" rows="3" placeholder="Put down your comment here."></textarea>
-      </div>
-      <button class="btn btn-primary" type="submit">Submit</button>
-    </form>
+    {% if request.user.is_authenticated %}
+      <form action="{{ url('blog:add_comment', blog.pk) }}" method="POST">
+        <h4>Add a comment</h4>
+        {% csrf_token %}
+        <div class="form-group">
+          <textarea class="form-control" id="comment-text" name="text" rows="3" placeholder="Put down your comment here."></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </form>
+    {% endif %}
   </div>
 
 
