@@ -67,5 +67,5 @@ def sample_format(value):
 
 @library.filter(name='get_intro')
 def get_intro(value):
-    soup = BeautifulSoup(value)
+    soup = BeautifulSoup(value, "html.parser")
     return re.sub(r'[\n]+', '<br>', soup.get_text('\n')[:2048])

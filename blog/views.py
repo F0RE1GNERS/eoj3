@@ -2,13 +2,14 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import View
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from account.models import User
 from account.permissions import is_admin_or_root
 from .forms import BlogEditForm
-from .models import Blog
+from .models import Blog, Comment
 
 def generic_view(request, name):
     return render(request, 'generic.jinja2', {'profile': get_object_or_404(User, username=name)})
@@ -37,17 +38,27 @@ class GenericView(ListView):
         return res
 
 
-class BlogView(View):
+class BlogView(UserPassesTestMixin, ListView):
     template_name = 'blog/blog_detail.jinja2'
+    paginate_by = 100
+    context_object_name = 'comment_list'
 
-    def get(self, request, pk):
-        blog = get_object_or_404(Blog, pk=pk)
-        context = {'blog': blog}
-        if is_admin_or_root(request.user) or request.user == blog.author:
+    def test_func(self):
+        blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
+        if is_admin_or_root(self.request.user) or self.request.user == blog.author or blog.visible:
+            return True
+        return False
+
+    def get_queryset(self):
+        blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
+        return blog.comment_set.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(BlogView, self).get_context_data(**kwargs)
+        context['blog'] = blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
+        if is_admin_or_root(self.request.user) or self.request.user == blog.author:
             context['is_privileged'] = True
-        if not context['is_privileged'] and not blog.visible:
-            raise PermissionDenied("You don't have the access.")
-        return render(request, self.template_name, context)
+        return context
 
 
 class BlogCreate(UserPassesTestMixin, CreateView):
@@ -66,13 +77,26 @@ class BlogCreate(UserPassesTestMixin, CreateView):
 
 class BlogUpdate(UserPassesTestMixin, UpdateView):
     form_class = BlogEditForm
-    template_name = 'blog/blog_add.jinja2'
+    queryset = Blog.objects.all()
+    template_name = 'blog/blog_edit.jinja2'
 
     def test_func(self):
         return self.request.user.is_authenticated
 
     def form_valid(self, form):
         instance = form.save(commit=False)
-        instance.author = self.request.user
+        if not is_admin_or_root(self.request.user) and instance.author != self.request.user:
+            raise PermissionDenied("You don't have the access.")
         instance.save()
-        return HttpResponseRedirect(reverse('generic', kwargs={'name': self.request.user.username}))
+        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
+
+
+class BlogAddComment(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def post(self, request, pk):
+        Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
+        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
+
