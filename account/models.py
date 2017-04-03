@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from utils.language import LANG_CHOICE
@@ -68,9 +69,15 @@ class User(AbstractUser):
             return '<span class="no-magic">%s</span>' % name
 
     def get_alien_large_src(self):
-        alien = self.alien if self.alien else 'nan.jpg'
-        return '/static/image/avatar/large/' + alien
+        # for update
+        if not self.alien:
+            self.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
+            self.save(update_fields=['alien'])
+        return '/static/image/avatar/large/' + self.alien
 
     def get_alien_small_src(self):
-        alien = self.alien if self.alien else 'nan.jpg'
-        return '/static/image/avatar/small/' + alien
+        # for update
+        if not self.alien:
+            self.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
+            self.save(update_fields=['alien'])
+        return '/static/image/avatar/small/' + self.alien
