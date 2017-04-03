@@ -4,8 +4,8 @@ from problem.models import Problem
 
 
 class Blog(models.Model):
-    title = models.CharField('Title', max_length=128, blank=True)
-    text = models.TextField('Text', blank=True)
+    title = models.CharField('Title', max_length=128)
+    text = models.TextField('Text')
     author = models.ForeignKey(User)
 
     visible = models.BooleanField('Visible', default=False)
@@ -17,7 +17,7 @@ class Blog(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField('Text', blank=True)
+    text = models.TextField('Text')
     author = models.ForeignKey(User)
     create_time = models.DateTimeField('Created time', auto_now_add=True)
     blog = models.ForeignKey(Blog, null=True)
