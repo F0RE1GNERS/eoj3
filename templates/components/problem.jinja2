@@ -42,9 +42,11 @@
       <h3 class="title">Note</h3>
       {{ problem.hint | markdown | safe }}
     {% endif %}
-    {% if problem.source %}
-      <h3 class="title">Source</h3>
-      {{ problem.source }}
+    {% if not contest %}
+      {% if problem.source %}
+        <h3 class="title">Source</h3>
+        {{ problem.source }}
+      {% endif %}
     {% endif %}
   </div>
 {% endmacro %}
