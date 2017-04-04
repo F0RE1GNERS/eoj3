@@ -57,12 +57,12 @@ class ContestClarificationQuery(BaseContestMixin, View):
             time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
             if is_admin_or_root(request.user):
                 response = contest.contestclarification_set.filter(status='open', time__gt=time).all()
-                data['type'] = 'New Question:\n\n'
+                data['type'] = 'New Question:<br><br>'
             else:
                 response = contest.contestclarification_set.filter(status='note', time__gt=time).all()
-                data['type'] = 'New Clarification:\n\n'
-            data['response'] = '\n\n----------\n\n'.join(map(str, response))
-            if contest.get_status() == 'ended':
+                data['type'] = 'New Clarification:<br><br>'
+            data['response'] = '<br><br>----------<br><br>'.join(map(lambda x: str(x).strip().replace('\n', '<br>'), response))
+            if contest.get_status() != 'running':
                 data['response'] = 'reject'
         except Exception as e:
             # print(repr(e))
