@@ -100,6 +100,7 @@ TEMPLATES = [
                 "myGlobal2": "utils.jinja2.globals.paginator",
                 "myGlobal3": "utils.jinja2.globals.render_field",
                 "myGlobal4": "utils.jinja2.globals.url_replace",
+                "myGloabl5": "utils.jinja2.globals.static_file_modify",
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",

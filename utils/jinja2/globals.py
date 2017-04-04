@@ -1,8 +1,10 @@
 from django_jinja import library
 import jinja2
-from bs4 import BeautifulSoup
 import markupsafe
-from django.core.urlresolvers import reverse, resolve
+import os
+from bs4 import BeautifulSoup
+
+from eoj3.settings import BASE_DIR
 
 
 @library.global_function(name='active')
@@ -73,3 +75,9 @@ def url_replace(request, field, value):
     dict_ = request.GET.copy()
     dict_[field] = value
     return dict_.urlencode()
+
+
+@library.global_function(name='static_file_modify')
+def static_file_modify(path):
+    real_path = os.path.join(BASE_DIR, 'static', path)
+    return int(os.path.getmtime(real_path))

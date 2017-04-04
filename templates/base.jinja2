@@ -8,7 +8,7 @@
   <link rel="icon" href="{{ url('static', path='favicon.ico') }}">
   <link href="{{ url('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url('static', path='css/material-icons.css') }}" rel="stylesheet">
-  <link href="{{ url('static', path='css/main.css') }}?v=20170403" rel="stylesheet">
+  <link href="{{ url('static', path='css/main.css') }}?v={{ static_file_modify('css/main.css') }}" rel="stylesheet">
   <script src="{{ url('static', path='js/jquery.min.js') }}"></script>
   {% block css %}
   {% endblock %}
