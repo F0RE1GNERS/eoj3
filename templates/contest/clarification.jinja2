@@ -7,7 +7,12 @@
   <div class="content-header">
     <h2>Clarification</h2>
   </div>
-
+  <ul>
+  <li>A contestant may submit a claim of ambiguity or error in a problem statement by submitting a clarification request to judges.</li>
+  <li>Please keep an eye on the status displayed on the header.</li>
+  <li><strong>No response</strong> means that you are instructed to read the problem statement carefully again.</li>
+  <li>If your status becomes <strong>solved</strong>, it means that the judges agree that an ambiguity or error exists, and then a clarification will be issued to all contestants.</li>
+  </ul>
   {% include 'components/message.jinja2' %}
   <form action="{{ url('contest:clarification', contest.pk) }}" method="post">
     {% csrf_token %}
