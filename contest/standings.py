@@ -23,7 +23,7 @@ class ContestStandings(BaseContestMixin, ListView):
             return True
         if not contest.visible:
             return False
-        if contest.standings_public:
+        if contest.standings_public and contest.get_status() != 'pending':
             return True
         return super(ContestStandings, self).test_func()
 
