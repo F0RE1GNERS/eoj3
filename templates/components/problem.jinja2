@@ -6,7 +6,7 @@
       <p><strong>Time limit all tests: </strong>{{ problem.sum_time_limit / 1000 }} seconds</p>
       <p><strong>Memory limit: </strong>{{ problem.memory_limit }} megabytes</p>
       {% if contest %}
-        {% if not is_frozen %}
+        {% if contest_frozen == 'available' %}
           <p><strong>Accept / Submit: </strong>{{ ac }} / {{ all }}</p>
         {% else %}
           <p><strong>Accept / Submit: </strong>N/A</p>

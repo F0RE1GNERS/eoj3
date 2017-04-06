@@ -52,6 +52,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         contest = get_object_or_404(Contest, pk=self.kwargs['cid'])
         data['contest'] = contest
         data['contest_status'] = contest.get_status()
+        data['contest_frozen'] = contest.get_frozen()
         data['current_time'] = timezone.now()
 
         if data['contest_status'] == 'ended':
@@ -101,7 +102,6 @@ class DashboardView(BaseContestMixin, TemplateView):
             for contest_problem in data['contest_problem_list']:
                 problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
             if user.is_authenticated:
-
                 submissions = contest.submission_set.filter(author=user).all()
                 for submission in submissions:
                     try:

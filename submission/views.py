@@ -38,21 +38,22 @@ class SubmissionView(UserPassesTestMixin, View):
                 context['contest_problem'] = submission.contest.contestproblem_set.get(problem=submission.problem)
             except:
                 context['contest_problem'] = 'N/A'
-        else:
-            try:
-                detail_msg = submission.status_detail
-                if detail_msg == '':
-                    raise ValueError
-                detail = json.loads(detail_msg)
-                for d in detail:
-                    d['color'] = get_color_from_status(d['verdict'])
-                detail.sort(key=lambda x: x['count'])
-                # print(detail)
-                context.update({'detail': detail})
-            except ValueError:
-                pass
-            except Exception as e:
-                print(repr(e))
+            if not is_admin_or_root(request.user):
+                context['is_frozen'] = submission.contest.get_frozen()
+        try:
+            detail_msg = submission.status_detail
+            if detail_msg == '':
+                raise ValueError
+            detail = json.loads(detail_msg)
+            for d in detail:
+                d['color'] = get_color_from_status(d['verdict'])
+            detail.sort(key=lambda x: x['count'])
+            # print(detail)
+            context['detail'] = detail
+        except ValueError:
+            pass
+        except Exception as e:
+            print(repr(e))
         return render(request, 'submission.jinja2', context=context)
 
 

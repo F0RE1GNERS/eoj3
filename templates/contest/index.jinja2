@@ -26,12 +26,16 @@
               <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
               <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
                 {{ contest_problem.problem.title }}</a></td>
-              <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
-              {% if not is_frozen %}
-                {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}
+              {% if contest_frozen == 'frozen2' %}
+                <td>N/A</td>
               {% else %}
-                N/A
-              {% endif %}</td>
+                <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
+                {% if not is_frozen %}
+                  {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}
+                {% else %}
+                  N/A
+                {% endif %}</td>
+              {% endif %}
             </tr>
           {% endfor %}
           </tbody>

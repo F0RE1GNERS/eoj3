@@ -35,7 +35,8 @@ class Contest(models.Model):
 
     RULE_CHOICE = (
         ('acm', 'ACM Rule'),
-        ('oi', 'OI Rule')
+        ('oi', 'OI Rule'),
+        ('oi2', 'Traditional OI Rule'),
     )
 
     title = models.CharField(max_length=48)
@@ -72,6 +73,15 @@ class Contest(models.Model):
             return 'pending'
         else:
             return 'ended'
+
+    def get_frozen(self):
+        if self.get_status() == 'ended':
+            return 'available'
+        if self.rule == 'oi2' and self.start_time <= timezone.now() <= self.end_time:
+            return 'frozen2'
+        if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
+            return 'frozen'
+        return 'available'
 
 
 class ContestProblem(models.Model):

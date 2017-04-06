@@ -55,9 +55,11 @@ def recalculate_for_participant(contest, submissions, problems):
     # Get the cache: problem => contest_problem identifier
     from collections import Counter, defaultdict
     wrong = Counter()
+    subcnt = Counter()
     accept = set()
     waiting = set()
     max_score = defaultdict(int)
+    latest_score = defaultdict(int)
     accept_time = dict()
     first_blood = set()
     penalty = 0
@@ -75,17 +77,21 @@ def recalculate_for_participant(contest, submissions, problems):
         # After freeze time, everything becomes waiting
         if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
             status = SubmissionStatus.WAITING
+        if contest.get_frozen() != 'available':
+            status = SubmissionStatus.WAITING
         if status == SubmissionStatus.WAITING or status == SubmissionStatus:
             waiting.add(problem)
 
     # From beginning to the end
     for sub in reversed(subs):
         problem, status, score, create_time, original_problem, submission_id = sub
+        subcnt[problem] += 1
 
         # If problem is waiting, then nothing can be done to this problem
         # It is waiting forever......
         if problem not in waiting:
             max_score[problem] = max(max_score[problem], score)
+            latest_score[problem] = score
 
             if status == SubmissionStatus.WAITING or status == SubmissionStatus.JUDGING:
                 waiting.add(problem)
@@ -95,7 +101,8 @@ def recalculate_for_participant(contest, submissions, problems):
                 if status == SubmissionStatus.ACCEPTED:
                     accept.add(problem)
                     accept_time[problem] = get_penalty(contest.start_time, create_time)
-                    penalty += accept_time[problem] + wrong[problem] * 1200
+                    if contest.rule != 'oi2':
+                        penalty += accept_time[problem] + wrong[problem] * 1200
                     # check if it is first blood
                     if contest.submission_set.filter(problem_id=original_problem,
                                                      status=SubmissionStatus.ACCEPTED).last().pk == submission_id:
@@ -153,7 +160,26 @@ def recalculate_for_participant(contest, submissions, problems):
             else:
                 sub_cache = ''
             cache += html_column.format(column=sub_cache)
-    cache = html_column.format(column=score) + html_column.format(column=int(penalty // 60)) + cache
+    elif contest.rule == 'oi2':
+        score = sum(latest_score.values())
+        for problem in sorted(identify_problem.values()):
+            local_score = latest_score[problem]
+            if problem in waiting:
+                sub_cache = html_info.format(text='?')
+            elif local_score == 100:
+                sub_cache = html_success.format(text=local_score)
+                sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
+            elif local_score > 0:
+                sub_cache = html_warning.format(text=local_score)
+            elif subcnt[problem] > 0 and local_score == 0:
+                sub_cache = html_danger.format(text=local_score)
+            else:
+                sub_cache = ''
+            cache += html_column.format(column=sub_cache)
+    if contest.rule == 'oi2':
+        cache = html_column.format(column=score) + cache
+    else:
+        cache = html_column.format(column=score) + html_column.format(column=int(penalty // 60)) + cache
 
     # print(score, penalty, cache)
     return score, penalty, cache
@@ -201,11 +227,12 @@ def _update_header(contest):
     def _get_standings_header(rule, contest_problems):
         template = '<th class="col-width-{width}">{info}</th>'
 
-        if rule == 'oi':
+        if rule == 'oi' or rule == 'oi2':
             res = template.format(width=3, info='=')
         else:
             res = template.format(width=2, info='=')
-        res += template.format(width=5, info='Penalty')
+        if rule != 'oi2':
+            res += template.format(width=5, info='Penalty')
         for contest_problem in contest_problems:
             res += template.format(width=4, info=contest_problem.identifier)
         return res
@@ -220,9 +247,10 @@ def update_contest(contest):
         participants = contest.contestparticipant_set.select_for_update().all()
         for participant in participants:
             _update_participant(contest, participant)
-        _recalculate_rank(contest)
-        contest.standings_update_time = timezone.now()
-        contest.save(update_fields=["standings_update_time"])
+    _recalculate_rank(contest)
+
+    contest.standings_update_time = timezone.now()
+    contest.save(update_fields=["standings_update_time"])
 
 
 def _recalculate_rank(contest):
@@ -238,7 +266,7 @@ def _recalculate_rank(contest):
         participants = contest.contestparticipant_set.select_for_update().all()
         for ind, par in enumerate(sorted(participants, key=cmp_to_key(compare)), start=1):
             new_rank = ind
-            if ind > 1 and compare(participants[ind - 1], par) == 0:
+            if ind > 1 and compare(participants[ind - 2], par) == 0:
                 new_rank = participants[ind - 1].rank
             if new_rank != par.rank:
                 par.rank = new_rank
