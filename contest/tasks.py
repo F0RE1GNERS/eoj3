@@ -77,7 +77,7 @@ def recalculate_for_participant(contest, submissions, problems):
         # After freeze time, everything becomes waiting
         if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
             status = SubmissionStatus.WAITING
-        if contest.get_frozen() != 'available':
+        if contest.get_frozen() == 'frozen2':
             status = SubmissionStatus.WAITING
         if status == SubmissionStatus.WAITING or status == SubmissionStatus:
             waiting.add(problem)
