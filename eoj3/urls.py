@@ -51,6 +51,8 @@ urlpatterns = [
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
     url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload',
         kwargs={'document_root': UPLOAD_DIR}),
+    url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',
+        kwargs={'document_root': STATIC_DIR}),
 ]
 
 if DEBUG:
@@ -58,8 +60,6 @@ if DEBUG:
         url(r'^test/', test_view, name='test'),
         url(r'^test_contest', test_contest_view, name='test_contest'),
         url(r'^api/', include('eoj3.api_urls', namespace='api')),
-        url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',
-            kwargs={'document_root': STATIC_DIR}),
     ]
 
 handler403 = 'home.views.forbidden_view'
