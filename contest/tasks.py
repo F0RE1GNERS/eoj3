@@ -267,7 +267,7 @@ def _recalculate_rank(contest):
         for ind, par in enumerate(sorted(participants, key=cmp_to_key(compare)), start=1):
             new_rank = ind
             if ind > 1 and compare(participants[ind - 2], par) == 0:
-                new_rank = participants[ind - 1].rank
+                new_rank = participants[ind - 2].rank
             if new_rank != par.rank:
                 par.rank = new_rank
                 par.save(update_fields=["rank"])
