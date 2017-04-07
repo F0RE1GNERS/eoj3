@@ -272,6 +272,7 @@ def _recalculate_rank(contest):
             if new_rank != par.rank:
                 par.rank = new_rank
                 par.save(update_fields=["rank"])
+            last_par = par
 
 
 def add_participant_with_invitation(contest_pk, invitation_pk, user):
