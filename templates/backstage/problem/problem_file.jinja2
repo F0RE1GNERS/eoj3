@@ -38,8 +38,11 @@
     </table>
   </div>
 
-  <script>
-    new Clipboard('.clipboard');
-  </script>
-
 {% endblock %}
+
+
+{% block script %}
+<script>
+  new Clipboard('.clipboard');
+</script>
+{% block %}
