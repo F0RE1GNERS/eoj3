@@ -68,4 +68,4 @@ def sample_format(value):
 @library.filter(name='get_intro')
 def get_intro(value):
     soup = BeautifulSoup(value, "html.parser")
-    return soup.get_text(' ')[:2048]
+    return soup.get_text(' ')[:256]
