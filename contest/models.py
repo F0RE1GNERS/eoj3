@@ -18,16 +18,15 @@ def get_language_all_list():
 class ContestManager(models.Manager):
 
     def get_status_list(self, all=False):
-        cmp = dict(running=-1, pending=0, ended=1)
         if all:
             contest_list = super(ContestManager, self).get_queryset().all()
         else:
             contest_list = super(ContestManager, self).get_queryset().filter(visible=True).all()
+        contest_list = contest_list.order_by("-start_time")
         for contest in contest_list:
             contest.status = contest.get_status()
             contest.participant_size = contest.participants.count()
             contest.length = contest.end_time - contest.start_time
-        contest_list = sorted(contest_list, key=lambda c: cmp[c.status])
         return contest_list
 
 
