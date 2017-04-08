@@ -2,7 +2,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'eoj',
-        'CONN_MAX_AGE': 0.1,
+        'CONN_MAX_AGE': 5,
         'HOST': '127.0.0.1',
         'PORT': 3306,
         'USER': 'root',
