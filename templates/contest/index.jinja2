@@ -44,20 +44,16 @@
       </div>
     </div>
   {% endif %}
-  {% if not contest.public %}
+  {% if not registered %}
     <div class="content-section">
       <h4>Register</h4>
-      {% if not registered %}
-        <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
-        <form class="form-inline" action="{{ url('contest:invitation', contest.pk) }}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.path }}">
-          <input type="text" class="form-control" id="code" name="code" placeholder="Invitation code" required>
-          <button type="submit" class="btn btn-primary">OK</button>
-        </form>
-      {% else %}
-        <p>You have already registered for this contest, but the contest is yet to begin.</p>
-      {% endif %}
+      <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
+      <form class="form-inline" action="{{ url('contest:invitation', contest.pk) }}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <input type="text" class="form-control" id="code" name="code" placeholder="Invitation code" required>
+        <button type="submit" class="btn btn-primary">OK</button>
+      </form>
     </div>
   {% endif %}
   <div class="content-section">
