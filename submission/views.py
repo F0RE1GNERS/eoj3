@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render, reverse, HttpResponseRedirect
+from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -17,7 +17,7 @@ from dispatcher.tasks import send_rejudge
 class SubmissionView(UserPassesTestMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
-        self.submission = Submission.objects.get(pk=kwargs.get('pk'))
+        self.submission = get_object_or_404(Submission, pk=kwargs.get('pk'))
         return super(SubmissionView, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
