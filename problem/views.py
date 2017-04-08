@@ -66,6 +66,10 @@ class ProblemView(FormView):
     template_name = 'problem.jinja2'
     form_class = SubmitForm
 
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, **kwargs)
+        return super(ProblemView, self).dispatch(request, *args, **kwargs)
+
     def get_initial(self):
         if self.request.user.is_authenticated:
             return {'lang': self.request.user.preferred_lang}
@@ -73,16 +77,15 @@ class ProblemView(FormView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
-        problem = get_object_or_404(Problem, **self.kwargs)
-        if not is_admin_or_root(self.request.user) and not problem.visible:
-            raise Http404("You don't have the access.")
-        data['problem'] = problem.get_markdown()
+        if not is_admin_or_root(self.request.user) and not self.problem.visible:
+            raise PermissionDenied("You don't have the access.")
+        data['problem'] = self.problem.get_markdown()
         return data
 
     def form_valid(self, form):
-        problem = get_object_or_404(Problem, **self.kwargs)
-        if (not problem.visible and not is_admin_or_root(self.request.user)) or not self.request.user.is_authenticated:
-            raise PermissionDenied()
+        if (not self.problem.visible and not is_admin_or_root(self.request.user)) or \
+                not self.request.user.is_authenticated:
+            raise PermissionDenied("You don't have the access.")
         submission = form.save(commit=False)
-        submit_code(submission, self.request.user, self.kwargs['pk'])
+        submit_code(submission, self.request.user, self.kwargs.get('pk'))
         return HttpResponseRedirect(reverse('submission', args=[submission.pk]))

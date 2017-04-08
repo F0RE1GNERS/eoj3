@@ -19,16 +19,14 @@ class ContestClarificationView(BaseContestMixin, ListView):
 
     def get_queryset(self):
         cmp = dict(note=-1, open=0, close=1, solve=1)
-        return sorted(Contest.objects.get(pk=self.kwargs.get('cid')).contestclarification_set.all(),
-                      key=lambda x: cmp[x.status])
+        return sorted(self.contest.contestclarification_set.all(), key=lambda x: cmp[x.status])
 
     def post(self, request, cid):
-        contest = Contest.objects.get(pk=cid)
-        if timezone.now() < contest.start_time or timezone.now() > contest.end_time:
+        if self.contest.get_status() != 'running':
             messages.error(self.request, 'You are currently not in the period of the contest.')
             return HttpResponseRedirect(self.request.path)
 
-        if is_admin_or_root(request.user):
+        if self.privileged:
             status = 'note'
         else:
             status = 'open'
@@ -39,7 +37,7 @@ class ContestClarificationView(BaseContestMixin, ListView):
 
 class ContestClarificationToggle(BaseContestMixin, View):
     def get(self, request, cid, clarification_id, operation):
-        if not is_admin_or_root(request.user):
+        if not self.privileged:
             raise PermissionDenied("You don't have the access.")
         if operation != 'close' and operation != 'solve':
             raise PermissionDenied("Bad operation code.")
@@ -55,7 +53,7 @@ class ContestClarificationQuery(BaseContestMixin, View):
         data = {"time": timezone.now().timestamp()}
         try:
             time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
-            if is_admin_or_root(request.user):
+            if self.privileged:
                 response = contest.contestclarification_set.filter(status='open', time__gt=time).all()
                 data['type'] = 'New Question:<br><br>'
             else:

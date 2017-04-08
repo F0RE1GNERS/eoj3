@@ -15,40 +15,44 @@ from dispatcher.tasks import send_rejudge
 
 
 class SubmissionView(UserPassesTestMixin, View):
+
+    def dispatch(self, request, *args, **kwargs):
+        self.submission = Submission.objects.get(pk=kwargs.get('pk'))
+        return super(SubmissionView, self).dispatch(request, *args, **kwargs)
+
     def test_func(self):
         user = self.request.user
         if not user.is_authenticated:
             return False
-        if not is_admin_or_root(user) and Submission.objects.get(pk=self.kwargs.get('pk')).author != user:
+        if not is_admin_or_root(user) and self.submission.author != user:
             raise PermissionDenied("You don't have access to this code.")
         return True
 
     def get(self, request, pk):
-        submission = Submission.objects.get(pk=pk)
-        context = dict(submission=submission)
-        context['code'] = highlight(submission.code, get_lexer_by_name(submission.lang), HtmlFormatter())
+        context = dict(submission=self.submission)
+        context['code'] = highlight(self.submission.code, get_lexer_by_name(self.submission.lang), HtmlFormatter())
         if is_admin_or_root(request.user):
-            context['rejudge_available'] = True
-        if SubmissionStatus.is_judged(submission.status):
+            context['is_privileged'] = True
+        if SubmissionStatus.is_judged(self.submission.status):
             context['is_judged'] = True
-        if submission.status == SubmissionStatus.COMPILE_ERROR:
-            context['detail_ce'] = submission.status_detail
-        if submission.contest is not None:
+        if self.submission.status == SubmissionStatus.COMPILE_ERROR:
+            context['detail_ce'] = self.submission.status_detail
+        if self.submission.contest is not None:
             try:
-                context['contest_problem'] = submission.contest.contestproblem_set.get(problem=submission.problem)
+                context['contest_problem'] = self.submission.contest.contestproblem_set.\
+                    get(problem_id=self.submission.problem_id)
             except:
                 context['contest_problem'] = 'N/A'
             if not is_admin_or_root(request.user):
-                context['is_frozen'] = submission.contest.get_frozen()
+                context['is_frozen'] = self.submission.contest.get_frozen()
         try:
-            detail_msg = submission.status_detail
+            detail_msg = self.submission.status_detail
             if detail_msg == '':
                 raise ValueError
             detail = json.loads(detail_msg)
             for d in detail:
                 d['color'] = get_color_from_status(d['verdict'])
             detail.sort(key=lambda x: x['count'])
-            # print(detail)
             context['detail'] = detail
         except ValueError:
             pass

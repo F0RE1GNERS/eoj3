@@ -4,8 +4,9 @@
   <div class="content-header">
     <h2>Dashboard</h2>
     <p><strong>From</strong> {{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}<br>
-      <strong>Server time (last checked): </strong>{{ current_time | date('Y-m-d H:i:s') }}
-      {% if is_frozen %}<br>Standing is frozen now.{% endif %}
+      <strong>Server time (last checked): </strong>{{ current_time | date('Y-m-d H:i:s') }}<br>
+      <strong>Contest rule: </strong>{{ contest.get_rule_display() }}
+      {% if is_frozen != 'a' %}<br>Standings are frozen now.{% endif %}
     </p>
   </div>
   {% include 'components/message.jinja2' %}
@@ -26,11 +27,11 @@
               <th scope="row" class="text-center">{{ contest_problem.identifier }}</th>
               <td style="text-align: left;"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
                 {{ contest_problem.problem.title }}</a></td>
-              {% if contest_frozen == 'frozen2' %}
+              {% if is_frozen == 'f2' %}
                 <td>N/A</td>
               {% else %}
                 <td align="center" class="{% if contest_problem.status %}bg-{{ contest_problem.status }}{% endif %}">
-                {% if not is_frozen %}
+                {% if is_frozen == 'a' %}
                   {{ contest_problem.total_accept_number }} / {{ contest_problem.total_submit_number }}
                 {% else %}
                   N/A
@@ -43,7 +44,7 @@
       </div>
     </div>
   {% endif %}
-  {% if not registered %}
+  {% if not contest.public %}
     <div class="content-section">
       <h4>Register</h4>
       {% if not registered %}
@@ -55,8 +56,7 @@
           <button type="submit" class="btn btn-primary">OK</button>
         </form>
       {% else %}
-        <p>You have already registered for this contest, but the contest is yet to begin.<br>
-          Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
+        <p>You have already registered for this contest, but the contest is yet to begin.</p>
       {% endif %}
     </div>
   {% endif %}

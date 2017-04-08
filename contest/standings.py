@@ -18,40 +18,38 @@ class ContestStandings(BaseContestMixin, ListView):
     context_object_name = 'rank_list'
 
     def test_func(self):
-        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        if is_admin_or_root(self.request.user):
+        if self.privileged:
             return True
-        if not contest.visible:
+        if not self.contest.visible:
             return False
-        if contest.standings_public and contest.get_status() != 'pending':
+        if self.contest.standings_public and self.contest.get_status() != 'pending':
             return True
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
-        return Contest.objects.get(pk=self.kwargs.get('cid')).contestparticipant_set.all()
+        return self.contest.contestparticipant_set.all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
-        contest = data['contest']
         try:
-            data['my_rank'] = contest.contestparticipant_set.get(user=self.request.user).rank
+            data['my_rank'] = self.contest.contestparticipant_set.get(user=self.request.user).rank
         except:
             data['my_rank'] = 'N/A'
-        data['update_time'] = contest.standings_update_time
+        data['update_time'] = self.contest.standings_update_time
         return data
 
 
-class ContestUpdateStandings(View):
+class ContestUpdateStandings(BaseContestMixin, View):
     def get(self, request, cid):
-        if not is_admin_or_root(request.user):
+        if not self.privileged:
             raise PermissionDenied('You cannot update the standings.')
-        update_contest(Contest.objects.get(pk=cid))
+        update_contest(self.contest)
         return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
 
 
-class ContestDownloadStandings(View):
+class ContestDownloadStandings(BaseContestMixin, View):
     def get(self, request, cid):
-        if not is_admin_or_root(request.user):
+        if not self.privileged:
             raise PermissionDenied('You cannot download the standings.')
         file_name = xlsx_generator.generate(cid)
         return static.serve(request, file_name, document_root=GENERATE_DIR)

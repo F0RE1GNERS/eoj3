@@ -50,20 +50,22 @@ class BlogView(UserPassesTestMixin, ListView):
     paginate_by = 100
     context_object_name = 'comment_list'
 
+    def dispatch(self, request, *args, **kwargs):
+        self.blog = get_object_or_404(Blog, pk=kwargs.get('pk'))
+        return super(BlogView, self).dispatch(request, *args, **kwargs)
+
     def test_func(self):
-        blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
-        if is_admin_or_root(self.request.user) or self.request.user == blog.author or blog.visible:
+        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author or self.blog.visible:
             return True
         return False
 
     def get_queryset(self):
-        blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
-        return blog.comment_set.all()
+        return self.blog.comment_set.all()
 
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
-        context['blog'] = blog = get_object_or_404(Blog, pk=self.kwargs.get('pk'))
-        if is_admin_or_root(self.request.user) or self.request.user == blog.author:
+        context['blog'] = self.blog
+        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
         for comment in context['comment_list']:
             if context.get('is_privileged') or self.request.user == comment.author:

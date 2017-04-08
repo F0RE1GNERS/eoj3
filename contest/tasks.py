@@ -75,9 +75,9 @@ def recalculate_for_participant(contest, submissions, problems):
     for sub in reversed(subs):
         problem, status, _, create_time, _, _ = sub
         # After freeze time, everything becomes waiting
-        if contest.get_status() == 'running' and contest.freeze and create_time >= contest.freeze_time:
+        if contest.get_frozen() == 'f' and create_time >= contest.freeze_time:
             status = SubmissionStatus.WAITING
-        if contest.get_frozen() == 'frozen2':
+        if contest.get_frozen() == 'f2':
             status = SubmissionStatus.WAITING
         if status == SubmissionStatus.WAITING or status == SubmissionStatus:
             waiting.add(problem)
@@ -281,4 +281,4 @@ def add_participant_with_invitation(contest_pk, invitation_pk, user):
         invitation = contest.contestinvitation_set.get(pk=invitation_pk)
         ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
         invitation.delete()
-        update_contest(contest)
+    update_contest(contest)

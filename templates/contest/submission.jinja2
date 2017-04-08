@@ -33,7 +33,7 @@
               {% endif %}
             </td>
             <td>{{ submission.get_lang_display() }}</td>
-          {% if submission.contest.get_frozen() != 'frozen2' %}
+          {% if submission.contest.get_frozen() != 'f2' %}
             <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display_in_contest() }}</td>
             <td>{{ submission.get_time_display() }}</td>
             <td>{{ submission.get_memory_display() }}</td>

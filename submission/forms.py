@@ -23,7 +23,7 @@ class ContestSubmitForm(forms.ModelForm):
         contest_allowed_lang = kwargs.pop('contest_allowed_lang')
         super(ContestSubmitForm, self).__init__(*args, **kwargs)
         self.fields['problem_identifier'] = forms.ChoiceField(
-            choices=[(contest_problem.identifier, "{} - {}".format(contest_problem.identifier, contest_problem.problem.title)) for contest_problem in contest_problem_list])
+            choices=[(contest_problem.identifier, "{}. {}".format(contest_problem.identifier, contest_problem.problem.title)) for contest_problem in contest_problem_list])
         self.fields['lang'] = forms.ChoiceField(
             choices=((x, langs[x]) for x in contest_allowed_lang)
         )

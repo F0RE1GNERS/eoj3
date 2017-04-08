@@ -75,13 +75,11 @@ class Contest(models.Model):
             return 'ended'
 
     def get_frozen(self):
-        if self.get_status() == 'ended':
-            return 'available'
         if self.rule == 'oi2' and self.start_time <= timezone.now() <= self.end_time:
-            return 'frozen2'
+            return 'f2' # You cannot see the result of yourself
         if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
-            return 'frozen'
-        return 'available'
+            return 'f'  # You cannot see other participants' result
+        return 'a'  # Available
 
 
 class ContestProblem(models.Model):
@@ -103,7 +101,7 @@ class ContestProblem(models.Model):
         self.total_accept_number += add
 
     def __str__(self):
-        return self.identifier + ' - ' + self.problem.title
+        return self.identifier + '. ' + self.problem.title
 
 
 class ContestClarification(models.Model):
