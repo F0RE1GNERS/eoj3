@@ -3,7 +3,7 @@ from random import randint
 
 
 def home_view(request):
-    return render(request, 'home.jinja2', context={'bg': reverse('static', kwargs={'path': 'image/bg/%d.jpg' % randint(1, 14)})})
+    return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14)})
 
 
 def forbidden_view(request):

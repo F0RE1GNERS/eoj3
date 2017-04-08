@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="{{ url('static', path='favicon.ico') }}">
-  <link href="{{ url('static', path='css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url('static', path='css/material-icons.css') }}" rel="stylesheet">
-  <link href="{{ url('static', path='css/main.css') }}?v={{ static_file_modify('css/main.css') }}" rel="stylesheet">
-  <script src="{{ url('static', path='js/jquery.min.js') }}"></script>
+  <link rel="icon" href="/static/favicon.ico">
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/material-icons.css" rel="stylesheet">
+  <link href="/static/css/main.css?v={{ static_file_modify('css/main.css') }}" rel="stylesheet">
+  <script src="/static/js/jquery.min.js"></script>
   {% block css %}
   {% endblock %}
   <title>{% block title %}{% endblock %}ECNU Online Judge</title>
@@ -78,8 +78,8 @@
     </div>
   </footer>
 
-  <script src="{{ url('static', path='js/clipboard.min.js') }}"></script>
-  <script src="{{ url('static', path='js/bootstrap.min.js') }}"></script>
+  <script src="/static/js/clipboard.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
   {% block script %}
   {% endblock %}
 </body>
