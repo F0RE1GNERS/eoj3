@@ -39,7 +39,7 @@
             {% set problem = contest_problem.problem %}
               <tr>
                 <td scope="row">{{ contest_problem.identifier }}</td>
-                <td>{{ contest_problem.problem.pk }} - {{ problem.title }}</td>
+                <td>{{ contest_problem.problem_id }} - {{ problem.title }}</td>
                 <td><a href="{{ url('backstage:problem_edit', problem.pk) }}" class="text-primary">Edit</a></td>
                 <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}" class="text-primary">Testdata</a></td>
                 <td><a data-toggle="modal" href="#problemConfirmModal" class="text-danger"

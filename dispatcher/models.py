@@ -24,4 +24,4 @@ class ServerProblemStatus(models.Model):
     testdata_hash = models.CharField('Testdata hash', max_length=64, blank=True)
 
     def __str__(self):
-        return "%s - %d" % (self.server.name, self.problem.pk)
+        return "%s - %d" % (self.server.name, self.problem_id)

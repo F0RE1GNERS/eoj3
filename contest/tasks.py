@@ -66,10 +66,10 @@ def recalculate_for_participant(contest, submissions, problems):
 
     identify_problem = dict()
     for problem in problems:
-        identify_problem[problem.problem.pk] = problem.identifier
-    subs = [(identify_problem[submission.problem.pk], submission.status, submission.status_percent,
-             submission.create_time, submission.problem.pk, submission.pk)
-            for submission in submissions if identify_problem.get(submission.problem.pk)]
+        identify_problem[problem.problem_id] = problem.identifier
+    subs = [(identify_problem[submission.problem_id], submission.status, submission.status_percent,
+             submission.create_time, submission.problem_id, submission.pk)
+            for submission in submissions if identify_problem.get(submission.problem_id)]
 
     # pre-processing: find all waiting problems
     for sub in reversed(subs):

@@ -103,7 +103,7 @@ class DashboardView(BaseContestMixin, TemplateView):
         data['has_permission'] = super(DashboardView, self).test_func()
         if data['has_permission']:
             for contest_problem in data['contest_problem_list']:
-                problem_as_contest_problem[contest_problem.problem.pk] = contest_problem.identifier
+                problem_as_contest_problem[contest_problem.problem_id] = contest_problem.identifier
             if self.user.is_authenticated:
                 submissions = self.contest.submission_set.filter(author=self.user).all()
                 for submission in submissions:

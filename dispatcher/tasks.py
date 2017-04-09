@@ -112,7 +112,7 @@ class Dispatcher:
             problem.save(update_fields=['total_accept_number'])
 
         if submission.contest is not None:
-            update_problem_and_participant(submission.contest.pk, self.problem_id, submission.author_id, accept_increment)
+            update_problem_and_participant(submission.contest_id, self.problem_id, submission.author_id, accept_increment)
 
     def dispatch(self):
         # Attempt: 3 times
@@ -214,7 +214,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
     """
     with transaction.atomic():
         contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
-        submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem.pk)
+        submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem_id)
 
         submission.contest = contest
         submission.author = author
@@ -227,7 +227,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.problem.add_submit()
         submission.problem.save()
 
-    update_problem_and_participant(contest.pk, contest_problem.problem.pk, author.pk)
+    update_problem_and_participant(contest.pk, contest_problem.problem_id, author.pk)
 
     DispatcherThread(submission.pk).start()
 

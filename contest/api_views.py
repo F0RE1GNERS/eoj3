@@ -10,6 +10,7 @@ from submission.models import Submission
 from dispatcher.tasks import DispatcherThread
 
 
+# Unusable!
 class ContestSubmitAPI(APIView):
     def post(self, request):
         print(request.user)
@@ -22,7 +23,7 @@ class ContestSubmitAPI(APIView):
         contest = Contest.objects.get(pk=cid)
         with transaction.atomic():
             contest_problem = contest.contestproblem_set.select_for_update().get(identifier=pid)
-            problem = Problem.objects.select_for_update().get(pk=contest_problem.problem.pk)
+            problem = Problem.objects.select_for_update().get(pk=contest_problem.problem_id)
             submission = Submission.objects.create(lang=lang,
                                                    code=code,
                                                    contest=contest,
@@ -38,5 +39,5 @@ class ContestSubmitAPI(APIView):
             contest_problem.save()
             submission.problem.save()
 
-            DispatcherThread(submission.problem.pk, submission.pk).start()
+            DispatcherThread(submission.pk).start()
         return Response({'status', 'accept'})
