@@ -27,7 +27,9 @@ class ContestStandings(BaseContestMixin, ListView):
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
-        return self.contest.contestparticipant_set.all()
+        return self.contest.contestparticipant_set.select_related('user').only('user_id', 'user__username', 'user__magic',
+                                                                               'comment', 'contest_id', 'score', 'penalty',
+                                                                               'html_cache', 'rank', 'user__nickname').all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)

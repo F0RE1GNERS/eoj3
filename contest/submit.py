@@ -62,7 +62,7 @@ class ContestMySubmission(BaseContestMixin, ListView):
     def get_queryset(self):
         if not self.user.is_authenticated:
             raise PermissionDenied('Please login first.')
-        return self.contest.submission_set.filter(author=self.user).all()
+        return self.contest.submission_set.filter(author=self.user).defer('code', 'status_detail').all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestMySubmission, self).get_context_data(**kwargs)
@@ -80,7 +80,7 @@ class ContestStatus(BaseContestMixin, ListView):
     def get_queryset(self):
         contest = Contest.objects.get(pk=self.kwargs.get('cid'))
         queryset = Submission.objects.select_related('problem', 'author', 'contest').\
-            only('pk', 'contest_id', 'contest__rule','create_time', 'author_id', 'author__username', 'author__nickname',
+            only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
                  'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
         if self.privileged or contest.get_frozen == 'a':
             return queryset.filter(contest=contest).all()
