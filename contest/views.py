@@ -31,7 +31,9 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
-        self.contest_problem_list = list(self.contest.contestproblem_set.all())
+        self.contest_problem_list = list(self.contest.contestproblem_set.select_related('problem').
+                                         defer('problem__description', 'problem__input', 'problem__output',
+                                               'problem__sample', 'problem__hint').all())
         self.is_frozen = self.contest.get_frozen()
 
         self.user = request.user

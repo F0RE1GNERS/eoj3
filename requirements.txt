@@ -21,3 +21,4 @@ vine==1.1.3
 djangorestframework
 django-tagging
 xlsxwriter
+django-debug-toolbar

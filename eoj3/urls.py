@@ -54,12 +54,14 @@ urlpatterns = [
 ]
 
 if DEBUG:
+    import debug_toolbar
     urlpatterns += [
         url(r'^test/', test_view, name='test'),
         url(r'^test_contest', test_contest_view, name='test_contest'),
         url(r'^api/', include('eoj3.api_urls', namespace='api')),
         url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',
             kwargs={'document_root': STATIC_DIR}),
+        url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
 handler403 = 'home.views.forbidden_view'

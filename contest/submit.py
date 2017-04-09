@@ -79,12 +79,15 @@ class ContestStatus(BaseContestMixin, ListView):
 
     def get_queryset(self):
         contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        queryset = Submission.objects.select_related('problem', 'author', 'contest').\
+            only('pk', 'contest_id', 'contest__rule','create_time', 'author_id', 'author__username', 'author__nickname',
+                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
         if self.privileged or contest.get_frozen == 'a':
-            return Submission.objects.filter(contest=contest).all()
+            return queryset.filter(contest=contest).all()
         elif contest.get_frozen() == 'f2':
-            return Submission.objects.none()
+            return queryset.none()
         else:
-            return Submission.objects.filter(contest=contest, create_time__lt=contest.freeze_time).all()
+            return queryset.filter(contest=contest, create_time__lt=contest.freeze_time).all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)

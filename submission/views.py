@@ -70,10 +70,14 @@ class StatusList(ListView):
         kw = self.request.GET.get('keyword')
         author = self.request.GET.get('author')
         prob = self.request.GET.get('problem')
-        if is_admin_or_root(self.request.user):
-            queryset = Submission.objects
-        else:
-            queryset = Submission.objects.filter(contest__isnull=True, problem__visible=True)
+        queryset = Submission.objects.select_related('problem', 'author').only('pk', 'contest_id', 'create_time',
+                                                                               'author_id', 'author__username',
+                                                                               'author__nickname', 'author__magic',
+                                                                               'problem_id', 'problem__title', 'lang',
+                                                                               'status', 'status_percent', 'status_time',
+                                                                               'status_memory')
+        if not is_admin_or_root(self.request.user):
+            queryset = queryset.filter(contest__isnull=True, problem__visible=True)
         if author:
             queryset = queryset.filter(author__username=author)
         if prob:
