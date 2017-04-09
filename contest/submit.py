@@ -82,7 +82,7 @@ class ContestStatus(BaseContestMixin, ListView):
         queryset = Submission.objects.select_related('problem', 'author', 'contest').\
             only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
                  'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
-        if self.privileged or contest.get_frozen == 'a':
+        if self.privileged or contest.get_frozen() == 'a':
             return queryset.filter(contest=contest).all()
         elif contest.get_frozen() == 'f2':
             return queryset.none()
