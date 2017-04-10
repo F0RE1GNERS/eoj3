@@ -49,8 +49,6 @@ urlpatterns = [
     url(r'^blog/', include('blog.urls', namespace='blog')),
     # url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
-    url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload',
-        kwargs={'document_root': UPLOAD_DIR}),
 ]
 
 if DEBUG:
@@ -61,6 +59,8 @@ if DEBUG:
         url(r'^api/', include('eoj3.api_urls', namespace='api')),
         url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',
             kwargs={'document_root': STATIC_DIR}),
+        url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload',
+            kwargs={'document_root': UPLOAD_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
