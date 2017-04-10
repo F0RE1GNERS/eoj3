@@ -57,7 +57,7 @@ def get_file_list(file_path, prefix):
             result.append(dict(
                 filename=file,
                 size="%dKB" % (os.path.getsize(os.path.join(file_path, file)) // 1024),
-                path=reverse('upload', kwargs={'path': os.path.join(prefix, file)})
+                path=os.path.join('/upload/', prefix, file)
             ))
         return result
     except Exception as e:
