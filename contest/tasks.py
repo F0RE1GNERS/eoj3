@@ -4,6 +4,7 @@ from .models import Contest, ContestParticipant
 from account.models import User
 from submission.models import SubmissionStatus
 from functools import cmp_to_key
+import time
 
 
 def recalculate_for_participant(contest, submissions, problems):
@@ -208,6 +209,14 @@ def update_problem_and_participant(contest_id, problem_id, user_id, accept_incre
         participant, _ = contest.contestparticipant_set.select_for_update().\
             get_or_create(user__pk=user_id, defaults={'user': User.objects.get(pk=user_id), 'contest': contest})
         _update_participant(contest, participant)
+
+    update_time = timezone.now()
+    while (timezone.now() - contest.standings_update_time).seconds < 5:
+        # Less than 5 seconds, and there has not been a newer refresh
+        if contest.standings_update_time > update_time:
+            return
+        time.sleep(5)
+        contest.refresh_from_db(fields=["standings_update_time"])
 
     _recalculate_rank(contest)
     contest.standings_update_time = timezone.now()
