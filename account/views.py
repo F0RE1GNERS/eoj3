@@ -7,8 +7,10 @@ from django.contrib.auth import login
 from utils import auth_view
 from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm
 from .models import User, ALIEN_CHOICE
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def update_profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.user)
@@ -21,6 +23,7 @@ def update_profile(request):
     return render(request, 'account/profile.jinja2', {'form': form})
 
 
+@login_required
 def update_preferences(request):
     if request.method == 'POST':
         form = PreferenceForm(request.POST, instance=request.user)
