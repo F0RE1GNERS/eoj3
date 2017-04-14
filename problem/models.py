@@ -5,7 +5,7 @@ from tagging.registry import register
 
 
 class Problem(models.Model):
-    title = models.CharField('Title', max_length=128, blank=True)
+    title = models.CharField('Title', max_length=192, blank=True)
     description = models.TextField('Description', blank=True)
     input = models.TextField('Input', blank=True)
     output = models.TextField('Output', blank=True)

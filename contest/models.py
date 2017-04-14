@@ -38,7 +38,7 @@ class Contest(models.Model):
         ('oi2', 'Traditional OI Rule'),
     )
 
-    title = models.CharField(max_length=48)
+    title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
