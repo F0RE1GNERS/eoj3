@@ -40,4 +40,10 @@
   {% include 'components/code_submit_support.jinja2' %}
   {% include 'components/math_support.jinja2' %}
 
+  <script>
+  $('form').submit(function(){
+    $(this).children('input[type=submit]').prop('disabled', true);
+  });
+  </script>
+
 {% endblock %}

@@ -227,8 +227,6 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.problem.add_submit()
         submission.problem.save()
 
-    update_problem_and_participant(contest.pk, contest_problem.problem_id, author.pk)
-
     DispatcherThread(submission.pk).start()
 
 

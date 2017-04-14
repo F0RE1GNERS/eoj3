@@ -35,3 +35,9 @@
   {% endfor %}
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+<script>
+$('form').submit(function(){
+  $(this).children('input[type=submit]').prop('disabled', true);
+});
+</script>

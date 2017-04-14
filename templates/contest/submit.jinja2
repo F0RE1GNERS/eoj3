@@ -41,4 +41,10 @@
 
 </form>
 
+  <script>
+  $('form').submit(function(){
+    $(this).children('input[type=submit]').prop('disabled', true);
+  });
+  </script>
+
 {% endblock %}
