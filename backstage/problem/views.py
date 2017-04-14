@@ -124,8 +124,8 @@ class ProblemUpdate(BaseUpdateView):
 
 class ProblemList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem/problem.jinja2'
-    queryset = Problem.objects.all()
-    paginate_by = 50
+    queryset = Problem.objects.all().order_by("-pk")
+    paginate_by = 100
     context_object_name = 'problem_list'
 
 
@@ -141,3 +141,13 @@ class ProblemRejudge(BaseBackstageMixin, View):
             print(repr(e))
             messages.error(request, 'Rejudge failed.')
         return HttpResponseRedirect(request.POST['next'])
+
+
+class ProblemVisibleSwitch(BaseBackstageMixin, View):
+
+    def get(self, request, pk):
+        with transaction.atomic():
+            problem = Problem.objects.select_for_update().get(pk=pk)
+            problem.visible = True if not problem.visible else False
+            problem.save(update_fields=["visible"])
+        return HttpResponseRedirect(reverse('backstage:problem'))

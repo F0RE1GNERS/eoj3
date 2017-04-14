@@ -19,7 +19,7 @@ from account.permissions import is_admin_or_root
 
 class ProblemList(ListView):
     template_name = 'problem_list.jinja2'
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'problem_list'
 
     def get_queryset(self):

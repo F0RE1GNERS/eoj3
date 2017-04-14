@@ -12,15 +12,17 @@
     <table class="table">
       <thead>
         <tr>
-          <th width="40%">Who</th>
-          <th width="30%">Privilege</th>
-          <th width="30%">Password</th>
+          <th width="35%">Email</th>
+          <th width="30%">Who</th>
+          <th width="15%">Privilege</th>
+          <th width="10%">Password</th>
         </tr>
       </thead>
       <tbody>
         {% for user in user_list %}
           <tr>
-            <td scope="row">{{ user.username }}</td>
+            <td scope="row">{{ user.email }}</td>
+            <td>{{ user.username }}</td>
             <td>{% if user.privilege == 'root' %}<span class="text-warning">{{ user.get_privilege_display() }}</span>
             {% else %}
               <a href="{{ url('backstage:account_privilege_switch', user.pk) }}">

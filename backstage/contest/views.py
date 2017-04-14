@@ -68,8 +68,8 @@ class ContestProfileUpdate(BaseUpdateView):
 
 class ContestList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest.jinja2'
-    queryset = Contest.objects.all()
-    paginate_by = 50
+    queryset = Contest.objects.all().order_by("-pk")
+    paginate_by = 100
     context_object_name = 'contest_list'
 
 
@@ -116,7 +116,7 @@ class ContestProblemDelete(BaseBackstageMixin, View):
 
 class ContestInvitationList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest_invitation.jinja2'
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'invitation_list'
 
     def get_queryset(self):
@@ -175,7 +175,7 @@ class ContestInvitationAssign(BaseBackstageMixin, View):
 
 class ContestParticipantList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest_participant.jinja2'
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'participant_list'
 
     def get_queryset(self):
