@@ -41,10 +41,10 @@
 
 </form>
 
-  <script>
-  $('form').submit(function(){
-    $(this).children('input[type=submit]').prop('disabled', true);
-  });
-  </script>
+<script>
+$('form').submit(function(){
+  $(this).find('button[type=submit]').prop('disabled', true);
+});
+</script>
 
 {% endblock %}
