@@ -12,6 +12,7 @@ from pygments.formatters.html import HtmlFormatter
 from account.permissions import is_admin_or_root
 from .models import Submission, get_color_from_status, SubmissionStatus
 from dispatcher.tasks import send_rejudge
+from utils.authentication import test_site_open
 
 
 class SubmissionView(UserPassesTestMixin, View):
@@ -24,7 +25,13 @@ class SubmissionView(UserPassesTestMixin, View):
         user = self.request.user
         if not user.is_authenticated:
             return False
-        if not is_admin_or_root(user) and self.submission.author != user:
+        if is_admin_or_root(user):
+            return True
+        if self.submission.contest_id and self.submission.contest.get_status() == 'running':
+            return True
+        if not test_site_open(self.request):
+            raise PermissionDenied("Site is closed now.")
+        if self.submission.author != user:
             raise PermissionDenied("You don't have access to this code.")
         return True
 

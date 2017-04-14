@@ -11,15 +11,16 @@ from account.permissions import is_admin_or_root
 from .forms import BlogEditForm
 from .models import Blog, Comment
 from problem.models import Problem
-
-def generic_view(request, name):
-    return render(request, 'generic.jinja2', {'profile': get_object_or_404(User, username=name)})
+from utils.authentication import test_site_open
 
 
-class GenericView(ListView):
+class GenericView(UserPassesTestMixin, ListView):
     template_name = 'generic.jinja2'
     paginate_by = 50
     context_object_name = 'blog_list'
+
+    def test_func(self):
+        return test_site_open(self.request)
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('name'))
@@ -55,7 +56,11 @@ class BlogView(UserPassesTestMixin, ListView):
         return super(BlogView, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author or self.blog.visible:
+        if is_admin_or_root(self.request.user):
+            return True
+        if not test_site_open(self.request):
+            return False
+        if self.request.user == self.blog.author or self.blog.visible:
             return True
         return False
 
@@ -93,7 +98,7 @@ class BlogUpdate(UserPassesTestMixin, UpdateView):
     template_name = 'blog/blog_edit.jinja2'
 
     def test_func(self):
-        return self.request.user.is_authenticated
+        return test_site_open(self.request)
 
     def form_valid(self, form):
         instance = form.save(commit=False)

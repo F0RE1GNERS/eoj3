@@ -7,6 +7,7 @@ from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestPa
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
+from .site.views import SiteSettingsUpdate
 
 
 urlpatterns = [
@@ -44,5 +45,7 @@ urlpatterns = [
     url(r'^server/create/$', ServerCreate.as_view(), name='server_create'),
     url(r'^server/(?P<pk>\d+)/edit/$', ServerUpdate.as_view(), name='server_edit'),
     url(r'^server/(?P<pk>\d+)/delete/$', ServerDelete.as_view(), name='server_delete'),
-    url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh')
+    url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh'),
+
+    url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
 ]

@@ -15,6 +15,7 @@ from submission.forms import SubmitForm
 from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
 from account.permissions import is_admin_or_root
+from utils.authentication import test_site_open
 
 
 class ProblemList(ListView):
@@ -83,6 +84,8 @@ class ProblemView(FormView):
         return data
 
     def form_valid(self, form):
+        if not test_site_open(self.request):
+            raise PermissionDenied("Site is closed now.")
         if (not self.problem.visible and not is_admin_or_root(self.request.user)) or \
                 not self.request.user.is_authenticated:
             raise PermissionDenied("You don't have the access.")
