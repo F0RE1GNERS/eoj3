@@ -7,7 +7,7 @@ from ..base_views import BaseBackstageMixin
 
 class AccountList(BaseBackstageMixin, ListView):
     template_name = 'backstage/account/account.jinja2'
-    queryset = User.objects.all()
+    queryset = User.objects.order_by("-create_time").all()
     paginate_by = 200
     context_object_name = 'user_list'
 

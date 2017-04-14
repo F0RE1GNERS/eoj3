@@ -12,8 +12,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th width="35%">Email</th>
-          <th width="30%">Who</th>
+          <th width="20%">Register</th>
+          <th width="30%">Email</th>
+          <th width="25%">Who</th>
           <th width="15%">Privilege</th>
           <th width="10%">Password</th>
         </tr>
@@ -21,7 +22,8 @@
       <tbody>
         {% for user in user_list %}
           <tr>
-            <td scope="row">{{ user.email }}</td>
+            <td scope="row"> {{ user.create_time | date('Y-m-d H:i:s') }}</td>
+            <td>{{ user.email }}</td>
             <td>{{ user.username }}</td>
             <td>{% if user.privilege == 'root' %}<span class="text-warning">{{ user.get_privilege_display() }}</span>
             {% else %}

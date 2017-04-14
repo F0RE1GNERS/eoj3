@@ -68,7 +68,7 @@ class ContestProfileUpdate(BaseUpdateView):
 
 class ContestList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest.jinja2'
-    queryset = Contest.objects.all().order_by("-pk")
+    queryset = Contest.objects.all()
     paginate_by = 100
     context_object_name = 'contest_list'
 
