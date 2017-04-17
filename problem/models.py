@@ -41,5 +41,8 @@ class Problem(models.Model):
         self.body = markdown3.convert(self.description)
         return self
 
+    class Meta:
+        ordering = ["-pk"]
+
 
 register(Problem)
