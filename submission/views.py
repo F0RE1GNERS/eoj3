@@ -52,6 +52,8 @@ class SubmissionView(UserPassesTestMixin, View):
                 context['contest_problem'] = 'N/A'
             if not is_admin_or_root(request.user):
                 context['is_frozen'] = self.submission.contest.get_frozen()
+                if self.submission.contest.rule == 'acm':
+                    context['is_not_detailed'] = True
         try:
             detail_msg = self.submission.status_detail
             if detail_msg == '':

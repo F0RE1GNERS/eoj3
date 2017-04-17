@@ -69,7 +69,7 @@
       {{ code | safe }}
     </div>
     {% if is_judged and is_frozen != 'f2' %}
-      {% if detail %}
+      {% if not is_not_detailed and detail %}
         {% for message in detail %}
           <div class="panel panel-{{ message.color }}">
             <div class="panel-heading">

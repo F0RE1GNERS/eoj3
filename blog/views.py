@@ -134,10 +134,17 @@ class BlogDeleteComment(UserPassesTestMixin, View):
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
 
-class ProblemDiscuss(ListView):
+class ProblemDiscuss(UserPassesTestMixin, ListView):
     template_name = 'discuss.jinja2'
     paginate_by = 100
     context_object_name = 'comment_list'
+
+    def test_func(self):
+        if is_admin_or_root(self.request.user):
+            return True
+        if test_site_open(self.request):
+            return True
+        return False
 
     def get_queryset(self):
         if is_admin_or_root(self.request.user):
