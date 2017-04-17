@@ -1,3 +1,21 @@
+.v4-tease {
+  display: block;
+  padding: 15px 20px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  background-color: #1a6fb3;
+  &:hover {
+    color: #fff;
+    text-decoration: none;
+    background-color: #186ba7;
+  }
+  &:focus, &:visited {
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
 .navbar-header, #bs-navbar {
   .navbar-nav {
     a {

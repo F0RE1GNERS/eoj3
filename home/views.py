@@ -1,9 +1,16 @@
 from django.shortcuts import render, reverse
 from random import randint
+from utils.models import SiteSettings
 
 
 def home_view(request):
-    return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14)})
+    if not SiteSettings.objects.exists():
+        SiteSettings.objects.create()
+    broadcast = SiteSettings.objects.first().broadcast_message
+    link = SiteSettings.objects.first().broadcast_link
+    return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14),
+                                                   'broadcast_message': broadcast,
+                                                   'broadcast_link': link})
 
 
 def forbidden_view(request):

@@ -1,4 +1,10 @@
 {% extends 'base.jinja2' %}
+{% block broadcast_content %}
+  {% if broadcast_message %}
+    <a href="{{ broadcast_link }}" target="_blank" class="v4-tease">{{ broadcast_message }}</a>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
 
 
