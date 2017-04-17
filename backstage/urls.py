@@ -7,7 +7,7 @@ from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestPa
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
-from .site.views import SiteSettingsUpdate
+from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery
 
 
 urlpatterns = [
@@ -48,4 +48,6 @@ urlpatterns = [
     url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh'),
 
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
+    url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
+    url(r'^migrate/code/(?P<submission_id>\d+)/', OldSubmissionQuery.as_view(), name='migrate_code'),
 ]

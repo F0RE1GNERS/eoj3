@@ -59,21 +59,6 @@ def get_color_from_status(status):
 
 class Submission(models.Model):
 
-    STATUS_CHOICE = (
-        (-3, 'Waiting'),
-        (-2, 'Judging'),
-        (-1, 'Wrong Answer'),
-        (0, 'Accepted'),
-        (1, 'Time Limit Exceeded'),
-        (2, 'Time Limit Exceeded'),
-        (3, 'Memory Limit Exceeded'),
-        (4, 'Runtime Error'),
-        (5, 'System Error'),
-        (6, 'Compile Error'),
-        (7, 'Idleness Limit Exceeded'),
-        (8, 'Time Limit Exceeded')
-    )
-
     lang = models.CharField('Language', max_length=12, choices=LANG_CHOICE, default='cpp')
     code = models.TextField('Code', blank=True)
     problem = models.ForeignKey(Problem)

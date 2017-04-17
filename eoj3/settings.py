@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'utils',
     'tests',
     'blog',
+    'migrate',
 
     # third-party packages
     'widget_tweaks',
