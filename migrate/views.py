@@ -35,10 +35,12 @@ class MigrationThread(threading.Thread):
                                           code_length=len(submission.code))
             OldSubmission.objects.filter(author=self.username).all().delete()
 
-        with transaction.atomic():
             for comment in OldDiscussion.objects.filter(author=self.username).all():
                 Comment.objects.create(text=comment.text,
                                        author_id=self.new_user,
                                        create_time=comment.create_time,
                                        problem_id=str(comment.problem))
             Comment.objects.filter(author=self.username).all().delete()
+
+            OldUser.objects.filter(username=self.username).all().delete()
+
