@@ -25,3 +25,6 @@ class ServerProblemStatus(models.Model):
 
     def __str__(self):
         return "%s - %d" % (self.server.name, self.problem_id)
+
+    class Meta:
+        unique_together = ('server', 'problem')
