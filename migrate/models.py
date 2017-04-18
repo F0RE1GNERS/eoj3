@@ -35,3 +35,10 @@ class OldUser(models.Model):
     school = models.CharField(max_length=192)
     email = models.CharField(max_length=192)
 
+
+class OldDiscussion(models.Model):
+    text = models.TextField()
+    author = models.CharField(max_length=192)
+    create_time = models.DateTimeField(auto_now_add=True)
+    problem = models.IntegerField()
+
