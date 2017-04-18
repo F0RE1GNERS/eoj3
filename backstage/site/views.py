@@ -29,7 +29,7 @@ class SiteSettingsUpdate(BaseUpdateView):
 class MigrateList(BaseBackstageMixin, ListView):
     template_name = 'backstage/site/migrate.jinja2'
     queryset = OldSubmission.objects.all()
-    paginate_by = 100
+    paginate_by = 200
     context_object_name = 'old_submission_list'
 
     @staticmethod
@@ -55,10 +55,10 @@ class MigrateList(BaseBackstageMixin, ListView):
         if kw == 'all':
             queryset = OldSubmission.objects
         elif kw and kw.isdigit():
-            queryset = OldSubmission.objects.filter(problem__exact=int(kw))
+            queryset = OldSubmission.objects.filter(problem=int(kw))
         else:
             return HttpResponseRedirect(reverse('backstage:migrate'))
-        OldSubmissionRejudgeThread(queryset.all()).start()
+        OldSubmissionRejudgeThread([x.pk for x in queryset.all()]).start()
         return HttpResponseRedirect(reverse('backstage:migrate'))
 
 
@@ -66,3 +66,9 @@ class OldSubmissionQuery(BaseBackstageMixin, View):
     def get(self, request, submission_id):
         submission = OldSubmission.objects.get(pk=submission_id)
         return HttpResponse(json.dumps({'code': highlight(submission.code, get_lexer_by_name(submission.lang), HtmlFormatter())}))
+
+
+class OldSubmissionRejudge(BaseBackstageMixin, View):
+    def get(self, request, submission_id):
+        OldSubmissionRejudgeThread([submission_id]).start()
+        return HttpResponse(json.dumps({'result': 'success'}))

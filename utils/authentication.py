@@ -1,6 +1,6 @@
 from rest_framework.authentication import SessionAuthentication
 from account.permissions import is_admin_or_root
-from .models import SiteSettings
+from .models import get_site_settings
 
 
 class UnsafeSessionAuthentication(SessionAuthentication):
@@ -11,6 +11,4 @@ class UnsafeSessionAuthentication(SessionAuthentication):
 def test_site_open(request):
     if is_admin_or_root(request.user):
         return True
-    if not SiteSettings.objects.exists():
-        SiteSettings.objects.create()
-    return SiteSettings.objects.first().open
+    return get_site_settings().open

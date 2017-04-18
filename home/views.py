@@ -1,13 +1,12 @@
 from django.shortcuts import render, reverse
 from random import randint
-from utils.models import SiteSettings
+from utils.models import get_site_settings
 
 
 def home_view(request):
-    if not SiteSettings.objects.exists():
-        SiteSettings.objects.create()
-    broadcast = SiteSettings.objects.first().broadcast_message
-    link = SiteSettings.objects.first().broadcast_link
+    site_settings = get_site_settings()
+    broadcast = site_settings.broadcast_message
+    link = site_settings.broadcast_link
     return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14),
                                                    'broadcast_message': broadcast,
                                                    'broadcast_link': link})

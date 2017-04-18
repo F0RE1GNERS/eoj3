@@ -7,7 +7,7 @@ from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestPa
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
-from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery
+from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 
 
 urlpatterns = [
@@ -50,4 +50,5 @@ urlpatterns = [
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
     url(r'^migrate/code/(?P<submission_id>\d+)/', OldSubmissionQuery.as_view(), name='migrate_code'),
+    url(r'^migrate/rejudge/(?P<submission_id>\d+)/', OldSubmissionRejudge.as_view(), name='migrate_rejudge'),
 ]

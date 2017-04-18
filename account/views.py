@@ -1,13 +1,15 @@
 import random
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
+from django.contrib.auth import PermissionDenied
 from django.views import View
 from django.views.generic.edit import UpdateView
 from django.contrib import messages
 from django.contrib.auth import login
 from utils import auth_view
-from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm
+from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm, MigrateForm
 from .models import User, ALIEN_CHOICE
 from django.contrib.auth.decorators import login_required
+from utils.models import get_site_settings
 
 
 @login_required
@@ -34,6 +36,24 @@ def update_preferences(request):
         form = PreferenceForm(instance=request.user)
 
     return render(request, 'account/preference.jinja2', {'form': form})
+
+
+@login_required
+def migrate_from_old(request):
+    if not get_site_settings().migrate_open:
+        raise PermissionDenied('Migration has not opened yet.')
+    if request.method == 'POST':
+        form = MigrateForm(request.POST)
+        form.full_clean()
+        result = form.clean()
+        username = result.get('username')
+        password = result.get('password')
+        # TODO: verify and migrate
+        messages.success(request, 'It could take a few minutes for the changes to take effect.')
+    else:
+        form = MigrateForm()
+
+    return render(request, 'account/migrate.jinja2', {'form': form})
 
 
 def register_view(request):

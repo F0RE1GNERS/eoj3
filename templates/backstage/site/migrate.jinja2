@@ -24,6 +24,7 @@
           <th>Verdict</th>
           <th>Time</th>
           <th>Memory</th>
+          <th>Rejudge</th>
         </tr>
       </thead>
       <tbody>
@@ -37,6 +38,7 @@
             <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
             <td>{{ submission.status_time }}</td>
             <td>{{ submission.status_memory }}</td>
+            <td><a href="javascript:void(0);" class="rejudge-link" data-link="{{ url('backstage:migrate_rejudge', submission.pk) }}">Rejudge</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -47,9 +49,9 @@
   <form class="form-inline" role="search" method="post">
     {% csrf_token %}
     <div class="form-group">
-      <input type="text" class="form-control" name="judge" value="" placeholder="Type in all or problem id">
+      <input type="text" class="form-control" name="judge" value="" placeholder='Type in "all" or Problem ID'>
     </div>
-    <button type="submit" class="btn btn-default">Submit</button>
+    <button type="submit" class="btn btn-default">Rejudge</button>
   </form>
 
 <div class="modal fade" id="codeModal" tabindex="-1" role="dialog" aria-labelledby="codeModalLabel">
@@ -81,7 +83,17 @@
         $("#codeModal").find(".code-block").html(code);
       }
     );
-  })
+  });
+  $(".rejudge-link").on('click', function(e) {
+    var link = $(e.target).data('link');
+    $.get(
+      link,
+      {},
+      function(data) {
+        location.reload();
+      }
+    )
+  });
   </script>
 
 {% endblock %}

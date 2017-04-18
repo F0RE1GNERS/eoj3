@@ -179,7 +179,7 @@ class OldSubmissionRejudgeThread(threading.Thread):
 
     def __init__(self, submissions):
         super().__init__()
-        self.submissions = [x.pk for x in submissions]
+        self.submissions = submissions
 
     def run(self):
         for sub in self.submissions:
