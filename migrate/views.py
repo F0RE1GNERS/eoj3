@@ -1,3 +1,44 @@
-from django.shortcuts import render
+from django.db import transaction
+from .models import OldUser, OldSubmission, OldDiscussion
+from submission.models import Submission
+from blog.models import Comment
+import threading
 
-# Create your views here.
+
+def verify_old_user(username, password):
+    # TODO: verify user
+    return True
+
+
+class MigrationThread(threading.Thread):
+
+    def __init__(self, username, request_user):
+        super().__init__()
+        self.username = username
+        self.new_user = str(request_user.pk)
+
+    def run(self):
+        with transaction.atomic():
+            for submission in OldSubmission.objects.filter(author=self.username).all():
+                Submission.objects.create(lang=submission.lang,
+                                          code=submission.code,
+                                          problem_id=str(submission.problem),
+                                          author_id=self.new_user,
+                                          create_time=submission.create_time,
+                                          judge_start_time=submission.judge_start_time,
+                                          judge_end_time=submission.judge_start_time,
+                                          status=submission.status,
+                                          status_percent=submission.status_percent,
+                                          status_detail=submission.status_detail,
+                                          status_time=submission.status_time,
+                                          status_memory=submission.status_memory,
+                                          code_length=len(submission.code))
+            OldSubmission.objects.filter(author=self.username).all().delete()
+
+        with transaction.atomic():
+            for comment in OldDiscussion.objects.filter(author=self.username).all():
+                Comment.objects.create(text=comment.text,
+                                       author_id=self.new_user,
+                                       create_time=comment.create_time,
+                                       problem_id=str(comment.problem))
+            Comment.objects.filter(author=self.username).all().delete()

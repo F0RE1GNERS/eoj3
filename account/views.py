@@ -10,6 +10,7 @@ from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, Profil
 from .models import User, ALIEN_CHOICE
 from django.contrib.auth.decorators import login_required
 from utils.models import get_site_settings
+from migrate.views import verify_old_user, MigrationThread
 
 
 @login_required
@@ -48,8 +49,11 @@ def migrate_from_old(request):
         result = form.clean()
         username = result.get('username')
         password = result.get('password')
-        # TODO: verify and migrate
-        messages.success(request, 'It could take a few minutes for the changes to take effect.')
+        if verify_old_user(username, password):
+            MigrationThread(username, request.user).start()
+            messages.success(request, 'It could take a few minutes for the changes to take effect.')
+        else:
+            messages.error(request, 'Username or password wrong.')
     else:
         form = MigrateForm()
 
