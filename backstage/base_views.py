@@ -24,7 +24,8 @@ class BaseCreateView(BaseBackstageMixin, CreateView):
 
     def form_valid(self, form):
         instance = form.save(commit=False)
-        instance.created_by = self.request.user
+        if hasattr(instance, 'created_by'):
+            instance.created_by = self.request.user
         instance.save()
         self.post_create(instance, form=form)
         messages.success(self.request, "%s was successfully added." % self.form_class.Meta.model.__name__)
