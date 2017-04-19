@@ -67,7 +67,7 @@ class Dispatcher:
                 response = requests.post(upload_linker(server.ip, server.port, self.problem_id),
                                          data=f.read(), auth=('token', server.token)).json()
                 if response['status'] != 'received':
-                    raise ConnectionError('Remote server rejected the request.')
+                    raise ConnectionError('Remote server rejected the request: ' + response['message'])
             with transaction.atomic():
                 server_status = ServerProblemStatus.objects.select_for_update().get(problem__pk=self.problem_id,
                                                                                     server__pk=self.server_id)
