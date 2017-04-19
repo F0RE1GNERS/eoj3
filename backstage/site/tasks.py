@@ -190,6 +190,6 @@ class OldSubmissionRejudgeThread(threading.Thread):
         for sub in self.submissions:
             if self.skip:
                 submission = OldSubmission.objects.get(pk=sub)
-                if SubmissionStatus.is_judged(submission.status) and submission.status != SubmissionStatus.SYSTEM_ERROR:
+                if SubmissionStatus.is_judged(submission.status):
                     continue
             DispatcherThread(sub).start()

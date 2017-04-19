@@ -1,6 +1,7 @@
 from django.db import transaction
 from .models import OldUser, OldSubmission, OldDiscussion
-from submission.models import Submission
+from submission.models import Submission, SubmissionStatus
+from problem.models import Problem
 from blog.models import Comment
 import threading
 
@@ -33,6 +34,11 @@ class MigrationThread(threading.Thread):
                                           status_time=submission.status_time,
                                           status_memory=submission.status_memory,
                                           code_length=len(submission.code))
+                problem = Problem.objects.select_for_update().get(pk=str(submission.problem))
+                problem.add_submit()
+                if submission.status == SubmissionStatus.ACCEPTED:
+                    problem.add_accept()
+                problem.save(update_fields=["total_submit_number", "total_accept_number"])
             OldSubmission.objects.filter(author=self.username).all().delete()
 
             for comment in OldDiscussion.objects.filter(author=self.username).all():
