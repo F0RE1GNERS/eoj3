@@ -177,10 +177,19 @@ class DispatcherThread(threading.Thread):
 
 class OldSubmissionRejudgeThread(threading.Thread):
 
-    def __init__(self, submissions):
+    def __init__(self, submissions, skip=False):
+        """
+        :param submissions: pass id
+        :param skip: if True then only WAITING, JUDGING and SYSTEM_ERROR subs will be rejudged
+        """
         super().__init__()
         self.submissions = submissions
+        self.skip = skip
 
     def run(self):
         for sub in self.submissions:
+            if self.skip:
+                submission = OldSubmission.objects.get(pk=sub)
+                if SubmissionStatus.is_judged(submission.status) and submission.status != SubmissionStatus.SYSTEM_ERROR:
+                    continue
             DispatcherThread(sub).start()

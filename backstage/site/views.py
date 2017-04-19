@@ -58,7 +58,7 @@ class MigrateList(BaseBackstageMixin, ListView):
             queryset = OldSubmission.objects.filter(problem=int(kw))
         else:
             return HttpResponseRedirect(reverse('backstage:migrate'))
-        OldSubmissionRejudgeThread([x.pk for x in queryset.all()]).start()
+        OldSubmissionRejudgeThread([x.pk for x in queryset.all()], skip=True).start()
         return HttpResponseRedirect(reverse('backstage:migrate'))
 
 
