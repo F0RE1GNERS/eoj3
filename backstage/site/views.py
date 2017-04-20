@@ -52,13 +52,15 @@ class MigrateList(BaseBackstageMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         kw = self.request.POST.get('judge')
+        skip = False
         if kw == 'all':
             queryset = OldSubmission.objects
+            skip = True
         elif kw and kw.isdigit():
             queryset = OldSubmission.objects.filter(problem=int(kw))
         else:
             return HttpResponseRedirect(reverse('backstage:migrate'))
-        OldSubmissionRejudgeThread([x.pk for x in queryset.all()], skip=True).start()
+        OldSubmissionRejudgeThread([x.pk for x in queryset.all()], skip=skip).start()
         return HttpResponseRedirect(reverse('backstage:migrate'))
 
 
