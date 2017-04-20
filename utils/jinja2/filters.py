@@ -4,6 +4,7 @@ from django_jinja import library
 from submission.models import STATUS_CHOICE
 import utils.markdown3 as md3
 from bs4 import BeautifulSoup
+from utils.xss_filter import XssHtml
 
 
 @library.filter(name='status_choice')
@@ -74,3 +75,11 @@ def get_intro(value):
 @library.filter(name='n2br')
 def n2br(value):
     return value.replace('\n', "<br>")
+
+
+@library.filter(name="safer")
+def xss_filter(value):
+    parser = XssHtml()
+    parser.feed(str(value))
+    parser.close()
+    return parser.getHtml()

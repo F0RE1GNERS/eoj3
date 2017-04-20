@@ -1,4 +1,5 @@
 import random
+import html
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from utils.language import LANG_CHOICE
@@ -63,6 +64,7 @@ class User(AbstractUser):
             name = self.nickname
         else:
             name = self.username
+        name = html.escape(name)
         if self.magic:
             return '<span class="magic %s">%s</span>' % (self.magic, name)
         else:

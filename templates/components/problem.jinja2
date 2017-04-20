@@ -21,16 +21,16 @@
   <div class="problem-body">
     {% if problem.description %}
       <div class="passage">
-        {{ problem.description | markdown | safe }}
+        {{ problem.description | markdown | safer | safe }}
       </div>
     {% endif %}
     {% if problem.input %}
       <h3 class="title">Input</h3>
-      {{ problem.input | markdown | safe }}
+      {{ problem.input | markdown | safer | safe }}
     {% endif %}
     {% if problem.output %}
       <h3 class="title">Output</h3>
-      {{ problem.output | markdown | safe }}
+      {{ problem.output | markdown | safer | safe }}
     {% endif %}
     {% if problem.sample %}
       <div class="passage examples">
@@ -40,7 +40,7 @@
     {% endif %}
     {% if problem.hint %}
       <h3 class="title">Note</h3>
-      {{ problem.hint | markdown | safe }}
+      {{ problem.hint | markdown | safer | safe }}
     {% endif %}
     {% if not contest %}
       {% if problem.source %}

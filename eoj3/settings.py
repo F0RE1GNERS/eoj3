@@ -113,6 +113,7 @@ TEMPLATES = [
                 "myFilter5": "utils.jinja2.filters.minute_format",
                 "myFilter6": "utils.jinja2.filters.get_intro",
                 "myFilter7": "utils.jinja2.filters.n2br",
+                "myFilter8": "utils.jinja2.filters.xss_filter",
             },
             "tests": {
                 "myTest": "utils.jinja2.tests.is_admin",
