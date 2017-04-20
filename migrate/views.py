@@ -4,11 +4,11 @@ from submission.models import Submission, SubmissionStatus
 from problem.models import Problem
 from blog.models import Comment
 import threading
+from hashlib import sha1
 
 
-def verify_old_user(username, password):
-    # TODO: verify user
-    return True
+def verify_old_user(user, pwd):
+    return OldUser.objects.filter(username=user, password='*' + sha1(sha1(pwd.encode()).digest()).hexdigest().upper()).exists()
 
 
 class MigrationThread(threading.Thread):
@@ -46,7 +46,7 @@ class MigrationThread(threading.Thread):
                                        author_id=self.new_user,
                                        create_time=comment.create_time,
                                        problem_id=str(comment.problem))
-            Comment.objects.filter(author=self.username).all().delete()
+            OldDiscussion.objects.filter(author=self.username).all().delete()
 
             OldUser.objects.filter(username=self.username).all().delete()
 

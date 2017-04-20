@@ -69,3 +69,8 @@ def sample_format(value):
 def get_intro(value):
     soup = BeautifulSoup(value, "html.parser")
     return soup.get_text(' ')[:256]
+
+
+@library.filter(name='n2br')
+def n2br(value):
+    return value.replace('\n', "<br>")
