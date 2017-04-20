@@ -48,5 +48,3 @@ class MigrationThread(threading.Thread):
                                        problem_id=str(comment.problem))
             OldDiscussion.objects.filter(author=self.username).all().delete()
 
-            OldUser.objects.filter(username=self.username).all().delete()
-
