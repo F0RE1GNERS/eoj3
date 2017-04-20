@@ -96,7 +96,7 @@ class StatusList(ListView):
             if kw.isdigit():
                 q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
             queryset = queryset.filter(q)
-        return queryset.all()
+        return queryset.all()[:10000]
 
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)
