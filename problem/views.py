@@ -26,14 +26,13 @@ class ProblemList(ListView):
     def get_queryset(self):
         kw = self.request.GET.get('keyword')
         tg = self.request.GET.get('tag')
-        if is_admin_or_root(self.request.user):
-            queryset = Problem.objects.filter()
-        else:
-            queryset = Problem.objects.filter(visible=True)
         if tg:
-            tag = Tag.objects.filter(name=tg)
-            if tag.exists():
-                queryset = TaggedItem.objects.get_by_model(Problem, tag.first()).distinct()
+            queryset = TaggedItem.objects.get_by_model(Problem, get_object_or_404(Tag, name=tg))
+        else:
+            queryset = Problem.objects.all()
+        if not is_admin_or_root(self.request.user):
+            queryset = queryset.filter(visible=True)
+
         if kw:
             q = Q(title__icontains=kw) | Q(source__icontains=kw)
             if kw.isdigit():
