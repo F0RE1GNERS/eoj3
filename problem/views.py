@@ -51,12 +51,19 @@ class ProblemList(ListView):
         data['show_tags'] = True
         if self.request.user.is_authenticated:
             # Get AC / Wrong
+            current_problem_set = [problem.pk for problem in data['problem_list']]
+            submission_list = self.request.user.submission_set.only('pk', 'author_id', 'problem_id', 'status').\
+                filter(problem_id__in=current_problem_set).all()
+            submission_set = dict()
+            for submission in submission_list:
+                if submission_set.get(submission.problem_id) != 'success':
+                    if submission.status != SubmissionStatus.ACCEPTED:
+                        submission_set[submission.problem_id] = 'danger'
+                    else:
+                        submission_set[submission.problem_id] = 'success'
             for problem in data['problem_list']:
-                queryset = problem.submission_set.filter(author=self.request.user)
-                if queryset.exists():
-                    problem.status = 'danger'
-                if queryset.filter(status=SubmissionStatus.ACCEPTED).exists():
-                    problem.status = 'success'
+                if submission_set.get(problem.pk) is not None:
+                    problem.status = submission_set.get(problem.pk)
             # Get tags
             data['show_tags'] = self.request.user.show_tags
 

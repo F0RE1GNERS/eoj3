@@ -95,3 +95,28 @@ class ContestStatus(BaseContestMixin, ListView):
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
         return data
+
+
+class ContestBalloon(BaseContestMixin, ListView):
+    template_name = 'contest/balloon.jinja2'
+    paginate_by = 50
+    context_object_name = 'submission_list'
+
+    def get_queryset(self):
+        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
+        queryset = Submission.objects.select_related('problem', 'author', 'contest').\
+            only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
+                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
+        if self.privileged or contest.get_frozen() == 'a':
+            return queryset.filter(contest=contest).all()
+        elif contest.get_frozen() == 'f2':
+            return queryset.none()
+        else:
+            return queryset.filter(contest=contest, create_time__lt=contest.freeze_time).all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestBalloon, self).get_context_data(**kwargs)
+        for submission in data['submission_list']:
+            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
+            submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
+        return data

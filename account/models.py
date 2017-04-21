@@ -9,12 +9,14 @@ class Privilege(object):
     REGULAR_USER = "user"
     ADMIN = "admin"
     ROOT = "root"
+    VOLUNTEER = "volunteer"
 
 
 PRIVILEGE_CHOICE = (
     ('user', 'Regular User'),
     ('admin', 'Admin'),
-    ('root', 'Root')
+    ('root', 'Root'),
+    ('volunteer', 'Volunteer'),
 )
 
 

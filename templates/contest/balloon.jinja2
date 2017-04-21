@@ -1,0 +1,32 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+{% block contest_title %}Status - {% endblock %}
+{% block contest_content %}
+
+  <div class="content-header">
+    <h2>Online status</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Who</th>
+          <th>Comment</th>
+          <th>Problem</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for submission in submission_list %}
+          <tr>
+            <td>{{ clickable_nickname(submission.author) }}</td>
+            <td>{{ submission.comment }}</td>
+            <td>{{ submission.contest_problem.identifier }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {{ my_paginator() }}
+{% endblock %}

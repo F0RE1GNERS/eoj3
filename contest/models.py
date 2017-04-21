@@ -126,6 +126,7 @@ class ContestClarification(models.Model):
 
 class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
+    star = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
@@ -140,6 +141,7 @@ class ContestParticipant(models.Model):
 
 class ContestInvitation(models.Model):
     contest = models.ForeignKey(Contest)
+    star = models.BooleanField(default=False)
     code = models.CharField(max_length=24)
     comment = models.TextField(blank=True)
 

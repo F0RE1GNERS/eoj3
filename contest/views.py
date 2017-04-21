@@ -9,7 +9,7 @@ from django.contrib import messages
 from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
 from .tasks import add_participant_with_invitation
 from submission.models import SubmissionStatus
-from account.permissions import is_admin_or_root
+from account.permissions import is_admin_or_root, is_volunteer
 
 
 def time_formatter(seconds):
@@ -38,6 +38,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
 
         self.user = request.user
         self.privileged = is_admin_or_root(self.user)
+        self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
         elif self.contest.public:
@@ -82,6 +83,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['is_frozen'] = self.is_frozen
 
         data['is_privileged'] = self.privileged
+        data['is_volunteer'] = self.volunteer
 
         return data
 
