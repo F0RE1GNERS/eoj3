@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse
 from django.db.models import Q
 from utils.models import SiteSettings
 from migrate.models import OldSubmission
+from submission.models import SubmissionStatus
 from django.views.generic import ListView, View
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -39,6 +40,8 @@ class MigrateList(BaseBackstageMixin, ListView):
             q = Q(author__iexact=kw)
             if kw.isdigit():
                 q |= Q(pk__exact=kw) | Q(problem__exact=int(kw))
+            if kw == 'system':
+                q |= Q(status=SubmissionStatus.SYSTEM_ERROR)
             queryset = queryset.filter(q)
         return queryset.all()
 
@@ -56,6 +59,8 @@ class MigrateList(BaseBackstageMixin, ListView):
         if kw == 'all':
             queryset = OldSubmission.objects
             skip = True
+        elif kw == 'system':
+            queryset = OldSubmission.objects.filter(status=SubmissionStatus.SYSTEM_ERROR)
         elif kw and kw.isdigit():
             queryset = OldSubmission.objects.filter(problem=int(kw))
         else:
