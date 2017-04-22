@@ -4,7 +4,7 @@ from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from .models import Contest, ContestParticipant
+from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter, get_contest_problem
 from submission.models import Submission, SubmissionStatus
 from submission.forms import ContestSubmitForm
@@ -124,4 +124,6 @@ class ContestBalloon(BaseContestMixin, ListView):
             submission.comment = contest_participant_set[submission.author_id]
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
+            if type(submission.contest_problem) == ContestProblem:
+                submission.contest_problem = submission.contest_problem.identifier
         return data

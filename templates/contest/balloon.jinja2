@@ -22,7 +22,7 @@
           <tr>
             <td>{{ clickable_nickname(submission.author) }}</td>
             <td>{{ submission.comment }}</td>
-            <td>{{ submission.contest_problem.identifier }}</td>
+            <td>{{ submission.contest_problem }}</td>
             <td>{{ submission.create_time }}</td>
           </tr>
         {% endfor %}
