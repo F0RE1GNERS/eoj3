@@ -41,6 +41,7 @@
         <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>
         <a class="link-lg {{ active('contest:standings') }}" target="_blank" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
         <a class="link-lg {{ active('contest:clarification') }}" href="{{ url('contest:clarification', contest.pk) }}">Clarification <span class="badge" id="clarification-badge" style="display:none;">NEW</span></a>
+        {% if is_volunteer or is_privileged %}<a class="link-lg {{ active('contest:balloon') }}" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>{% endif %}
 
       </div>
       <div class="col-12 col-md-9 col-md-pull-3 bd-content">

@@ -4,7 +4,7 @@ from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from .models import Contest
+from .models import Contest, ContestParticipant
 from .views import BaseContestMixin, time_formatter, get_contest_problem
 from submission.models import Submission, SubmissionStatus
 from submission.forms import ContestSubmitForm
@@ -78,16 +78,15 @@ class ContestStatus(BaseContestMixin, ListView):
     context_object_name = 'submission_list'
 
     def get_queryset(self):
-        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        queryset = Submission.objects.select_related('problem', 'author', 'contest').\
+        queryset = self.contest.submission_set.select_related('author', 'contest').\
             only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
-        if self.privileged or contest.get_frozen() == 'a':
-            return queryset.filter(contest=contest).all()
-        elif contest.get_frozen() == 'f2':
+                 'author__magic', 'problem_id', 'lang', 'status', 'status_percent')
+        if self.privileged or self.contest.get_frozen() == 'a':
+            return queryset.all()
+        elif self.contest.get_frozen() == 'f2':
             return queryset.none()
         else:
-            return queryset.filter(contest=contest, create_time__lt=contest.freeze_time).all()
+            return queryset.filter(create_time__lt=self.contest.freeze_time).all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
@@ -99,24 +98,30 @@ class ContestStatus(BaseContestMixin, ListView):
 
 class ContestBalloon(BaseContestMixin, ListView):
     template_name = 'contest/balloon.jinja2'
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'submission_list'
 
+    def test_func(self):
+        if not self.privileged and not self.volunteer:
+            raise PermissionDenied("You don't have the access.")
+        return True
+
     def get_queryset(self):
-        contest = Contest.objects.get(pk=self.kwargs.get('cid'))
-        queryset = Submission.objects.select_related('problem', 'author', 'contest').\
-            only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_percent')
-        if self.privileged or contest.get_frozen() == 'a':
-            return queryset.filter(contest=contest).all()
-        elif contest.get_frozen() == 'f2':
-            return queryset.none()
-        else:
-            return queryset.filter(contest=contest, create_time__lt=contest.freeze_time).all()
+        queryset = self.contest.submission_set.select_related('author').\
+            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
+                 'author__magic', 'problem_id', 'status').filter(status=SubmissionStatus.ACCEPTED)
+        return queryset.all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestBalloon, self).get_context_data(**kwargs)
+        author_list = set(x.author_id for x in data['submission_list'])
+        contest_participants = self.contest.contestparticipant_set.filter(user_id__in=author_list).\
+            only("user_id", "comment", "contest_id").all()
+        contest_participant_set = dict()
+        for participant in contest_participants:
+            contest_participant_set[participant.user_id] = participant.comment
         for submission in data['submission_list']:
+            submission.comment = contest_participant_set[submission.author_id]
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
         return data

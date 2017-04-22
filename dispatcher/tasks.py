@@ -164,6 +164,8 @@ class Dispatcher:
         with transaction.atomic():
             self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
             self.submission.status = SubmissionStatus.SYSTEM_ERROR
+            self.submission.status_percent = 0
+            self.submission.status_detail = ''
             self.submission.save()
         return False
 
