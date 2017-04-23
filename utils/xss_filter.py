@@ -41,7 +41,7 @@ class XssHtml(HTMLParser):
         "table": ["border", "cellpadding", "cellspacing"],
     }
 
-    _regex_url = re.compile(r'^(http|https|ftp)://.*', re.I | re.S)
+    _regex_url = re.compile(r'^(((http|https|ftp)://)|/).*', re.I | re.S)
     _regex_style_1 = re.compile(r'(\\|&#|/\*|\*/)', re.I)
     _regex_style_2 = re.compile(r'e.*x.*p.*r.*e.*s.*s.*i.*o.*n', re.I | re.S)
 
@@ -192,6 +192,7 @@ if "__main__" == __name__:
         <a href='javascript:prompt(1)'><br />hehe</a></div>
         <p id="test" onmouseover="alert(1)" style="expresSion(alert(1))">&gt;M<svg>
         <a href="https://www.baidu.com" target="self">MM</a></p>
-        <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />""")
+        <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />
+        <a href="/problem/">Problems</a>""")
     parser.close()
     print(parser.getHtml())
