@@ -44,9 +44,11 @@ class MigrationThread(threading.Thread):
             OldSubmission.objects.filter(author=self.username).all().delete()
 
             for comment in OldDiscussion.objects.filter(author=self.username).all():
-                Comment.objects.create(text=comment.text,
-                                       author_id=self.new_user,
-                                       create_time=comment.create_time,
-                                       problem_id=str(comment.problem))
+                c = Comment.objects.create(text=comment.text,
+                                           author_id=self.new_user,
+                                           # create_time=comment.create_time,
+                                           problem_id=str(comment.problem))
+                c.create_time = comment.create_time
+                c.save(update_fields=["create_time"])
             OldDiscussion.objects.filter(author=self.username).all().delete()
 
