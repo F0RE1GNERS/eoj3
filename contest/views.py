@@ -159,7 +159,7 @@ class ContestBoundUser(View):
 
 class ContestList(ListView):
     template_name = 'contest_list.jinja2'
-    paginate_by = 50
+    paginate_by = 30
     context_object_name = 'contest_list'
 
     def get_queryset(self):

@@ -14,6 +14,7 @@
           <th>Who</th>
           <th>Comment</th>
           <th>Problem</th>
+          <th>When</th>
         </tr>
       </thead>
       <tbody>
@@ -21,7 +22,8 @@
           <tr>
             <td>{{ clickable_nickname(submission.author) }}</td>
             <td>{{ submission.comment }}</td>
-            <td>{{ submission.contest_problem.identifier }}</td>
+            <td>{{ submission.contest_problem }}</td>
+            <td>{{ submission.create_time }}</td>
           </tr>
         {% endfor %}
       </tbody>
