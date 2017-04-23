@@ -67,7 +67,7 @@ class Dispatcher:
                 response = requests.post(upload_linker(server.ip, server.port, self.problem_id),
                                          data=f.read(), auth=('token', server.token)).json()
                 if response['status'] != 'received':
-                    raise ConnectionError('Remote server rejected the request: ' + response['message'])
+                    raise SystemError('Remote server rejected the request: ' + response['message'])
             with transaction.atomic():
                 server_status = ServerProblemStatus.objects.select_for_update().get(problem__pk=self.problem_id,
                                                                                     server__pk=self.server_id)
@@ -79,7 +79,7 @@ class Dispatcher:
             return False
         except Exception as e:
             print('Something wrong during update:')
-            print(e)
+            print(repr(e))
             return False
 
     def update_submission_and_problem(self, response):
@@ -132,7 +132,7 @@ class Dispatcher:
                                          timeout=3600).json()
                 # print(response)
                 if response['status'] != 'received':
-                    raise ConnectionError('Remote server rejected the request.')
+                    raise SystemError('Remote server rejected the request.')
 
                 self.update_submission_and_problem(response)
                 return True
