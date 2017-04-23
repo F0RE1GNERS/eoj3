@@ -21,19 +21,21 @@ class MigrationThread(threading.Thread):
     def run(self):
         with transaction.atomic():
             for submission in OldSubmission.objects.filter(author=self.username).all():
-                Submission.objects.create(lang=submission.lang,
-                                          code=submission.code,
-                                          problem_id=str(submission.problem),
-                                          author_id=self.new_user,
-                                          create_time=submission.create_time,
-                                          judge_start_time=submission.judge_start_time,
-                                          judge_end_time=submission.judge_start_time,
-                                          status=submission.status,
-                                          status_percent=submission.status_percent,
-                                          status_detail=submission.status_detail,
-                                          status_time=submission.status_time,
-                                          status_memory=submission.status_memory,
-                                          code_length=len(submission.code))
+                s = Submission.objects.create(lang=submission.lang,
+                                              code=submission.code,
+                                              problem_id=str(submission.problem),
+                                              author_id=self.new_user,
+                                              # create_time=submission.create_time,
+                                              judge_start_time=submission.judge_start_time,
+                                              judge_end_time=submission.judge_start_time,
+                                              status=submission.status,
+                                              status_percent=submission.status_percent,
+                                              status_detail=submission.status_detail,
+                                              status_time=submission.status_time,
+                                              status_memory=submission.status_memory,
+                                              code_length=len(submission.code))
+                s.create_time = submission.create_time
+                s.save(update_fields=["create_time"])
                 problem = Problem.objects.select_for_update().get(pk=str(submission.problem))
                 problem.add_submit()
                 if submission.status == SubmissionStatus.ACCEPTED:
