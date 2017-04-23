@@ -103,7 +103,7 @@ class Dispatcher:
                 if not self.get_server():
                     raise SystemError('No server available.')
                 if not self.update_data_for_server():
-                    raise SystemError('Data file is not found.')
+                    raise SystemError('Data upload failed.')
 
                 with transaction.atomic():
                     self.submission = OldSubmission.objects.select_for_update().get(pk=self.submission_id)

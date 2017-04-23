@@ -65,7 +65,7 @@ class Dispatcher:
                 response = requests.post(upload_linker(server.ip, server.port, self.problem_id),
                                          data=f.read(), auth=('token', server.token)).json()
                 if response['status'] != 'received':
-                    raise SystemError('Remote server rejected the request.')
+                    raise SystemError('Remote server rejected data send request.', response['message'])
             with transaction.atomic():
                 server_status = ServerProblemStatus.objects.select_for_update().get(problem__pk=self.problem_id,
                                                                                     server__pk=self.server_id)
@@ -121,7 +121,7 @@ class Dispatcher:
                 if not self.get_server():
                     raise SystemError('No server available.')
                 if not self.update_data_for_server():
-                    raise SystemError('Data file is not found.')
+                    raise SystemError('Data upload failed.')
 
                 with transaction.atomic():
                     self.submission = Submission.objects.select_for_update().get(pk=self.submission_id)
@@ -150,13 +150,12 @@ class Dispatcher:
                                          timeout=3600).json()
                 # print(response)
                 if response['status'] != 'received':
-                    raise SystemError('Remote server rejected the request.')
+                    raise SystemError('Remote server rejected judge request.', response['message'])
 
                 self.update_submission_and_problem(response)
                 return True
             except Exception as e:
                 print('Something wrong during dispatch of %s.' % str(self.submission_id))
-                print(repr(e))
                 traceback.print_exc()
             # Wait for 10 seconds
             time.sleep(10)
