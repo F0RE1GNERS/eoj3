@@ -22,3 +22,4 @@ djangorestframework
 django-tagging
 xlsxwriter
 django-debug-toolbar
+names

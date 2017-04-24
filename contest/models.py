@@ -128,6 +128,7 @@ class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
     star = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
+    hidden_comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
