@@ -4,18 +4,20 @@ import names
 import random
 
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
+from django.views import static
 from django.contrib import messages
 from django.views.generic.list import ListView
 from django.views import View
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 
+from eoj3.settings import GENERATE_DIR
 from .forms import ContestEditForm
 from account.models import User, MAGIC_CHOICE
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
 from contest.tasks import update_contest, add_participant_with_invitation
-
+from utils import xlsx_generator
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 
@@ -244,3 +246,9 @@ class ContestParticipantCreate(BaseBackstageMixin, View):
                 user_id += 1
         update_contest(contest)
         return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantDownload(BaseBackstageMixin, View):
+    def get(self, request, pk):
+        file_name = xlsx_generator.generate_participant(pk)
+        return static.serve(request, file_name, document_root=GENERATE_DIR)

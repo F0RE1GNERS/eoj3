@@ -45,3 +45,20 @@ def generate(cid):
     workbook.close()
 
     return file_name
+
+
+def generate_participant(cid):
+    file_name = 'ContestParticipants-%s-%s.xlsx' % (str(cid), datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+    file_path = os.path.join(GENERATE_DIR, file_name)
+    contest = Contest.objects.get(pk=cid)
+    participant_list = contest.contestparticipant_set.select_related('user').all()
+
+    workbook = xlsxwriter.Workbook(file_path)
+    worksheet = workbook.add_worksheet()
+    for (i, row) in enumerate(participant_list):
+        worksheet.write(i, 0, row.comment)
+        worksheet.write(i, 1, row.user.username)
+        worksheet.write(i, 2, row.hidden_comment)
+    workbook.close()
+
+    return file_name
