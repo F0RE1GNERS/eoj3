@@ -1,4 +1,6 @@
-from django.shortcuts import render, HttpResponseRedirect, reverse
+import json
+
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from django.db import transaction
@@ -150,4 +152,4 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
             problem = Problem.objects.select_for_update().get(pk=pk)
             problem.visible = True if not problem.visible else False
             problem.save(update_fields=["visible"])
-        return HttpResponseRedirect(reverse('backstage:problem'))
+        return HttpResponse(json.dumps({'result': 'success'}))

@@ -1,11 +1,12 @@
 import shortuuid
+import json
 
-from django.shortcuts import render, HttpResponseRedirect, reverse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
 from django.contrib import messages
 from django.views.generic.list import ListView
 from django.views import View
 from django.utils import timezone
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from .forms import ContestEditForm
 from account.models import User
@@ -194,3 +195,12 @@ class ContestParticipantCommentUpdate(BaseBackstageMixin, View):
         participant.comment = comment
         participant.save(update_fields=["comment"])
         return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantStarToggle(BaseBackstageMixin, View):
+    def get(self, request, pk, participant_pk):
+        with transaction.atomic():
+            participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
+            participant.star = True if not participant.star else False
+            participant.save(update_fields=["star"])
+        return HttpResponse(json.dumps({'result': 'success'}))
