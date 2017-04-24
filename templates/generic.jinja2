@@ -30,7 +30,7 @@
           Last seen: {% if profile.last_login %}{{ profile.last_login | date('Y-m-d H:i:s') }}{% else %}N/A{% endif %}
           </p>
           {% if profile.motto %}<p><strong>{{ profile.motto }}</strong></p>{% endif %}
-          <p><a href="{{ url('status') }}?author={{ profile.username }}">See all submissions</a></p>
+          <p><a href="{{ url('status') }}?author={{ profile.pk }}">See all submissions</a></p>
         </div>
         <div class="panel panel-default">
           <div class="panel-heading">
