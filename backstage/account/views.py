@@ -47,7 +47,7 @@ class AccountPrivilegeSwitch(BaseBackstageMixin, View):
             elif self.request.user.privilege == Privilege.ADMIN:
                 if user.privilege == 'user':
                     user.privilege = 'volunteer'
-                elif user.pviilege == 'volunteer':
+                elif user.privilege == 'volunteer':
                     user.privilege = 'user'
             user.save()
         return HttpResponse(json.dumps({'result': 'success'}))
