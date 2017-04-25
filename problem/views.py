@@ -96,6 +96,16 @@ class ProblemView(FormView):
         if not is_admin_or_root(self.request.user) and not self.problem.visible:
             raise PermissionDenied("You don't have the access.")
         data['problem'] = self.problem.get_markdown()
+        if self.request.user.is_authenticated:
+            data['submissions'] = self.problem.submission_set.only("create_time", "pk", "status", "problem_id").\
+                                 filter(author=self.request.user).all()[:10]
+
+        show_tags = True
+        if self.request.user.is_authenticated:
+            show_tags = self.request.user.show_tags
+        if show_tags:
+            data['tags'] = self.problem.tags
+
         return data
 
     def form_valid(self, form):
