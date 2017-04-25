@@ -33,18 +33,22 @@ class AccountList(BaseBackstageMixin, ListView):
         return data
 
 class AccountPrivilegeSwitch(BaseBackstageMixin, View):
-    def test_func(self):
-        return super(AccountPrivilegeSwitch, self).test_func() and self.request.user.privilege == Privilege.ROOT
 
     def get(self, request, pk):
         with transaction.atomic():
             user = User.objects.select_for_update().get(pk=pk)
-            if user.privilege == 'user':
-                user.privilege = 'volunteer'
-            elif user.privilege == 'volunteer':
-                user.privilege = 'admin'
-            elif user.privilege == 'admin':
-                user.privilege = 'user'
+            if self.request.user.privilege == Privilege.ROOT:
+                if user.privilege == 'user':
+                    user.privilege = 'volunteer'
+                elif user.privilege == 'volunteer':
+                    user.privilege = 'admin'
+                elif user.privilege == 'admin':
+                    user.privilege = 'user'
+            elif self.request.user.privilege == Privilege.ADMIN:
+                if user.privilege == 'user':
+                    user.privilege = 'volunteer'
+                elif user.pviilege == 'volunteer':
+                    user.privilege = 'user'
             user.save()
         return HttpResponse(json.dumps({'result': 'success'}))
 
