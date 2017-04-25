@@ -20,7 +20,7 @@ class MigrationThread(threading.Thread):
 
     def run(self):
         with transaction.atomic():
-            for submission in OldSubmission.objects.filter(author=self.username).all():
+            for submission in OldSubmission.objects.filter(author=self.username).order_by("create_time").all():
                 s = Submission.objects.create(lang=submission.lang,
                                               code=submission.code,
                                               problem_id=str(submission.problem),
@@ -43,7 +43,7 @@ class MigrationThread(threading.Thread):
                 problem.save(update_fields=["total_submit_number", "total_accept_number"])
             OldSubmission.objects.filter(author=self.username).all().delete()
 
-            for comment in OldDiscussion.objects.filter(author=self.username).all():
+            for comment in OldDiscussion.objects.filter(author=self.username).order_by("create_time").all():
                 c = Comment.objects.create(text=comment.text,
                                            author_id=self.new_user,
                                            # create_time=comment.create_time,
