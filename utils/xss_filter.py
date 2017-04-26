@@ -40,6 +40,7 @@ class XssHtml(HTMLParser):
         "embed": ["src", "width", "height", "type", "allowfullscreen", "loop", "play", "wmode", "menu"],
         "table": ["border", "cellpadding", "cellspacing"],
         "script": ["type"],
+        "td": ["rowspan"],
     }
 
     _regex_url = re.compile(r'^(((http|https|ftp)://)|/).*', re.I | re.S)
@@ -203,6 +204,7 @@ if "__main__" == __name__:
         <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />
         <a href="/problem/">Problems</a>
         <script type="math/tex">(1<n \\leq 100)</script>
+        <td rowspan="2">
 """)
     parser.close()
     print(parser.getHtml())
