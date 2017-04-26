@@ -30,6 +30,9 @@
   }
   p {
     line-height: 1.6;
+    strong {
+      text-decoration: underline;
+    }
   }
   .graphics {
     clear: both;
