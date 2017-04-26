@@ -36,6 +36,7 @@ class Contest(models.Model):
         ('acm', 'ACM Rule'),
         ('oi', 'OI Rule'),
         ('oi2', 'Traditional OI Rule'),
+        ('work', 'School Work'),
     )
 
     title = models.CharField(max_length=192)
@@ -128,6 +129,7 @@ class ContestParticipant(models.Model):
     user = models.ForeignKey(User)
     star = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
+    hidden_comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)

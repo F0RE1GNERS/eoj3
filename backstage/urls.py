@@ -2,9 +2,9 @@ from django.conf.urls import url
 
 from .base_views import Index
 from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch
-from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage
-from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate
-from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign
+from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload
+from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
+from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
@@ -40,6 +40,9 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', ContestInvitationAssign.as_view(), name='contest_invitation_assign'),
     url(r'^contest/(?P<pk>\d+)/participants/$', ContestParticipantList.as_view(), name='contest_participant'),
     url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$', ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
+    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', ContestParticipantStarToggle.as_view(), name='contest_participant_star_toggle'),
+    url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(), name='contest_participant_create'),
+    url(r'^contest/(?P<pk>\d+)/participants/download/$', ContestParticipantDownload.as_view(), name='contest_participant_download'),
 
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/$', ServerCreate.as_view(), name='server_create'),

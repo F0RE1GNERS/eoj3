@@ -1,18 +1,23 @@
 import shortuuid
+import json
+import names
+import random
 
-from django.shortcuts import render, HttpResponseRedirect, reverse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
+from django.views import static
 from django.contrib import messages
 from django.views.generic.list import ListView
 from django.views import View
 from django.utils import timezone
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
+from eoj3.settings import GENERATE_DIR
 from .forms import ContestEditForm
-from account.models import User
+from account.models import User, MAGIC_CHOICE
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
 from contest.tasks import update_contest, add_participant_with_invitation
-
+from utils import xlsx_generator
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 
@@ -194,3 +199,56 @@ class ContestParticipantCommentUpdate(BaseBackstageMixin, View):
         participant.comment = comment
         participant.save(update_fields=["comment"])
         return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantStarToggle(BaseBackstageMixin, View):
+    def get(self, request, pk, participant_pk):
+        with transaction.atomic():
+            participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
+            participant.star = True if not participant.star else False
+            participant.save(update_fields=["star"])
+        return HttpResponse(json.dumps({'result': 'success'}))
+
+
+class ContestParticipantCreate(BaseBackstageMixin, View):
+
+    @staticmethod
+    def _get_username(contest_id, user_id):
+        return "c%s#%04d" % (str(contest_id), int(user_id))
+
+    def post(self, request, pk):
+        namelist = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
+        user_id = 1
+        contest = Contest.objects.get(pk=pk)
+        for name in namelist:
+            if name.startswith('*'):
+                comment = name[1:].strip()
+                star = True
+            else:
+                comment = name
+                star = False
+            password_gen = shortuuid.ShortUUID("23456789ABCDEF")
+            password = password_gen.random(8)
+            nickname = names.get_full_name()
+            while True:
+                try:
+                    username = self._get_username(pk, user_id)
+                    email = '%s@fake.ecnu.edu.cn' % username
+                    user = User.objects.create(username=username, email=email, nickname=nickname,
+                                               magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
+                    user.set_password(password)
+                    user.save()
+                    ContestParticipant.objects.create(user=user, comment=comment, hidden_comment=password,
+                                                      star=star, contest=contest)
+                    break
+                except IntegrityError:
+                    pass
+                user_id += 1
+        update_contest(contest)
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantDownload(BaseBackstageMixin, View):
+    def get(self, request, pk):
+        file_name = xlsx_generator.generate_participant(pk)
+        return static.serve(request, file_name, document_root=GENERATE_DIR)

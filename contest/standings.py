@@ -7,7 +7,6 @@ from django.views import static
 from .views import BaseContestMixin
 from .models import Contest
 from .tasks import update_contest
-from account.permissions import is_admin_or_root
 from utils import xlsx_generator
 from eoj3.settings import GENERATE_DIR
 
@@ -29,7 +28,7 @@ class ContestStandings(BaseContestMixin, ListView):
     def get_queryset(self):
         return self.contest.contestparticipant_set.select_related('user').only('user_id', 'user__username', 'user__magic',
                                                                                'comment', 'contest_id', 'score', 'penalty',
-                                                                               'html_cache', 'rank', 'user__nickname').all()
+                                                                               'html_cache', 'rank', 'star', 'user__nickname').all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)

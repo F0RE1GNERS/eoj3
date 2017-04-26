@@ -7,12 +7,20 @@
 {% block backstage_content %}
 
   {% include 'components/message.jinja2' %}
+
+  <p>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importNamelistModal">Import from namelist</button>
+    <a role="button" class="btn btn-default" href="{{ url('backstage:contest_participant_download', contest.pk) }}">Download as Excel</a>
+  </p>
+
   <div class="table-responsive">
     <table class="table">
       <thead>
         <tr>
           <th width="30%">Username</th>
           <th>Comment</th>
+          <th>Hidden</th>
+          <th>Star</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -21,7 +29,9 @@
           <tr>
             <td>{{ participant.user.username }}</td>
             <td>{{ participant.comment }}</td>
-            <td><a data-toggle="modal" data-url="{{ url('backstage:contest_participant_change', contest.pk, participant.pk) }}" href="#commentUser">Edit</a></td>
+            <td>{{ participant.hidden_comment }}</td>
+            <td><a href="javascript:void(0);" class="star-link" data-link="{{ url('backstage:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
+            <td><a data-toggle="modal" data-link="{{ url('backstage:contest_participant_change', contest.pk, participant.pk) }}" href="#commentUser">Edit</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -60,12 +70,48 @@
     </div>
   </div>
 
+  <div class="modal fade" id="importNamelistModal" tabindex="-1" role="dialog"
+       aria-labelledby="importNamelistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="importNamelistModalLabel">Paste your namelist</h4>
+        </div>
+
+        <form style="margin-bottom:0" action="{{ url('backstage:contest_participant_create', contest.pk) }}" method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="form-group">
+              <label for="list" class="form-control-label">Namelist</label>
+              <textarea class="form-control" name="list" id="list" rows="7" placeholder="One record per line"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
   $('#commentUser').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var url = button.data('url');
     $(this).find('#commentUserForm').attr('action', url);
     console.log($(this).find('#commentUserForm').attr('action'));
+  });
+  $(".star-link").on('click', function(e) {
+    var link = $(e.target).data('link');
+    $.get(link, {}, function (data) {
+        location.reload();
+      }
+    );
   });
   </script>
 

@@ -26,9 +26,9 @@
           <tr>
             <th scope="row">{{ problem.pk }}</th>
             <td>{{ problem.title }}</td>
-            <td><a href="{{ url('backstage:problem_visible_switch', problem.pk) }}" class="text-primary">{{ problem.visible }}</a></td>
-            <td><a href="{{ url('backstage:problem_edit', problem.pk) }}" class="text-primary">Edit</a></td>
-            <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}" class="text-primary">Testdata</a></td>
+            <td><a href="javascript:void(0);" class="visible-link" data-link="{{ url('backstage:problem_visible_switch', problem.pk) }}">{{ problem.visible }}</a></td>
+            <td><a href="{{ url('backstage:problem_edit', problem.pk) }}">Edit</a></td>
+            <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}">Testdata</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -68,9 +68,14 @@
     </div>
   </div>
 
-{% endblock %}
-
-
-{% block script %}
+  <script>
+    $(".visible-link").on('click', function(e) {
+      var link = $(e.target).data('link');
+      $.get(link, {}, function (data) {
+          location.reload();
+        }
+      );
+    });
+  </script>
 
 {% endblock %}

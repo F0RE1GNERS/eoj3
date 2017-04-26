@@ -88,7 +88,7 @@ class StatusList(ListView):
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(contest__isnull=True, problem__visible=True)
         if author:
-            queryset = queryset.filter(author__username=author)
+            queryset = queryset.filter(author_id=author)
         if prob:
             queryset = queryset.filter(problem_id=prob)
         if kw:

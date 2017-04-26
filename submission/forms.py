@@ -1,7 +1,17 @@
+import re
 from django import forms
 from django.contrib import messages
 from .models import Submission
 from submission.models import LANG_CHOICE
+
+
+def check_code(code):
+    if len(code) == 0:
+        raise forms.ValidationError('Code should not be empty.')
+    if len(code) > 65536:
+        raise forms.ValidationError('Code should not contain more than 65536 characters.')
+    if re.match(r"(print|scan)f.*?\".*?%I64d.*?\"", code):
+        raise forms.ValidationError('Please use cin/cout or %lld instead of %I64d.')
 
 
 class SubmitForm(forms.ModelForm):
@@ -11,8 +21,7 @@ class SubmitForm(forms.ModelForm):
 
     def clean_code(self):
         data = self.cleaned_data['code']
-        if len(data) == 0 or len(data) > 65536:
-            raise forms.ValidationError('Code should not be empty or contain more than 65536 characters.')
+        check_code(data)
         return data
 
 
@@ -34,6 +43,5 @@ class ContestSubmitForm(forms.ModelForm):
 
     def clean_code(self):
         data = self.cleaned_data['code']
-        if len(data) == 0 or len(data) > 65536:
-            raise forms.ValidationError('Code should not be empty or contain more than 65536 characters.')
+        check_code(data)
         return data

@@ -123,7 +123,6 @@ def recalculate_for_participant(contest, submissions, problems):
     html_small = '<span class="text-small">{text}</span>'
     html_column = '<td>{column}</td>'
 
-    # ACM Rule
     if contest.rule == 'acm':
         score = len(accept)
         for problem in sorted(identify_problem.values()):
@@ -142,6 +141,8 @@ def recalculate_for_participant(contest, submissions, problems):
             else:
                 sub_cache = ''
             cache += html_column.format(column=sub_cache)
+    elif contest.rule == 'work':
+        score = len(accept)
     elif contest.rule == 'oi':
         score = sum(max_score.values())
         for problem in sorted(identify_problem.values()):
@@ -242,8 +243,9 @@ def _update_header(contest):
             res = template.format(width=2, info='=')
         if rule != 'oi2':
             res += template.format(width=5, info='Penalty')
-        for contest_problem in contest_problems:
-            res += template.format(width=4, info=contest_problem.identifier)
+        if rule != 'work':
+            for contest_problem in contest_problems:
+                res += template.format(width=4, info=contest_problem.identifier)
         return res
 
     contest.contest_header = _get_standings_header(contest.rule, contest.contestproblem_set.all())

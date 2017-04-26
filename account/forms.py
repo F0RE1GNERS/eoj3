@@ -33,6 +33,8 @@ class RegisterForm(forms.ModelForm):
         data = self.cleaned_data.get('username')
         if len(data) < 6:
             raise forms.ValidationError("Username should contain at least 6 characters.")
+        if '#' in data:
+            raise forms.ValidationError("Please do not use # in username.")
         return data
 
     def clean(self):
