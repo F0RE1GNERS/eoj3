@@ -36,6 +36,7 @@ class Contest(models.Model):
         ('acm', 'ACM Rule'),
         ('oi', 'OI Rule'),
         ('oi2', 'Traditional OI Rule'),
+        ('work', 'School Work'),
     )
 
     title = models.CharField(max_length=192)

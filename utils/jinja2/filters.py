@@ -15,9 +15,12 @@ def status_choice(value):
 @library.filter(name='timedelta')
 def timedelta_format(value):
     days, seconds = value.days, value.seconds
-    hours = days * 24 + seconds // 3600
+    hours = seconds // 3600
     minutes = (seconds % 3600) // 60
-    return "{:02}:{:02}".format(hours, minutes)
+    if days == 0:
+        return "{}:{:02}".format(hours, minutes)
+    else:
+        return "{}:{:02}:{:02}".format(days, hours, minutes)
 
 
 @library.filter(name="minute_filter")
