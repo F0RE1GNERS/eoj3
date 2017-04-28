@@ -19,7 +19,7 @@ from utils.url_formatter import upload_linker, judge_linker
 
 _WORKER_THREAD_NUM = 0
 _WORKER_QUEUE = queue.Queue()
-_CONCURRENCY = cpu_count() * 2
+_CONCURRENCY = cpu_count()
 
 
 class Dispatcher:
