@@ -84,9 +84,9 @@ class Dispatcher:
         accept_increment = 0
         with transaction.atomic():
             submission = Submission.objects.select_for_update().get(pk=self.submission_id)
-            if submission.judge_start_time > self.submission.judge_start_time:
-                print('There has been a newer judge')
-                return
+            # if submission.judge_start_time > self.submission.judge_start_time:
+            #     print('There has been a newer judge')
+            #     return
             prev_status = submission.status
 
             problem = Problem.objects.select_for_update().get(pk=self.problem_id)
