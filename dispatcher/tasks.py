@@ -5,6 +5,7 @@ import json
 import time
 import queue
 import traceback
+from multiprocessing import cpu_count
 from django.utils import timezone
 from django.db import transaction
 
@@ -18,6 +19,7 @@ from utils.url_formatter import upload_linker, judge_linker
 
 _WORKER_THREAD_NUM = 0
 _WORKER_QUEUE = queue.Queue()
+_CONCURRENCY = cpu_count() * 2
 
 
 class Dispatcher:
@@ -179,7 +181,7 @@ class DispatcherThread(threading.Thread):
         global _WORKER_THREAD_NUM, _WORKER_QUEUE
         _WORKER_QUEUE.put(self.submission_id)
 
-        if _WORKER_THREAD_NUM <= Server.objects.count() * 10:
+        if _WORKER_THREAD_NUM <= Server.objects.count() * _CONCURRENCY:
             # Thread number within range
             _WORKER_THREAD_NUM += 1
             # print('establishing', _WORKER_THREAD_NUM)
