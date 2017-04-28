@@ -43,7 +43,6 @@ class Contest(models.Model):
     description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
-    created_by = models.ForeignKey(User, related_name='created_contests')
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
