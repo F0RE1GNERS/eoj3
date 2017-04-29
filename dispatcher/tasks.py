@@ -219,7 +219,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
         submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem_id)
         submission.problem.add_submit()
-        submission.problem.save(update_fields=["total_accept_number"])
+        submission.problem.save(update_fields=["total_submit_number"])
 
         submission.contest = contest
         submission.author = author
@@ -227,7 +227,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.save()
 
         contest_problem.add_submit()
-        contest_problem.save(update_fields=["total_accept_number"])
+        contest_problem.save(update_fields=["total_submit_number"])
 
     DispatcherThread(submission.pk).start()
 
