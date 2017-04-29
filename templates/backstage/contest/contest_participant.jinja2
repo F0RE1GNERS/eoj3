@@ -102,7 +102,7 @@
   <script>
   $('#commentUser').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
-    var url = button.data('url');
+    var url = button.data('link');
     $(this).find('#commentUserForm').attr('action', url);
     console.log($(this).find('#commentUserForm').attr('action'));
   });

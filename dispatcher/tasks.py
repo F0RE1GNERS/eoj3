@@ -17,9 +17,9 @@ from submission.models import Submission, SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
 
-_WORKER_THREAD_NUM = 0
-_WORKER_QUEUE = queue.Queue()
-_CONCURRENCY = cpu_count()
+# _WORKER_THREAD_NUM = 0
+# _WORKER_QUEUE = queue.Queue()
+_CONCURRENCY = cpu_count() * 2
 
 
 class Dispatcher:
@@ -79,7 +79,6 @@ class Dispatcher:
             return False
         except Exception as e:
             print('Something wrong during update:')
-            print(repr(e))
             return False
 
     def update_submission_and_problem(self, response):
@@ -178,21 +177,22 @@ class DispatcherThread(threading.Thread):
         self.submission_id = submission_id
 
     def run(self):
-        global _WORKER_THREAD_NUM, _WORKER_QUEUE
-        _WORKER_QUEUE.put(self.submission_id)
-
-        if _WORKER_THREAD_NUM <= Server.objects.count() * _CONCURRENCY:
-            # Thread number within range
-            _WORKER_THREAD_NUM += 1
-            # print('establishing', _WORKER_THREAD_NUM)
-            while True:
-                try:
-                    item = _WORKER_QUEUE.get_nowait()
-                    Dispatcher(item).dispatch()
-                except queue.Empty:
-                    break
-            _WORKER_THREAD_NUM -= 1
-            # print('killing', _WORKER_THREAD_NUM)
+        # global _WORKER_THREAD_NUM, _WORKER_QUEUE
+        # _WORKER_QUEUE.put(self.submission_id)
+        #
+        # if _WORKER_THREAD_NUM <= Server.objects.count() * _CONCURRENCY:
+        #     # Thread number within range
+        #     _WORKER_THREAD_NUM += 1
+        #     # print('establishing', _WORKER_THREAD_NUM)
+        #     while True:
+        #         try:
+        #             item = _WORKER_QUEUE.get_nowait()
+        #             Dispatcher(item).dispatch()
+        #         except queue.Empty:
+        #             break
+        #     _WORKER_THREAD_NUM -= 1
+        #     # print('killing', _WORKER_THREAD_NUM)
+        Dispatcher(self.submission_id).dispatch()
 
 
 def submit_code(submission, author, problem_pk):
@@ -218,6 +218,8 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
     with transaction.atomic():
         contest_problem = contest.contestproblem_set.select_for_update().get(identifier=problem_identifier)
         submission.problem = Problem.objects.select_for_update().get(pk=contest_problem.problem_id)
+        submission.problem.add_submit()
+        submission.problem.save(update_fields=["total_submit_number"])
 
         submission.contest = contest
         submission.author = author
@@ -225,15 +227,12 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
         submission.save()
 
         contest_problem.add_submit()
-        contest_problem.save()
-
-        submission.problem.add_submit()
-        submission.problem.save()
+        contest_problem.save(update_fields=["total_submit_number"])
 
     DispatcherThread(submission.pk).start()
 
 
-def send_rejudge(submission_id):
+def send_rejudge(submission_id, new_thread=True):
     accept_increment, problem_id, author_id, contest_id = 0, 0, 0, 0
 
     with transaction.atomic():
@@ -241,7 +240,7 @@ def send_rejudge(submission_id):
         if submission.status == SubmissionStatus.ACCEPTED:
             accept_increment = -1
         submission.status = SubmissionStatus.WAITING
-        submission.save()
+        submission.save(update_fields=["status"])
         problem_id, author_id, contest_id = submission.problem_id, submission.author_id, submission.contest_id
 
         problem = Problem.objects.select_for_update().get(pk=problem_id)
@@ -249,9 +248,23 @@ def send_rejudge(submission_id):
         problem.save(update_fields=['total_accept_number'])
 
     if contest_id:
-        update_problem_and_participant(contest_id, problem_id, author_id, accept_increment)
+        threading.Thread(target=update_problem_and_participant,
+                         args=(contest_id, problem_id, author_id, accept_increment),
+                         ).start()
 
-    DispatcherThread(submission_id).start()
+    if not new_thread:
+        Dispatcher(submission_id).dispatch()
+    else:
+        DispatcherThread(submission_id).start()
+
+
+def send_rejudge_from_queue(q):
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        send_rejudge(item, False)
+        q.task_done()
 
 
 class ProblemRejudgeThread(threading.Thread):
@@ -261,5 +274,19 @@ class ProblemRejudgeThread(threading.Thread):
         self.submissions = submissions
 
     def run(self):
+        q = queue.Queue()
+        threads = []
+        for i in range(_CONCURRENCY):
+            t = threading.Thread(target=send_rejudge_from_queue, args=(q,))
+            t.start()
+            threads.append(t)
         for sub in self.submissions:
-            send_rejudge(sub)
+            q.put(sub)
+
+        q.join()
+
+        # Now stop the workers
+        for i in range(_CONCURRENCY):
+            q.put(None)
+        for t in threads:
+            t.join()
