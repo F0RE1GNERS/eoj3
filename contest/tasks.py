@@ -276,14 +276,16 @@ def _recalculate_rank(contest):
     with transaction.atomic():
         participants = contest.contestparticipant_set.select_for_update().all()
         last_par = None
-        for ind, par in enumerate(sorted(participants, key=cmp_to_key(compare)), start=1):
+        index = 1
+        for par in sorted(participants, key=cmp_to_key(compare)):
             if par.star:
                 new_rank = None
             else:
-                new_rank = ind
+                new_rank = index
                 if last_par is not None and compare(last_par, par) == 0:
                     new_rank = last_par.rank
                 last_par = par
+                index += 1
             if new_rank != par.rank:
                 par.rank = new_rank
                 par.save(update_fields=["rank"])

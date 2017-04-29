@@ -38,7 +38,7 @@
           <tbody>
             {% for rank in rank_list %}
               <tr>
-                <td scope="row">{{ rank.rank }}</td>
+                <td scope="row">{% if rank.rank %}{{ rank.rank }}{% endif %}</td>
                 <td class="col-width-large" style="text-align: left;">{% if rank.star %}* {% endif %}{{ rank.user.get_username_display() | safe }}
                   <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
                 {{ rank.html_cache | safe }}
