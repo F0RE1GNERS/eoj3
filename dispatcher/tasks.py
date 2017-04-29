@@ -241,7 +241,7 @@ def send_rejudge(submission_id):
         if submission.status == SubmissionStatus.ACCEPTED:
             accept_increment = -1
         submission.status = SubmissionStatus.WAITING
-        submission.save()
+        submission.save(update_fields=["status"])
         problem_id, author_id, contest_id = submission.problem_id, submission.author_id, submission.contest_id
 
         problem = Problem.objects.select_for_update().get(pk=problem_id)

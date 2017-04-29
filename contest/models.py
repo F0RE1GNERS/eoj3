@@ -133,11 +133,11 @@ class ContestParticipant(models.Model):
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
     html_cache = models.TextField(blank=True)
-    rank = models.IntegerField(default=0)
+    rank = models.IntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = ["user", "contest"]
-        ordering = ["rank"]
+        ordering = ["-score", "penalty"]
 
 
 class ContestInvitation(models.Model):
