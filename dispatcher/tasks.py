@@ -232,7 +232,7 @@ def submit_code_for_contest(submission, author, problem_identifier, contest):
     DispatcherThread(submission.pk).start()
 
 
-def send_rejudge(submission_id):
+def send_rejudge(submission_id, new_thread=True):
     accept_increment, problem_id, author_id, contest_id = 0, 0, 0, 0
 
     with transaction.atomic():
@@ -252,7 +252,10 @@ def send_rejudge(submission_id):
                          args=(contest_id, problem_id, author_id, accept_increment),
                          ).start()
 
-    Dispatcher(submission_id).dispatch()
+    if not new_thread:
+        Dispatcher(submission_id).dispatch()
+    else:
+        DispatcherThread(submission_id).start()
 
 
 def send_rejudge_from_queue(q):
@@ -260,7 +263,7 @@ def send_rejudge_from_queue(q):
         item = q.get()
         if item is None:
             break
-        send_rejudge(item)
+        send_rejudge(item, False)
         q.task_done()
 
 
