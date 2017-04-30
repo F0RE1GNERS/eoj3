@@ -1,6 +1,6 @@
 LANG_CHOICE = (
     ('c', 'C'),
     ('cpp', 'C++'),
-    ('python', 'Python'),
-    ('java', 'Java')
+    ('python', 'Python 3'),
+    ('java', 'Java 8')
 )
