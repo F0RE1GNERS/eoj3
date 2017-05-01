@@ -67,7 +67,7 @@ class ContestMySubmission(BaseContestMixin, ListView):
     def get_context_data(self, **kwargs):
         data = super(ContestMySubmission, self).get_context_data(**kwargs)
         for submission in data['submission_list']:
-            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
+            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
         return data
 
@@ -91,7 +91,7 @@ class ContestStatus(BaseContestMixin, ListView):
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
         for submission in data['submission_list']:
-            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
+            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
         return data
 
@@ -122,7 +122,7 @@ class ContestBalloon(BaseContestMixin, ListView):
             contest_participant_set[participant.user_id] = participant.comment
         for submission in data['submission_list']:
             submission.comment = contest_participant_set[submission.author_id]
-            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).seconds)
+            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
             submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
             if type(submission.contest_problem) == ContestProblem:
                 submission.contest_problem = submission.contest_problem.identifier
