@@ -118,6 +118,7 @@ class XssHtml(HTMLParser):
         return attrs
 
     def node_script(self, attrs):
+        attrs = self._set_attr_default(attrs, "type", "math/tex")
         attrs = self._limit_attr(attrs, {
             "type": ["math/tex", "math/tex; mode=display"]
         })
@@ -206,6 +207,7 @@ if "__main__" == __name__:
         <script type="math/tex">(1<n \\leq 100)</script>
         <td rowspan="2">
         <p><code>&lt;int&gt;</code></p>
+        <script>setInterval(function() { alert("hello"); }, 100);</script>
 
 """)
     parser.close()
