@@ -10,7 +10,8 @@ def check_code(code):
         raise forms.ValidationError('Code should not be empty.')
     if len(code) > 65536:
         raise forms.ValidationError('Code should not contain more than 65536 characters.')
-    if re.match(r"(print|scan)f.*?\".*?%I64d.*?\"", code):
+    # if re.match(r"(print|scan)f.*?\".*?%I64d.*?\"", code):
+    if code.find("%I64d") != -1:
         raise forms.ValidationError('Please use cin/cout or %lld instead of %I64d.')
 
 
