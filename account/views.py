@@ -89,7 +89,6 @@ def my_login(request):
 
 def my_password_reset(request):
     return auth_view.password_reset(request,
-                                    from_email="noreply@zerol.me",
                                     template_name='account/password_reset.jinja2',
                                     post_reset_redirect='account:password_reset_done',
                                     email_template_name='account/password_reset_email.jinja2')

@@ -19,23 +19,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-def get_secret_key():
-    try:
-        from .local_settings import SECRET_KEY
-        return SECRET_KEY
-    except ImportError:
-        return 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
+try:
+    from .local_settings import *
+except ImportError:
+    print("Now use default settings.")
+    SECRET_KEY = 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
+    DEBUG = True
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'OPTIONS': {
+                'timeout': 15000,
+            }
+        }
+    }
 
-SECRET_KEY = get_secret_key()
-
-def get_debug_option():
-    try:
-        from .local_settings import DEBUG
-        return DEBUG
-    except ImportError:
-        return True
-
-DEBUG = get_debug_option()
 
 ALLOWED_HOSTS = ['*']
 
@@ -141,22 +140,6 @@ WSGI_APPLICATION = 'eoj3.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-def get_database():
-    try:
-        from .local_settings import DATABASES
-        return DATABASES
-    except ImportError:
-        return {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-                'OPTIONS': {
-                    'timeout': 15000,
-                }
-            }
-        }
-
-DATABASES = get_database()
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
