@@ -160,7 +160,7 @@ class DispatcherThread(threading.Thread):
         _WORKER_QUEUE.put(self.submission_id)
 
         # Low worker count
-        if _WORKER_THREAD_NUM <= Server.objects.count() * 5:
+        if _WORKER_THREAD_NUM <= Server.objects.count() * 24:
             # Thread number within range
             _WORKER_THREAD_NUM += 1
             # print('establishing', _WORKER_THREAD_NUM)
