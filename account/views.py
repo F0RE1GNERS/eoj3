@@ -27,7 +27,8 @@ class FeedbackView(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        if send_mail(subject=data['title'], message=data['content'], from_email=None, recipient_list=ADMIN_EMAIL_LIST,
+        message = "Username: {}, Email: {}\n".format(self.request.user.username, self.request.user.email) + data['content']
+        if send_mail(subject=data['title'], message=message, from_email=None, recipient_list=ADMIN_EMAIL_LIST,
                      fail_silently=True):
             messages.success(self.request, "Your feedback has sent to administrator.")
         else:
