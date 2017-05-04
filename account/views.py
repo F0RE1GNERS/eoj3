@@ -14,7 +14,10 @@ from .models import User, ALIEN_CHOICE
 from django.contrib.auth.decorators import login_required
 from utils.models import get_site_settings
 from migrate.views import verify_old_user, MigrationThread
-from eoj3.local_settings import ADMIN_EMAIL_LIST
+try:
+    from eoj3.local_settings import ADMIN_EMAIL_LIST
+except ImportError:
+    ADMIN_EMAIL_LIST = []
 
 
 @method_decorator(login_required, 'dispatch')

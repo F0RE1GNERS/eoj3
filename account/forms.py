@@ -100,5 +100,13 @@ class MigrateForm(forms.Form):
 
 
 class FeedbackForm(forms.Form):
-    title = forms.CharField(label='Title', max_length=60)
-    content = forms.CharField(widget=forms.Textarea)
+    class Meta:
+        help_texts = {
+            'title': 'What is the problem',
+            'content': 'If it is a bug, please identify the time and situation in which you encountered it.'
+                       'If you think something is wrong with some problem, feel free to send it in.'
+        }
+    title = forms.CharField(label='Title', max_length=60, help_text='What is the problem')
+    content = forms.CharField(widget=forms.Textarea, help_text='If it is a bug, please identify the time and situation'
+                                                               ' in which you encountered it. \nIf you think something '
+                                                               'is wrong with some problem, feel free to send it in.')
