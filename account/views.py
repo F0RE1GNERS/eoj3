@@ -2,15 +2,34 @@ import random
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
 from django.contrib.auth import PermissionDenied
 from django.views import View
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, FormView
+from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth import login
+from django.core.mail import send_mail
 from utils import auth_view
-from .forms import RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm, MigrateForm
+from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
+                    MigrateForm, FeedbackForm)
 from .models import User, ALIEN_CHOICE
 from django.contrib.auth.decorators import login_required
 from utils.models import get_site_settings
 from migrate.views import verify_old_user, MigrationThread
+from eoj3.local_settings import ADMIN_EMAIL_LIST
+
+
+@method_decorator(login_required, 'dispatch')
+class FeedbackView(FormView):
+    form_class = FeedbackForm
+    template_name = 'support/feedback.jinja2'
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        if send_mail(subject=data['title'], message=data['content'], from_email=None, recipient_list=ADMIN_EMAIL_LIST,
+                     fail_silently=True):
+            messages.success(self.request, "Your feedback has sent to administrator.")
+        else:
+            messages.error(self.request, "Your feedback failed to deliver. Please contact admin.")
+        return HttpResponseRedirect(self.request.path)
 
 
 @login_required

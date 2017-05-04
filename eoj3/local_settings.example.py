@@ -20,3 +20,4 @@ DEFAULT_FROM_EMAIL = ""
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 ADMINS = [('ultmaster', 'scottyugochang@hotmail.com'), ('zerol', 'zerolfx0@gmail.com')]
+ADMIN_EMAIL = ""

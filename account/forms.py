@@ -97,3 +97,8 @@ class PreferenceForm(forms.ModelForm):
 class MigrateForm(forms.Form):
     username = forms.CharField(label='Old username', max_length=224, required=True)
     password = forms.CharField(label='Old password', widget=forms.PasswordInput, max_length=224, required=True)
+
+
+class FeedbackForm(forms.Form):
+    title = forms.CharField(label='Title', max_length=60)
+    content = forms.CharField(widget=forms.Textarea)

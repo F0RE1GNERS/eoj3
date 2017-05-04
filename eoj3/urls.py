@@ -19,7 +19,7 @@ from django.contrib import admin
 from home.views import home_view, faq_view
 from problem.views import ProblemList, ProblemView
 from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
-from account.views import my_login, register_view
+from account.views import my_login, register_view, FeedbackView
 from django.contrib.auth.views import logout
 from django.views.static import serve
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR
@@ -28,7 +28,6 @@ from blog.views import GenericView
 
 UPLOAD_ROOT = '/upload/'
 STATIC_ROOT = '/static/'
-
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', home_view, name='home'),
@@ -47,9 +46,11 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic'),
     url(r'^blog/', include('blog.urls', namespace='blog')),
+    url(r'^feedback/', FeedbackView.as_view(), name='feedback')
     # url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
 ]
+
 
 if DEBUG:
     import debug_toolbar
