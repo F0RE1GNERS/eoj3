@@ -253,3 +253,9 @@ class ContestParticipantDownload(BaseBackstageMixin, View):
     def get(self, request, pk):
         file_name = xlsx_generator.generate_participant(pk)
         return static.serve(request, file_name, document_root=GENERATE_DIR)
+
+
+class ContestInvitationDownload(BaseBackstageMixin, View):
+    def get(self, request, pk):
+        file_name = xlsx_generator.generate_invitation(pk)
+        return static.serve(request, file_name, document_root=GENERATE_DIR)
