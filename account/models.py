@@ -3,6 +3,8 @@ import html
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from utils.language import LANG_CHOICE
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 
 class Privilege(object):
@@ -53,7 +55,6 @@ class User(AbstractUser):
     create_time = models.DateTimeField(auto_now_add=True)
     nickname = models.CharField('nickname', max_length=192, blank=True)
     magic = models.CharField('magic', choices=MAGIC_CHOICE, max_length=18, blank=True)
-    alien = models.CharField('alien', choices=ALIEN_CHOICE, max_length=18, blank=True)
     show_tags = models.BooleanField('show tags', default=True)
     preferred_lang = models.CharField('preferred language', choices=LANG_CHOICE, max_length=12, default='cpp')
     motto = models.CharField('motto', max_length=192, blank=True)
@@ -72,16 +73,15 @@ class User(AbstractUser):
         else:
             return '<span class="no-magic">%s</span>' % name
 
-    def get_alien_large_src(self):
-        # for update
-        if not self.alien:
-            self.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
-            self.save(update_fields=['alien'])
-        return '/static/image/avatar/large/' + self.alien
 
-    def get_alien_small_src(self):
-        # for update
-        if not self.alien:
-            self.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
-            self.save(update_fields=['alien'])
-        return '/static/image/avatar/small/' + self.alien
+class Profile(models.Model):
+    user = models.ForeignKey(User)
+    avatar = models.ImageField(upload_to='avatar')
+    avatar_small = ImageSpecField(source='avatar',
+                                  processors=[ResizeToFill(50, 50)],
+                                  format='JPEG',
+                                  options={'quality': 60})
+    avatar_big = ImageSpecField(source='avatar',
+                                processors=[ResizeToFill(500, 500)],
+                                format='JPEG',
+                                options={'quality': 60})
