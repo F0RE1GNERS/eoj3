@@ -1,0 +1,23 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+
+  <div class="bd-pageheader">
+    <div class="container">
+      <h1>Avatar</h1>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <form action="{{ request.get_full_path() }}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <img src="{{ request.user.avatar_large.url }}">
+      <label for="id_avatar">Upload your avatar</label>
+      <input type="file" id="id_avatar" name="">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+
+{% endblock %}

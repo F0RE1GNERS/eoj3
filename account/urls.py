@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.my_password_reset_confirm, name='password_reset_confirm'),
     url(r'^settings/migrate/$', views.migrate_from_old, name='migrate'),
+    url(r'^settings/avatar/$', views.AvatarChangeView.as_view(), name='avatar')
 ]
 

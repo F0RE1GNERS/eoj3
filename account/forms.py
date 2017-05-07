@@ -4,6 +4,12 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
 
+class AvatarForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['avatar']
+
+
 class RegisterForm(forms.ModelForm):
     class Meta:
         model = User
@@ -80,7 +86,7 @@ class MySetPasswordForm(SetPasswordForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'nickname', 'school', 'motto', 'magic', 'alien']
+        fields = ['email', 'nickname', 'school', 'motto', 'magic']
         help_texts = {
             'magic': 'See what is going to happen!'
         }

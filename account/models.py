@@ -59,6 +59,16 @@ class User(AbstractUser):
     preferred_lang = models.CharField('preferred language', choices=LANG_CHOICE, max_length=12, default='cpp')
     motto = models.CharField('motto', max_length=192, blank=True)
 
+    avatar = models.ImageField('avatar', upload_to='avatar', default='avatar/default.jpg')
+    avatar_small = ImageSpecField(source='avatar',
+                                  processors=[ResizeToFill(50, 50)],
+                                  format='JPEG',
+                                  options={'quality': 60})
+    avatar_large = ImageSpecField(source='avatar',
+                                processors=[ResizeToFill(500, 500)],
+                                format='JPEG',
+                                options={'quality': 60})
+
     def __str__(self):
         return self.username
 
@@ -73,15 +83,3 @@ class User(AbstractUser):
         else:
             return '<span class="no-magic">%s</span>' % name
 
-
-class Profile(models.Model):
-    user = models.ForeignKey(User)
-    avatar = models.ImageField(upload_to='avatar')
-    avatar_small = ImageSpecField(source='avatar',
-                                  processors=[ResizeToFill(50, 50)],
-                                  format='JPEG',
-                                  options={'quality': 60})
-    avatar_big = ImageSpecField(source='avatar',
-                                processors=[ResizeToFill(500, 500)],
-                                format='JPEG',
-                                options={'quality': 60})
