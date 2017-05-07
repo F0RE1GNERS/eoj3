@@ -10,10 +10,11 @@ from django.contrib.auth import login
 from django.core.mail import send_mail
 from utils import auth_view
 from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
-                    MigrateForm, FeedbackForm, AvatarForm)
-from .models import User, ALIEN_CHOICE
+                    MigrateForm, FeedbackForm)
+from .models import User
 from django.contrib.auth.decorators import login_required
 from utils.models import get_site_settings
+from utils.identicon import Identicon
 from migrate.views import verify_old_user, MigrationThread
 try:
     from eoj3.local_settings import ADMIN_EMAIL_LIST
@@ -22,14 +23,15 @@ except ImportError:
 
 
 @method_decorator(login_required, 'dispatch')
-class AvatarChangeView(UpdateView):
-    template_name = 'account/avatar.jinja2'
-    form_class = AvatarForm
+class UpdateProfileView(UpdateView):
+    template_name = 'account/profile.jinja2'
+    form_class = ProfileForm
 
     def get_object(self, queryset=None):
         return self.request.user
 
     def get_success_url(self):
+        messages.success(self.request, 'Your changes have been saved.')
         return self.request.path
 
 
@@ -47,19 +49,6 @@ class FeedbackView(FormView):
         else:
             messages.error(self.request, "Your feedback failed to deliver. Please contact admin.")
         return HttpResponseRedirect(self.request.path)
-
-
-@login_required
-def update_profile(request):
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your changes have been saved.')
-    else:
-        form = ProfileForm(instance=request.user)
-
-    return render(request, 'account/profile.jinja2', {'form': form})
 
 
 @login_required
@@ -101,8 +90,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.create()
-            user.alien = random.choice(list(dict(ALIEN_CHOICE).keys()))
-            user.save(update_fields=["alien"])
+            user.avatar.save('generated.png', Identicon(user.email).get_bytes())
             login(request, user)
             return HttpResponseRedirect(request.POST.get('next', request.GET.get('next', '/')))
     else:

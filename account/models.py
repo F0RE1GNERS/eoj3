@@ -32,16 +32,6 @@ MAGIC_CHOICE = (
     ('grey', 'Grey'),
 )
 
-ALIEN_CHOICE = (
-    ('ade.jpg', 'Ade'), ('cassie.png', 'Cassie'), ('chris.jpg', 'Chris'), ('christian.jpg', 'Christian'),
-    ('daniel.jpg', 'Daniel'), ('elliot.jpg', 'Elliot'), ('elyse.png', 'Elyse'), ('eve.png', 'Eve'),
-    ('helen.jpg', 'Helen'), ('jenny.jpg', 'Jenny'), ('joe.jpg', 'Joe'), ('justen.jpg', 'Justen'),
-    ('kristy.png', 'Kristy'), ('laura.jpg', 'Laura'), ('lena.png', 'Lena'), ('lindsay.png', 'Lindsay'),
-    ('mark.png', 'Mark'), ('matt.jpg', 'Matt'), ('matthew.png', 'Matthew'), ('molly.png', 'Molly'), ('nan.jpg', 'Nan'),
-    ('nom.jpg', 'Nom'), ('patrick.png', 'Patrick'), ('rachel.png', 'Rachel'), ('steve.jpg', 'Steve'),
-    ('stevie.jpg', 'Stevie'), ('tom.jpg', 'Tom'), ('veronika.jpg', 'Veronika'), ('zoe.jpg', 'Zoe')
-)
-
 
 class User(AbstractUser):
     username = models.CharField('username', max_length=30, unique=True, error_messages={
