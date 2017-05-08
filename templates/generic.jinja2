@@ -19,7 +19,7 @@
       <div class="col-12 col-sm-4 col-sm-push-8">
         <div style="margin-top:0" class="text-center id-card">
           <div>
-            <img width=80%" src="{{ profile.get_alien_large_src() }}">
+            <img width=80%" src="{{ profile.avatar_large.url }}">
             <h3>{{ profile.get_username_display() | safe }}{% if is_author %}
               <a href="{{ url('account:profile') }}" style="text-decoration: none; color: #000;" class="material-icons">mode_edit</a>{% endif %}</h3>
           </div>

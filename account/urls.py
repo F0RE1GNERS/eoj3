@@ -2,7 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^settings/profile/$', views.update_profile, name='profile'),
+    url(r'^settings/profile/$', views.UpdateProfileView.as_view(), name='profile'),
     url(r'^settings/security/$', views.my_password_change, name='security'),
     url(r'^settings/preference/$', views.update_preferences, name='preference'),
     url(r'^password_reset/$', views.my_password_reset, name='reset_password'),

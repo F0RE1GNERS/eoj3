@@ -3,7 +3,7 @@
 {% macro comment_view(comment) %}
   <div class="comment">
     <a href="{{ url('generic', comment.author.username) }}" class="avatar">
-      <img src="{{ comment.author.get_alien_small_src() }}">
+      <img src="{{ comment.author.avatar_small.url }}">
     </a>
     <div class="content">
       <div><a class="author">{{ clickable_nickname(comment.author) }}</a> <small class="text-muted"><span class="date">{{ comment.create_time | date('Y-m-d H:i:s') }}</span></small>

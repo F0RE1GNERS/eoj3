@@ -80,12 +80,18 @@ class MySetPasswordForm(SetPasswordForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'nickname', 'school', 'motto', 'magic', 'alien']
+        fields = ['email', 'nickname', 'school', 'motto', 'magic', 'avatar']
         help_texts = {
             'magic': 'See what is going to happen!'
         }
         error_messages = {
         }
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data['avatar']
+        if avatar.size > 2 * 1048576:
+            raise forms.ValidationError("Image size should not be larger than 2M.")
+        return avatar
 
 
 class PreferenceForm(forms.ModelForm):

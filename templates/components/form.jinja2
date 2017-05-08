@@ -1,6 +1,6 @@
 {% include 'components/message.jinja2' %}
 
-<form action="{{ request.get_full_path() }}" method="post">
+<form action="{{ request.get_full_path() }}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for field in form %}
     {% if not field.errors %}
@@ -11,6 +11,11 @@
               {{ render_field(field, {'placeholder': field.help_text}) }} {{ field.label }}
             </label>
           </div>
+        </div>
+      {% elif field.field.widget.__class__.__name__ == 'ClearableFileInput' %}
+        <div class="form-group">
+          {{ field.label_tag() }}
+        <input type="file" id="{{ field.id_for_label }}" name="avatar">
         </div>
       {% else %}
         <div class="form-group">

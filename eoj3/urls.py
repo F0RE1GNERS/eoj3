@@ -22,7 +22,8 @@ from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
 from account.views import my_login, register_view, FeedbackView
 from django.contrib.auth.views import logout
 from django.views.static import serve
-from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR
+from django.conf.urls.static import static
+from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 from tests.views import test_view, test_contest_view
 from blog.views import GenericView
 
@@ -62,8 +63,10 @@ if DEBUG:
             kwargs={'document_root': STATIC_DIR}),
         url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload',
             kwargs={'document_root': UPLOAD_DIR}),
+        # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='media',
+        #     kwargs={'document_root': MEDIA_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+    ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
 handler403 = 'home.views.forbidden_view'
 handler404 = 'home.views.not_found_view'
