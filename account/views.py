@@ -51,17 +51,17 @@ class FeedbackView(FormView):
         return HttpResponseRedirect(self.request.path)
 
 
-@login_required
-def update_preferences(request):
-    if request.method == 'POST':
-        form = PreferenceForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your changes have been saved.')
-    else:
-        form = PreferenceForm(instance=request.user)
+@method_decorator(login_required, 'dispatch')
+class UpdatePreferencesView(UpdateView):
+    template_name = 'account/preference.jinja2'
+    form_class = PreferenceForm
 
-    return render(request, 'account/preference.jinja2', {'form': form})
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self):
+        messages.success(self.request, 'Your changes have been saved.')
+        return self.request.path
 
 
 @login_required
@@ -71,7 +71,7 @@ def migrate_from_old(request):
     if request.method == 'POST':
         form = MigrateForm(request.POST)
         form.full_clean()
-        result = form.clean()
+        result = form.cleaned_data
         username = result.get('username')
         password = result.get('password')
         if verify_old_user(username, password):
@@ -85,17 +85,15 @@ def migrate_from_old(request):
     return render(request, 'account/migrate.jinja2', {'form': form})
 
 
-def register_view(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.create()
-            user.avatar.save('generated.png', Identicon(user.email).get_bytes())
-            login(request, user)
-            return HttpResponseRedirect(request.POST.get('next', request.GET.get('next', '/')))
-    else:
-        form = RegisterForm()
-    return render(request, 'register.jinja2', {'form': form})
+class RegisterView(FormView):
+    template_name = 'register.jinja2'
+    form_class = RegisterForm
+
+    def form_valid(self, form):
+        user = form.create()
+        user.avatar.save('generated.png', Identicon(user.email).get_bytes())
+        login(self.request, user)
+        return HttpResponseRedirect(self.request.POST.get('next', self.request.GET.get('next', '/')))
 
 
 def my_password_change(request):

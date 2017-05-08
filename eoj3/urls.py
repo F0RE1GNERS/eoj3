@@ -19,7 +19,7 @@ from django.contrib import admin
 from home.views import home_view, faq_view
 from problem.views import ProblemList, ProblemView
 from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
-from account.views import my_login, register_view, FeedbackView
+from account.views import my_login, RegisterView, FeedbackView
 from django.contrib.auth.views import logout
 from django.views.static import serve
 from django.conf.urls.static import static
@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^contest/', include('contest.urls', namespace='contest')),
     url(r'^status/$', StatusList.as_view(), name='status'),
     url(r'^login/$', my_login, name='login'),
-    url(r'^register/$', register_view, name='register'),
+    url(r'^register/$', RegisterView.as_view(), name='register'),
     url(r'^logout/$', logout, name='logout'),
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account')),
