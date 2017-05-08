@@ -23,3 +23,5 @@ django-tagging
 xlsxwriter
 django-debug-toolbar
 names
+django-imagekit
+pillow
