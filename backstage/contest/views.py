@@ -18,6 +18,7 @@ from contest.models import Contest, ContestProblem, ContestInvitation, ContestPa
 from problem.models import Problem
 from contest.tasks import update_contest, add_participant_with_invitation
 from utils import xlsx_generator
+from utils.identicon import Identicon
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 
@@ -239,6 +240,7 @@ class ContestParticipantCreate(BaseBackstageMixin, View):
                                                magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
                     user.set_password(password)
                     user.save()
+                    user.avatar.save('generated.png', Identicon(user.email).get_bytes())
                     ContestParticipant.objects.create(user=user, comment=comment, hidden_comment=password,
                                                       star=star, contest=contest)
                     break
