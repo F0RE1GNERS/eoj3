@@ -18,7 +18,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from home.views import home_view, faq_view
 from problem.views import ProblemList, ProblemView
-from submission.views import SubmissionView, StatusList, SubmissionRejudgeView
+from submission.views import SubmissionView, StatusList, SubmissionRejudgeView, submission_count_api
 from account.views import my_login, RegisterView, FeedbackView
 from django.contrib.auth.views import logout
 from django.views.static import serve
@@ -47,7 +47,8 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic'),
     url(r'^blog/', include('blog.urls', namespace='blog')),
-    url(r'^feedback/', FeedbackView.as_view(), name='feedback')
+    url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
+    url(r'^api/submission/user/(?P<name>.*)', submission_count_api),
     # url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
 ]
@@ -57,6 +58,7 @@ if DEBUG:
     import debug_toolbar
     urlpatterns += [
         url(r'^test/', test_view, name='test'),
+        url(r'^sapi/', submission_count_api),
         url(r'^test_contest', test_contest_view, name='test_contest'),
         url(r'^api/', include('eoj3.api_urls', namespace='api')),
         url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',

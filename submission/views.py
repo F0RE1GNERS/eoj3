@@ -5,10 +5,15 @@ from django.views.generic import View
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import JsonResponse
+
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
+import json
+import datetime
 
+from account.models import User
 from account.permissions import is_admin_or_root
 from .models import Submission, get_color_from_status, SubmissionStatus
 from dispatcher.tasks import send_rejudge
@@ -120,3 +125,12 @@ class SubmissionRejudgeView(UserPassesTestMixin, View):
     def get(self, request, pk):
         send_rejudge(pk)
         return HttpResponseRedirect(reverse('submission', kwargs={'pk': pk}))
+
+
+def submission_count_api(request, name):
+    user = get_object_or_404(User, username=name)
+    now = datetime.datetime.now()
+    one_year_ago = now.replace(year=now.year - 1)
+    submissions = Submission.objects.filter(author=user, create_time__gte=one_year_ago)
+    result = {submission.create_time.timestamp(): 1 for submission in submissions}
+    return JsonResponse(result)
