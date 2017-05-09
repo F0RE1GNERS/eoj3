@@ -16,7 +16,7 @@
         <tr>
           <th width="10%">#</th>
           <th>Name</th>
-          <th>Visible</th>
+{#          <th>Visible</th>#}
           <th width="15%">Profile</th>
           <th width="15%">Testdata</th>
         </tr>
@@ -26,7 +26,7 @@
           <tr>
             <th scope="row">{{ problem.pk }}</th>
             <td>{{ problem.title }}</td>
-            <td><a href="javascript:void(0);" class="visible-link" data-link="{{ url('backstage:problem_visible_switch', problem.pk) }}">{{ problem.visible }}</a></td>
+{#            <td><a href="javascript:void(0);" class="visible-link" data-link="{{ url('backstage:problem_visible_switch', problem.pk) }}">{{ problem.visible }}</a></td>#}
             <td><a href="{{ url('backstage:problem_edit', problem.pk) }}">Edit</a></td>
             <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}">Testdata</a></td>
           </tr>
