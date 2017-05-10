@@ -78,6 +78,8 @@ class Submission(models.Model):
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
 
+    addon_info = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-pk']
 

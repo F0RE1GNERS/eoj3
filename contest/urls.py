@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView
-from .submit import ContestMySubmission, ContestStatus, ContestSubmit, ContestBalloon
+from .submit import ContestMySubmission, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings
 from .clarification import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery
 
@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/standings/update/$', ContestUpdateStandings.as_view(), name='update_standings'),
     url(r'^(?P<cid>\d+)/standings/download/$', ContestDownloadStandings.as_view(), name='download_standings'),
     url(r'^(?P<cid>\d+)/balloon/$', ContestBalloon.as_view(), name='balloon'),
+    url(r'^switch/(?P<pk>\d+)/$', balloon_switch, name='balloon_switch')
 ]
