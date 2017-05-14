@@ -6,6 +6,7 @@ from django.views.generic.list import ListView
 from django.db import transaction
 from django.contrib import messages
 from django.views.generic import View
+from django.views.static import serve
 
 from .forms import ProblemEditForm
 from problem.models import Problem
@@ -94,6 +95,41 @@ class FileDelete(BaseBackstageMixin, View):
         except OSError as e:
             print(repr(e))
         return HttpResponseRedirect(reverse('backstage:problem_file', kwargs={'pk': pk}))
+
+
+class SPJCompiler(BaseBackstageMixin, View):
+    template_name = 'backstage/problem/compiler.jinja2'
+
+    def post(self, request):
+        import os, shutil, json, zipfile, subprocess
+        result = {'result': 'failed', 'message': ''}
+        try:
+            TMP_COMPILER_DIR = '/tmp/spj'
+            source_path = os.path.join(TMP_COMPILER_DIR, 'upload.zip')
+            COMPILE_DIRECTIVE = '/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}'
+            shutil.rmtree(TMP_COMPILER_DIR, ignore_errors=True)
+            os.makedirs(TMP_COMPILER_DIR, exist_ok=False)
+            with open(source_path, 'wb') as f:
+                f.write(request.FILES['file'].read())
+            source_zip = zipfile.ZipFile(source_path)
+            source_zip.extractall(TMP_COMPILER_DIR)
+            for file in os.listdir(TMP_COMPILER_DIR):
+                if file.endswith('.cpp'):
+                    src = os.path.join(TMP_COMPILER_DIR, file)
+                    exe = src[:-4]
+                    running_direct = COMPILE_DIRECTIVE.format(src_path=src, exe_path=exe).split()
+                    p = subprocess.run(running_direct, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+                    if p.returncode != 0:
+                        raise RuntimeError('Compiler Error:\n%s\n%s' % (p.stdout, p.stderr))
+                    else:
+                        return serve(request, exe)
+            raise FileNotFoundError('Did you forget to provide a cpp file?')
+        except Exception as e:
+            result['message'] = repr(e)
+            return HttpResponse(json.dumps(result))
+
+    def get(self, request):
+        return render(request, self.template_name)
 
 
 class ProblemDelete(BaseBackstageMixin, View):
