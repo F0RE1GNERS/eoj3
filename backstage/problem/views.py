@@ -101,13 +101,14 @@ class SPJCompiler(BaseBackstageMixin, View):
     template_name = 'backstage/problem/compiler.jinja2'
 
     def post(self, request):
-        import os, shutil, json, zipfile, subprocess
+        import os, shutil, json, zipfile, subprocess, uuid
         result = {'result': 'failed', 'message': ''}
         try:
-            TMP_COMPILER_DIR = '/tmp/spj'
+            TMP_COMPILER_BASE = '/tmp/spj'
+            TMP_COMPILER_DIR = os.path.join(TMP_COMPILER_BASE, str(uuid.uuid1()))
             source_path = os.path.join(TMP_COMPILER_DIR, 'upload.zip')
             COMPILE_DIRECTIVE = '/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}'
-            shutil.rmtree(TMP_COMPILER_DIR, ignore_errors=True)
+            shutil.rmtree(TMP_COMPILER_BASE, ignore_errors=True)
             os.makedirs(TMP_COMPILER_DIR, exist_ok=False)
             with open(source_path, 'wb') as f:
                 f.write(request.FILES['file'].read())
