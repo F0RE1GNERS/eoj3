@@ -116,13 +116,13 @@ class SPJCompiler(BaseBackstageMixin, View):
             for file in os.listdir(TMP_COMPILER_DIR):
                 if file.endswith('.cpp'):
                     src = os.path.join(TMP_COMPILER_DIR, file)
-                    exe = src[:-4]
+                    exe = os.path.join(TMP_COMPILER_DIR, file[:-4])
                     running_direct = COMPILE_DIRECTIVE.format(src_path=src, exe_path=exe).split()
                     p = subprocess.run(running_direct, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
                     if p.returncode != 0:
                         raise RuntimeError('Compiler Error:\n%s\n%s' % (p.stdout, p.stderr))
                     else:
-                        return serve(request, exe)
+                        return serve(request, file[:-4], document_root=TMP_COMPILER_DIR)
             raise FileNotFoundError('Did you forget to provide a cpp file?')
         except Exception as e:
             result['message'] = repr(e)
