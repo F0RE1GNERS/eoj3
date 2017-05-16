@@ -34,7 +34,7 @@
         {% endif %}
         <div class="text-right">{{ clarification.author.get_username_display() | safe }} at {{ clarification.time | date('Y-m-d H:i:s') }}</div>
       </div>
-      {% if is_privileged %}
+      {% if is_privileged and clarification.status != 'note' %}
       <div class="panel-footer"><a href="{{ url('contest:clarification_toggle', contest.pk, clarification.pk, 'close') }}">No response
       </a> or <a href="{{ url('contest:clarification_toggle', contest.pk, clarification.pk, 'solve') }}">will be clarified
       </a> or <a class="answerLink" data-toggle="modal" data-url="{{ url('contest:clarification_answer', contest.pk, clarification.pk) }}" href="#clarifyModal">answer</a></div>
