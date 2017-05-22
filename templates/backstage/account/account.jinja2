@@ -80,17 +80,15 @@
       </div>
     </div>
   </div>
-
   <script>
     $('#changePassword').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
       var url = button.data('url');
       $(this).find('#changePasswordForm').attr('action', url);
-      console.log($(this).find('#changePasswordForm').attr('action'));
     });
     $(".privilege-link").on('click', function(e) {
       var link = $(e.target).data('link');
-      $.get(link, {}, function (data) {
+      $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
           location.reload();
         }
       );
