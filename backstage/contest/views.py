@@ -4,10 +4,10 @@ import names
 import random
 
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
-from django.views import static
+from django.views import static, View
+from django.views.generic import TemplateView
 from django.contrib import messages
 from django.views.generic.list import ListView
-from django.views import View
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 
@@ -26,11 +26,10 @@ def get_formatted_time():
     return timezone.now().strftime("%Y-%m-%d 00:00")
 
 
-class ContestManage(BaseBackstageMixin, View):
+class ContestManage(BaseBackstageMixin, TemplateView):
     template_name = 'backstage/contest/contest_manage.jinja2'
 
-    @staticmethod
-    def get_context_data(**kwargs):
+    def get_context_data(self, **kwargs):
         contest = Contest.objects.get(**kwargs)
         contest_problem_list = ContestProblem.objects.filter(contest=contest).all()
         profile = [('Title', contest.title), ('Description', contest.description),
@@ -43,9 +42,6 @@ class ContestManage(BaseBackstageMixin, View):
         return dict(profile=profile, contest=contest, contest_problem_list=contest_problem_list,
                     invitation_count=contest.contestinvitation_set.count(),
                     participant_count=contest.contestparticipant_set.count())
-
-    def get(self, request, **kwargs):
-        return render(request, self.template_name, self.get_context_data(**kwargs))
 
 
 class ContestCreate(BaseCreateView):
@@ -112,7 +108,7 @@ class ContestProblemCreate(BaseBackstageMixin, View):
 
 
 class ContestProblemDelete(BaseBackstageMixin, View):
-    def get(self, request, contest_pk, contest_problem_pk):
+    def post(self, request, contest_pk, contest_problem_pk):
         contest = Contest.objects.get(pk=contest_pk)
         contest.contestproblem_set.get(pk=contest_problem_pk).delete()
         update_contest(contest)
@@ -158,7 +154,7 @@ class ContestInvitationCreate(BaseBackstageMixin, View):
 
 
 class ContestInvitationDelete(BaseBackstageMixin, View):
-    def get(self, request, pk, invitation_pk):
+    def post(self, request, pk, invitation_pk):
         contest = Contest.objects.get(pk=pk)
         contest.contestinvitation_set.get(pk=invitation_pk).delete()
         return HttpResponseRedirect(reverse('backstage:contest_invitation', kwargs={'pk': pk}))
@@ -204,7 +200,7 @@ class ContestParticipantCommentUpdate(BaseBackstageMixin, View):
 
 
 class ContestParticipantStarToggle(BaseBackstageMixin, View):
-    def get(self, request, pk, participant_pk):
+    def post(self, request, pk, participant_pk):
         with transaction.atomic():
             participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
             participant.star = True if not participant.star else False

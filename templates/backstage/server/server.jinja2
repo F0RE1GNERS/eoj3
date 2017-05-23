@@ -32,8 +32,8 @@
             <td>{{ server.port }}</td>
             <td><a href="{{ url('backstage:server_edit', server.pk) }}" class="text-default">Update</a></td>
             <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
-            <td><a href="javascript:void(0);" data-url="{{ url('backstage:server_refresh', server.pk) }}" class="text-danger" id="refresh">Refresh</a></td>
-            <td><a href="javascript:void(0);" data-url="{{ url('backstage:server_delete', server.pk) }}" class="text-danger" id="delete">Delete</a></td>
+            <td><a href="javascript:void(0);" data-link="{{ url('backstage:server_refresh', server.pk) }}" class="text-danger" name="refresh">Refresh</a></td>
+            <td><a href="javascript:void(0);" data-link="{{ url('backstage:server_delete', server.pk) }}" class="text-danger" name="delete">Delete</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -45,13 +45,7 @@
     </button>
     <strong>Warning!</strong> Double check before you hit <strong>Refresh</strong> and <strong>Delete</strong>!
   </div>
-  <script>
-    $("#delete, #refresh").on('click', function(e) {
-      var link = $(e.target).data('url');
-      $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
-          location.reload();
-        }
-      );
-    });
-  </script>
+
+  {{ post_link("[name=delete], [name=refresh]") }}
+
 {% endblock %}
