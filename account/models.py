@@ -41,9 +41,9 @@ class User(AbstractUser):
         'unique': "This email has already been used."
     })
     privilege = models.CharField(choices=PRIVILEGE_CHOICE, max_length=12, default=Privilege.REGULAR_USER)
-    school = models.CharField('school', max_length=192, blank=True)
+    school = models.CharField('school', max_length=64, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    nickname = models.CharField('nickname', max_length=192, blank=True)
+    nickname = models.CharField('nickname', max_length=30, blank=True)
     magic = models.CharField('magic', choices=MAGIC_CHOICE, max_length=18, blank=True)
     show_tags = models.BooleanField('show tags', default=True)
     preferred_lang = models.CharField('preferred language', choices=LANG_CHOICE, max_length=12, default='cpp')
@@ -55,9 +55,9 @@ class User(AbstractUser):
                                   format='JPEG',
                                   options={'quality': 60})
     avatar_large = ImageSpecField(source='avatar',
-                                processors=[ResizeToFill(500, 500)],
-                                format='JPEG',
-                                options={'quality': 60})
+                                  processors=[ResizeToFill(500, 500)],
+                                  format='JPEG',
+                                  options={'quality': 60})
 
     def __str__(self):
         return self.username

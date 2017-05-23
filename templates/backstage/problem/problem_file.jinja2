@@ -31,18 +31,19 @@
           <td scope="row" style="word-break: break-all;">{{ file.filename }}</td>
           <td>{{ file.size }}</td>
           <td><a class="clipboard" href="javascript:void(0)" data-clipboard-text="{{ file.path }}">Copy</a></td>
-          <td><a class="text-danger" href="{{ url('backstage:problem_file_delete', pid, file.filename) }}">Delete</a></td>
+          <td><a class="text-danger" href="javascript:void(0)" name="delete" data-link="{{ url('backstage:problem_file_delete', pid, file.filename) }}">Delete</a></td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
 
+  {{ post_link("[name=delete]") }}
 {% endblock %}
 
 
 {% block script %}
-<script>
-  new Clipboard('.clipboard');
-</script>
+  <script>
+    new Clipboard('.clipboard');
+  </script>
 {% endblock %}

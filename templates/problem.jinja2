@@ -25,15 +25,15 @@
           <div class="panel panel-default">
             <div class="panel-heading"><h3 class="panel-title">Recent attempts</h3></div>
             {% if submissions %}
-            <table class="table">
-              <thead>
+              <table class="table">
+                <thead>
                 <tr>
                   <th>#</th>
                   <th>When</th>
                   <th>Verdict</th>
                 </tr>
-              </thead>
-              <tbody>
+                </thead>
+                <tbody>
                 {% for sub in submissions %}
                   <tr>
                     <td scope="row"><a href="{{ url('submission', sub.pk) }}" target="_blank">{{ sub.pk }}</a></td>
@@ -41,12 +41,12 @@
                     <td class="verdict-{{ sub.get_verdict_color() }}">{{ sub.get_status_display() }}</td>
                   </tr>
                 {% endfor %}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
             {% else %}
-            <div class="panel-body">
-              It is empty yet.
-            </div>
+              <div class="panel-body">
+                It is empty yet.
+              </div>
             {% endif %}
           </div>
         {% endif %}
@@ -56,16 +56,16 @@
             <a href="{{ url('blog:discuss', problem.pk) }}">Go to discussion</a>
           </div>
         </div>
-      {% if tags %}
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">Tags</h3></div>
-          <div class="panel-body">
-            {% for tag in tags %}
-              <span class="badge" style="margin-right:2px;">{{ tag }}</span>
-            {% endfor %}
+        {% if tags %}
+          <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">Tags</h3></div>
+            <div class="panel-body">
+              {% for tag in tags %}
+                <span class="badge" style="margin-right:2px;">{{ tag }}</span>
+              {% endfor %}
+            </div>
           </div>
-        </div>
-      {% endif %}
+        {% endif %}
       </div>
 
       <div class="col-12 col-sm-8 col-sm-pull-4 bd-content">
@@ -75,7 +75,7 @@
           <hr style="margin-bottom: 2em;">
           <h3>Submit your code</h3>
           {% include 'components/message.jinja2' %}
-          <form class="form" action="{{ request.path }}" method="post">
+          <form class="form" action="{{ request.path }}" method="post" onsubmit="setVal()">
             {% csrf_token %}
             <div class="form-group">
               <label class="control-label">{{ form.lang.label }}</label>
@@ -83,27 +83,28 @@
             </div>
             <div class="form-group {% if form.code.errors %}has-error{% endif %}">
               <label class="control-label">{{ form.code.label }}</label>
-              {{ render_field(form.code, {'class': 'form-control code-submit', 'rows': "18", "spellcheck": "false"}) }}
+              <input type="hidden" name="code" id="id_code" value="{{ form.code.value() or "" }}">
+              <div id="editor" style="height: 400px; position: relative"></div>
               {% for error in form.code.errors %}
                 <span id="help-block" class="help-block">{{ error | escape }}</span>
               {% endfor %}
             </div>
+
             <div class="form-group">
               <button type="submit" class="btn btn-primary">Submit</button>
             </div>
           </form>
         {% endif %}
+
       </div>
     </div>
   </div>
 
-  {% include 'components/code_submit_support.jinja2' %}
   {% include 'components/math_support.jinja2' %}
 
-  <script>
-  $('form').submit(function(){
-    $(this).find('button[type=submit]').prop('disabled', true);
-  });
-  </script>
+{% endblock %}
 
+{% block script %}
+  <script src="/static/js/ace/ace.js"></script>
+  <script src="/static/js/editor.js"></script>
 {% endblock %}

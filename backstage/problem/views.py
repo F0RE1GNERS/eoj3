@@ -86,7 +86,7 @@ class FileManager(BaseBackstageMixin, View):
 
 
 class FileDelete(BaseBackstageMixin, View):
-    def get(self, request, pk, path):
+    def post(self, request, pk, path):
         import os
         file_path = os.path.join(UPLOAD_DIR, str(pk), path)
         try:
@@ -169,7 +169,6 @@ class ProblemList(BaseBackstageMixin, ListView):
 
 
 class ProblemRejudge(BaseBackstageMixin, View):
-
     def post(self, request):
         try:
             problem = request.POST['problem']
@@ -183,8 +182,7 @@ class ProblemRejudge(BaseBackstageMixin, View):
 
 
 class ProblemVisibleSwitch(BaseBackstageMixin, View):
-
-    def get(self, request, pk):
+    def post(self, request, pk):
         with transaction.atomic():
             problem = Problem.objects.select_for_update().get(pk=pk)
             problem.visible = True if not problem.visible else False
