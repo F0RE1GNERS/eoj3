@@ -6,7 +6,7 @@
   <h2>Submit your code</h2>
 </div>
 {% include 'components/message.jinja2' %}
-<form class="form-horizontal" action="{{ request.path }}" method="post">
+<form class="form-horizontal" action="{{ request.path }}" method="post" onsubmit="setVal()">
   {% csrf_token %}
 
   <div class="form-group">
@@ -24,7 +24,8 @@
   <div class="form-group {% if form.code.errors %}has-error{% endif %}">
     <label class="col-sm-2 control-label">Code</label>
     <div class="col-sm-10">
-      {{ render_field(form.code, {'class': "form-control code-submit", 'rows': "18", "spellcheck": "false"}) }}
+      <input type="hidden" name="code" id="id_code" value="{{ form.code.value() or "" }}">
+      <div id="editor" style="height: 400px; position: relative"></div>
       {% for error in form.code.errors %}
         <span id="help-block" class="help-block">{{ error | escape }}</span>
       {% endfor %}
@@ -35,16 +36,8 @@
       <button class="btn btn-primary" type="submit">Submit</button>
     </div>
   </div>
-
-  {% include 'components/code_submit_support.jinja2' %}
-
-
 </form>
 
-<script>
-$('form').submit(function(){
-  $(this).find('button[type=submit]').prop('disabled', true);
-});
-</script>
-
+  <script src="/static/js/ace/ace.js"></script>
+  <script src="/static/js/editor.js"></script>
 {% endblock %}
