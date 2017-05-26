@@ -1,8 +1,31 @@
 var map = {
+  'c': 'c_cpp',
+  'c11': 'c_cpp',
+  'cpp98': 'c_cpp',
+  'cpp': 'c_cpp',
+  'cpp14': 'c_cpp',
+  'csharp': 'csharp',
+  'python2': 'python',
   'python': 'python',
   'java': 'java',
-  'cpp': 'c_cpp',
-  'c': 'c_cpp'
+  'php': 'php',
+  'fortran': 'fortran',
+  'perl': 'perl',
+  'ruby': 'ruby',
+  'objc': 'objectivec',
+  'haskell': 'haskell',
+  'scala': 'scala',
+  'lua': 'lua',
+  'lisp': 'lisp',
+  'js': 'javascript',
+  'go': 'golang',
+  'ocaml': 'ocaml',
+  'fsharp': 'text',
+  'pypy2': 'python',
+  'swift': 'swift',
+  'pascal': 'pascal',
+  'rust': 'rust',
+  'r': 'r'
 };
 var editor = ace.edit("editor");
 var lang = $("#id_lang");
