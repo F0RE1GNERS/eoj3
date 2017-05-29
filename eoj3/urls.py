@@ -47,9 +47,10 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic'),
     url(r'^blog/', include('blog.urls', namespace='blog')),
-    url(r'^feedback/', FeedbackView.as_view(), name='feedback')
+    url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     # url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
+    url(r'^captcha/', include('captcha.urls')),
 ]
 
 

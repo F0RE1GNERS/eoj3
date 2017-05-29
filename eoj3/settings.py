@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django_jinja',
     'tagging',
     'debug_toolbar',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -220,3 +221,8 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
+
+
+# captcha
+CAPTCHA_FOREGROUND_COLOR = "#001100"
+CAPTCHA_FILTER_FUNCTIONS = []

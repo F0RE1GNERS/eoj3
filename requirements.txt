@@ -25,3 +25,4 @@ django-debug-toolbar
 names
 django-imagekit
 pillow
+django-simple-captcha
