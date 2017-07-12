@@ -26,3 +26,5 @@ names
 django-imagekit
 pillow
 django-simple-captcha
+mkdocs
+mkdocs-bootswatch
