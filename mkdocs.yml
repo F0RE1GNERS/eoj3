@@ -1,4 +1,4 @@
-site_name: EOJ3
+site_name: EOJ Docs
 theme: cosmo
 pages:
 - '简介': 'index.md'

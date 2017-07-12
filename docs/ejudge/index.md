@@ -12,6 +12,7 @@ eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服�
 - 使用 Docker 急速部署，方便重启。
 - 判题服务提供了 socket.io 和 RESTful API 两种方式，方便判题进程的即时响应及更新。
 - 支持 generator, validator, stress test 等测试工具的运行，为 Polygon system 提供支持（开发中）。
+- 由于在出题过程中程序运行不受限制，「非常危险」，建议采用出题用服务器与主判题服务器相隔离的办法。运行两个服务器，互不干涉。也不用担心泄露数据。
 
 ## 判题服务器设计
 
@@ -19,8 +20,8 @@ eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服�
 
 ### 测试用例 (Case)
 
-每一个测试用例都有一个**指纹** (fingerprint)，这一指纹在上传测试用例的时候就已经指定。
-需要注意的是，指定指纹的时候应尽可能避免使用 32 位纯字母指纹，避免冲突（虽然冲突概率非常低）。
+每一个测试用例都有一个**指纹** (fingerprint)，这一指纹在上传测试用例的时候就已经指定。请确保指纹的安全性，指纹不应该是由用户指定的，应避免出现 `../../finger` 这样的情况。
+同时需要注意的是，指定指纹的时候应尽可能避免使用 32 位纯字母指纹，避免冲突（虽然冲突概率非常低）。
 
 测试用例含 input 和 output，分别为输入和输出。如果只有 input，那就不能称为测试用例，即使上传 input 也只会带来异常。
 要根据 input 生成 output 需要调用另外的 API。
@@ -59,17 +60,52 @@ eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服�
 
 一个组合了测试用例、提交程序、测试程序的类，提供方便的运行功能，并且可以指定输出的结果（返回什么）。
 
+### 判定结果 (Verdict)
+
++ WAITING = -3
++ JUDGING = -2
++ WRONG_ANSWER = -1
++ ACCEPTED = 0
++ TIME_LIMIT_EXCEEDED = 1
++ IDLENESS_LIMIT_EXCEEDED = 2
++ MEMORY_LIMIT_EXCEEDED = 3
++ RUNTIME_ERROR = 4
++ SYSTEM_ERROR = 5
++ COMPILE_ERROR = 6
++ JUDGE_ERROR = 11
+
+## 支持的语言
+
+括号内是在 `lang` 字段中填写的。
+
++ C (c)
++ C++ 11 (cpp)
++ C++ 14 (cc14)
++ C# (cs)
++ Pascal (pas)
++ Java (java)
++ Python 2 (py2)
++ Python 3 (python)
++ PHP (php)
++ Rust (rs)
++ Haskell (hs)
++ Javascript (js)
+
+（部分语言命名诡异是为了确保向下兼容性。）
+
 ## 文档局限性
 
 这里的文档面向正在开发中的 ejudge v2。v1（目前 master 分支）的文档不再更新。
 
-## 安装
+## 安装（待填）
 
 ### 部署
 
 ### 开发
 
 `python3 setup.py build_ext --inplace`
+
+`celery worker -A handler --loglevel=info`
 
 
 ## 致谢
