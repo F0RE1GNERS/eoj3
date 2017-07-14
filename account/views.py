@@ -10,7 +10,7 @@ from django.contrib.auth import login
 from django.core.mail import send_mail
 from utils import auth_view
 from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
-                    MigrateForm, FeedbackForm)
+                    MigrateForm, FeedbackForm, LoginForm)
 from .models import User
 from django.contrib.auth.decorators import login_required
 from utils.models import get_site_settings
@@ -106,7 +106,7 @@ def my_password_change(request):
 def my_login(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('home'))
-    return auth_view.login(request, template_name='login.jinja2')
+    return auth_view.login(request, template_name='login.jinja2', authentication_form=LoginForm)
 
 
 def my_password_reset(request):

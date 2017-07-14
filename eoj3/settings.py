@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,7 +23,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 try:
     from .local_settings import *
 except ImportError:
-    print("Now use default settings.")
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Now use default settings.")
     SECRET_KEY = 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
     DEBUG = True
     DATABASES = {
@@ -67,6 +69,7 @@ INSTALLED_APPS = [
     'django_jinja',
     'tagging',
     'debug_toolbar',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -159,6 +162,18 @@ AUTH_PASSWORD_VALIDATORS = [
     }
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
@@ -220,3 +235,8 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
+
+
+# captcha
+CAPTCHA_FOREGROUND_COLOR = "#001100"
+CAPTCHA_FILTER_FUNCTIONS = []

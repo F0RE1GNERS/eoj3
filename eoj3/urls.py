@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^api/submission/user/(?P<name>.*)', submission_count_api),
     # url(r'^upload/(?P<path>.*)$', serve, {'document_root': UPLOAD_DIR}, name='upload'),
     # url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_DIR}, name='static'),
+    url(r'^captcha/', include('captcha.urls')),
 ]
 
 

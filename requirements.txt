@@ -25,3 +25,7 @@ django-debug-toolbar
 names
 django-imagekit
 pillow
+django-simple-captcha
+mkdocs
+mkdocs-bootswatch
+django-redis

@@ -16,7 +16,7 @@ DEBUG = False
 EMAIL_HOST = ""
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
-DEFAULT_FROM_EMAIL = ""
+SERVER_EMAIL = DEFAULT_FROM_EMAIL = ""
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 ADMINS = [('ultmaster', 'scottyugochang@hotmail.com'), ('zerol', 'zerolfx0@gmail.com')]

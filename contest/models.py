@@ -116,6 +116,7 @@ class ContestClarification(models.Model):
     time = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=12, choices=STATUS_CHOICE)
     author = models.ForeignKey(User)
+    answer = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-time"]

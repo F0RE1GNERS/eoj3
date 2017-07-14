@@ -32,9 +32,9 @@ class AccountList(BaseBackstageMixin, ListView):
         data['admin'] = self.request.GET.get('admin')
         return data
 
-class AccountPrivilegeSwitch(BaseBackstageMixin, View):
 
-    def get(self, request, pk):
+class AccountPrivilegeSwitch(BaseBackstageMixin, View):
+    def post(self, request, pk):
         with transaction.atomic():
             user = User.objects.select_for_update().get(pk=pk)
             if self.request.user.privilege == Privilege.ROOT:

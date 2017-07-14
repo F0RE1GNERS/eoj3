@@ -28,111 +28,44 @@
             <td>{{ invitation.code }}</td>
             <td>{{ invitation.comment }}</td>
             <td><a data-toggle="modal" href="#assignInvitationModal" data-url="{{ url('backstage:contest_invitation_assign', contest.pk, invitation.pk) }}">Assign</a></td>
-            <td><a class="text-danger" href="{{ url('backstage:contest_invitation_delete', contest.pk, invitation.pk) }}">Delete</a></td>
+            <td><a class="text-danger" href="javascript:void(0);" name="delete" data-link="{{ url('backstage:contest_invitation_delete', contest.pk, invitation.pk) }}">Delete</a></td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <div class="modal fade" id="addInvitationModal" tabindex="-1" role="dialog"
-       aria-labelledby="addInvitationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="addInvitationModalLabel">Add invitations</h4>
-        </div>
-        <form class="form-horizontal" style="margin-bottom:0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
-          <div class="modal-body">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group">
-              <label for="number" class="col-sm-2 control-label">Number</label>
-              <div class="col-sm-10">
-                <input class="form-control" type="number" value="1" id="number" name="number">
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="assignInvitationModal" tabindex="-1" role="dialog"
-       aria-labelledby="assignInvitationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="assignInvitationModalLabel">Assign invitations</h4>
-        </div>
-        <form class="form-horizontal" style="margin-bottom:0" id="assignInvitationModalForm" action="" method="post">
-          <div class="modal-body">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group">
-              <label for="username" class="col-sm-2 control-label">Username</label>
-              <div class="col-sm-10">
-                <input class="form-control" id="username" name="username">
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="importInvitationModal" tabindex="-1" role="dialog"
-       aria-labelledby="importInvitationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="importInvitationModalLabel">Paste your namelist</h4>
-        </div>
-
-        <form style="margin-bottom:0" action="{{ url('backstage:contest_invitation_create', contest.pk) }}" method="post">
-          <div class="modal-body">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group">
-              <label for="list" class="form-control-label">Namelist</label>
-              <textarea class="form-control" name="list" id="list" rows="7" placeholder="One record per line"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  $('#assignInvitationModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var url = button.data('url');
-    $(this).find('#assignInvitationModalForm').attr('action', url);
-    console.log($(this).find('#assignInvitationModalForm').attr('action'));
-  });
-  </script>
-
   {{ my_paginator() }}
+
+  {% call modal(title="Paste your namelist", id="importInvitationModal", action=url('backstage:contest_invitation_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <label for="list" class="form-control-label">Namelist</label>
+    <textarea class="form-control" name="list" id="list" rows="7" placeholder="One record per line"></textarea>
+  {% endcall %}
+
+  {% call modal(title="Assign invitations", id="assignInvitationModal") %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="form-group">
+      <label for="username" class="col-sm-2 control-label">Username</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="username" name="username">
+      </div>
+    </div>
+  {% endcall %}
+
+  {% call modal(title="Add invitations", id="addInvitationModal", action=url('backstage:contest_invitation_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="form-group">
+      <label for="number" class="col-sm-2 control-label">Number</label>
+      <div class="col-sm-10">
+        <input class="form-control" type="number" value="1" id="number" name="number">
+      </div>
+    </div>
+  {% endcall %}
+
+  {{ post_link("[name=delete]") }}
 
 {% endblock %}

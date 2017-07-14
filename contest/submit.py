@@ -1,14 +1,18 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse
+from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse, HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 
+from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter, get_contest_problem
 from submission.models import Submission, SubmissionStatus
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import submit_code_for_contest
+
+import json
 
 
 class ContestSubmit(BaseContestMixin, FormView):
@@ -109,7 +113,7 @@ class ContestBalloon(BaseContestMixin, ListView):
     def get_queryset(self):
         queryset = self.contest.submission_set.select_related('author').\
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'status').filter(status=SubmissionStatus.ACCEPTED)
+                 'author__magic', 'problem_id', 'status', 'addon_info').filter(status=SubmissionStatus.ACCEPTED, addon_info=False)
         return queryset.all()
 
     def get_context_data(self, **kwargs):
@@ -127,3 +131,13 @@ class ContestBalloon(BaseContestMixin, ListView):
             if type(submission.contest_problem) == ContestProblem:
                 submission.contest_problem = submission.contest_problem.identifier
         return data
+
+
+def balloon_switch(request, pk):
+    if not is_volunteer(request.user):
+        raise PermissionDenied("You don't have the access.")
+    with transaction.atomic():
+        submission = Submission.objects.select_for_update().get(pk=pk)
+        submission.addon_info = True
+        submission.save(update_fields=['addon_info'])
+    return HttpResponse(json.dumps({"result": "success"}))

@@ -92,9 +92,9 @@ class StatusList(ListView):
                                                                                'status_memory')
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(contest__isnull=True, problem__visible=True)
-        if author:
+        if author and author.isdigit():
             queryset = queryset.filter(author_id=author)
-        if prob:
+        if prob and prob.isdigit():
             queryset = queryset.filter(problem_id=prob)
         if kw:
             q = Q(author__username__iexact=kw)

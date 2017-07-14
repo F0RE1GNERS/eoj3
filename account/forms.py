@@ -2,6 +2,12 @@ from django import forms
 from .models import User, Privilege
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
+from captcha.fields import CaptchaField
+from django.contrib.auth.forms import AuthenticationForm
+
+
+class LoginForm(AuthenticationForm):
+    captcha = CaptchaField()
 
 
 class RegisterForm(forms.ModelForm):
@@ -57,6 +63,8 @@ class RegisterForm(forms.ModelForm):
                                       error_messages={
                                           'require': 'Please repeat your password.'
                                       })
+
+    captcha = CaptchaField()
 
 
 class MyPasswordChangeForm(PasswordChangeForm):

@@ -15,6 +15,7 @@
           <th>Comment</th>
           <th>Problem</th>
           <th>When</th>
+          <th>Close</th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +25,10 @@
             <td>{{ submission.comment }}</td>
             <td>{{ submission.contest_problem }}</td>
             <td>{{ submission.create_time }}</td>
+            <td><span class="text-warning"></span>
+              <a href="javascript:void(0);" class="balloon-link" data-link="
+                 {{ url('contest:balloon_switch', submission.pk) }}">Delivered</a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
@@ -31,4 +36,15 @@
   </div>
 
   {{ my_paginator() }}
+
+  <script>
+    $(".balloon-link").on('click', function(e) {
+      var link = $(e.target).data('link');
+      $.get(link, {}, function (data) {
+          location.reload();
+        }
+      );
+    });
+  </script>
+
 {% endblock %}

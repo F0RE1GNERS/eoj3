@@ -35,7 +35,7 @@ class ServerList(BaseBackstageMixin, ListView):
 
 
 class ServerRefresh(BaseBackstageMixin, View):
-    def get(self, request, pk):
+    def post(self, request, pk):
         server = Server.objects.get(pk=pk)
         server.serverproblemstatus_set.all().delete()
         messages.success(request, "Server status has been refreshed.")
@@ -43,7 +43,7 @@ class ServerRefresh(BaseBackstageMixin, View):
 
 
 class ServerDelete(BaseBackstageMixin, View):
-    def get(self, request, pk):
+    def post(self, request, pk):
         server = Server.objects.get(pk=pk)
         server.delete()
         messages.success(request, "Server <strong>%s</strong> is successfully removed." % server.name)

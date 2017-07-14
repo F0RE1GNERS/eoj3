@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .base_views import Index
-from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch
+from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch, SPJCompiler
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^problem/rejudge/$', ProblemRejudge.as_view(), name='problem_rejudge'),
     url(r'^problem/visible/(?P<pk>\d+)/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),
     # url(r'^problem/(?P<pk>\d+)/delete/$', ProblemDelete.as_view(), name='problem_delete'),
+    url(r'^compiler/$', SPJCompiler.as_view(), name='spj_compiler'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),

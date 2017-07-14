@@ -17,6 +17,11 @@
           {{ field.label_tag() }}
         <input type="file" id="{{ field.id_for_label }}" name="avatar">
         </div>
+      {% elif field.field.widget.__class__.__name__ == 'CaptchaTextInput' %}
+        <div class="form-group">
+          {{ field.label_tag() }}
+          {{ field }}
+        </div>
       {% else %}
         <div class="form-group">
           {{ field.label_tag() }}

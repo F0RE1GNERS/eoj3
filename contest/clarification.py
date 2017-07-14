@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.contrib import messages
+from django.db.models import Q
 import json
 import datetime
 
@@ -19,7 +20,14 @@ class ContestClarificationView(BaseContestMixin, ListView):
 
     def get_queryset(self):
         cmp = dict(note=-1, open=0, close=1, solve=1)
-        return sorted(self.contest.contestclarification_set.all(), key=lambda x: cmp[x.status])
+        if self.privileged:
+            set = self.contest.contestclarification_set.all()
+        else:
+            q = Q(status='note')
+            if self.user.is_authenticated:
+                q |= Q(author=self.user)
+            set = self.contest.contestclarification_set.filter(q)
+        return sorted(set, key=lambda x: cmp[x.status])
 
     def post(self, request, cid):
         if self.contest.get_status() != 'running':
@@ -33,6 +41,17 @@ class ContestClarificationView(BaseContestMixin, ListView):
         ContestClarification.objects.create(contest_id=self.kwargs['cid'], author=request.user,
                                             text=request.POST['message'], status=status)
         return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestClarificationAnswer(BaseContestMixin, View):
+    def post(self, request, cid, clarification_id):
+        if not self.privileged:
+            raise PermissionDenied("You don't have the access.")
+        clarification = ContestClarification.objects.get(pk=clarification_id)
+        clarification.status = 'solve'
+        clarification.answer = request.POST['answer']
+        clarification.save(update_fields=["status", "answer"])
+        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
 
 
 class ContestClarificationToggle(BaseContestMixin, View):
