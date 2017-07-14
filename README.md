@@ -2,19 +2,12 @@
 
 eoj3: A new version of eoj.
 
-## TODO
-+ rewrite hint messages (i18n)
-+ friendly time input
-+ markdown safe
-+ csrf_protect on function-based views
-+ remember me on login page
-+ async send email
-+ ~~online compiler~~
-+ internationalization?
-+ blog and discussion zone
+Judge Server is available at [eJudge](https://github.com/ultmaster/ejudge).
 
-# Documents
+## Documentation
 
 See [Wiki](https://github.com/ultmaster/eoj3/wiki) here.
 
 Sadly, my English is so poor that I do not have the courage to write it in English. Please, if you can, help me...
+
+New documentation shall be available [here](https://ultmaster.github.io/eoj3/). Sadly also only in Chinese.

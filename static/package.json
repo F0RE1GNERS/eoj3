@@ -1,0 +1,28 @@
+{
+  "name": "eoj3",
+  "version": "0.1.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-sass": "^2.1.0"
+  },
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp sass"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ace-builds": "^1.2.8",
+    "cal-heatmap": "^3.6.2",
+    "font-awesome": "^4.7.0",
+    "foundation-sites": "github:ultmaster/foundation-sites",
+    "jquery": "^3.2.1",
+    "mathjax": "^2.7.1",
+    "spectre.css": "^0.2.14",
+    "gulp-autoprefixer": "^3.1.0"
+  }
+}

@@ -1,20 +1,57 @@
 {% extends 'base.jinja2' %}
-{% block broadcast_content %}
-  {% if broadcast_message %}
-    <a href="{{ broadcast_link }}" target="_blank" class="v4-tease">{{ broadcast_message }}</a>
-  {% endif %}
-{% endblock %}
+{#{% block broadcast_content %}#}
+{#  {% if broadcast_message %}#}
+{#    <a href="{{ broadcast_link }}" target="_blank" class="v4-tease">{{ broadcast_message }}</a>#}
+{#  {% endif %}#}
+{#{% endblock %}#}
 
 {% block content %}
 
-
-  <div class="masthead" style="background-image: url({{ bg }});">
-    <div class="masthead-container">
+  <section class="section section-hero bg-gray">
+    <section id="overview" class="grid-hero container grid-960 text-center">
       <h1>ECNU Online Judge</h1>
-      <span>It is more than coding.</span>
-    </div>
-  </div>
-
+      <h2>Start coding, since now</h2>
+      <div class="columns">
+        <div class="column">
+          <a href="index.html#introduction" class="btn btn-primary">Docs</a>
+          <a href="https://github.com/picturepan2/spectre" target="_blank" class="btn btn-primary">GitHub</a>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column col-4 col-xs-12">
+          <div class="card text-center">
+            <div class="card-header">
+              <span class="card-title">Lightweight</span>
+            </div>
+            <div class="card-body">
+              Lightweight  (~10KB gzipped) starting point for your projects
+            </div>
+          </div>
+        </div>
+        <div class="column col-4 col-xs-12">
+          <div class="card text-center">
+            <div class="card-header">
+              <span class="card-title">Responsive</span>
+            </div>
+            <div class="card-body">
+              Flexbox-based, responsive and mobile-friendly layout
+            </div>
+          </div>
+        </div>
+        <div class="column col-4 col-xs-12">
+          <div class="card text-center">
+            <div class="card-header">
+              <span class="card-title">Modern</span>
+            </div>
+            <div class="card-body">
+              Carefully designed elements and components
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+{##}
     <div class="container">
       <h1 class="text-center">Features</h1>
 
