@@ -2,15 +2,13 @@ from django.shortcuts import render, HttpResponseRedirect, reverse, get_object_o
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
 from django.db.models import Q
-from django.db import transaction
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.contrib import messages
-from django.http.response import Http404
+
 from django.core.exceptions import PermissionDenied
 from tagging.models import Tag, TaggedItem, ContentType
+from collections import Counter
 
 from .models import Problem
+from .tasks import get_many_problem_accept_count
 from submission.forms import SubmitForm
 from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
@@ -65,6 +63,11 @@ class ProblemList(ListView):
             for problem in data['problem_list']:
                 if submission_set.get(problem.pk) is not None:
                     problem.status = submission_set.get(problem.pk)
+
+        # Get Accepted of all users
+        accept_count = get_many_problem_accept_count(list(map(lambda x: x.id, data['problem_list'])))
+        for problem in data['problem_list']:
+            problem.accept_count = accept_count[problem.id]
 
         # Get tags
         if show_tags:

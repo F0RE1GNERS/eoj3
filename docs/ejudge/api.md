@@ -2,7 +2,7 @@
 
 ## 快速检索
 
-+ `GET /reset` 配置页面（直接使用浏览器访问）
++ `GET /ping` 如果成功，返回 pong
 + `POST /upload/case/:fid/:io` 上传测试用例，永久保存
 + `POST /upload/:type` 上传测试程序，永久保存
 + `DELETE /delete/case/:fid` 删除指定的测试用例（不建议）

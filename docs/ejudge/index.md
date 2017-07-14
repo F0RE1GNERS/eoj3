@@ -1,5 +1,9 @@
 # eJudge
 
+## 文档局限性
+
+这里的文档面向正在开发中的 ejudge v2。v1（目前 master 分支）的文档不再更新。
+
 ## 简介
 
 eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服务（废话）。设计判题服务器的主要意图有二：
@@ -86,6 +90,9 @@ eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服�
 + Java (java)
 + Python 2 (py2)
 + Python 3 (python)
++ Pypy (pypy)
++ Perl (perl)
++ OCaml (ocaml)
 + PHP (php)
 + Rust (rs)
 + Haskell (hs)
@@ -93,22 +100,50 @@ eJudge 是 eoj3 捆绑销售的判题服务器。主要职责是提供判题服�
 
 （部分语言命名诡异是为了确保向下兼容性。）
 
-## 文档局限性
-
-这里的文档面向正在开发中的 ejudge v2。v1（目前 master 分支）的文档不再更新。
-
-## 安装（待填）
+## 安装
 
 ### 部署
 
+Docker：`curl -sSL http://acs-public-mirror.oss-cn-hangzhou.aliyuncs.com/docker-engine/internet | sh -`
+
+外网：`sudo docker pull registry.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
+
+阿里云内网：`sudo docker pull registry-internal.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
+
+运行：`sudo docker run -d -v /your/folder/of/ejudge:/ejudge -p YOUR_RORT:5000 registry-internal.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
+
+主目录 ejudge 是通过数据卷的形式挂载在容器内的，所以可以通过 `docker inspect -f {{.Mounts}} YOUR_DOCKER_ID` 的 mount 下的地址找到。
+找到该目录的意义，就在于该目录下的 `/run` 便是所有数据的存放、程序运行的位置，另外 `/run/log` 下是程序运行日志。要修改密码，修改配置，也要修改该目录下的 `config` 子目录。
+可以加个软链接来快速访问。如果有更简洁的方法，欢迎补充！
+
 ### 开发
 
-`python3 setup.py build_ext --inplace`
++ 先创建一个用户：`useradd -r compiler`
 
-`celery worker -A handler --loglevel=info`
++ 拷贝 java policy：`cp sandbox/java_policy /etc/`
+
++ 安装依赖包（见 Dockerfile）：`pip3 install -r requirements.txt`, `apt-get -y install gcc g++ ...`
+
++ 编译 Cython：`python3 setup.py build_ext --inplace`
+
++ 创建目录：`mkdir -p run/data run/sub run/log`
+
+然后就从运行 `tests` 中的测试开始吧。注意在运行 `flask` 测试前要先运行 flask 服务器和 celery：
+
++ 运行 redis：`service redis-server start`
+
++ 运行 celery：
+    + 阻塞：`celery worker -A handler --loglevel=info`
+    + 守护：`celery multi start worker -A handler`
+
++ 运行 flask：`./flask_server.py`
+
+在生产环境下的命令见 `run.sh`。
 
 
 ## 致谢
+
+eJudge 由 eoj3 团队开发。
 
 eJudge 的设计借（照）鉴（抄）了 [QDUOJ Judger](https://github.com/QingdaoU/Judger/tree/newnew) 中对 seccomp 的使用，
 专业出题网站 [Codeforces Polygon](https://polygon.codeforces.com/) 中对测试程序的使用，

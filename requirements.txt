@@ -28,3 +28,4 @@ pillow
 django-simple-captcha
 mkdocs
 mkdocs-bootswatch
+django-redis
