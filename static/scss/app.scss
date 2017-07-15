@@ -176,3 +176,68 @@ $almost-white: #f8f9fa;
 .float-right {
   float: right !important;
 }
+
+// problem
+
+.property {
+  p:first-child {
+    margin-top: 1rem;
+  }
+  p:not(:last-child) {
+    margin-bottom: .2rem;
+  }
+}
+
+.problem-body {
+  .header, .passage {
+    margin-bottom: 1.5em;
+  }
+  .title {
+    font-size: 1.4em;
+    margin-bottom: 0.4em;
+    font-weight: $global-weight-bold;
+  }
+  .graphics {
+    clear: both;
+    display: block;
+    margin: auto;
+    width: 100%;
+    height: auto;
+    @media (min-width: 480px) {
+      width: 80%;
+    }
+    @media (min-width: 768px) {
+      width: 60%;
+    }
+  }
+  .examples {
+    .example {
+      font-family: "Courier New", "Courier", monospace;
+      font-size: 0.95em;
+      margin-bottom: 1em;
+      > div {
+        border: 1px solid #888;
+        &:not(:first-child) {
+          position: relative;
+          top: -1px;
+        }
+      }
+      .title {
+        font-size: 1.1em;
+        padding: 0.25em;
+        border-bottom: 1px solid #888;
+        text-transform: lowercase;
+        font-weight: bold;
+        margin-bottom: 0;
+      }
+      pre {
+        line-height: 1.25em;
+        padding: 0.25em;
+        margin: 0;
+        background-color: #f7f7f7;
+        color: #ad1457;
+        border: none;
+      }
+    }
+  }
+}

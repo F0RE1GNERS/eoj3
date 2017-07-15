@@ -2,6 +2,8 @@ site_name: EOJ Docs
 theme: cosmo
 pages:
 - '简介': 'index.md'
+- 'Web 端':
+  - 'Polygon': 'eoj/polygon.md'
 - '判题服务器':
   - '简介': 'ejudge/index.md'
   - 'API': 'ejudge/api.md'

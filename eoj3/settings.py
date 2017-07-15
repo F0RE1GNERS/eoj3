@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'tests',
     'blog',
     'migrate',
+    'polygon',
 
     # third-party packages
     'widget_tweaks',
