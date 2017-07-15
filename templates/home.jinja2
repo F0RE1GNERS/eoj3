@@ -13,68 +13,9 @@
         <h1>ECNU Online Judge</h1>
         <h4><span class="typed-element"></span></h4>
       </div>
-      <a class="button large" href="{% if not user.is_authenticated %}{{ url('login') }}?next={{ request.path }}{% else %}{{ url('problem_list') }}{% endif %}">Get Started</a>
+      <a class="button large" href="{% if not user.is_authenticated %}{{ url('login') }}?next={{ request.path }}{% else %}{{ url('problem:list') }}{% endif %}">Get Started</a>
     </section>
   </section>
-{##}
-    <div class="container">
-      <h1 class="text-center">Features</h1>
-
-      <div class="content-section">
-        <h2 class="text-center">Problems</h2>
-        <p class="text-center lead">For all to explore</p>
-        <div class="row">
-          <div class="col-sm-6 mb-3">
-            <h4>Well tagged</h4>
-            <p>Problems have been well tagged. You can search problems by their names, sources and tags.
-            If you dislike them, you can still turn that off. There can be also task-oriented sources, with which
-            students can easily find their school assignment on just one click.</p>
-          </div>
-          <div class="col-sm-6 mb-3">
-            <h4>New checkers</h4>
-            <p>There have always been complaints about the irrationality of the judge system, including the 'time limit
-            exceeded' case which cannot be explained, and 'Presentation Error' becoming 'Wrong Answer' as a frustrating
-            mistake. We are dedicated to solve such problems and special judges are used to prevent these kinds of mistakes
-            from happening.</p>
-          </div>
-        </div>
-        <p class="text-center lead">
-          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">Explore problems</a>
-        </p>
-      </div>
-
-      <hr>
-      <div class="content-section">
-        <h2 class="text-center">Contests</h2>
-        <p class="text-center lead">For all kinds of situations</p>
-        <div class="row">
-          <div class="col-sm-6 mb-3">
-            <h4>OI Rules</h4>
-            <p>Interesting OI Problems! Basically, you can submit your program and compete with others.
-              OI Problems are graded according to test cases. It is even possible to gain some score when your
-              algorithm is not completely correct.</p>
-          </div>
-          <div class="col-sm-6 mb-3">
-            <h4>ACM Rules</h4>
-            <p>Many traditional problems, based on standard input and output, using the
-              rule of ACM-ICPC contest. You can practice your programming skills here. The verdict will only be
-              Yes or No. Note that it is also widely used in college examinations.</p>
-          </div>
-        </div>
-        <p class="text-center lead">
-          <a role="button" class="btn btn-default" href="{{ url('problem_list') }}">View contests</a>
-        </p>
-      </div>
-
-      <hr>
-
-      <div class="content-section">
-        <h2 class="text-center">F.A.Q.</h2>
-        <p class="text-center lead">Need any help? We hope <a href="{{ url('faq') }}">this</a> will solve your problem.</p>
-      </div>
-
-    </div>
-
 
 {% endblock %}
 

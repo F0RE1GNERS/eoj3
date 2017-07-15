@@ -17,7 +17,7 @@ from utils.authentication import test_site_open
 
 
 class ProblemList(ListView):
-    template_name = 'problem_list.jinja2'
+    template_name = 'problem/index.jinja2'
     paginate_by = 100
     context_object_name = 'problem_list'
 
@@ -82,7 +82,7 @@ class ProblemList(ListView):
 
 
 class ProblemView(FormView):
-    template_name = 'problem.jinja2'
+    template_name = 'problem/detail/problem.jinja2'
     form_class = SubmitForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -120,3 +120,43 @@ class ProblemView(FormView):
         submission = form.save(commit=False)
         submit_code(submission, self.request.user, self.kwargs.get('pk'))
         return HttpResponseRedirect(reverse('submission', args=[submission.pk]))
+
+
+class StatusList(ListView):
+    template_name = 'problem/status.jinja2'
+    paginate_by = 50
+    context_object_name = 'submission_list'
+
+    def get_queryset(self):
+        kw = self.request.GET.get('keyword')
+        author = self.request.GET.get('author')
+        prob = self.request.GET.get('problem')
+        queryset = Submission.objects.select_related('problem', 'author').only('pk', 'contest_id', 'create_time',
+                                                                               'author_id', 'author__username',
+                                                                               'author__nickname', 'author__magic',
+                                                                               'problem_id', 'problem__title', 'lang',
+                                                                               'status', 'status_percent', 'status_time',
+                                                                               'status_memory')
+        if not is_admin_or_root(self.request.user):
+            queryset = queryset.filter(contest__isnull=True, problem__visible=True)
+        if author and author.isdigit():
+            queryset = queryset.filter(author_id=author)
+        if prob and prob.isdigit():
+            queryset = queryset.filter(problem_id=prob)
+        if kw:
+            q = Q(author__username__iexact=kw)
+            if kw.isdigit():
+                q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
+            queryset = queryset.filter(q)
+        return queryset.all()[:10000]
+
+    def get_context_data(self, **kwargs):
+        data = super(StatusList, self).get_context_data(**kwargs)
+        user = self.request.user
+        # print(reverse('status') + '?keyword=' + str(1))
+        data['keyword'] = self.request.GET.get('keyword')
+        if user.is_authenticated:
+            for submission in data['submission_list']:
+                if is_admin_or_root(user) or submission.author == user:
+                    submission.is_privileged = True
+        return data

@@ -1,16 +1,10 @@
-{% extends 'base.jinja2' %}
+{% extends 'problem/detail/base.jinja2' %}
 {% from 'components/problem.jinja2' import problem_view with context %}
 
 {% block title %}Problem #{{ problem.pk }} - {% endblock %}
 
-{% block content %}
+{% block problem_content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Problem #{{ problem.pk }}</h1>
-    </div>
-  </div>
-  <div class="container">
     <div class="row">
       <div class="col-12 col-sm-4 col-sm-push-8">
         <div class="panel panel-default">
@@ -18,7 +12,7 @@
           <div class="panel-body">
             <p><strong>Accepted: </strong>{{ problem.total_accept_number }}<br>
               <strong>Submissions: </strong>{{ problem.total_submit_number }}</p>
-            <p><a href="{{ url('status') }}?problem={{ problem.pk }}">Go to status</a></p>
+            <p><a href="{{ url('problem:status') }}?problem={{ problem.pk }}">Go to status</a></p>
           </div>
         </div>
         {% if request.user.is_authenticated %}
@@ -98,13 +92,8 @@
 
       </div>
     </div>
-  </div>
 
   {% include 'components/math_support.jinja2' %}
 
 {% endblock %}
 
-{% block script %}
-  <script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
-  <script src="/static/js/editor.js"></script>
-{% endblock %}

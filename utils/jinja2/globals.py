@@ -11,8 +11,13 @@ from eoj3.settings import BASE_DIR
 @jinja2.contextfunction
 def is_active(context, match, **kwargs):
     """
-    In template: {% navitem_active "namespace(optional):name" %}
+    In template: {{ active("namespace(optional):name") }}
     For further usage, if you need something more specific, remember to parse all kwargs here.
+
+    Example:
+        active("contest:*")  turn on for all pages in contest namespace
+        active("problem:title")  turn on for all pages in problem and with the name "starts with" title
+
     """
     def check_kwargs(a, b):
         if len(a.items()) != len(b.items()):

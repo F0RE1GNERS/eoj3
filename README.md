@@ -1,5 +1,9 @@
 # ECNU Online Judge
 
+## Attention
+
+eoj3 master branch is currently a dev branch and under an **UNUSABLE** state. To use it, please refer to the latest release.
+
 eoj3: A new version of eoj.
 
 Judge Server is available at [eJudge](https://github.com/ultmaster/ejudge).

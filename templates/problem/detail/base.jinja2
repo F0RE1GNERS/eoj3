@@ -1,0 +1,30 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Problem #{{ problem.pk }} - {% endblock %}
+
+{% block content %}
+
+  <div class="grid-container container">
+    <div class="page-header">
+      <h2>{{ problem.pk }} - {{ problem.title }}</h2>
+    </div>
+
+    <ul class="navigation menu">
+      <li class="{{ active('problem:detail') }}"><a href="{{ url('problem:detail', problem.pk) }}">Description</a></li>
+      <li class="{{ active('problem:submit') }}"><a href="#">Submit</a></li>
+      <li class="{{ active('problem:statistics') }}"><a href="#">Statistics</a></li>
+      <li class="{{ active('problem:discussion') }}"><a href="{{ url('problem:status') }}">Discussion</a></li>
+    </ul>
+
+    {% block problem_content %}
+    {% endblock %}
+  </div>
+
+  {% include 'components/math_support.jinja2' %}
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
+  <script src="/static/js/editor.js"></script>
+{% endblock %}

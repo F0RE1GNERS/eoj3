@@ -9,9 +9,6 @@
   <link rel="stylesheet" href="/static/node_modules/lato-font/css/lato-font.css">
   <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="/static/css/app.css">
-  <link rel="stylesheet" href="/static/css/docs.css">
-{#  <link href="/static/css/main.css?v={{ static_file_modify('css/main.css') }}" rel="stylesheet">#}
-
   {% block css %}
   {% endblock %}
   <title>{% block title %}{% endblock %}ECNU Online Judge</title>
@@ -26,18 +23,22 @@
     <div class="top-bar-left">
       <ul class="menu">
         <li class="menu-text"><a href="{{ url('home') }}">EOJ</a></li>
-        <li><a class="{{ active('problem') }}" href="{{ url('problem_list') }}">Problems</a></li>
+        <li><a class="{{ active('problem:*') }}" href="{{ url('problem:list') }}">Problems</a></li>
         <li><a class="{{ active('contest:*') }}" href="{{ url('contest:list') }}">Contests</a></li>
       </ul>
     </div>
     <div class="top-bar-right">
       <ul class="dropdown menu" data-dropdown-menu>
+        <li><form target="#">
+          <input type="search" name="kw" placeholder="Search">
+          <input type="submit" style="display: none;">
+        </form></li>
       {% if user.is_authenticated %}
         <li class="active dropdown">
           <a href="#">{{ request.user.username }}</a>
           <ul class="menu vertical">
             <li><a href="{{ url('generic', request.user.username) }}">Blog</a></li>
-            <li><a href="{{ url('status') }}?author={{ request.user.pk }}">Submissions</a></li>
+            <li><a href="{{ url('problem:status') }}?author={{ request.user.pk }}">Submissions</a></li>
             <li><a href="{{ url('account:profile') }}">Settings</a></li>
             <li><a href="{{ url('account:migrate') }}">Migrate</a></li>
             <li><a href="{{ url('feedback') }}">Feedback</a></li>
@@ -59,16 +60,9 @@
 
   <footer class="footer">
     <div class="container">
-      <ul class="bd-footer-links">
-        <li><a href="{{ url('home') }}">Homepage</a></li>
-        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>
-        <li><a href="{{ url('faq') }}">FAQ</a></li>
-        <li><a href="{{ url('feedback') }}">Feedback</a></li>
-      </ul>
-      <p>Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a></p>
-      <p>Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
-      <p>Proudly powered by <a href="https://getbootstrap.com/">Bootstrap</a> and inspired by <a href="https://semantic-ui.com/">Semantic-UI</a>.</p>
-      <p>Based on <a href="https://www.djangoproject.com/">Django</a> among other fantastic frameworks.</p>
+      <p><a href="{{ url('home') }}">Homepage</a> | <a href="https://github.com/ultmaster/eoj3">GitHub</a> | <a href="{{ url('faq') }}">FAQ</a> | <a href="{{ url('feedback') }}">Feedback</a></p>
+      <p>Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a><br>
+      Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
     </div>
   </footer>
 

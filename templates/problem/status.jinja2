@@ -1,0 +1,46 @@
+{% extends 'problem/base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+
+{% block title %}Online Status - {% endblock %}
+
+{% block problem_content %}
+
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>When</th>
+          <th>Who</th>
+          <th>Problem</th>
+          <th>Lang</th>
+          <th>Verdict</th>
+          <th>Time</th>
+          <th>Memory</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for submission in submission_list %}
+          <tr>
+            <td {% if submission.contest_id %}style="text-decoration: line-through"{% endif %} scope="row">
+              {% if submission.is_privileged %}
+              <a href="{{ url('submission', submission.pk) }}">{{ submission.pk }}</a>
+              {% else %}
+              {{ submission.pk }}
+              {% endif %}
+            </td>
+            <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+            <td>{{ clickable_nickname(submission.author) }}</td>
+            <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
+            <td>{{ submission.get_lang_display() }}</td>
+            <td class="verdict-{{ submission.get_verdict_color() }}">{{ submission.get_status_display() }}</td>
+            <td>{{ submission.get_time_display() }}</td>
+            <td>{{ submission.get_memory_display() }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ my_paginator() }}
+
+{% endblock %}

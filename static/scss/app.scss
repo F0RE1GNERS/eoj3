@@ -3,6 +3,7 @@
 @import 'settings';
 @import 'foundation';
 @import 'motion-ui';
+@import 'animations';
 
 @include foundation-global-styles;
 //@include foundation-grid;
@@ -54,11 +55,52 @@
 @include motion-ui-transitions;
 @include motion-ui-animations;
 
+$page-header-padding: 2rem 0 .5rem 0;
+
 .container {
   margin-left: auto;
   margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+.page-header {
+  padding: $page-header-padding;
+}
+
+.button.success {
+  background-color: #3adb76;
+  color: $white;
+}
+
+.menu.navigation {
+  padding-bottom: .8rem;
+  .active > a {
+    background: $primary-color;
+    color: $white;
+    border-radius: .4rem;
+  }
+  a {
+    color: $dark-gray;
+    padding: .3rem .5rem;
+    @include hvr-float();
+  }
+}
+
+.deleted {
+  text-decoration: line-through;
+}
+
+.text-success {
+  color: darken($success-color, 20%);
+}
+
+.text-warning {
+  color: $warning-color;
+}
+
+a.label {
+  cursor: pointer;
 }
 
 // For homepage
@@ -96,6 +138,17 @@ $almost-white: #f8f9fa;
       }
     }
   }
+  input[type="search"] {
+    max-width: 150px;
+    box-shadow: none;
+  }
+}
+
+.footer {
+  color: $dark-gray;
+  background-color: $almost-white;
+  margin-top: 4rem;
+  padding: 3rem 0 1.5rem 0;
 }
 
 .section-hero {
@@ -111,31 +164,6 @@ $almost-white: #f8f9fa;
 }
 
 // typed.js
-@keyframes blink {
-	0% { opacity:1; }
-	50% { opacity:0; }
-	100% { opacity:1; }
-}
-@-webkit-keyframes blink{
-	0% { opacity:1; }
-	50% { opacity:0; }
-	100% { opacity:1; }
-}
-@-moz-keyframes blink{
-	0% { opacity:1; }
-	50% { opacity:0; }
-	100% { opacity:1; }
-}
-@-ms-keyframes blink{
-	0% { opacity:1; }
-	50% { opacity:0; }
-	100% { opacity:1; }
-}
-@-o-keyframes blink{
-	0% { opacity:1; }
-	50% { opacity:0; }
-	100% { opacity:1; }
-}
 .typed-cursor {
   opacity: 1;
   -webkit-animation: blink 0.7s infinite;
@@ -143,4 +171,8 @@ $almost-white: #f8f9fa;
   -ms-animation: blink 0.7s infinite;
   -o-animation: blink 0.7s infinite;
   animation: blink 0.7s infinite;
+}
+
+.float-right {
+  float: right !important;
 }
