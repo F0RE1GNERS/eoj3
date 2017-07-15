@@ -7,48 +7,13 @@
 
 {% block content %}
 
-  <section class="section section-hero bg-gray">
-    <section id="overview" class="grid-hero container grid-960 text-center">
-      <h1>ECNU Online Judge</h1>
-      <h2>Start coding, since now</h2>
-      <div class="columns">
-        <div class="column">
-          <a href="index.html#introduction" class="btn btn-primary">Docs</a>
-          <a href="https://github.com/picturepan2/spectre" target="_blank" class="btn btn-primary">GitHub</a>
-        </div>
+  <section class="section-hero">
+    <section id="overview" class="grid-container container text-center">
+      <div class="overview-title">
+        <h1>ECNU Online Judge</h1>
+        <h4><span class="typed-element"></span></h4>
       </div>
-      <div class="columns">
-        <div class="column col-4 col-xs-12">
-          <div class="card text-center">
-            <div class="card-header">
-              <span class="card-title">Lightweight</span>
-            </div>
-            <div class="card-body">
-              Lightweight  (~10KB gzipped) starting point for your projects
-            </div>
-          </div>
-        </div>
-        <div class="column col-4 col-xs-12">
-          <div class="card text-center">
-            <div class="card-header">
-              <span class="card-title">Responsive</span>
-            </div>
-            <div class="card-body">
-              Flexbox-based, responsive and mobile-friendly layout
-            </div>
-          </div>
-        </div>
-        <div class="column col-4 col-xs-12">
-          <div class="card text-center">
-            <div class="card-header">
-              <span class="card-title">Modern</span>
-            </div>
-            <div class="card-body">
-              Carefully designed elements and components
-            </div>
-          </div>
-        </div>
-      </div>
+      <a class="button large" href="{% if not user.is_authenticated %}{{ url('login') }}?next={{ request.path }}{% else %}{{ url('problem_list') }}{% endif %}">Get Started</a>
     </section>
   </section>
 {##}
@@ -110,10 +75,11 @@
 
     </div>
 
-    <script>
-      setTimeout(function() {
-        $(".masthead-container").css('background', 'rgba(0, 0, 0, 0.5)');
-      }, 1000);
-    </script>
 
+{% endblock %}
+
+
+{% block script %}
+  <script src="/static/node_modules/typed.js/lib/typed.min.js"></script>
+  <script src="/static/js/type.js"></script>
 {% endblock %}

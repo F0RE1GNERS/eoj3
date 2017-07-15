@@ -6,6 +6,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/node_modules/lato-font/css/lato-font.css">
   <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="/static/css/app.css">
   <link rel="stylesheet" href="/static/css/docs.css">
@@ -24,117 +25,60 @@
   <div class="top-bar">
     <div class="top-bar-left">
       <ul class="menu">
-        <li class="menu-text">EOJ</li>
-        <li><a href="{{ url('problem_list') }}">Problems</a></li>
-        <li><a href="{{ url('contest:list') }}">Contests</a></li>
+        <li class="menu-text"><a href="{{ url('home') }}">EOJ</a></li>
+        <li><a class="{{ active('problem') }}" href="{{ url('problem_list') }}">Problems</a></li>
+        <li><a class="{{ active('contest:*') }}" href="{{ url('contest:list') }}">Contests</a></li>
       </ul>
     </div>
     <div class="top-bar-right">
-      <ul class="menu">
-        <li><button type="button" class="button">Login</button></li>
+      <ul class="dropdown menu" data-dropdown-menu>
+      {% if user.is_authenticated %}
+        <li class="active dropdown">
+          <a href="#">{{ request.user.username }}</a>
+          <ul class="menu vertical">
+            <li><a href="{{ url('generic', request.user.username) }}">Blog</a></li>
+            <li><a href="{{ url('status') }}?author={{ request.user.pk }}">Submissions</a></li>
+            <li><a href="{{ url('account:profile') }}">Settings</a></li>
+            <li><a href="{{ url('account:migrate') }}">Migrate</a></li>
+            <li><a href="{{ url('feedback') }}">Feedback</a></li>
+            {% if user is admin %}
+            <li><a class="{{ active('backstage:*') }}" href="{{ url('backstage:index') }}">Backstage</a></li>
+            {% endif %}
+            <li><a href="{{ url('logout') }}?next={{ request.path }}">Logout</a></li>
+          </ul>
+        </li>
+      {% else %}
+        <li><a href="{{ url('login') }}?next={{ request.path }}">Login</a></li>
+      {% endif %}
       </ul>
     </div>
   </div>
-{#  <section class="section section-header bg-gray">#}
-{#    <section class="grid-header container grid-960">#}
-{#      <nav class="navbar">#}
-{#        <section class="navbar-section">#}
-{#          <a href="{{ url('home') }}" class="navbar-brand mr-10">EOJ</a>#}
-{#          <a href="{{ url('problem_list') }}" class="btn btn-link {{ active('problem') }}">Problems</a>#}
-{#          <a href="{{ url('contest:list') }}" class="btn btn-link {{ active('contest:*') }}">Contests</a>#}
-{#        </section>#}
-{#        <section class="navbar-section">#}
-{#          <a href="https://github.com/picturepan2/spectre" target="_blank" class="btn btn-primary">GitHub</a>#}
-{#        </section>#}
-{#      </nav>#}
-{#    </section>#}
-{#  </section>#}
-
-{#<div class="navbar-container container">#}
-{#  <div class="navbar-header">#}
-{#    <button aria-controls="bs-navbar" aria-expanded="false" class="collapsed navbar-toggle" data-target="#bs-navbar" data-toggle="collapse" type="button">#}
-{#      <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button>#}
-{#    <a href="{{ url('home') }}" class="navbar-brand">EOJ</a>#}
-{#  </div>#}
-{#  <nav class="collapse navbar-collapse" id="bs-navbar">#}
-{#    <ul class="nav navbar-nav">#}
-{#      <li class="{{ active('problem') }}"><a href="{{ url('problem_list') }}">Problems</a></li>#}
-{#      <li class="{{ active('contest:*') }}"><a href="{{ url('contest:list') }}">Contests</a></li>#}
-{#      <li class="{{ active('status') }}"><a href="{{ url('status') }}">Status</a></li>#}
-{#    </ul>#}
-{#    <ul class="nav navbar-nav navbar-right">#}
-{#      {% if user is admin %}#}
-{#        <li class="{{ active('backstage:*') }}">#}
-{#          <a href="{{ url('backstage:index') }}">Backstage</a>#}
-{#        </li>#}
-{#      {% endif %}#}
-{#      {% if user.is_authenticated %}#}
-{#        <li class="active dropdown">#}
-{#          <a href="javascript:void(0)" id="username-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
-{#            {{ request.user.username }}#}
-{#            <span class="caret"></span>#}
-{#          </a>#}
-{#          <ul class="dropdown-menu" aria-labelledby="username-dropdown">#}
-{#            <li><a href="{{ url('generic', request.user.username) }}">Blog</a></li>#}
-{#            <li><a href="{{ url('status') }}?author={{ request.user.pk }}">Submissions</a></li>#}
-{#            <li><a href="{{ url('account:profile') }}">Settings</a></li>#}
-{#            <li><a href="{{ url('account:migrate') }}">Migrate</a></li>#}
-{#            <li><a href="{{ url('feedback') }}">Feedback</a></li>#}
-{#          </ul>#}
-{#        </li>#}
-{#        <li>#}
-{#          <a href="{{ url('logout') }}?next={{ request.path }}">Logout</a>#}
-{#        </li>#}
-{#      {% else %}#}
-{#        <li>#}
-{#          <a href="{{ url('login') }}?next={{ request.path }}">Login</a>#}
-{#        </li>#}
-{#        <li>#}
-{#          <a href="{{ url('register') }}?next={{ request.path }}">Register</a>#}
-{#        </li>#}
-{#      {% endif %}#}
-{#    </ul>#}
-{#  </nav>#}
-{#</div>#}
-
 
   {% block content %}
   {% endblock %}
 
-{#  <footer class="bd-footer text-muted">#}
-{#    <div class="container">#}
-{#      <ul class="bd-footer-links">#}
-{#        <li><a href="{{ url('home') }}">Homepage</a></li>#}
-{#        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>#}
-{#        <li><a href="{{ url('faq') }}">FAQ</a></li>#}
-{#        <li><a href="{{ url('feedback') }}">Feedback</a></li>#}
-{#      </ul>#}
-{#      <p>Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a></p>#}
-{#      <p>Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>#}
-{#      <p>Proudly powered by <a href="https://getbootstrap.com/">Bootstrap</a> and inspired by <a href="https://semantic-ui.com/">Semantic-UI</a>.</p>#}
-{#      <p>Based on <a href="https://www.djangoproject.com/">Django</a> among other fantastic frameworks.</p>#}
-{#    </div>#}
-{#  </footer>#}
-
-  <footer class="bg-gray">
-    <section id="copyright" class="grid-footer container grid-960">
-      <p>
-        <a href="{{ url('home') }}">Homepage</a> | <a href="https://github.com/ultmaster/eoj3">GitHub</a> | <a href="{{ url('faq') }}">FAQ</a> | <a href="{{ url('feedback') }}">Feedback</a>
-      </p>
-      <p>
-        Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a><br>
-        Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.
-      </p>
-    </section>
+  <footer class="footer">
+    <div class="container">
+      <ul class="bd-footer-links">
+        <li><a href="{{ url('home') }}">Homepage</a></li>
+        <li><a href="https://github.com/ultmaster/eoj3">GitHub</a></li>
+        <li><a href="{{ url('faq') }}">FAQ</a></li>
+        <li><a href="{{ url('feedback') }}">Feedback</a></li>
+      </ul>
+      <p>Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a></p>
+      <p>Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
+      <p>Proudly powered by <a href="https://getbootstrap.com/">Bootstrap</a> and inspired by <a href="https://semantic-ui.com/">Semantic-UI</a>.</p>
+      <p>Based on <a href="https://www.djangoproject.com/">Django</a> among other fantastic frameworks.</p>
+    </div>
   </footer>
 
   <script src="/static/js/clipboard.min.js"></script>
   <script src="/static/js/js.cookie.min.js"></script>
-<script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
-<script src="/static/node_modules/foundation-sites/dist/js/foundation.min.js"></script>
-<script>
-  $(document).foundation();
-</script>
+  <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="/static/node_modules/foundation-sites/dist/js/foundation.min.js"></script>
+  <script>
+    $(document).foundation();
+  </script>
   {% block script %}
   {% endblock %}
 </body>

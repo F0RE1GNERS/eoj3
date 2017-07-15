@@ -53,3 +53,94 @@
 
 @include motion-ui-transitions;
 @include motion-ui-animations;
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+// For homepage
+$almost-white: #f8f9fa;
+
+.top-bar, .top-bar ul {
+  background-color: $almost-white;
+  .menu {
+    a {
+      padding: .7rem;
+      color: $dark-gray;
+      font-weight: $global-weight-medium;
+      &.active {
+        color: $black;
+      }
+    }
+    .menu-text {
+      a {
+        padding: 0;
+        color: $black;
+        font-weight: $global-weight-bold;
+      }
+    }
+  }
+  .dropdown.menu {
+    a {
+      background-color: transparent;
+      color: $primary-color;
+    }
+    .is-dropdown-submenu {
+      background-color: $white;
+      a {
+        padding: .6rem 1rem;
+        font-weight: $global-weight-normal;
+      }
+    }
+  }
+}
+
+.section-hero {
+  background-color: $almost-white;
+}
+
+#overview {
+  padding-bottom: 6rem;
+  padding-top: 9rem;
+  .overview-title {
+    margin-bottom: 2rem;
+  }
+}
+
+// typed.js
+@keyframes blink {
+	0% { opacity:1; }
+	50% { opacity:0; }
+	100% { opacity:1; }
+}
+@-webkit-keyframes blink{
+	0% { opacity:1; }
+	50% { opacity:0; }
+	100% { opacity:1; }
+}
+@-moz-keyframes blink{
+	0% { opacity:1; }
+	50% { opacity:0; }
+	100% { opacity:1; }
+}
+@-ms-keyframes blink{
+	0% { opacity:1; }
+	50% { opacity:0; }
+	100% { opacity:1; }
+}
+@-o-keyframes blink{
+	0% { opacity:1; }
+	50% { opacity:0; }
+	100% { opacity:1; }
+}
+.typed-cursor {
+  opacity: 1;
+  -webkit-animation: blink 0.7s infinite;
+  -moz-animation: blink 0.7s infinite;
+  -ms-animation: blink 0.7s infinite;
+  -o-animation: blink 0.7s infinite;
+  animation: blink 0.7s infinite;
+}
