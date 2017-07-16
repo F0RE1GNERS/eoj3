@@ -58,6 +58,7 @@ class User(AbstractUser):
                                   processors=[ResizeToFill(500, 500)],
                                   format='JPEG',
                                   options={'quality': 60})
+    polygon_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

@@ -25,6 +25,7 @@ class Problem(models.Model):
     memory_limit = models.IntegerField(default=256)
     checker = models.CharField(max_length=64, default='fcmp')
     interactor = models.CharField(blank=True, max_length=64)
+    validator = models.CharField(blank=True, max_length=64)
     cases = models.TextField(blank=True)
 
     manager = models.ManyToManyField(User, through='ProblemManagement')

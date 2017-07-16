@@ -8,4 +8,4 @@ class EditSession(models.Model):
     user = models.ForeignKey(User)
     fingerprint = models.CharField(max_length=64)
     problem_repo = models.CharField(max_length=32)
-    last_commit_time = models.DateTimeField(blank=True)
+    last_synchronize = models.DateTimeField(blank=True)

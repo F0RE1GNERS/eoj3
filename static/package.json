@@ -24,6 +24,7 @@
     "gulp-autoprefixer": "^3.1.0",
     "jquery": "^3.2.1",
     "mathjax": "^2.7.1",
+    "semantic-ui-less": "github:ultmaster/Semantic-UI-LESS",
     "spectre.css": "^0.2.14",
     "typed.js": "^2.0.2"
   }
