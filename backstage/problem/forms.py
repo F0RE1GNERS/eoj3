@@ -5,7 +5,7 @@ from problem.models import Problem
 class ProblemEditForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ['title', 'time_limit', 'sum_time_limit', 'memory_limit', 'judge', 'description', 'input', 'output',
+        fields = ['title', 'time_limit', 'memory_limit', 'description', 'input', 'output',
                   'sample', 'hint', 'source', 'visible']
         error_messages = {
         }
@@ -14,7 +14,7 @@ class ProblemEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
-        new_order = ['title', 'time_limit', 'sum_time_limit', 'memory_limit', 'judge', 'description', 'tags',
+        new_order = ['title', 'time_limit', 'memory_limit', 'description', 'tags',
                      'input', 'output','sample', 'hint', 'source', 'visible']
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
