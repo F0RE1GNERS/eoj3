@@ -8,7 +8,7 @@ from utils import random_string
 
 
 class Problem(models.Model):
-    alias = models.CharField(max_length=64, unique=True, default=random_string)
+    alias = models.CharField(max_length=64, default=random_string)
     title = models.CharField(max_length=192, blank=True)
     description = models.TextField(blank=True)
     input = models.TextField(blank=True)

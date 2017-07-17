@@ -137,7 +137,7 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
         data['contest_problem'] = get_object_or_404(ContestProblem,
                                                     identifier=self.kwargs.get('pid'),
                                                     contest=self.contest)
-        data['problem'] = data['contest_problem'].problem.get_markdown()
+        data['problem'] = data['contest_problem'].problem
         return data
 
 

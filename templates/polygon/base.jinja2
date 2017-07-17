@@ -1,4 +1,36 @@
-{% extends 'base.jinja2' %}
-{% block content %}
+{% extends 'html_base.jinja2' %}
 
+{% block base_title %}EOJ Polygon{% endblock %}
+
+{% block _content %}
+  <div class="ui top inverted fixed menu large" id="navbar">
+    <div class="ui container">
+      <a class="item" href="{{ url('polygon:home') }}">
+        <i class="home icon"></i>
+        Home
+      </a>
+      <a class="item">
+        <i class="fork icon"></i>
+        Session
+      </a>
+      <a class="item">
+        <i class="help circle icon"></i>
+        Help
+      </a>
+      <div class="right menu">
+        {% if user.is_authenticated %}
+          <div class="item">Current: {{ request.user.username }}</div>
+        {% else %}
+          <a class="item" href="{{ url('login') }}?next={{ request.path }}">Login</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+  <div class="ui main container pusher">
+    <h1 class="ui header">{% block page_header %}#page_header{% endblock %}</h1>
+  {% block content %}
+  {% endblock %}
+  </div>
+  {% include 'components/footer.jinja2' %}
 {% endblock %}

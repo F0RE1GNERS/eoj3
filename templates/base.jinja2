@@ -1,79 +1,14 @@
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <link rel="icon" href="/static/favicon.ico">
-  <link rel="stylesheet" href="/static/node_modules/lato-font/css/lato-font.css">
-  <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/css/app.css">
-  {% block css %}
-  {% endblock %}
-  <title>{% block title %}{% endblock %}ECNU Online Judge</title>
-</head>
+{% extends 'html_base.jinja2' %}
 
-<body>
+{% block _content %}
 
 {% block broadcast_content %}{% endblock %}
-
-
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <ul class="menu">
-        <li class="menu-text"><a href="{{ url('home') }}">EOJ</a></li>
-        <li><a class="{{ active('problem:*') }}" href="{{ url('problem:list') }}">Problems</a></li>
-        <li><a class="{{ active('contest:*') }}" href="{{ url('contest:list') }}">Contests</a></li>
-      </ul>
-    </div>
-    <div class="top-bar-right">
-      <ul class="dropdown menu" data-dropdown-menu>
-        <li><form target="#">
-          <input type="search" name="kw" placeholder="Search">
-          <input type="submit" style="display: none;">
-        </form></li>
-      {% if user.is_authenticated %}
-        <li class="active dropdown">
-          <a href="#">{{ request.user.username }}</a>
-          <ul class="menu vertical">
-            <li><a href="{{ url('generic', request.user.username) }}">Blog</a></li>
-            <li><a href="{{ url('problem:status') }}?author={{ request.user.pk }}">Submissions</a></li>
-            <li><a href="{{ url('account:profile') }}">Settings</a></li>
-            <li><a href="{{ url('account:migrate') }}">Migrate</a></li>
-            <li><a href="{{ url('feedback') }}">Feedback</a></li>
-            {% if user is admin %}
-            <li><a class="{{ active('backstage:*') }}" href="{{ url('backstage:index') }}">Backstage</a></li>
-            {% endif %}
-            <li><a href="{{ url('logout') }}?next={{ request.path }}">Logout</a></li>
-          </ul>
-        </li>
-      {% else %}
-        <li><a href="{{ url('login') }}?next={{ request.path }}">Login</a></li>
-      {% endif %}
-      </ul>
-    </div>
+{% include 'components/navbar.jinja2' %}
+  <div class="ui main container pusher">
+    <h1 class="ui header">{% block page_header %}#page_header{% endblock %}</h1>
+{% block content %}
+{% endblock %}
   </div>
+{% include 'components/footer.jinja2' %}
 
-  {% block content %}
-  {% endblock %}
-
-  <footer class="footer">
-    <div class="container">
-      <p><a href="{{ url('home') }}">Homepage</a> | <a href="https://github.com/ultmaster/eoj3">GitHub</a> | <a href="{{ url('faq') }}">FAQ</a> | <a href="{{ url('feedback') }}">Feedback</a></p>
-      <p>Contact us: <a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a><br>
-      Created by <a href="https://github.com/ultmaster">@ultmaster</a> and <a href="https://github.com/zerolfx">@zerolfx</a>.</p>
-    </div>
-  </footer>
-
-  <script src="/static/js/clipboard.min.js"></script>
-  <script src="/static/js/js.cookie.min.js"></script>
-  <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="/static/node_modules/foundation-sites/dist/js/foundation.min.js"></script>
-  <script>
-    $(document).foundation();
-  </script>
-  {% block script %}
-  {% endblock %}
-</body>
-</html>
+{% endblock %}

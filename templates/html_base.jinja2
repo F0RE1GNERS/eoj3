@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/node_modules/lato-font/css/lato-font.css">
+  <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/css/app.min.css">
+  <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  {% block css %}
+  {% endblock %}
+  <title>{% block title %}{% endblock %}{% block base_title %}ECNU Online Judge{% endblock %}</title>
+</head>
+
+<body class="local-body">
+
+{% block _content %}
+{% endblock %}
+
+<script src="/static/js/clipboard.min.js"></script>
+<script src="/static/js/js.cookie.min.js"></script>
+<script src="/static/node_modules/semantic-ui-less/semantic.min.js"></script>
+<script>
+  $('.ui.checkbox')
+    .checkbox()
+  ;
+</script>
+{% block script %}
+{% endblock %}
+
+</body>
+</html>

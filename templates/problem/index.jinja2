@@ -4,38 +4,32 @@
 
 {% block problem_content %}
 
-  <table>
-    <thead>
-      <tr>
-        <th class="text-center" width="8%">#</th>
-        <th>Name</th>
-        <th class="text-center" width="16%">Solved</th>
+<table class="ui celled table">
+  <thead>
+    <tr>
+      <th class="center aligned one wide">#</th>
+      <th>Name</th>
+      <th class="center aligned three wide">Solved</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for problem in problem_list %}
+      <tr class="center aligned middle aligned">
+        <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
+        <td class="left aligned middle aligned">
+          <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+          {% for tag in problem.my_tags %}
+            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label ui">{{ tag }}</a>
+          {% endfor %}
+        </td>
+        <td class="{% if problem.status %}{{ problem.status }}{% endif %}">
+          <i class="fa fa-user" aria-hidden="true"></i> x {{ problem.accept_count }}
+        </td>
       </tr>
-    </thead>
-    <tbody>
-      {% for problem in problem_list %}
-        <tr>
-          <th class="{% if not problem.visible %}deleted{% endif %}" scope="row">{{ problem.pk }}</th>
-          <td>
-            <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
-            {% if problem.status == 'success' %}
-              <a href="#" class="text-success personal-problem-status">
-                <i class="fa fa-check-circle" aria-hidden="true"></i></a>
-            {% elif problem.status == 'danger' %}
-              <a href="#" class="text-warning personal-problem-status">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
-            {% endif %}
-            <div class="float-right">
-              {% for tag in problem.my_tags %}
-                <a href="?{{ url_replace(request, 'tag', tag) }}" class="label secondary">{{ tag }}</a>
-              {% endfor %}
-            </div>
-          </td>
-          <td class="{% if problem.status %}bg-{{ problem.status }}{% endif %} text-center"><i class="fa fa-user" aria-hidden="true"></i> x {{ problem.accept_count }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    {% endfor %}
+  </tbody>
+</table>
+
   {{ my_paginator() }}
 
 {% endblock %}

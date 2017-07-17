@@ -1,4 +1,67 @@
-{% extends 'base.jinja2' %}
-{% block content %}
+{% extends 'polygon/base.jinja2' %}
 
+{% block title %}Register - {% endblock %}
+
+{% block page_header %}Enable Polygon{% endblock %}
+
+{% block content %}
+  <p>You will use EOJ username and password to login to Polygon.</p>
+  <p>Here are the terms of use.</p>
+  <div class="ui message">
+  <ul class="list">
+    <li class="item">You can use Polygon to develop problems only.</li>
+    <li class="item">You should not submit files containing malicious code:
+      <ul class="list">
+        <li class="item">trojan horses;</li>
+        <li class="item">rootkits;</li>
+        <li class="item">backdoors;</li>
+        <li class="item">viruses.</li>
+      </ul>
+    </li>
+    <li class="item">Your code is not allowed to:
+    <ul class="list">
+      <li class="item">access the network;</li>
+      <li class="item">work with any files except those explicitly specified in the problem statement;</li>
+      <li class="item">attack system security;</li>
+      <li class="item">execute other programs and create new processes;</li>
+      <li class="item">change file system permissions;</li>
+      <li class="item">work with subdirectories;</li>
+      <li class="item">create or manipulate any GUI items (windows, dialog boxes, etc);</li>
+      <li class="item">work with external devices (sound, printer, etc);</li>
+      <li class="item">work with OS registry;</li>
+      <li class="item">do anything else that can stir Polygon functioning.</li>
+    </ul>
+  </ul>
+  </div>
+  <p>You are chosen to be a member of Polygon because we entrust you to develop amazing problems. If you are a hacker aiming to test system security,
+  we suggest you to test it on the Online Judge system.</p>
+  <p><strong>
+    If keeping Polygon open is to become a security risk rather than a smart move, you will have no choice but to limit Polygon to internal use only.
+  </strong></p>
+  <form class="ui form {% if register_error %}error{% endif %}" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <div class="ui checkbox">
+        <input type="checkbox" tabindex="0" name="terms" class="hidden">
+        <label>I agree terms of use.</label>
+      </div>
+      <div class="ui error message">
+        <p>{{ register_error }}</p>
+      </div>
+    </div>
+    <button class="ui button" type="submit">Submit</button>
+  </form>
+
+{% endblock %}
+
+{% block script %}
+  <script>
+  $('.ui.form')
+    .form({
+      fields: {
+        terms    : 'checked'
+      }
+    })
+  ;
+  </script>
 {% endblock %}

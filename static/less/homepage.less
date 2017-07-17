@@ -1,0 +1,87 @@
+.hidden.menu {
+  display: none;
+}
+
+.masthead.segment {
+  min-height: 700px;
+  padding: 1em 0;
+  .logo.item img {
+    margin-right: 1em;
+  }
+  .ui.menu .ui.button {
+    margin-left: 0.5em;
+  }
+  h1.ui.header {
+    margin-top: 3em;
+    margin-bottom: 0;
+    font-size: 4em;
+    font-weight: normal;
+  }
+  h2 {
+    font-size: 1.7em;
+    font-weight: normal;
+  }
+}
+
+.ui.vertical.stripe {
+  padding: 8em 0;
+  h3 {
+    font-size: 2em;
+  }
+  .button + h3,
+  p + h3 {
+    margin-top: 3em;
+  }
+  .floated.image {
+    clear: both;
+  }
+  p {
+    font-size: 1.33em;
+  }
+  .horizontal.divider {
+    margin: 3em 0;
+  }
+}
+
+.quote.stripe.segment {
+  .grid .column {
+    padding-top: 5em;
+    padding-bottom: 5em;
+  }
+  padding: 0;
+}
+
+.footer.segment {
+  padding: 5em 0;
+}
+
+.secondary.pointing.menu .toc.item {
+  display: none;
+}
+
+@media only screen and (max-width: 700px) {
+  .ui.fixed.menu {
+    display: none !important;
+  }
+  .secondary.pointing.menu {
+    .item, .menu {
+      display: none;
+    }
+    .toc.item {
+      display: block;
+    }
+  }
+  .masthead.segment {
+    min-height: 350px;
+  }
+  .masthead {
+    h1.ui.header {
+      font-size: 2em;
+      margin-top: 1.5em;
+    }
+    h2 {
+      margin-top: 0.5em;
+      font-size: 1.5em;
+    }
+  }
+}

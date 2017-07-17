@@ -2,23 +2,19 @@
 
 {% block title %}Problem #{{ problem.pk }} - {% endblock %}
 
+{% block page_header %}{{ problem.pk }} - {{ problem.title }}{% endblock %}
+
 {% block content %}
 
-  <div class="grid-container container">
-    <div class="page-header">
-      <h2>{{ problem.pk }} - {{ problem.title }}</h2>
-    </div>
-
-    <ul class="navigation menu">
-      <li class="{{ active('problem:detail') }}"><a href="{{ url('problem:detail', problem.pk) }}">Description</a></li>
-      <li class="{{ active('problem:submit') }}"><a href="#">Submit</a></li>
-      <li class="{{ active('problem:statistics') }}"><a href="#">Statistics</a></li>
-      <li class="{{ active('problem:discussion') }}"><a href="{{ url('problem:status') }}">Discussion</a></li>
-    </ul>
-
-    {% block problem_content %}
-    {% endblock %}
+  <div class="ui secondary menu small weight normal">
+    <a class="item {{ active('problem:detail') }}" href="{{ url('problem:detail', problem.pk) }}">DESCRIPTION</a>
+    <a class="item {{ active('problem:submit') }}" href="#">SUBMIT</a>
+    <a class="item {{ active('problem:statistics') }}" href="#">STATISTICS</a>
+    <a class="item {{ active('problem:discussion') }}" href="{{ url('problem:status') }}">DISCUSSION</a>
   </div>
+
+  {% block problem_content %}
+  {% endblock %}
 
   {% include 'components/math_support.jinja2' %}
 

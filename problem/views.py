@@ -98,7 +98,7 @@ class ProblemView(FormView):
         data = super(ProblemView, self).get_context_data()
         if not is_admin_or_root(self.request.user) and not self.problem.visible:
             raise PermissionDenied("You don't have the access.")
-        data['problem'] = self.problem.get_markdown()
+        data['problem'] = self.problem
         if self.request.user.is_authenticated:
             data['submissions'] = self.problem.submission_set.only("create_time", "pk", "status", "problem_id").\
                                  filter(author=self.request.user).all()[:10]

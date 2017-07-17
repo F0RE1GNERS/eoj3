@@ -1,53 +1,55 @@
 {% include 'components/message.jinja2' %}
 
-<form action="{{ request.get_full_path() }}" method="post" enctype="multipart/form-data">
+{% set error_exists = [] %}
+{% for field in form %}
+  {% if field.errors %}{% do error_exists.append(1) %}{% endif %}
+{% endfor %}
+{% if form.non_field_errors() %}
+  {% do error_exists.append(1) %}
+{% endif %}
+
+<form class="ui form {% if error_exists %}error{% endif %}" action="{{ request.get_full_path() }}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
+
   {% for field in form %}
-    {% if not field.errors %}
+    <div class="field {% if field.errors %}error{% endif %}">
       {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
-        <div class="form-group">
-          <div class="checkbox">
-            <label>
-              {{ render_field(field, {'placeholder': field.help_text}) }} {{ field.label }}
-            </label>
-          </div>
+        <div class="ui checkbox">
+          {{ render_field(field, {'placeholder': field.help_text, 'class': 'hidden'}) }}
+          <label>{{ field.label }}</label>
         </div>
       {% elif field.field.widget.__class__.__name__ == 'ClearableFileInput' %}
-        <div class="form-group">
-          {{ field.label_tag() }}
-        <input type="file" id="{{ field.id_for_label }}" name="avatar">
-        </div>
-      {% elif field.field.widget.__class__.__name__ == 'CaptchaTextInput' %}
-        <div class="form-group">
-          {{ field.label_tag() }}
-          {{ field }}
-        </div>
-      {% else %}
-        <div class="form-group">
-          {{ field.label_tag() }}
-          {{ render_field(field, {'class': 'form-control', 'placeholder': field.help_text}) }}
-        </div>
-      {% endif %}
-    {% else %}
-      <div class="form-group has-warning">
         {{ field.label_tag() }}
-      {{ render_field(field, {'class': 'form-control form-control-warning', 'placeholder': field.help_text, 'aria-describedby': 'help-block'}) }}
-        {% for error in field.errors %}
-        <span id="help-block" class="help-block">{{ error | escape }}</span>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endfor %}
-  {% for error in form.non_field_errors() %}
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
+        <input type="file" id="{{ field.id_for_label }}" name="avatar">
+      {% elif field.field.widget.__class__.__name__ == 'CaptchaTextInput' %}
+        {{ field.label_tag() }}
+        {{ field }}
+      {% else %}
+        {{ field.label_tag() }}
+        {{ render_field(field, {'placeholder': field.help_text}) }}
+      {% endif %}
     </div>
   {% endfor %}
-  <button type="submit" class="btn btn-primary">Submit</button>
+
+  <div class="ui error message">
+    <div class="header">Should check something!</div>
+    <ul class="list">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error | escape }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors() %}
+        <li>{{ error | escape }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <button type="submit" class="ui submit button">Submit</button>
 </form>
 
 <script>
-$('form').submit(function(){
-  $(this).find('button[type=submit]').prop('disabled', true);
-});
+  $('form').submit(function(){
+    $(this).find('button[type=submit]').prop('disabled', true);
+  });
 </script>

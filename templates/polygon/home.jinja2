@@ -1,0 +1,43 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block page_header %}Welcome to EOJ Polygon!{% endblock %}
+
+{% block content %}
+  <p>EOJ Polygon is a under-developing system inspired by <a href="https://polygon.codeforces.com/">Polygon of Codeforces.</a> It also offers an answer to what Polygon is.</p>
+  <div class="ui message">
+    <div class="header">
+      Mission of Polygon
+    </div>
+    <p>The mission of Polygon is to provide platform for creation of programming contest problems. Polygon supports the whole development cycle:</p>
+    <ul class="list">
+      <li>problem statement writing</li>
+      <li>test data preparing (generators supported)</li>
+      <li>model solutions (including correct and wittingly incorrect)</li>
+      <li>judging</li>
+      <li>automatic validation</li>
+    </ul>
+  </div>
+  <p>To use Polygon, you have to meet at least one of the requirements:</p>
+  <ul class="list">
+    <li>Be invited</li>
+    <li>Have 100+ Accepted record</li>
+  </ul>
+  <p>If you have logged in and is authorized to use Polygon, you should see a button below.</p>
+  {% if request.user.is_authenticated %}
+  <div class="ui container center aligned">
+    {% if request.user.polygon_enabled %}
+      <a href="#" class="ui primary button">Already registered. Continue.</a>
+    {% elif polygon_authorized %}
+      <a href="{{ url('polygon:register') }}" class="ui primary button">Be a member of Polygon.</a>
+    {% else %}
+      <div class="ui message warning">
+        <p>You are not authorized to use Polygon yet.</p>
+      </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="ui message warning">
+    <p>You should probably login first.</p>
+  </div>
+  {% endif %}
+{% endblock %}

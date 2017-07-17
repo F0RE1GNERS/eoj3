@@ -4,15 +4,18 @@
   "description": "",
   "main": "gulpfile.js",
   "devDependencies": {
-    "gulp": "^3.9.0",
+    "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-cssmin": "^0.2.0",
+    "gulp-less": "^3.3.2",
     "gulp-load-plugins": "^1.1.0",
+    "gulp-plumber": "^1.1.0",
     "gulp-sass": "^2.1.0",
     "hover.css": "^2.2.0"
   },
   "scripts": {
     "start": "gulp",
-    "build": "gulp sass"
+    "build": "gulp less"
   },
   "author": "",
   "license": "ISC",
