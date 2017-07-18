@@ -11,7 +11,7 @@ from django.views.generic.list import ListView
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 
-from eoj3.settings import GENERATE_DIR
+from django.conf import settings
 from .forms import ContestEditForm
 from account.models import User, MAGIC_CHOICE
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
@@ -250,10 +250,10 @@ class ContestParticipantCreate(BaseBackstageMixin, View):
 class ContestParticipantDownload(BaseBackstageMixin, View):
     def get(self, request, pk):
         file_name = xlsx_generator.generate_participant(pk)
-        return static.serve(request, file_name, document_root=GENERATE_DIR)
+        return static.serve(request, file_name, document_root=settings.GENERATE_DIR)
 
 
 class ContestInvitationDownload(BaseBackstageMixin, View):
     def get(self, request, pk):
         file_name = xlsx_generator.generate_invitation(pk)
-        return static.serve(request, file_name, document_root=GENERATE_DIR)
+        return static.serve(request, file_name, document_root=settings.GENERATE_DIR)

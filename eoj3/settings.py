@@ -202,6 +202,7 @@ LOGIN_URL = '/login/'
 TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
 GENERATE_DIR = os.path.join(BASE_DIR, "generate")
+REPO_DIR = os.path.join(BASE_DIR, "repo")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates

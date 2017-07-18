@@ -49,7 +49,7 @@
 </form>
 
 <script>
-  $('form').submit(function(){
-    $(this).find('button[type=submit]').prop('disabled', true);
+  $(".ui.form").submit(function() {
+    $(this).prop('loading', true);
   });
 </script>

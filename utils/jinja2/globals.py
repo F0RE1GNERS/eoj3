@@ -4,7 +4,7 @@ import markupsafe
 import os
 from bs4 import BeautifulSoup
 
-from eoj3.settings import BASE_DIR
+from django.conf import settings
 
 
 @library.global_function(name='active')
@@ -84,5 +84,5 @@ def url_replace(request, field, value):
 
 @library.global_function(name='static_file_modify')
 def static_file_modify(path):
-    real_path = os.path.join(BASE_DIR, 'static', path)
+    real_path = os.path.join(settings.STATIC_DIR, path)
     return int(os.path.getmtime(real_path))

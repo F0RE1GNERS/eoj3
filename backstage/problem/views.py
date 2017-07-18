@@ -11,7 +11,7 @@ from django.views.static import serve
 from .forms import ProblemEditForm
 from problem.models import Problem
 from submission.models import Submission
-from eoj3.settings import TESTDATA_DIR, UPLOAD_DIR
+from django.conf import settings
 from utils.file_preview import sort_data_from_zipfile, get_file_list
 from dispatcher.tasks import ProblemRejudgeThread
 
@@ -23,8 +23,8 @@ class TestData(BaseBackstageMixin, View):
 
     def post(self, request, pk):
         import os
-        os.makedirs(TESTDATA_DIR, exist_ok=True)
-        file_path = os.path.join(TESTDATA_DIR, str(pk) + '.zip')
+        os.makedirs(settings.TESTDATA_DIR, exist_ok=True)
+        file_path = os.path.join(settings.TESTDATA_DIR, str(pk) + '.zip')
 
         if request.FILES['data'].size > 128 * 1048576:
             messages.error(request, 'File is too large.')
@@ -44,7 +44,7 @@ class TestData(BaseBackstageMixin, View):
 
     def get(self, request, pk):
         import os
-        file_path = os.path.join(TESTDATA_DIR, str(pk) + '.zip')
+        file_path = os.path.join(settings.TESTDATA_DIR, str(pk) + '.zip')
         problem = Problem.objects.get(pk=pk)
         data = {'data_set': sort_data_from_zipfile(file_path),
                 'hash': problem.testdata_hash,
@@ -57,7 +57,7 @@ class FileManager(BaseBackstageMixin, View):
 
     def post(self, request, pk):
         import os
-        file_dir = os.path.join(UPLOAD_DIR, str(pk))
+        file_dir = os.path.join(settings.UPLOAD_DIR, str(pk))
         os.makedirs(file_dir, exist_ok=True)
 
         if request.FILES['file'].size > 128 * 1048576:
@@ -79,7 +79,7 @@ class FileManager(BaseBackstageMixin, View):
 
     def get(self, request, pk):
         import os
-        file_path = os.path.join(UPLOAD_DIR, str(pk))
+        file_path = os.path.join(settings.UPLOAD_DIR, str(pk))
         data = {'file_set': get_file_list(file_path, str(pk)),
                 'pid': pk}
         return render(request, self.template_name, data)
@@ -88,7 +88,7 @@ class FileManager(BaseBackstageMixin, View):
 class FileDelete(BaseBackstageMixin, View):
     def post(self, request, pk, path):
         import os
-        file_path = os.path.join(UPLOAD_DIR, str(pk), path)
+        file_path = os.path.join(settings.UPLOAD_DIR, str(pk), path)
         try:
             os.remove(file_path) # unsafe: possibly outside file removing
             messages.success(request, 'The file has been successfully deleted.')

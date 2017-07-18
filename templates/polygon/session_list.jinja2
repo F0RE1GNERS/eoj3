@@ -1,0 +1,150 @@
+{% extends 'polygon/base.jinja2' %}
+{% from 'components/modal.jinja2' import modal with context %}
+
+{% block title %}Sessions - {% endblock %}
+
+{% block page_header %}Sessions{% endblock %}
+
+{% block content %}
+<div class="ui list accordion">
+  {% for problem in problems %}
+    <div class="item">
+      <i class="folder icon"></i>
+      <div class="content">
+        <div class="title">
+          <div class="header">{{ problem.id }} - {{ problem.alias }}</div>
+          <div class="description">{{ problem.access_type }} clearance, last updated {{ problem.update_time | date('Y-m-d H:i:s') }}.</div>
+        </div>
+        <div class="list content">
+          {% for session in problem.sessions %}
+            <div class="item">
+              <i class="fork icon"></i>
+              <div class="content">
+                <div class="header">Version {{ session.user.username }}</div>
+                <div class="description">Last synchronized {{ session.last_synchronize | date('Y-m-d H:i:s') }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+  <div class="ui list accordion">
+    <div class="item">
+      <i class="folder icon"></i>
+      <div class="content">
+        <div class="title">
+          <div class="header">dist</div>
+          <div class="description">Compiled CSS and JS files</div>
+        </div>
+        <div class="list content">
+          <div class="item">
+            <i class="fork icon"></i>
+            <div class="content">
+              <div class="header">components</div>
+              <div class="description">Individual component CSS and JS</div>
+            </div>
+          </div>
+          <div class="item">
+            <i class="fork icon"></i>
+            <div class="content">
+              <div class="header">components</div>
+              <div class="description">Individual component CSS and JS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ui list accordion">
+    <div class="item">
+      <i class="folder icon"></i>
+      <div class="content">
+        <div class="title">
+          <div class="header">dist</div>
+          <div class="description">Compiled CSS and JS files</div>
+        </div>
+        <div class="list content">
+          <div class="item">
+            <i class="folder icon"></i>
+            <div class="content">
+              <div class="header">components</div>
+              <div class="description">Individual component CSS and JS</div>
+            </div>
+          </div>
+          <div class="item">
+            <i class="folder icon"></i>
+            <div class="content">
+              <div class="header">components</div>
+              <div class="description">Individual component CSS and JS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ui accordion">
+  <div class="title">
+    <i class="dropdown icon"></i>
+    What is a dog?
+  </div>
+  <div class="content">
+    <p class="transition hidden">A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.</p>
+  </div>
+  <div class="title">
+    <i class="dropdown icon"></i>
+    What kinds of dogs are there?
+  </div>
+  <div class="content">
+    <p>There are many breeds of dogs. Each breed varies in size and temperament. Owners often select a breed of dog that they find to be compatible with their own lifestyle and desires from a companion.</p>
+  </div>
+  <div class="title">
+    <i class="dropdown icon"></i>
+    How do you acquire a dog?
+  </div>
+  <div class="content">
+    <p>Three common ways for a prospective owner to acquire a dog is from pet shops, private owners, or shelters.</p>
+    <p>A pet shop may be the most convenient way to buy a dog. Buying a dog from a private owner allows you to assess the pedigree and upbringing of your dog before choosing to take it home. Lastly, finding your dog from a shelter, helps give a good home to a dog who may not find one so readily.</p>
+  </div>
+</div>
+
+  <button id="call-button">hello</button>
+  {% call modal(title="Create a new session", id="session-create") %}
+    <form class="ui form" id="session-create-form" action="{{ url('polygon:session_create') }}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <div class="field">
+        <label>Alias</label>
+        <input type="text" name="alias" placeholder="Contains only ascii letters, digits, - and _. Length at least 4.">
+      </div>
+    </form>
+  {% endcall %}
+
+{% endblock %}
+
+
+
+{% block script %}
+<script>
+  $('.ui.accordion').accordion();
+  $('#call-button').click(function() {
+    $("#session-create")
+      .modal({
+        onApprove : function() {
+          $(".ui.form").submit();
+        }
+      })
+      .modal('show')
+    ;
+  });
+  $("#session-create-form")
+    .form({
+      fields: {
+        alias: ["regExp[/^[a-z0-9_-]{4,64}$/]"]
+      }
+    })
+  ;
+</script>
+{% endblock %}

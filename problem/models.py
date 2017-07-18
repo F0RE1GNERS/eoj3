@@ -1,14 +1,14 @@
 from django.db import models
+from django.conf import settings
+from os import path
 from account.models import User
-from utils import markdown3
 from tagging.registry import register
 from django.core.cache import cache
 from utils.language import LANG_CHOICE
-from utils import random_string
 
 
 class Problem(models.Model):
-    alias = models.CharField(max_length=64, default=random_string)
+    alias = models.CharField(max_length=64, blank=True)
     title = models.CharField(max_length=192, blank=True)
     description = models.TextField(blank=True)
     input = models.TextField(blank=True)
@@ -20,13 +20,16 @@ class Problem(models.Model):
 
     visible = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
 
     time_limit = models.IntegerField(default=1000)
     memory_limit = models.IntegerField(default=256)
     checker = models.CharField(max_length=64, default='fcmp')
     interactor = models.CharField(blank=True, max_length=64)
     validator = models.CharField(blank=True, max_length=64)
+    pretests = models.TextField(blank=True)
     cases = models.TextField(blank=True)
+    points = models.TextField(blank=True)
 
     manager = models.ManyToManyField(User, through='ProblemManagement')
 
@@ -35,6 +38,29 @@ class Problem(models.Model):
 
     class Meta:
         ordering = ["-pk"]
+
+    @property
+    def sample_list(self):
+        """
+        sample name list
+        """
+        return list(filter(lambda x: x, self.sample.split(',')))
+
+    @property
+    def pretest_list(self):
+        return list(filter(lambda x: x, self.pretests.split(',')))
+
+    @property
+    def case_list(self):
+        return list(filter(lambda x: x, self.cases.split(',')))
+
+    @property
+    def point_list(self):
+        return list(map(int, list(filter(lambda x: x, self.points.split(',')))))  # point list should be as long as case list
+
+    def show_sample(self):
+        return cache.get_or_set('problem_%d_sample',
+                                [get_input_and_output_for_case(case) for case in self.sample_list])
 
 
 register(Problem)
@@ -45,12 +71,14 @@ class ProblemManagement(models.Model):
         ('a', 'ADMIN'),
         ('r', 'READ'),
         ('w', 'WRITE'),
-        ('n', 'NONE'),
     )
 
     problem = models.ForeignKey(Problem)
     user = models.ForeignKey(User)
     permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)
+
+    class Meta:
+        unique_together = ['problem', 'user']
 
 
 class TrustedSubmission(models.Model):
@@ -63,7 +91,21 @@ class TrustedSubmission(models.Model):
     code = models.TextField(blank=True)
 
 
-class Case(models.Model):
+def get_input_and_output_for_case(case_hash):
+    """
+    :type case_hash: str
+    :return: (input_data, output_data)
+    """
+    with open(path.join(settings.TESTDATA_DIR, case_hash + '.in'), 'r') as inf:
+        input_data = inf.read()
+    with open(path.join(settings.TESTDATA_DIR, case_hash + '.out'), 'r') as ouf:
+        output_data = ouf.read()
+    return (input_data, output_data)
 
-    name = models.CharField(max_length=64, primary_key=True)
-    worth = models.CharField(max_length=254)
+
+def get_input_path(case_hash):
+    return path.join(settings.TESTDATA_DIR, case_hash + '.in')
+
+
+def get_output_path(case_hash):
+    return path.join(settings.TESTDATA_DIR, case_hash + '.out')

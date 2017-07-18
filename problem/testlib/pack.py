@@ -18,9 +18,12 @@ for cat in category:
         with open(path.join(father_dir, cat, file)) as fs:
             code = fs.read()
         data.append(dict(model='problem.TrustedSubmission',
-                         name=file.split('.')[0],
-                         code=code,
-                         lang='cpp',
-                         category=cat))
+                         fields=dict(
+                             name=file.split('.')[0],
+                             code=code,
+                             lang='cpp',
+                             category=cat,
+                         )))
+
 json.dump(data, output_file)
 output_file.close()

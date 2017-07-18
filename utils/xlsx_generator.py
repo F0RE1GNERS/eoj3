@@ -1,5 +1,5 @@
 import xlsxwriter
-from eoj3.settings import GENERATE_DIR
+from django.conf import settings
 from django.template.loader import get_template
 from contest.models import Contest
 from bs4 import BeautifulSoup
@@ -22,7 +22,7 @@ def generate(cid):
         return res2
 
     file_name = 'ContestStandings-%s-%s.xlsx' % (str(cid), datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
-    file_path = os.path.join(GENERATE_DIR, file_name)
+    file_path = os.path.join(settings.GENERATE_DIR, file_name)
     contest = Contest.objects.get(pk=cid)
     rank_list = contest.contestparticipant_set.all()
     template = get_template('contest/standing_table.jinja2')
@@ -49,7 +49,7 @@ def generate(cid):
 
 def generate_participant(cid):
     file_name = 'ContestParticipants-%s-%s.xlsx' % (str(cid), datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
-    file_path = os.path.join(GENERATE_DIR, file_name)
+    file_path = os.path.join(settings.GENERATE_DIR, file_name)
     contest = Contest.objects.get(pk=cid)
     participant_list = contest.contestparticipant_set.select_related('user').all()
 
@@ -66,7 +66,7 @@ def generate_participant(cid):
 
 def generate_invitation(cid):
     file_name = 'ContestInvitation-%s-%s.xlsx' % (str(cid), datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
-    file_path = os.path.join(GENERATE_DIR, file_name)
+    file_path = os.path.join(settings.GENERATE_DIR, file_name)
     contest = Contest.objects.get(pk=cid)
     participant_list = contest.contestinvitation_set.all()
 

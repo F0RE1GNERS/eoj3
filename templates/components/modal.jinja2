@@ -1,33 +1,18 @@
-{% macro modal(title, action=None, id="modal", button_name="Save") %}
-  <div class="modal fade" id="{{ id }}" tabindex="-1" role="dialog"
-       aria-labelledby="{{ id }}Label" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="{{ id }}Label">{{ title }}</h4>
-        </div>
-        <form class="form-horizontal" style="margin-bottom:0" id="{{ id }}form" action="{{ action }}" method="post">
-          <div class="modal-body">
-            {{ caller() }}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-submit">{{ button_name }}</button>
-          </div>
-        </form>
+{% macro modal(title, size="tiny", action=None, id="modal", negative_button_name="Cancel", button_name="OK") %}
+  <div class="ui basic {{ size }} modal" id="{{ id }}">
+    <div class="ui header">{{ title }}</div>
+    <div class="content">
+      {{ caller() }}
+    </div>
+    <div class="actions">
+      <div class="ui basic cancel inverted button">
+        <i class="remove icon"></i>
+        {{ negative_button_name }}
+      </div>
+      <div class="ui green ok inverted button">
+        <i class="checkmark icon"></i>
+        {{ button_name }}
       </div>
     </div>
   </div>
-  {% if not action %}
-    <script>
-      $('#{{ id }}').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var url = button.data('url');
-        $(this).find('#{{ id }}form').attr('action', url);
-      });
-    </script>
-  {% endif %}
 {% endmacro %}

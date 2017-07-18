@@ -13,7 +13,25 @@ LANG_CHOICE = (
     ('js', 'Javascript'),
     ('ocaml', 'OCaml'),
     ('pypy', 'PyPy'),
-    ('swift', 'Swift'),
     ('pas', 'Pascal'),
     ('rs', 'Rust'),
+)
+
+
+LANG_EXT = (
+    ('c', 'c'),
+    ('cpp', 'cpp'),
+    ('python', 'py'),
+    ('java', 'java'),
+    ('cc14', 'cpp'),
+    ('cs', 'cs'),
+    ('py2', 'py'),
+    ('php', 'php'),
+    ('perl', 'pl'),
+    ('hs', 'hs'),
+    ('js', 'js'),
+    ('ocaml', 'ml'),
+    ('pypy', 'py'),
+    ('pas', 'pas'),
+    ('rs', 'rs')
 )

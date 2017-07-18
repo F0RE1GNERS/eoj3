@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db import transaction
 
 from dispatcher.models import ServerProblemStatus, Server
-from eoj3.settings import TESTDATA_DIR
+from django.conf import settings
 from problem.models import Problem
 from migrate.models import OldSubmission
 from submission.models import SubmissionStatus
@@ -60,7 +60,7 @@ class Dispatcher:
         if self.is_latest_data_for_server():
             return True
         try:
-            file_path = os.path.join(TESTDATA_DIR, str(self.problem_id) + '.zip')
+            file_path = os.path.join(settings.TESTDATA_DIR, str(self.problem_id) + '.zip')
             server = Server.objects.get(pk=self.server_id)
             problem_hash = Problem.objects.get(pk=self.problem_id).testdata_hash
             with open(file_path, 'rb') as f:

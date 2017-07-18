@@ -56611,6 +56611,9 @@ body.pushable > .pusher {
 .local-body .footer {
   flex: 1;
 }
+.ui.accordion.list .item .title {
+  padding: 0;
+}
 .deleted {
   text-decoration: line-through;
 }
@@ -56619,6 +56622,9 @@ body.pushable > .pusher {
 }
 .weight.normal {
   font-weight: 500 !important;
+}
+.ui.modal.basic .ui.form .field > label {
+  color: rgba(255, 255, 255, 0.87);
 }
 .problem-header {
   margin-bottom: 1em;

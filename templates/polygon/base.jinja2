@@ -1,4 +1,5 @@
 {% extends 'html_base.jinja2' %}
+{% from 'components/modal.jinja2' import modal with context %}
 
 {% block base_title %}EOJ Polygon{% endblock %}
 
@@ -9,7 +10,7 @@
         <i class="home icon"></i>
         Home
       </a>
-      <a class="item">
+      <a class="item" href="{{ url('polygon:session') }}">
         <i class="fork icon"></i>
         Session
       </a>

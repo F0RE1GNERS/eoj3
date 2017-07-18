@@ -8,7 +8,7 @@ from .views import BaseContestMixin
 from .models import Contest
 from .tasks import update_contest
 from utils import xlsx_generator
-from eoj3.settings import GENERATE_DIR
+from django.conf import settings
 
 
 class ContestStandings(BaseContestMixin, ListView):
@@ -53,4 +53,4 @@ class ContestDownloadStandings(BaseContestMixin, View):
         if not self.privileged:
             raise PermissionDenied('You cannot download the standings.')
         file_name = xlsx_generator.generate(cid)
-        return static.serve(request, file_name, document_root=GENERATE_DIR)
+        return static.serve(request, file_name, document_root=settings.GENERATE_DIR)

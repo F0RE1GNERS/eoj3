@@ -13,7 +13,7 @@ from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, Profi
                     MigrateForm, FeedbackForm, LoginForm)
 from .models import User
 from django.contrib.auth.decorators import login_required
-from utils.models import get_site_settings
+# from utils.models import get_site_settings
 from utils.identicon import Identicon
 from migrate.views import verify_old_user, MigrationThread
 try:
@@ -66,8 +66,6 @@ class UpdatePreferencesView(UpdateView):
 
 @login_required
 def migrate_from_old(request):
-    if not get_site_settings().migrate_open:
-        raise PermissionDenied('Migration has not opened yet.')
     if request.method == 'POST':
         form = MigrateForm(request.POST)
         form.full_clean()
