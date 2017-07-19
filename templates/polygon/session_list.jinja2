@@ -22,9 +22,14 @@
 
   {% for problem in problems %}
     <div class="ui list accordion">
-      <button class="ui right floated primary basic button icon synchronize" data-problem="{{ problem.id }}">
-        <i class="refresh icon"></i>
-      </button>
+      {% if problem.access_type != 'READ' %}
+        <button class="ui right floated primary basic button icon synchronize" data-problem="{{ problem.id }}">
+          <i class="refresh icon"></i>
+        </button>
+        <a href="#" class="ui right floated secondary basic button icon">
+          <i class="lock icon"></i>
+        </a>
+      {% endif %}
       <div class="item">
         <i class="folder icon"></i>
         <div class="content">

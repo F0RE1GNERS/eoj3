@@ -1,13 +1,12 @@
 from django.conf.urls import url
 
-from .views import home_view, register_view, SessionList, session_create, session_pull
+from .views import home_view, register_view, SessionList, SessionCreate, SessionPull
 
 
 urlpatterns = [
     url(r'^$', home_view, name='home'),
     url(r'^register/$', register_view, name='register'),
     url(r'^session/$', SessionList.as_view(), name='session'),
-    url(r'^session/create/$', session_create, name='session_create'),
-    url(r'^session/pull/$', session_pull, name='session_pull'),
-
+    url(r'^session/create/$', SessionCreate.as_view(), name='session_create'),
+    url(r'^session/pull/$', SessionPull.as_view(), name='session_pull'),
 ]

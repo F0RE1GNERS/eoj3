@@ -1,12 +1,14 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.contrib.auth import PermissionDenied
-from django.views.generic import ListView, CreateView
+import re
+
 from django.contrib import messages
+from django.contrib.auth import PermissionDenied
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.views.generic import ListView, View
+
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement
-from .session import init_session, pull_session
 from .models import EditSession
-import re
+from .session import init_session, pull_session
 
 
 def home_view(request):
@@ -48,26 +50,29 @@ class SessionList(ListView):
         return data
 
 
-def session_create(request):
-    """
-    It is actually "repository create"
-    named "session create" for convenience
-    """
-    if request.method == 'POST':
-        alias = request.POST['alias']
-        assert re.match(r"^[a-z0-9_-]{4,64}$", alias)
-        problem = Problem.objects.create(alias=alias)
-        if is_admin_or_root(request.user):
-            permission = 'a'
-        else:
-            permission = 'w'
-        ProblemManagement.objects.create(problem=problem, user=request.user, permission=permission)
-        init_session(problem, request.user)
-        return redirect(request.POST['next'])
+class SessionCreate(View):
+
+    def post(self, request):
+        """
+        It is actually "repository create"
+        named "session create" for convenience
+        """
+        if request.method == 'POST':
+            alias = request.POST['alias']
+            assert re.match(r"^[a-z0-9_-]{4,64}$", alias)
+            problem = Problem.objects.create(alias=alias)
+            if is_admin_or_root(request.user):
+                permission = 'a'
+            else:
+                permission = 'w'
+            ProblemManagement.objects.create(problem=problem, user=request.user, permission=permission)
+            init_session(problem, request.user)
+            return redirect(request.POST['next'])
 
 
-def session_pull(request):
-    if request.method == 'POST':
+class SessionPull(View):
+
+    def post(self, request):
         problem = get_object_or_404(Problem, id=request.POST['problem'])
         # verify permission
         try:

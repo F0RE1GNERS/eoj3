@@ -70,6 +70,7 @@ if DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
+
 handler403 = 'home.views.forbidden_view'
 handler404 = 'home.views.not_found_view'
 # handler500 = 'home.views.server_error_view'
