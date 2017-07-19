@@ -3,114 +3,51 @@
 
 {% block title %}Sessions - {% endblock %}
 
-{% block page_header %}Sessions{% endblock %}
-
 {% block content %}
-<div class="ui list accordion">
+
+
+  <div class="ui header">
+    <div class="ui labeled button right floated" id="session-create-button">
+      <div class="ui button">
+        <i class="plus icon"></i> Add
+      </div>
+      <a class="ui basic label" href="{{ url('problem:list') }}">
+        {{ problemset_count }}
+      </a>
+    </div>
+    <h1>Sessions</h1>
+  </div>
+
+  {% include 'components/message.jinja2' %}
+
   {% for problem in problems %}
-    <div class="item">
-      <i class="folder icon"></i>
-      <div class="content">
-        <div class="title">
-          <div class="header">{{ problem.id }} - {{ problem.alias }}</div>
-          <div class="description">{{ problem.access_type }} clearance, last updated {{ problem.update_time | date('Y-m-d H:i:s') }}.</div>
-        </div>
-        <div class="list content">
-          {% for session in problem.sessions %}
-            <div class="item">
-              <i class="fork icon"></i>
-              <div class="content">
-                <div class="header">Version {{ session.user.username }}</div>
-                <div class="description">Last synchronized {{ session.last_synchronize | date('Y-m-d H:i:s') }}</div>
+    <div class="ui list accordion">
+      <button class="ui right floated primary basic button icon synchronize" data-problem="{{ problem.id }}">
+        <i class="refresh icon"></i>
+      </button>
+      <div class="item">
+        <i class="folder icon"></i>
+        <div class="content">
+          <div class="title">
+            <div class="header">{{ problem.id }} - {{ problem.alias }}</div>
+            <div class="description">{{ problem.access_type }} clearance, last updated {{ problem.update_time | date('Y-m-d H:i:s') }}.</div>
+          </div>
+          <div class="list content">
+            {% for session in problem.sessions %}
+              <div class="item">
+                <i class="fork icon"></i>
+                <div class="content">
+                  <div class="header">Version {{ session.user.username }}</div>
+                  <div class="description">Last synchronized {{ session.last_synchronize | date('Y-m-d H:i:s') }}</div>
+                </div>
               </div>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
   {% endfor %}
-</div>
 
-  <div class="ui list accordion">
-    <div class="item">
-      <i class="folder icon"></i>
-      <div class="content">
-        <div class="title">
-          <div class="header">dist</div>
-          <div class="description">Compiled CSS and JS files</div>
-        </div>
-        <div class="list content">
-          <div class="item">
-            <i class="fork icon"></i>
-            <div class="content">
-              <div class="header">components</div>
-              <div class="description">Individual component CSS and JS</div>
-            </div>
-          </div>
-          <div class="item">
-            <i class="fork icon"></i>
-            <div class="content">
-              <div class="header">components</div>
-              <div class="description">Individual component CSS and JS</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="ui list accordion">
-    <div class="item">
-      <i class="folder icon"></i>
-      <div class="content">
-        <div class="title">
-          <div class="header">dist</div>
-          <div class="description">Compiled CSS and JS files</div>
-        </div>
-        <div class="list content">
-          <div class="item">
-            <i class="folder icon"></i>
-            <div class="content">
-              <div class="header">components</div>
-              <div class="description">Individual component CSS and JS</div>
-            </div>
-          </div>
-          <div class="item">
-            <i class="folder icon"></i>
-            <div class="content">
-              <div class="header">components</div>
-              <div class="description">Individual component CSS and JS</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="ui accordion">
-  <div class="title">
-    <i class="dropdown icon"></i>
-    What is a dog?
-  </div>
-  <div class="content">
-    <p class="transition hidden">A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.</p>
-  </div>
-  <div class="title">
-    <i class="dropdown icon"></i>
-    What kinds of dogs are there?
-  </div>
-  <div class="content">
-    <p>There are many breeds of dogs. Each breed varies in size and temperament. Owners often select a breed of dog that they find to be compatible with their own lifestyle and desires from a companion.</p>
-  </div>
-  <div class="title">
-    <i class="dropdown icon"></i>
-    How do you acquire a dog?
-  </div>
-  <div class="content">
-    <p>Three common ways for a prospective owner to acquire a dog is from pet shops, private owners, or shelters.</p>
-    <p>A pet shop may be the most convenient way to buy a dog. Buying a dog from a private owner allows you to assess the pedigree and upbringing of your dog before choosing to take it home. Lastly, finding your dog from a shelter, helps give a good home to a dog who may not find one so readily.</p>
-  </div>
-</div>
-
-  <button id="call-button">hello</button>
   {% call modal(title="Create a new session", id="session-create") %}
     <form class="ui form" id="session-create-form" action="{{ url('polygon:session_create') }}" method="POST">
       {% csrf_token %}
@@ -122,6 +59,15 @@
     </form>
   {% endcall %}
 
+  {% call modal(title="Synchronize a session", id="session-synchronize") %}
+    <p>Are you sure you want to synchronize? All your changes will be lost.</p>
+    <form id="session-synchronize-form" action="{{ url('polygon:session_pull') }}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input type="hidden" name="problem" value="">
+    </form>
+  {% endcall %}
+
 {% endblock %}
 
 
@@ -129,11 +75,11 @@
 {% block script %}
 <script>
   $('.ui.accordion').accordion();
-  $('#call-button').click(function() {
+  $('#session-create-button').click(function() {
     $("#session-create")
       .modal({
         onApprove : function() {
-          $(".ui.form").submit();
+          $("#session-create-form").submit();
         }
       })
       .modal('show')
@@ -146,5 +92,15 @@
       }
     })
   ;
+  $('.synchronize.button').click(function() {
+    $("#session-synchronize-form").find("input[name=problem]").val($(this).data("problem"));
+    $("#session-synchronize")
+      .modal({
+        onApprove: function() {
+          $("#session-synchronize-form").submit();
+        }
+      })
+      .modal('show');
+  })
 </script>
 {% endblock %}

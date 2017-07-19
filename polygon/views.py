@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.contrib.auth import PermissionDenied
 from django.views.generic import ListView, CreateView
+from django.contrib import messages
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement
 from .session import init_session, pull_session
+from .models import EditSession
 import re
 
 
@@ -41,6 +44,7 @@ class SessionList(ListView):
             prob.access_type = problem_manage.get_permission_display()
             prob.sessions = prob.editsession_set.select_related("problem", "user").all()
             problems.append(prob)
+        data['problemset_count'] = Problem.objects.count()
         return data
 
 
@@ -50,7 +54,7 @@ def session_create(request):
     named "session create" for convenience
     """
     if request.method == 'POST':
-        alias = request.POST.get('alias')
+        alias = request.POST['alias']
         assert re.match(r"^[a-z0-9_-]{4,64}$", alias)
         problem = Problem.objects.create(alias=alias)
         if is_admin_or_root(request.user):
@@ -59,4 +63,22 @@ def session_create(request):
             permission = 'w'
         ProblemManagement.objects.create(problem=problem, user=request.user, permission=permission)
         init_session(problem, request.user)
-        return redirect(reverse('polygon:session'))
+        return redirect(request.POST['next'])
+
+
+def session_pull(request):
+    if request.method == 'POST':
+        problem = get_object_or_404(Problem, id=request.POST['problem'])
+        # verify permission
+        try:
+            if ProblemManagement.objects.get(problem=problem, user=request.user).permission == 'r':
+                raise PermissionDenied
+        except ProblemManagement.DoesNotExist:
+            raise PermissionDenied
+        try:
+            session = EditSession.objects.get(problem=problem, user=request.user)
+            pull_session(session)
+        except EditSession.DoesNotExist:
+            init_session(problem, request.user)
+        messages.add_message(request, messages.SUCCESS, "Synchronization succeeded!")
+        return redirect(request.POST['next'])

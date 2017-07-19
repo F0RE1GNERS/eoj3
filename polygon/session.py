@@ -5,7 +5,7 @@ from django.conf import settings
 from utils import random_string
 from utils.language import LANG_EXT
 from os import path, makedirs
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from datetime import datetime
 import yaml
 
@@ -25,6 +25,7 @@ def init_session(problem, user):
     fingerprint = random_string()
     session = EditSession.objects.create(problem=problem, user=user, fingerprint=fingerprint,
                                          last_synchronize=datetime.now())
+    rmtree(path.join(settings.REPO_DIR, fingerprint), ignore_errors=True)
     makedirs(path.join(settings.REPO_DIR, fingerprint))
     pull_session(session)
 
@@ -88,7 +89,8 @@ def pull_session(session):
         makedirs(path.dirname(full_path), exist_ok=True)
         with open(full_path, 'w') as sub_fs:
             sub_fs.write(sub.code)
-        programs[sub.name] = sub.category
+        programs[sub.name] = dict(type=sub.category,
+                                  lang=sub.lang)
     # program is like {'aaa': 'checker', 'bbb': 'interactor', ... }
 
     config["checker"] = problem.checker

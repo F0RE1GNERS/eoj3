@@ -13,3 +13,4 @@ class EditSession(models.Model):
 
     class Meta:
         ordering = ["-last_synchronize"]
+        unique_together = ["user", "problem"]  # You can have only one session.
