@@ -1,13 +1,17 @@
-from .models import EditSession
-from problem.models import Problem, TrustedSubmission, get_input_path, get_output_path
-from account.models import User
-from django.conf import settings
-from utils import random_string
-from utils.language import LANG_EXT
+import re
+import copy
+from datetime import datetime
 from os import path, makedirs
 from shutil import copyfile, rmtree
-from datetime import datetime
+
 import yaml
+from django.conf import settings
+
+from account.models import User
+from problem.models import Problem, TrustedSubmission, get_input_path, get_output_path
+from utils import random_string
+from utils.language import LANG_EXT
+from .models import EditSession
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -124,9 +128,35 @@ def dump_config(session, config):
         yaml.dump(config, f, default_flow_style=False)
 
 
+def update_config(config, **kwargs):
+    def pop_and_check(kw, conf, prop, varname, convert_func, check_func, ):
+        _var = kw.pop(prop, None)
+        if _var:
+            if convert_func:
+                _var = convert_func(_var)
+            if not check_func(_var):
+                raise ValueError("Invalid %s" % varname)
+            conf.update({prop: _var})
+
+    new_config = copy.deepcopy(config)
+
+    pop_and_check(kwargs, new_config, 'alias', 'alias', None, check_alias)
+    pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
+    pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
+    pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
+
+    return new_config
+
+    # TODO: is there another param?
+
+
 def get_relative_path_with_ext(program):
     """
     :type program: TrustedSubmission
     :rtype: str
     """
     return path.join(program.category, program.name + '.' + dict(LANG_EXT)[program.lang])
+
+
+def check_alias(alias):
+    return re.match(r"^[a-z0-9_-]{4,64}$", alias)

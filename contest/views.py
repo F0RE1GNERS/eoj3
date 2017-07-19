@@ -1,15 +1,15 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse
-from django.views.generic.list import ListView
-from django.views.generic import TemplateView, View
-from django.utils import timezone
-from django.views.generic.base import TemplateResponseMixin, ContextMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
+from django.utils import timezone
+from django.views.generic import TemplateView, View
+from django.views.generic.base import TemplateResponseMixin, ContextMixin
+from django.views.generic.list import ListView
 
-from .models import Contest, ContestProblem, ContestParticipant, ContestInvitation
-from .tasks import add_participant_with_invitation
-from submission.models import SubmissionStatus
 from account.permissions import is_admin_or_root, is_volunteer
+from submission.models import SubmissionStatus
+from .models import Contest, ContestProblem, ContestInvitation
+from .tasks import add_participant_with_invitation
 
 
 def time_formatter(seconds):

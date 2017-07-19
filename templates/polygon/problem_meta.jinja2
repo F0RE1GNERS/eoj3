@@ -1,0 +1,29 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Problem Meta - {% endblock %}
+
+{% block content %}
+  <h1 class="ui header">Problem Meta</h1>
+  <div class="ui secondary menu small">
+    <a class="active item" href="{{ url('polygon:problem_meta', problem.id) }}">META</a>
+    <a class="item" href="#">ACCESS</a>
+  </div>
+
+  <form class="ui form">
+    <div class="field">
+      <div class="two fields">
+        <div class="field">
+          <label>ID</label>
+          <input type="text" readonly name="id" value="{{ problem.id }}">
+        </div>
+        <div class="field">
+          <label>Alias</label>
+          <input type="text" name="alias" value="{{ problem.alias }}">
+        </div>
+      </div>
+      <div class="three fields">
+
+      </div>
+    </div>
+  </form>
+{% endblock %}

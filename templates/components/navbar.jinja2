@@ -28,7 +28,7 @@
           </div>
         </div>
       {% else %}
-        <div class="item"><a class="ui primary button">Login</a></div>
+        <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">Login</a></div>
       {% endif %}
     </div>
   </div>

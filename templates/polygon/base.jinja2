@@ -34,3 +34,9 @@
   </div>
   {% include 'components/footer.jinja2' %}
 {% endblock %}
+
+{% block script %}
+  <script src="/static/js/polygon.js"></script>
+  {% block local_script %}
+  {% endblock %}
+{% endblock %}

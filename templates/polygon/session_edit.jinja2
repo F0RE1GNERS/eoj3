@@ -1,0 +1,35 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Edit Session - {% endblock %}
+
+{% block content %}
+<h1 class="ui header">Session: {{ user.username }}/{{ problem.alias }}</h1>
+
+<div class="ui pointing secondary tabular menu">
+  <div class="active item" data-tab="tab-meta">Meta</div>
+  <div class="item" data-tab="tab-statement">Statement</div>
+  <div class="item" data-tab="tab-files">Files</div>
+  <div class="item" data-tab="tab-tests">Tests</div>
+  <div class="item" data-tab="tab-cases">Cases</div>
+  <div class="item" data-tab="tab-solution">Solution</div>
+</div>
+<div class="active ui tab" data-tab="tab-meta">
+  {% include 'polygon/edit/meta.jinja2' %}
+</div>
+<div class="ui tab" data-tab="tab-statement">
+  <!-- Tab Content !-->
+</div>
+<div class="ui tab" data-tab="tab-files">
+  <!-- Tab Content !-->
+</div>
+<div class="ui tab" data-tab="tab-tests">
+  <!-- Tab Content !-->
+</div>
+<div class="ui tab" data-tab="tab-cases">
+  <!-- Tab Content !-->
+</div>
+<div class="ui tab" data-tab="tab-solution">
+  <!-- Tab Content !-->
+</div>
+
+{% endblock %}

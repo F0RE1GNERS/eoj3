@@ -56529,6 +56529,9 @@ body.pushable > .pusher {
   font-size: 1.7em;
   font-weight: normal;
 }
+.masthead.segment .secondary.pointing.menu .toc.item {
+  display: none;
+}
 .ui.vertical.stripe {
   padding: 8em 0;
 }
@@ -56557,9 +56560,6 @@ body.pushable > .pusher {
 }
 .footer.segment {
   padding: 5em 0;
-}
-.secondary.pointing.menu .toc.item {
-  display: none;
 }
 @media only screen and (max-width: 700px) {
   .masthead.segment {
