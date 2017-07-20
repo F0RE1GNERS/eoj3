@@ -16,4 +16,4 @@ def convert(text):
 
 
 def markdown_convert_api(request):
-    return HttpResponse(convert(request.body.decode()))
+    return HttpResponse(convert(request.POST['text']))

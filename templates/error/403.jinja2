@@ -1,16 +1,9 @@
 {% extends 'base.jinja2' %}
 
+{% block page_header %}403 Forbidden{% endblock %}
+
 {% block content %}
-
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>403 Forbidden</h1>
-    </div>
-  </div>
-  <div class="container">
-    <p class="lead">Oops! Request forbidden...</p>
-    <p>Sorry, it appears the page you were looking for is forbidden and not accessible. If the problem persists, please
-        contact the web administrator.</p>
-  </div>
-
+  <h4>Oops! Request forbidden...</h4>
+  <p>Sorry, it appears the page you were looking for is forbidden and not accessible. If the problem persists, please
+      contact the web administrator.</p>
 {% endblock %}

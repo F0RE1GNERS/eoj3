@@ -1,7 +1,7 @@
 import re
 import copy
 from datetime import datetime
-from os import path, makedirs, listdir, stat
+from os import path, makedirs, listdir, stat, remove
 from shutil import copyfile, rmtree
 
 import yaml
@@ -108,22 +108,48 @@ def pull_session(session):
 
 def load_statement_file_list(session):
     statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
-    return list(map(lambda file: {'filename': path.basename(file),
-                                  'modified_time': datetime.fromtimestamp(stat(file).st_mtime).
-                                                   strftime(settings.DATETIME_FORMAT_TEMPLATE)},
-                    listdir_with_prefix(statement_dir)))
+    return sorted(list(map(lambda file: {'filename': path.basename(file),
+                                         'modified_time': datetime.fromtimestamp(stat(file).st_mtime).
+                           strftime(settings.DATETIME_FORMAT_TEMPLATE)},
+                           listdir_with_prefix(statement_dir))),
+                  key=lambda d: d['modified_time'], reverse=True)
 
 
-def create_statement_file(session, filename):
+def _get_statement_file_path(session, filename):
     statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
     if not normal_regex_check(filename):
         raise ValueError("Invalid filename")
-    filepath = path.join(statement_dir, filename)
+    return path.join(statement_dir, filename)
+
+
+def create_statement_file(session, filename):
+    filepath = _get_statement_file_path(session, filename)
     if path.exists(filepath):
         raise ValueError("File already exists")
     with open(filepath, 'w'):
         pass
 
+
+def delete_statement_file(session, filename):
+    filepath = _get_statement_file_path(session, filename)
+    if not path.exists(filepath):
+        raise ValueError("File does not exist")
+    config = load_config(session)
+    if filename in [config["input"], config["output"], config["description"], config["hint"]]:
+        raise ValueError("File is still in use")
+    remove(filepath)
+
+
+def read_statement_file(session, filename):
+    filepath = _get_statement_file_path(session, filename)
+    with open(filepath) as fs:
+        return fs.read()
+
+
+def write_statement_file(session, filename, text):
+    filepath = _get_statement_file_path(session, filename)
+    with open(filepath, 'w') as fs:
+        fs.write(text)
 
 
 def load_config(session):
@@ -182,7 +208,7 @@ def get_session_dir(session):
 
 
 def normal_regex_check(alias):
-    return re.match(r"^[a-z0-9_-]{4,64}$", alias)
+    return re.match(r"^[\.a-z0-9_-]{4,64}$", alias)
 
 
 def listdir_with_prefix(directory):

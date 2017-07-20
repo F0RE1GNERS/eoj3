@@ -12,7 +12,7 @@ $('#session-create-button').click(function() {
 $("#session-create-form")
   .form({
     fields: {
-      alias: ["regExp[/^[a-z0-9_-]{4,64}$/]"]
+      alias: ["regExp[/^[\.a-z0-9_-]{4,64}$/]"]
     }
   })
 ;
@@ -27,6 +27,18 @@ $('.synchronize.button').click(function() {
     .modal('show');
 });
 
+function clearAndAddExtraData(form, extra_data) {
+  form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"]').remove();
+  for (val in extra_data) {
+    form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
+  }
+}
+
+function bindFormAndButtonData(form, button) {
+  form.attr("action", button.data("action"));
+  clearAndAddExtraData(form, button.data());
+}
+
 if ($("#session-edit-app").length > 0) {
   // Vue.js needed
   Vue.options.delimiters = ["[[", "]]"];
@@ -35,7 +47,20 @@ if ($("#session-edit-app").length > 0) {
     data: {
       appData: {},
       apiRoute: "",
-      errorMessage: ""
+      errorMessage: "",
+      statementEditorData: {
+        fileName: "",
+        text: "",
+        converted: ""
+      }
+    },
+    watch: {
+      statementEditorData: {
+        handler: function (newStatement) {
+          this.getStatementConverted();
+        },
+        deep: true
+      }
     },
     methods: {
       updateConfig: function() {
@@ -43,7 +68,65 @@ if ($("#session-edit-app").length > 0) {
         $.getJSON(this.apiRoute, function (data) {
           this.appData = data;
         }.bind(this));
-      }
+      },
+      clearErrorMessage: function() {
+        this.errorMessage = "";
+      },
+      showDeleteDialog: function(event) {
+        bindFormAndButtonData($("#delete-confirmation-form"), $(event.currentTarget));
+        $("#delete-confirmation")
+          .modal({
+            onApprove: function() {
+              $("#delete-confirmation-form").submit();
+            }
+          })
+          .modal('show');
+      },
+      showDialogWithOneForm: function(event) {
+        var button = $(event.currentTarget);
+        var local_modal = $(button.data("target"));
+        var form = local_modal.find("form");
+        bindFormAndButtonData(form, button);
+        local_modal
+          .modal({
+            onApprove : function() {
+              form.submit();
+            }
+          })
+          .modal('show');
+      },
+      showStatementEditor: function(event) {
+        var button = $(event.currentTarget);
+        this.statementEditorData.fileName = button.data("filename");
+        var modal = $("#statement-editor");
+        var form = modal.find("form");
+        bindFormAndButtonData(form, button);
+        form.addClass("loading");
+        // now: init editor data
+        $.get(button.data("get-content"), {"filename": this.statementEditorData.fileName}, function (data) {
+          this.statementEditorData.text = data;
+          form.removeClass("loading");
+        }.bind(this));
+        modal
+          .modal({
+            onApprove: function() {
+              form.submit();
+            },
+            closable: false
+          })
+          .modal('show');
+      },
+      getStatementConverted: _.debounce(
+        function() {
+          $.post("/api/markdown/", {
+            csrfmiddlewaretoken: Cookies.get('csrftoken'),
+            text: this.statementEditorData.text
+          }, function (data) {
+            this.statementEditorData.converted = data;
+          }.bind(this))
+        },
+        1000
+      )
     },
     beforeMount: function() {
       this.updateConfig();
@@ -53,8 +136,8 @@ if ($("#session-edit-app").length > 0) {
         .form({
           fields: {
             alias: ["regExp[/^[a-z0-9_-]{4,64}$/]"],
-            // time_limit: "integer[200..30000]",
-            // memory_limit: "integer[64..4096]",
+            time_limit: "integer[200..30000]",
+            memory_limit: "integer[64..4096]",
             source: "maxLength[128]"
           }
         });
@@ -65,7 +148,7 @@ if ($("#session-edit-app").length > 0) {
       $('form').submit(function (event) {
         var target = $(event.target);
         if (target.form('is valid')) {
-          $.post(target.prop("action"), target.serialize(), function (data) {
+          $.post(target.attr("action"), target.serialize(), function (data) {
             if (data["status"] == "received") {
               target.removeClass("error").addClass("success");
               this.updateConfig();
@@ -81,29 +164,6 @@ if ($("#session-edit-app").length > 0) {
           return false;
         }
       }.bind(this));
-
-      $('.ui.button.delete').click(function() {
-        $("#delete-confirmation-form").prop("action", $(this).data("action"));
-        $("#delete-confirmation")
-          .modal({
-            onApprove: function() {
-              $("#delete-confirmation-form").submit();
-            }
-          })
-          .modal('show');
-      });
-
-      $('*[data-description="open-a-modal-with-one-form"]').click(function() {
-        var local_modal = $($(this).data("target"));
-        local_modal
-          .modal({
-            onApprove : function() {
-              $(this).find("form").submit();
-            }.bind(local_modal[0])
-          })
-          .modal('show')
-        ;
-      })
     }
   });
 }

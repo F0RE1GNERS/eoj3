@@ -12,7 +12,7 @@ from problem.models import Problem, ProblemManagement
 from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config,
-    load_statement_file_list
+    load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file
 )
 
 
@@ -35,7 +35,7 @@ def register_view(request):
 
 
 def response_ok():
-    return json.dumps({"status": "received"})
+    return HttpResponse(json.dumps({"status": "received"}))
 
 
 class SessionList(ListView):
@@ -184,11 +184,36 @@ class SessionSaveMeta(BaseSessionPostMixin, View):
         self.config = update_config(self.config, alias=alias, time_limit=time_limit, memory_limit=memory_limit,
                                     source=source)
         dump_config(self.session, self.config)
-        return HttpResponse(response_ok())
+        return response_ok()
 
 
 class SessionCreateStatement(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
         filename = request.POST['filename']
+        create_statement_file(self.session, filename)
+        return response_ok()
 
+
+class SessionDeleteStatement(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename = request.POST['filename']
+        delete_statement_file(self.session, filename)
+        return response_ok()
+
+
+class SessionGetStatementRaw(BaseSessionMixin, View):
+
+    def get(self, request, sid):
+        filename = request.GET['filename']
+        return HttpResponse(read_statement_file(self.session, filename))
+
+
+class SessionUpdateStatement(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename = request.POST['filename']
+        text = request.POST['text']
+        write_statement_file(self.session, filename, text)
+        return response_ok()
