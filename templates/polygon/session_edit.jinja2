@@ -4,32 +4,37 @@
 
 {% block content %}
 <h1 class="ui header">Session: {{ user.username }}/{{ problem.alias }}</h1>
-
-<div class="ui pointing secondary tabular menu">
-  <div class="active item" data-tab="tab-meta">Meta</div>
-  <div class="item" data-tab="tab-statement">Statement</div>
-  <div class="item" data-tab="tab-files">Files</div>
-  <div class="item" data-tab="tab-tests">Tests</div>
-  <div class="item" data-tab="tab-cases">Cases</div>
-  <div class="item" data-tab="tab-solution">Solution</div>
-</div>
-<div class="active ui tab" data-tab="tab-meta">
-  {% include 'polygon/edit/meta.jinja2' %}
-</div>
-<div class="ui tab" data-tab="tab-statement">
-  <!-- Tab Content !-->
-</div>
-<div class="ui tab" data-tab="tab-files">
-  <!-- Tab Content !-->
-</div>
-<div class="ui tab" data-tab="tab-tests">
-  <!-- Tab Content !-->
-</div>
-<div class="ui tab" data-tab="tab-cases">
-  <!-- Tab Content !-->
-</div>
-<div class="ui tab" data-tab="tab-solution">
-  <!-- Tab Content !-->
+<div id="session-edit-app" data-api-route="{{ url('polygon:session_update_api', session.id) }}">
+  <div class="ui pointing secondary tabular menu">
+    <div class="item" data-tab="meta">Meta</div>
+    <div class="item" data-tab="statement">Statement</div>
+    <div class="item" data-tab="files">Files</div>
+    <div class="item" data-tab="tests">Tests</div>
+    <div class="item" data-tab="cases">Cases</div>
+    <div class="item" data-tab="solution">Solution</div>
+    <div class="item" data-tab="access">Access</div>
+  </div>
+  <div class="ui tab" data-tab="meta">
+    {% include 'polygon/edit/meta.jinja2' %}
+  </div>
+  <div class="ui tab" data-tab="statement">
+    {% include 'polygon/edit/statement.jinja2' %}
+  </div>
+  <div class="ui tab" data-tab="files">
+    <!-- Tab Content !-->
+  </div>
+  <div class="ui tab" data-tab="tests">
+    <!-- Tab Content !-->
+  </div>
+  <div class="ui tab" data-tab="cases">
+    <!-- Tab Content !-->
+  </div>
+  <div class="ui tab" data-tab="solution">
+    <!-- Tab Content !-->
+  </div>
+  <div class="ui tab" data-tab="access">
+    <!-- Tab Content !-->
+  </div>
 </div>
 
 {% endblock %}

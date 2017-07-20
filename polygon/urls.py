@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull,
-    ProblemAccess, SessionEdit, SessionSaveMeta
+    ProblemAccess, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI
 )
 
 
@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^problem/(?P<pk>\d+)/access/$', ProblemAccess.as_view(), name='problem_access'),
     url(r'^session/(?P<sid>\d+)/edit/$', SessionEdit.as_view(), name='session_edit'),
     url(r'^session/(?P<sid>\d+)/save/meta/$', SessionSaveMeta.as_view(), name='session_save_meta'),
+    url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

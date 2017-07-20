@@ -1,6 +1,7 @@
 import markdown
 from . import mdx_downheader
 from . import mdx_math
+from django.shortcuts import HttpResponse
 
 
 def convert(text):
@@ -12,3 +13,7 @@ def convert(text):
                     ]
     )
     return md.convert(text)
+
+
+def markdown_convert_api(request):
+    return HttpResponse(convert(request.body.decode()))

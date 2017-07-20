@@ -1,83 +1,91 @@
 <div class="ui grid">
   <div class="twelve wide column">
     <form class="ui form" action="{{ url('polygon:session_save_meta', session.id) }}" method="POST" id="save-meta-form">
+
+      <div class="ui success message">
+        <div class="header">Congratulations!</div>
+        <p>Your meta data has been saved to your session.</p>
+      </div>
+
+      <div class="ui error message">
+      </div>
+
       {% csrf_token %}
-      <input name="next" type="hidden" value="{{ request.path }}">
 
       <div class="field">
         <div class="two fields">
           <div class="field">
             <label>ID</label>
-            <input type="text" readonly name="id" value="{{ problem.id }}">
+            <input type="text" readonly name="id" v-model="appData.problem_id">
           </div>
           <div class="field">
             <label>Alias</label>
-            <input type="text" name="alias" value="{{ config.alias }}">
+            <input type="text" name="alias" v-model="appData.alias">
           </div>
         </div>
 
         <div class="two fields">
           <div class="field">
             <label>Time limit (ms)</label>
-            <input type="text" name="time_limit" value="{{ config.time_limit }}">
+            <input type="text" name="time_limit" v-model="appData.time_limit" placeholder="between 200 to 30000">
           </div>
           <div class="field">
             <label>Memory limit (MB)</label>
-            <input type="text" name="memory_limit" value="{{ config.memory_limit }}">
+            <input type="text" name="memory_limit" v-model="appData.memory_limit" placeholder="between 64 to 4096">
           </div>
         </div>
 
         <div class="field">
           <label>Source</label>
-          <input type="text" name="source" value="{{ config.source }}">
+          <input type="text" name="source" v-model="appData.source">
         </div>
 
         <div class="four fields">
           <div class="field">
             <label>Description file</label>
-            <input type="text" readonly name="description" value="{{ config.description }}">
+            <input type="text" readonly name="description" v-model="appData.description">
           </div>
           <div class="field">
             <label>Input file</label>
-            <input type="text" readonly name="input" value="{{ config.input }}">
+            <input type="text" readonly name="input" v-model="appData.input">
           </div>
           <div class="field">
             <label>Output file</label>
-            <input type="text" readonly name="output" value="{{ config.output }}">
+            <input type="text" readonly name="output" v-model="appData.output">
           </div>
           <div class="field">
             <label>Hint file</label>
-            <input type="text" readonly name="hint" value="{{ config.hint }}">
+            <input type="text" readonly name="hint" v-model="appData.hint">
           </div>
         </div>
 
         <div class="three fields">
           <div class="field">
             <label>Checker</label>
-            <input type="text" readonly name="checker" value="{{ config.checker }}">
+            <input type="text" readonly name="checker" v-model="appData.checker">
           </div>
           <div class="field">
             <label>Interactor</label>
-            <input type="text" readonly name="checker" value="{{ config.interactor }}">
+            <input type="text" readonly name="checker" v-model="appData.interactor">
           </div>
           <div class="field">
             <label>Validator</label>
-            <input type="text" readonly name="checker" value="{{ config.validator }}">
+            <input type="text" readonly name="checker" v-model="appData.validator">
           </div>
         </div>
 
         <div class="three fields">
           <div class="field">
             <label>Case number</label>
-            <input type="number" readonly name="case-number" value="{{ case_count }}">
+            <input type="number" readonly name="case-number" v-model="appData.case_count">
           </div>
           <div class="field">
             <label>Pretest number</label>
-            <input type="number" readonly name="pretest-number" value="{{ pretest_count }}">
+            <input type="number" readonly name="pretest-number" v-model="appData.pretest_count">
           </div>
           <div class="field">
             <label>Sample number</label>
-            <input type="number" readonly name="sample-number" value="{{ sample_count }}">
+            <input type="number" readonly name="sample-number" v-model="appData.sample_count">
           </div>
         </div>
 
