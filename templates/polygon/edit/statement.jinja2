@@ -34,7 +34,7 @@
                 <i class="setting icon"></i>
               </button>
               <button class="ui button" data-action="{{ url('polygon:session_delete_statement', session.id) }}"
-                      v-bind:data-filename="file.filename" v-on:click="showDeleteDialog" v-if="!file.used">
+                      v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
                 <i class="trash icon"></i>
               </button>
             </div>
@@ -55,13 +55,6 @@
       </ul>
     </div>
   </div>
-
-  {% call modal(title="Delete confirmation", id="delete-confirmation") %}
-    <p>Are you sure you want to delete? All your changes will be lost.</p>
-    <form id="delete-confirmation-form" action="" method="POST">
-      {% csrf_token %}
-    </form>
-  {% endcall %}
 
   {% call modal(title="Create a new statement file", id="statement-file-create") %}
     <form class="ui form" action="{{ url('polygon:session_create_statement', session.id) }}" method="POST">

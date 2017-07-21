@@ -1,7 +1,7 @@
 import re
 import copy
 from datetime import datetime
-from os import path, makedirs, listdir, stat, remove
+from os import path, makedirs, listdir, stat, remove, walk
 from shutil import copyfile, rmtree
 
 import yaml
@@ -106,13 +106,17 @@ def pull_session(session):
     session.save(update_fields=["last_synchronize"])
 
 
-def load_statement_file_list(session):
-    statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
+def sort_out_directory(directory):
     return sorted(list(map(lambda file: {'filename': path.basename(file),
-                                         'modified_time': datetime.fromtimestamp(stat(file).st_mtime).
-                           strftime(settings.DATETIME_FORMAT_TEMPLATE)},
-                           listdir_with_prefix(statement_dir))),
+                                         'modified_time': datetime.fromtimestamp(path.getmtime(file)).
+                                                          strftime(settings.DATETIME_FORMAT_TEMPLATE),
+                                         'size': path.getsize(file)},
+                           listdir_with_prefix(directory))),
                   key=lambda d: d['modified_time'], reverse=True)
+
+
+def load_statement_file_list(session):
+    return sort_out_directory(path.join(get_session_dir(session), STATEMENT_DIR))
 
 
 def _get_statement_file_path(session, filename):
@@ -155,6 +159,23 @@ def write_statement_file(session, filename, text):
 def statement_file_exists(session, filename):
     filepath = _get_statement_file_path(session, filename)
     return path.exists(filepath)
+
+
+def load_regular_file_list(session):
+    return sort_out_directory(path.join(settings.UPLOAD_DIR, str(session.problem_id)))
+
+
+def load_volume(session):
+    def get_size(start_path='.'):
+        total_size = 0
+        for dirpath, dirnames, filenames in walk(start_path):
+            for f in filenames:
+                fp = path.join(dirpath, f)
+                total_size += path.getsize(fp)
+        return total_size
+
+    session_dir = get_session_dir(session)
+    return get_size(session_dir) // 1024576, 256
 
 
 def load_config(session):

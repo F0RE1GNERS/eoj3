@@ -68,6 +68,9 @@ if ($("#session-edit-app").length > 0) {
       }
     },
     methods: {
+      ping: function() {
+        console.log("pong");
+      },
       updateConfig: function() {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
@@ -99,7 +102,7 @@ if ($("#session-edit-app").length > 0) {
         }
         if (form.find(".ui.file.input").length > 0) {
           form.find(".ui.file.input").inputFile({
-            sizeLimit: 128
+            sizeLimit: this.appData.volume_all - this.appData.volume_used
           });
           autofocus = false;
         }
@@ -169,26 +172,56 @@ if ($("#session-edit-app").length > 0) {
         history: true,
         historyType: 'hash'
       });
+      new Clipboard('.clipboard');
       $('form').submit(function (event) {
         var target = $(event.target);
+        var progressBar = target.data("progress-bar") ? $(target.data("progress-bar")) : null;
         if (target.form('is valid')) {
-          $.post(target.attr("action"), target.serialize(), function (data) {
-            if (data["status"] == "received") {
-              target.removeClass("error").addClass("success");
-              this.updateConfig();
-              setTimeout(function () {
-                target.removeClass("success");
-              }, 5000);
-            } else {
-              target.form('add errors', [data["message"]]);
-              this.errorMessage = data["message"];
-              target.removeClass("success").addClass("error");
+          var formData = new FormData(target[0]);
+          $.ajax({
+            url: target.attr("action"),
+            type: 'POST',
+            data: formData,
+            success: function (data) {
+              if (data["status"] == "received") {
+                target.removeClass("error").addClass("success");
+                this.updateConfig();
+                setTimeout(function () {
+                  target.removeClass("success");
+                }, 5000);
+              } else {
+                target.form('add errors', [data["message"]]);
+                this.errorMessage = data["message"];
+                target.removeClass("success").addClass("error");
+              }
+            }.bind(this),
+            complete: function() {
+              if (progressBar)
+                setTimeout(progressBar.hide(), 2000);
+            },
+            cache: false,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            xhr: function() {
+              var myXhr = $.ajaxSettings.xhr();
+              if (myXhr.upload && progressBar) {
+                // For handling the progress of the upload
+                progressBar.show();
+                progressBar.progress();
+                myXhr.upload.addEventListener('progress', function(e) {
+                  if (e.lengthComputable) {
+                    progressBar.progress('set total', e.total);
+                    progressBar.progress('set progress', e.loaded);
+                  }
+                } , false);
+              }
+              return myXhr;
             }
-          }.bind(this), "json");
+          });
           return false;
         }
       }.bind(this));
     }
   });
 }
-

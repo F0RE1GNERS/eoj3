@@ -37,4 +37,11 @@
   </div>
 </div>
 
+  {% call modal(title="Delete confirmation", id="delete-confirmation") %}
+    <p>Are you sure you want to delete? All your changes will be lost.</p>
+    <form id="delete-confirmation-form" action="" method="POST">
+      {% csrf_token %}
+    </form>
+  {% endcall %}
+
 {% endblock %}

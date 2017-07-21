@@ -1,5 +1,7 @@
 import json
+from os import path, remove
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import PermissionDenied
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -9,11 +11,13 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement
+from utils.upload import save_uploaded_file_to
+from utils import random_string
 from .models import EditSession
 from .session import (
-    init_session, pull_session, load_config, normal_regex_check, update_config, dump_config,
+    init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
-    statement_file_exists
+    statement_file_exists, load_regular_file_list
 )
 
 
@@ -162,6 +166,10 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
             for identifier in app_data['statement_identifier']:
                 if dat['filename'] == app_data[identifier]:
                     dat['used'] = identifier
+        app_data['volume_used'], app_data['volume_all'] = load_volume(self.session)
+        app_data['regular_file_list'] = load_regular_file_list(self.session)
+        for dat in app_data['regular_file_list']:
+            dat['url'] = '/upload/%d/%s' % (self.problem.id, dat['filename'])
         print(app_data)
         return HttpResponse(json.dumps(app_data))
 
@@ -172,7 +180,7 @@ class BaseSessionPostMixin(BaseSessionMixin):
         try:
             return super(BaseSessionPostMixin, self).dispatch(request, *args, **kwargs)
         except Exception as e:
-            return HttpResponse(json.dumps({"status": "reject", "message": "%s: %s" % (str(type(e)), str(e))}))
+            return HttpResponse(json.dumps({"status": "reject", "message": "%s: %s" % (e.__class__.__name__, str(e))}))
 
 
 class SessionSaveMeta(BaseSessionPostMixin, View):
@@ -229,4 +237,30 @@ class SessionUpdateStatementRole(BaseSessionPostMixin, View):
         if statement_file_exists(self.session, filename):
             self.config = update_config(self.config, **{new_role: filename})
             dump_config(self.session, self.config)
+        return response_ok()
+
+
+class SessionUploadRegularFile(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        files = request.FILES.getlist('files[]')
+        for file in files:
+            used, all = load_volume(self.session)
+            save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.session.problem_id)),
+                                  filename=random_string(16), size_limit=all - used, keep_extension=True)
+        return response_ok()
+
+
+class SessionDeleteRegularFile(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename = request.POST['filename']
+        try:
+            upload_base_dir = path.join(settings.UPLOAD_DIR, str(self.session.problem_id))
+            real_path = path.abspath(path.join(upload_base_dir, filename))
+            if path.commonpath([real_path, upload_base_dir]) != upload_base_dir:
+                raise ValueError("No... no... you are penetrating...")
+            remove(real_path)
+        except OSError:
+            pass
         return response_ok()
