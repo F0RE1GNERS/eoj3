@@ -8,7 +8,8 @@
       <thead>
         <tr>
           <th colspan="3">
-            <button class="ui right floated icon button positive compact" v-on:click="showDialogWithOneForm" data-target="#statement-file-create">
+            <button class="ui right floated icon button positive compact" v-on:click="showDialogWithOneForm"
+                    data-target="#statement-file-create">
               <i class="plus icon"></i> Add
             </button>
           </th>
@@ -27,6 +28,11 @@
                       data-action="{{ url('polygon:session_update_statement', session.id) }}">
                 <i class="edit icon"></i>
               </button>
+              <button class="ui button" v-bind:data-filename="file.filename" v-on:click="showDialogWithOneForm"
+                      data-target="#change-file-role" v-bind:data-role="file.used"
+                      data-action="{{ url('polygon:session_update_statement_role', session.id) }}">
+                <i class="setting icon"></i>
+              </button>
               <button class="ui button" data-action="{{ url('polygon:session_delete_statement', session.id) }}"
                       v-bind:data-filename="file.filename" v-on:click="showDeleteDialog" v-if="!file.used">
                 <i class="trash icon"></i>
@@ -40,12 +46,12 @@
   </div>
   <div class="four wide column">
     <div class="ui info message">
-      <div class="header">Quick Reference</div>
+      <div class="header">Quick Tips</div>
       <ul class="list">
-        <li>Problem ID is read-only.</li>
-        <li>You should be careful to change alias because it may make your teammates confused sometimes.</li>
-        <li>Click <b>Save</b> when you are done with this page. Changes might be lost when you come back later.</li>
-        <li>There are a lot of read-only fields here. You must edit these fields in other sections. This is just for a quick check.</li>
+        <li>Filename must consist of ascii letters, digits, -, _ and .(dot).</li>
+        <li>Some files are not delete-able because they are either used to be a description, or something else. Check before you try again.</li>
+        <li>You can but please don't refer two different label to one file, as it will result in chaos.</li>
+        <li>If you do not want something (for example, you don't need hint), just leave it empty.</li>
       </ul>
     </div>
   </div>
@@ -63,6 +69,24 @@
       <div class="field">
         <label>File name with extension</label>
         <input type="text" name="filename">
+      </div>
+    </form>
+  {% endcall %}
+
+  {% call modal(title="Change file roles", id="change-file-role") %}
+    <form class="ui form" action="" method="POST">
+      {% csrf_token %}
+      <div class="ui selection dropdown">
+        <label>Treat as</label>
+        <input type="hidden" name="role" data-important="true">
+        <i class="dropdown icon"></i>
+        <div class="default text">Role</div>
+        <div class="menu">
+          <div class="item">Description</div>
+          <div class="item">Input</div>
+          <div class="item">Output</div>
+          <div class="item">Hint</div>
+        </div>
       </div>
     </form>
   {% endcall %}

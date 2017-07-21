@@ -28,8 +28,12 @@ $('.synchronize.button').click(function() {
 });
 
 function clearAndAddExtraData(form, extra_data) {
-  form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"]').remove();
+  form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"][data-important!="true"]').remove();
   for (val in extra_data) {
+    var already_exist = form.find('input[name="' + val + '"]');
+    if (already_exist.length > 0) {
+      already_exist.val(extra_data[val]);
+    }
     form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
   }
 }
@@ -51,7 +55,8 @@ if ($("#session-edit-app").length > 0) {
       statementEditorData: {
         fileName: "",
         text: "",
-        converted: ""
+        converted: "",
+        contentUrl: ""
       }
     },
     watch: {
@@ -87,8 +92,20 @@ if ($("#session-edit-app").length > 0) {
         var local_modal = $(button.data("target"));
         var form = local_modal.find("form");
         bindFormAndButtonData(form, button);
+        var autofocus = true;
+        if (form.find(".ui.dropdown").length > 0) {
+          form.find(".ui.dropdown").dropdown();
+          autofocus = false;
+        }
+        if (form.find(".ui.file.input").length > 0) {
+          form.find(".ui.file.input").inputFile({
+            sizeLimit: 128
+          });
+          autofocus = false;
+        }
         local_modal
           .modal({
+            autofocus: autofocus,
             onApprove : function() {
               form.submit();
             }
@@ -102,11 +119,7 @@ if ($("#session-edit-app").length > 0) {
         var form = modal.find("form");
         bindFormAndButtonData(form, button);
         form.addClass("loading");
-        // now: init editor data
-        $.get(button.data("get-content"), {"filename": this.statementEditorData.fileName}, function (data) {
-          this.statementEditorData.text = data;
-          form.removeClass("loading");
-        }.bind(this));
+        this.statementEditorData.contentUrl = button.data("get-content");
         modal
           .modal({
             onApprove: function() {
@@ -115,6 +128,17 @@ if ($("#session-edit-app").length > 0) {
             closable: false
           })
           .modal('show');
+        this.updateStatementEditorText();
+      },
+      updateStatementEditorText: function() {
+        // init editor data
+        $.get(this.statementEditorData.contentUrl,
+          {"filename": this.statementEditorData.fileName},
+          function (data) {
+            this.statementEditorData.text = data;
+            form.removeClass("loading");
+          }.bind(this)
+        );
       },
       getStatementConverted: _.debounce(
         function() {

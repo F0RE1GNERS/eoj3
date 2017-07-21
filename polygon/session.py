@@ -152,6 +152,11 @@ def write_statement_file(session, filename, text):
         fs.write(text)
 
 
+def statement_file_exists(session, filename):
+    filepath = _get_statement_file_path(session, filename)
+    return path.exists(filepath)
+
+
 def load_config(session):
     """
     Load config of a session
@@ -179,7 +184,7 @@ def update_config(config, **kwargs):
         if _var:
             if convert_func:
                 _var = convert_func(_var)
-            if not check_func(_var):
+            if check_func and not check_func(_var):
                 raise ValueError("Invalid %s" % varname)
             conf.update({prop: _var})
 
@@ -189,6 +194,8 @@ def update_config(config, **kwargs):
     pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
     pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
     pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
+    for i in ['input', 'output', 'description', 'hint']:
+        pop_and_check(kwargs, new_config, i, i, None, None)
 
     return new_config
 

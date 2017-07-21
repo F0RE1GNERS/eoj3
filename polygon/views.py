@@ -12,7 +12,8 @@ from problem.models import Problem, ProblemManagement
 from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config,
-    load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file
+    load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
+    statement_file_exists
 )
 
 
@@ -171,7 +172,7 @@ class BaseSessionPostMixin(BaseSessionMixin):
         try:
             return super(BaseSessionPostMixin, self).dispatch(request, *args, **kwargs)
         except Exception as e:
-            return HttpResponse(json.dumps({"status": "reject", "message": str(e)}))
+            return HttpResponse(json.dumps({"status": "reject", "message": "%s: %s" % (str(type(e)), str(e))}))
 
 
 class SessionSaveMeta(BaseSessionPostMixin, View):
@@ -216,4 +217,16 @@ class SessionUpdateStatement(BaseSessionPostMixin, View):
         filename = request.POST['filename']
         text = request.POST['text']
         write_statement_file(self.session, filename, text)
+        return response_ok()
+
+
+class SessionUpdateStatementRole(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename = request.POST['filename']
+        new_role = request.POST['role']
+        print(filename, new_role)
+        if statement_file_exists(self.session, filename):
+            self.config = update_config(self.config, **{new_role: filename})
+            dump_config(self.session, self.config)
         return response_ok()

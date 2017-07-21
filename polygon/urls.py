@@ -3,7 +3,8 @@ from django.conf.urls import url
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull,
     ProblemAccess, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
-    SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement
+    SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement,
+    SessionUpdateStatementRole
 )
 
 
@@ -19,6 +20,8 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/statement/add/$', SessionCreateStatement.as_view(), name='session_create_statement'),
     url(r'^session/(?P<sid>\d+)/statement/delete/$', SessionDeleteStatement.as_view(), name='session_delete_statement'),
     url(r'^session/(?P<sid>\d+)/statement/get/$', SessionGetStatementRaw.as_view(), name='session_get_statement_raw'),
+    url(r'^session/(?P<sid>\d+)/statement/update/role/$', SessionUpdateStatementRole.as_view(),
+        name='session_update_statement_role'),
     url(r'^session/(?P<sid>\d+)/statement/update/$', SessionUpdateStatement.as_view(), name='session_update_statement'),
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]
