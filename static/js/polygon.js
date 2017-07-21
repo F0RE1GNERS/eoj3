@@ -1,8 +1,8 @@
 $('.ui.accordion').accordion();
-$('#session-create-button').click(function() {
+$('#session-create-button').click(function () {
   $("#session-create")
     .modal({
-      onApprove : function() {
+      onApprove : function () {
         $("#session-create-form").submit();
       }
     })
@@ -16,11 +16,11 @@ $("#session-create-form")
     }
   })
 ;
-$('.synchronize.button').click(function() {
+$('.synchronize.button').click(function () {
   $("#session-synchronize-form").find("input[name=problem]").val($(this).data("problem"));
   $("#session-synchronize")
     .modal({
-      onApprove: function() {
+      onApprove: function () {
         $("#session-synchronize-form").submit();
       }
     })
@@ -68,29 +68,29 @@ if ($("#session-edit-app").length > 0) {
       }
     },
     methods: {
-      ping: function() {
+      ping: function () {
         console.log("pong");
       },
-      updateConfig: function() {
+      updateConfig: function () {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
           this.appData = data;
         }.bind(this));
       },
-      clearErrorMessage: function() {
+      clearErrorMessage: function () {
         this.errorMessage = "";
       },
-      showDeleteDialog: function(event) {
+      showDeleteDialog: function (event) {
         bindFormAndButtonData($("#delete-confirmation-form"), $(event.currentTarget));
         $("#delete-confirmation")
           .modal({
-            onApprove: function() {
+            onApprove: function () {
               $("#delete-confirmation-form").submit();
             }
           })
           .modal('show');
       },
-      showDialogWithOneForm: function(event) {
+      showDialogWithOneForm: function (event) {
         var button = $(event.currentTarget);
         var local_modal = $(button.data("target"));
         var form = local_modal.find("form");
@@ -109,13 +109,13 @@ if ($("#session-edit-app").length > 0) {
         local_modal
           .modal({
             autofocus: autofocus,
-            onApprove : function() {
+            onApprove : function () {
               form.submit();
             }
           })
           .modal('show');
       },
-      showStatementEditor: function(event) {
+      showStatementEditor: function (event) {
         var button = $(event.currentTarget);
         this.statementEditorData.fileName = button.data("filename");
         var modal = $("#statement-editor");
@@ -125,7 +125,7 @@ if ($("#session-edit-app").length > 0) {
         this.statementEditorData.contentUrl = button.data("get-content");
         modal
           .modal({
-            onApprove: function() {
+            onApprove: function () {
               form.submit();
             },
             closable: false
@@ -133,7 +133,7 @@ if ($("#session-edit-app").length > 0) {
           .modal('show');
         this.updateStatementEditorText();
       },
-      updateStatementEditorText: function() {
+      updateStatementEditorText: function () {
         // init editor data
         $.get(this.statementEditorData.contentUrl,
           {"filename": this.statementEditorData.fileName},
@@ -144,7 +144,7 @@ if ($("#session-edit-app").length > 0) {
         );
       },
       getStatementConverted: _.debounce(
-        function() {
+        function () {
           $.post("/api/markdown/", {
             csrfmiddlewaretoken: Cookies.get('csrftoken'),
             text: this.statementEditorData.text
@@ -155,10 +155,10 @@ if ($("#session-edit-app").length > 0) {
         1000
       )
     },
-    beforeMount: function() {
+    beforeMount: function () {
       this.updateConfig();
     },
-    mounted: function() {
+    mounted: function () {
       $("#save-meta-form")
         .form({
           fields: {
@@ -195,15 +195,18 @@ if ($("#session-edit-app").length > 0) {
                 target.removeClass("success").addClass("error");
               }
             }.bind(this),
-            complete: function() {
-              if (progressBar)
-                setTimeout(progressBar.hide(), 2000);
+            complete: function () {
+              if (progressBar) {
+                setTimeout(function () {
+                  progressBar.hide();
+                }, 2000);
+              }
             },
             cache: false,
             contentType: false,
             processData: false,
             dataType: "json",
-            xhr: function() {
+            xhr: function () {
               var myXhr = $.ajaxSettings.xhr();
               if (myXhr.upload && progressBar) {
                 // For handling the progress of the upload

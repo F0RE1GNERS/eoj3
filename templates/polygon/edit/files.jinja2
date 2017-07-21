@@ -24,7 +24,7 @@
       <tbody>
         <tr v-for="file in appData.regular_file_list" :key="file.filename">
           <td>
-            <i class="file icon" v-if="file.used"></i>
+            <i class="file image outline icon" v-if="file.type == 'image'"></i>
             <i class="file outline icon" v-else></i> [[ file.filename ]]</td>
           <td class="right aligned collapsing">[[ file.modified_time ]]</td>
           <td class="right aligned collapsing">[[ Math.round(file.size / 1024) ]] KB</td>
@@ -33,8 +33,11 @@
               <a class="ui primary button clipboard" v-bind:data-clipboard-text="file.url">
                 <i class="copy icon"></i>
               </a>
+              <a class="ui button" v-bind:href="file.url" v-if="file.type == 'image'" target="_blank">
+                <i class="image icon"></i>
+              </a>
               <button class="ui button" data-action="{{ url('polygon:session_delete_regular_file', session.id) }}"
-                      v-bind:data-filename="file.filename" v-on:click="showDeleteDialog" v-if="!file.used">
+                      v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
                 <i class="trash icon"></i>
               </button>
             </div>

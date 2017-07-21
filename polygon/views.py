@@ -1,4 +1,5 @@
 import json
+import re
 from os import path, remove
 
 from django.conf import settings
@@ -11,8 +12,8 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement
-from utils.upload import save_uploaded_file_to
 from utils import random_string
+from utils.upload import save_uploaded_file_to
 from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
@@ -170,6 +171,10 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
         app_data['regular_file_list'] = load_regular_file_list(self.session)
         for dat in app_data['regular_file_list']:
             dat['url'] = '/upload/%d/%s' % (self.problem.id, dat['filename'])
+            if re.search(r'(gif|jpg|jpeg|tiff|png)$', dat['filename'], re.IGNORECASE):
+                dat['type'] = 'image'
+            else:
+                dat['type'] = 'regular'
         print(app_data)
         return HttpResponse(json.dumps(app_data))
 
