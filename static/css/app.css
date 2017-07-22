@@ -56622,6 +56622,9 @@ body.pushable > .pusher {
 .ui.file.input input[type="file"] {
   display: none;
 }
+.click-able {
+  cursor: pointer;
+}
 .problem-header {
   margin-bottom: 1em;
 }

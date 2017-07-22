@@ -8,7 +8,7 @@ import yaml
 from django.conf import settings
 
 from account.models import User
-from problem.models import Problem, TrustedSubmission, get_input_path, get_output_path
+from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from utils import random_string
 from utils.language import LANG_EXT
 from .models import EditSession
@@ -16,6 +16,7 @@ from .models import EditSession
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
 TESTS_DIR = 'tests'
+PROGRAM_DIR = 'program'
 DEFAULT_POINT = 10
 
 
@@ -87,19 +88,32 @@ def pull_session(session):
     programs = config.setdefault('program', dict())
     # pull top-relevant programs first
     to_pull_programs = list(filter(lambda x: x, [problem.checker, problem.interactor, problem.validator]))
+    config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
+    config["interactor"] = problem.interactor
+    config["validator"] = problem.validator
+    _important_special_program = {
+        problem.checker: "checker",
+        problem.interactor: "interactor",
+        problem.validator: "validator"
+    }
     for program in to_pull_programs:
-        sub = TrustedSubmission.objects.get(name=program)
-        full_path = path.join(session_dir, get_relative_path_with_ext(sub))
+        sub = SpecialProgram.objects.get(fingerprint=program)
+        full_path = path.join(session_dir, PROGRAM_DIR, sub.filename)
+        # warning: when filename collides, overrides happen
         makedirs(path.dirname(full_path), exist_ok=True)
         with open(full_path, 'w') as sub_fs:
             sub_fs.write(sub.code)
-        programs[sub.name] = dict(type=sub.category,
-                                  lang=sub.lang)
-    # program is like {'aaa': 'checker', 'bbb': 'interactor', ... }
+        file_role = _important_special_program.get(sub.fingerprint)
+        programs[sub.filename] = dict(fingerprint=sub.fingerprint,
+                                      type=sub.category,
+                                      lang=sub.lang)
+        if file_role:  # in case it is something important
+            programs[sub.filename]['used'] = file_role
+            config[file_role] = sub.filename  # substitute fingerprint with filename in config file
 
-    config["checker"] = problem.checker
-    config["interactor"] = problem.interactor
-    config["validator"] = problem.validator
+    for program in programs.values():
+        if isinstance(program, dict) and program.get('used'):
+            program.pop('used')
 
     dump_config(session, config)
     session.last_synchronize = datetime.now()
@@ -107,6 +121,8 @@ def pull_session(session):
 
 
 def sort_out_directory(directory):
+    if not path.exists(directory):
+        return []
     return sorted(list(map(lambda file: {'filename': path.basename(file),
                                          'modified_time': datetime.fromtimestamp(path.getmtime(file)).
                                                           strftime(settings.DATETIME_FORMAT_TEMPLATE),
@@ -121,6 +137,13 @@ def load_statement_file_list(session):
 
 def _get_statement_file_path(session, filename):
     statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
+    if not normal_regex_check(filename):
+        raise ValueError("Invalid filename")
+    return path.join(statement_dir, filename)
+
+
+def _get_program_file_path(session, filename):
+    statement_dir = path.join(get_session_dir(session), PROGRAM_DIR)
     if not normal_regex_check(filename):
         raise ValueError("Invalid filename")
     return path.join(statement_dir, filename)
@@ -178,6 +201,15 @@ def load_volume(session):
     return get_size(session_dir) // 1024576, 256
 
 
+def load_program_file_list(session):
+    return sort_out_directory(path.join(get_session_dir(session), PROGRAM_DIR))
+
+
+def program_file_exists(session, filename):
+    filepath = _get_program_file_path(session, filename)
+    return path.exists(filepath)
+
+
 def load_config(session):
     """
     Load config of a session
@@ -215,20 +247,13 @@ def update_config(config, **kwargs):
     pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
     pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
     pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
-    for i in ['input', 'output', 'description', 'hint']:
+    for i in ['input', 'output', 'description', 'hint', 'checker', 'validator', 'interactor']:
+        # Please check in advance
         pop_and_check(kwargs, new_config, i, i, None, None)
 
     return new_config
 
     # TODO: is there another param?
-
-
-def get_relative_path_with_ext(program):
-    """
-    :type program: TrustedSubmission
-    :rtype: str
-    """
-    return path.join(program.category, program.name + '.' + dict(LANG_EXT)[program.lang])
 
 
 def get_session_dir(session):

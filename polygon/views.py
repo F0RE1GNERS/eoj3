@@ -18,7 +18,7 @@ from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
-    statement_file_exists, load_regular_file_list
+    statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists
 )
 
 
@@ -175,7 +175,20 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
                 dat['type'] = 'image'
             else:
                 dat['type'] = 'regular'
-        print(app_data)
+        app_data['program_special_identifier'] = ['checker', 'validator', 'generator', 'interactor']
+        app_data['program_file_list'] = load_program_file_list(self.session)
+        for dat in app_data['program_file_list']:
+            extra_data = app_data['program'].get(dat['filename'])
+            if extra_data:
+                dat.update(extra_data)
+                for identifier in app_data['program_special_identifier']:
+                    if dat['filename'] == app_data.get(identifier):
+                        dat['used'] = identifier
+            else:
+                dat['remove_mark'] = True
+        app_data['program_file_list'] = list(filter(lambda x: not x.get('remove_mark'), app_data['program_file_list']))
+
+        print(json.dumps(app_data, sort_keys=True, indent=4))
         return HttpResponse(json.dumps(app_data))
 
 
@@ -191,12 +204,16 @@ class BaseSessionPostMixin(BaseSessionMixin):
 class SessionSaveMeta(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
-        alias = request.POST['alias']
-        time_limit = request.POST['time_limit']
-        memory_limit = request.POST['memory_limit']
-        source = self.request.POST['source']
-        self.config = update_config(self.config, alias=alias, time_limit=time_limit, memory_limit=memory_limit,
-                                    source=source)
+        param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator',
+                      'description', 'input', 'output', 'hint']
+        kw = {x: request.POST[x] for x in param_list}
+        for param in ['checker', 'interactor', 'validator']:
+            if kw[param] and not program_file_exists(self.session, kw[param]):
+                raise ValueError("Program file does not exist")
+        for param in ['description', 'input', 'output', 'hint']:
+            if kw[param] and not statement_file_exists(self.session, kw[param]):
+                raise ValueError("Statement file does not exist")
+        self.config = update_config(self.config, **kw)
         dump_config(self.session, self.config)
         return response_ok()
 

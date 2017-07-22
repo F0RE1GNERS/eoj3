@@ -6,7 +6,13 @@ Then you can load into database by using:
 """
 
 import json
+import hashlib
 from os import path, listdir
+
+def hash(binary):
+    return hashlib.sha256(binary).hexdigest()
+
+
 category = ['checker', 'generator', 'validator', 'validator']
 father_dir = path.dirname(__file__)
 output_file = open(path.join(father_dir, 'testlib.json'), 'w')
@@ -17,12 +23,16 @@ for cat in category:
             continue
         with open(path.join(father_dir, cat, file)) as fs:
             code = fs.read()
-        data.append(dict(model='problem.TrustedSubmission',
+        with open(path.join(father_dir, cat, file), 'rb') as fs:
+            code_binary = fs.read()
+        data.append(dict(model='problem.SpecialProgram',
                          fields=dict(
-                             name=file.split('.')[0],
+                             fingerprint=hash(code_binary),
+                             filename=file,
                              code=code,
                              lang='cpp',
                              category=cat,
+                             builtin=True
                          )))
 
 json.dump(data, output_file)

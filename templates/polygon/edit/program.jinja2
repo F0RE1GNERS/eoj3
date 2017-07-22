@@ -4,38 +4,29 @@
       <i class="close icon" v-on:click="clearErrorMessage"></i>
       [[ errorMessage ]]
     </div>
-    <div class="ui progress" id="files-upload-progress" style="display:none">
-      <div class="bar">
-        <div class="progress"></div>
-      </div>
-      <label class="label">File upload progress</label>
-    </div>
     <table class="ui celled striped table">
       <thead>
         <tr>
-          <th colspan="4">
-            <button class="ui right floated icon button positive compact" v-on:click="showDialogWithOneForm"
-                    data-target="#regular-file-upload" id="files-upload-button">
-              <i class="upload icon"></i> Add
-            </button>
+          <th colspan="4" style="text-align: right;">
+            <div class="ui dropdown onhover">
+              <button class="ui icon button positive compact text"><i class="plus icon"></i> Add</button>
+              <div class="menu">
+                <div class="item"><i class="write icon"></i> Manually</div>
+                <div class="item"><i class="upload icon"></i> Upload</div>
+                <div class="item"><i class="cloud download icon"></i> Import</div>
+              </div>
+            </div>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="file in appData.regular_file_list" :key="file.filename">
+        <tr v-for="file in appData.program_file_list" :key="file.filename">
           <td>
-            <i class="file image outline icon" v-if="file.type == 'image'"></i>
+            <i class="file icon" v-if="file.used"></i>
             <i class="file outline icon" v-else></i> [[ file.filename ]]</td>
           <td class="right aligned collapsing">[[ file.modified_time ]]</td>
-          <td class="right aligned collapsing">[[ Math.round(file.size / 1024) ]] KB</td>
           <td class="right aligned collapsing">
             <div class="ui icon compact buttons">
-              <a class="ui primary button clipboard" v-bind:data-clipboard-text="file.url">
-                <i class="copy icon"></i>
-              </a>
-              <a class="ui button" v-bind:href="file.url" v-if="file.type == 'image'" target="_blank">
-                <i class="image icon"></i>
-              </a>
               <button class="ui button" data-action="{{ url('polygon:session_delete_regular_file', session.id) }}"
                       v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
                 <i class="trash icon"></i>
@@ -59,9 +50,8 @@
   </div>
 </div>
 
-{% call modal(title="Upload a new file", id="regular-file-upload") %}
-  <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST"
-        data-progress-bar="#files-upload-progress">
+{% call modal(title="Upload a new file", id="program-file-upload") %}
+  <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST">
     {% csrf_token %}
     <div class="field">
       <label for="files[]">Choose multiple files</label>

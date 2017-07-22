@@ -1,14 +1,8 @@
+{% extends 'polygon/edit/base.jinja2' %}
+
 <div class="ui grid">
   <div class="twelve wide column">
     <form class="ui form" action="{{ url('polygon:session_save_meta', session.id) }}" method="POST" id="save-meta-form">
-
-      <div class="ui success message">
-        <div class="header">Congratulations!</div>
-        <p>Your meta data has been saved to your session.</p>
-      </div>
-
-      <div class="ui error message">
-      </div>
 
       {% csrf_token %}
 
@@ -43,34 +37,85 @@
         <div class="four fields">
           <div class="field">
             <label>Description file</label>
-            <input type="text" readonly name="description" v-model="appData.description">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="description" v-model="appData.description">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.description ]]</div>
+              <div class="menu">
+                <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Input file</label>
-            <input type="text" readonly name="input" v-model="appData.input">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="input" v-model="appData.input">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.input ]]</div>
+              <div class="menu">
+                <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Output file</label>
-            <input type="text" readonly name="output" v-model="appData.output">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="output" v-model="appData.output">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.output ]]</div>
+              <div class="menu">
+                <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Hint file</label>
-            <input type="text" readonly name="hint" v-model="appData.hint">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="hint" v-model="appData.hint">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.hint ]]</div>
+              <div class="menu">
+                <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="three fields">
           <div class="field">
             <label>Checker</label>
-            <input type="text" readonly name="checker" v-model="appData.checker">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="checker" v-model="appData.checker">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.checker ]]</div>
+              <div class="menu">
+                <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Interactor</label>
-            <input type="text" readonly name="checker" v-model="appData.interactor">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="interactor" v-model="appData.interactor">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.interactor ]]</div>
+              <div class="menu">
+                <div class="item" data-value="(none)">------</div>
+                <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Validator</label>
-            <input type="text" readonly name="checker" v-model="appData.validator">
+            <div class="ui selection fluid dropdown">
+              <input type="hidden" name="validator" v-model="appData.validator">
+              <i class="dropdown icon"></i>
+              <div class="text">[[ appData.validator ]]</div>
+              <div class="menu">
+                <div class="item" data-value="(none)">------</div>
+                <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
+              </div>
+            </div>
           </div>
         </div>
 

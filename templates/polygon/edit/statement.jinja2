@@ -19,15 +19,14 @@
         <tr v-for="file in appData.statement_file_list" :key="file.filename">
           <td>
             <i class="file icon" v-if="file.used"></i>
-            <i class="file outline icon" v-else></i> [[ file.filename ]]</td>
+            <i class="file outline icon" v-else></i>
+            <span class="click-able" v-bind:data-filename="file.filename" v-on:click="showStatementEditor"
+                  data-get-content="{{ url('polygon:session_get_statement_raw', session.id) }}"
+                  data-action="{{ url('polygon:session_update_statement', session.id) }}">[[ file.filename ]]</span>
+          </td>
           <td class="right aligned collapsing">[[ file.modified_time ]]</td>
           <td class="right aligned collapsing">
             <div class="ui icon compact buttons">
-              <button class="ui primary button" v-bind:data-filename="file.filename" v-on:click="showStatementEditor"
-                      data-get-content="{{ url('polygon:session_get_statement_raw', session.id) }}"
-                      data-action="{{ url('polygon:session_update_statement', session.id) }}">
-                <i class="edit icon"></i>
-              </button>
               <button class="ui button" v-bind:data-filename="file.filename" v-on:click="showDialogWithOneForm"
                       data-target="#change-file-role" v-bind:data-role="file.used"
                       data-action="{{ url('polygon:session_update_statement_role', session.id) }}">

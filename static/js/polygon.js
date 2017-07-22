@@ -131,9 +131,6 @@ if ($("#session-edit-app").length > 0) {
             closable: false
           })
           .modal('show');
-        this.updateStatementEditorText();
-      },
-      updateStatementEditorText: function () {
         // init editor data
         $.get(this.statementEditorData.contentUrl,
           {"filename": this.statementEditorData.fileName},
@@ -172,6 +169,15 @@ if ($("#session-edit-app").length > 0) {
         history: true,
         historyType: 'hash'
       });
+      $('.ui.dropdown.onhover').dropdown({
+        on: 'hover'
+      });
+      $('.ui.selection.dropdown').dropdown({
+        onChange: function (val) {
+          if (val == '(none)')
+            $(this).dropdown('clear');
+        }
+      });
       new Clipboard('.clipboard');
       $('form').submit(function (event) {
         var target = $(event.target);
@@ -186,6 +192,7 @@ if ($("#session-edit-app").length > 0) {
               if (data["status"] == "received") {
                 target.removeClass("error").addClass("success");
                 this.updateConfig();
+                this.errorMessage = "";
                 setTimeout(function () {
                   target.removeClass("success");
                 }, 5000);

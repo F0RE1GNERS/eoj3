@@ -7,6 +7,10 @@ from django.core.cache import cache
 from utils.language import LANG_CHOICE
 
 
+# This is the hash value of the famous fcmp.cpp
+FCMP_FINGERPRINT = '3813d49afd13857026fcd4643f51689c39639f83c2b4136b8d95ed285510a00f'
+
+
 class Problem(models.Model):
     alias = models.CharField(max_length=64, blank=True)
     title = models.CharField(max_length=192, blank=True)
@@ -24,7 +28,7 @@ class Problem(models.Model):
 
     time_limit = models.IntegerField(default=1000)
     memory_limit = models.IntegerField(default=256)
-    checker = models.CharField(max_length=64, default='fcmp')
+    checker = models.CharField(max_length=64, default=FCMP_FINGERPRINT)
     interactor = models.CharField(blank=True, max_length=64)
     validator = models.CharField(blank=True, max_length=64)
     pretests = models.TextField(blank=True)
@@ -81,14 +85,16 @@ class ProblemManagement(models.Model):
         unique_together = ['problem', 'user']
 
 
-class TrustedSubmission(models.Model):
+class SpecialProgram(models.Model):
 
     CATEGORIES = ((x, x) for x in ('checker', 'generator', 'interactor', 'validator'))
 
-    name = models.CharField(max_length=64, primary_key=True)
+    fingerprint = models.CharField(max_length=64, primary_key=True)
     category = models.CharField(max_length=12, choices=CATEGORIES)
+    filename = models.CharField(max_length=64)
     lang = models.CharField('language', max_length=12, choices=LANG_CHOICE, default='cpp')
     code = models.TextField(blank=True)
+    builtin = models.BooleanField(default=False)
 
 
 def get_input_and_output_for_case(case_hash):
