@@ -14,11 +14,13 @@ from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement
 from utils import random_string
 from utils.upload import save_uploaded_file_to
+from utils.language import LANG_CHOICE
 from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
-    statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time
+    statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
+    read_program_file, save_program_file
 )
 
 
@@ -149,6 +151,7 @@ class SessionEdit(BaseSessionMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(SessionEdit, self).get_context_data(**kwargs)
+        data['lang_choices'] = LANG_CHOICE
         return data
 
 
@@ -176,7 +179,7 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
                 dat['type'] = 'image'
             else:
                 dat['type'] = 'regular'
-        app_data['program_special_identifier'] = ['checker', 'validator', 'generator', 'interactor']
+        app_data['program_special_identifier'] = ['checker', 'validator', 'generator', 'interactor', 'model']
         app_data['program_file_list'] = load_program_file_list(self.session)
         for dat in app_data['program_file_list']:
             extra_data = app_data['program'].get(dat['filename'])
@@ -189,7 +192,7 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
                 dat['remove_mark'] = True
         app_data['program_file_list'] = list(filter(lambda x: not x.get('remove_mark'), app_data['program_file_list']))
 
-        print(json.dumps(app_data, sort_keys=True, indent=4))
+        # print(json.dumps(app_data, sort_keys=True, indent=4))
         return HttpResponse(json.dumps(app_data))
 
 
@@ -205,10 +208,10 @@ class BaseSessionPostMixin(BaseSessionMixin):
 class SessionSaveMeta(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
-        param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator',
+        param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator', 'model',
                       'description', 'input', 'output', 'hint']
         kw = {x: request.POST[x] for x in param_list}
-        for param in ['checker', 'interactor', 'validator']:
+        for param in ['checker', 'interactor', 'validator', 'model']:
             if kw[param] and not program_file_exists(self.session, kw[param]):
                 raise ValueError("Program file does not exist")
         for param in ['description', 'input', 'output', 'hint']:
@@ -251,18 +254,6 @@ class SessionUpdateStatement(BaseSessionPostMixin, View):
         return response_ok()
 
 
-class SessionUpdateStatementRole(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        new_role = request.POST['role']
-        print(filename, new_role)
-        if statement_file_exists(self.session, filename):
-            self.config = update_config(self.config, **{new_role: filename})
-            dump_config(self.session, self.config)
-        return response_ok()
-
-
 class SessionUploadRegularFile(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
@@ -287,3 +278,29 @@ class SessionDeleteRegularFile(BaseSessionPostMixin, View):
         except OSError:
             pass
         return response_ok()
+
+
+class SessionCreateProgram(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
+        save_program_file(self.session, filename, type, lang, code)
+        return response_ok()
+
+
+class SessionUpdateProgram(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        raw_filename = request.POST['rawFilename']
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
+        save_program_file(self.session, filename, type, lang, code, raw_filename)
+        return response_ok()
+
+
+class SessionReadProgram(BaseSessionMixin, View):
+
+    def get(self, request, sid):
+        filename = request.GET['filename']
+        return HttpResponse(read_program_file(self.session, filename))

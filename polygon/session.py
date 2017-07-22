@@ -1,7 +1,7 @@
 import re
 import copy
 from datetime import datetime
-from os import path, makedirs, listdir, stat, remove, walk
+from os import path, makedirs, listdir, stat, remove, walk, rename
 from shutil import copyfile, rmtree
 
 import yaml
@@ -11,6 +11,7 @@ from account.models import User
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from utils import random_string
 from utils.language import LANG_EXT
+from utils.hash import file_hash
 from .models import EditSession
 
 CONFIG_FILE_NAME = 'config.yml'
@@ -18,6 +19,9 @@ STATEMENT_DIR = 'statement'
 TESTS_DIR = 'tests'
 PROGRAM_DIR = 'program'
 DEFAULT_POINT = 10
+PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solution']
+USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
+STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 
 
 def init_session(problem, user):
@@ -91,6 +95,7 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
+    config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",
         problem.interactor: "interactor",
@@ -111,7 +116,7 @@ def pull_session(session):
             programs[sub.filename]['used'] = file_role
             config[file_role] = sub.filename  # substitute fingerprint with filename in config file
 
-    for program in programs.values():
+    for program in programs.values():  # to get a pure config dict, even though it is to be added later
         if isinstance(program, dict) and program.get('used'):
             program.pop('used')
 
@@ -162,7 +167,7 @@ def delete_statement_file(session, filename):
     if not path.exists(filepath):
         raise ValueError("File does not exist")
     config = load_config(session)
-    if filename in [config["input"], config["output"], config["description"], config["hint"]]:
+    if filename in list(map(lambda x: config[x], STATEMENT_TYPE_LIST)):
         raise ValueError("File is still in use")
     remove(filepath)
 
@@ -210,6 +215,43 @@ def program_file_exists(session, filename):
     return path.exists(filepath)
 
 
+def read_program_file(session, filename):
+    filepath = _get_program_file_path(session, filename)
+    with open(filepath, 'r') as fs:
+        return fs.read()
+
+
+def save_program_file(session, filename, type, lang, code, raw_filename=None):
+    extension = dict(LANG_EXT).get(lang)
+    if not extension:
+        raise ValueError("Unrecognized language")
+    if not path.splitext(filename)[1]:
+        filename = filename + '.' + extension
+    if type not in PROGRAM_TYPE_LIST:
+        raise ValueError("Unrecognized program type")
+
+    new_filepath = _get_program_file_path(session, filename)
+    config = load_config(session)
+    if raw_filename:
+        # Pop first. In case something goes wrong, it will throw an exception
+        config['program'][filename] = config['program'].pop(raw_filename)
+        for identifier in USED_PROGRAM_IN_CONFIG_LIST:
+            if config.get(identifier) == raw_filename:
+                config[identifier] = filename
+        old_filepath = _get_program_file_path(session, raw_filename)
+        rename(old_filepath, new_filepath)
+    else:
+        if config['program'].get(filename):
+            raise ValueError('File %s already exists' % filename)
+
+    with open(new_filepath, 'w') as new_fs:
+        new_fs.write(code)
+    config['program'].setdefault(filename, dict())
+    config['program'][filename].update(fingerprint=file_hash(new_filepath),
+                                       type=type, lang=lang)
+    dump_config(session, config)
+
+
 def load_config(session):
     """
     Load config of a session
@@ -247,7 +289,7 @@ def update_config(config, **kwargs):
     pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
     pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
     pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
-    for i in ['input', 'output', 'description', 'hint', 'checker', 'validator', 'interactor']:
+    for i in STATEMENT_TYPE_LIST + USED_PROGRAM_IN_CONFIG_LIST:
         # Please check in advance
         pop_and_check(kwargs, new_config, i, i, None, None)
 

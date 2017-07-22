@@ -27,11 +27,11 @@
           <td class="right aligned collapsing">[[ file.modified_time ]]</td>
           <td class="right aligned collapsing">
             <div class="ui icon compact buttons">
-              <button class="ui button" v-bind:data-filename="file.filename" v-on:click="showDialogWithOneForm"
-                      data-target="#change-file-role" v-bind:data-role="file.used"
-                      data-action="{{ url('polygon:session_update_statement_role', session.id) }}">
-                <i class="setting icon"></i>
-              </button>
+{#              <button class="ui button" v-bind:data-filename="file.filename" v-on:click="showDialogWithOneForm"#}
+{#                      data-target="#change-file-role" v-bind:data-role="file.used"#}
+{#                      data-action="{{ url('polygon:session_update_statement_role', session.id) }}">#}
+{#                <i class="setting icon"></i>#}
+{#              </button>#}
               <button class="ui button" data-action="{{ url('polygon:session_delete_statement', session.id) }}"
                       v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
                 <i class="trash icon"></i>
@@ -65,23 +65,23 @@
     </form>
   {% endcall %}
 
-  {% call modal(title="Change file roles", id="change-file-role") %}
-    <form class="ui form" action="" method="POST">
-      {% csrf_token %}
-      <div class="ui selection dropdown">
-        <label>Treat as</label>
-        <input type="hidden" name="role" data-important="true">
-        <i class="dropdown icon"></i>
-        <div class="default text">Role</div>
-        <div class="menu">
-          <div class="item">Description</div>
-          <div class="item">Input</div>
-          <div class="item">Output</div>
-          <div class="item">Hint</div>
-        </div>
-      </div>
-    </form>
-  {% endcall %}
+{#  {% call modal(title="Change file roles", id="change-file-role") %}#}
+{#    <form class="ui form" action="" method="POST">#}
+{#      {% csrf_token %}#}
+{#      <div class="ui selection dropdown">#}
+{#        <label>Treat as</label>#}
+{#        <input type="hidden" name="role" data-important="true">#}
+{#        <i class="dropdown icon"></i>#}
+{#        <div class="default text">Role</div>#}
+{#        <div class="menu">#}
+{#          <div class="item">Description</div>#}
+{#          <div class="item">Input</div>#}
+{#          <div class="item">Output</div>#}
+{#          <div class="item">Hint</div>#}
+{#        </div>#}
+{#      </div>#}
+{#    </form>#}
+{#  {% endcall %}#}
 
   <div class="ui fullscreen longer modal" id="statement-editor">
     <div class="ui header">Editing [[ statementEditorData.fileName ]]</div>

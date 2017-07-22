@@ -56625,6 +56625,9 @@ body.pushable > .pusher {
 .click-able {
   cursor: pointer;
 }
+textarea[name="code"] {
+  font-family: "Courier New", "Courier", monospace;
+}
 .problem-header {
   margin-bottom: 1em;
 }

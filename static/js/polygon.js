@@ -33,8 +33,9 @@ function clearAndAddExtraData(form, extra_data) {
     var already_exist = form.find('input[name="' + val + '"]');
     if (already_exist.length > 0) {
       already_exist.val(extra_data[val]);
+    } else {
+      form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
     }
-    form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
   }
 }
 
@@ -95,8 +96,10 @@ if ($("#session-edit-app").length > 0) {
         var local_modal = $(button.data("target"));
         var form = local_modal.find("form");
         bindFormAndButtonData(form, button);
-        var autofocus = true;
-        if (form.find(".ui.dropdown").length > 0) {
+        var autofocus = true, closable = true;
+        if (button.data("block"))
+          closable = false;
+        if (form.find(".ui.dropdown", "select").length > 0) {
           form.find(".ui.dropdown").dropdown();
           autofocus = false;
         }
@@ -109,6 +112,7 @@ if ($("#session-edit-app").length > 0) {
         local_modal
           .modal({
             autofocus: autofocus,
+            closable: closable,
             onApprove : function () {
               form.submit();
             }
@@ -139,6 +143,15 @@ if ($("#session-edit-app").length > 0) {
             form.removeClass("loading");
           }.bind(this)
         );
+      },
+      showUpdateCodeEditor: function (event) {
+        var button = $(event.currentTarget);
+        $.get(button.data("get-content"), {"filename": button.data("filename")},
+          function (data) {
+            var local_form = $(button.data("target")).find("form");
+            local_form.find("*[name='code']").val(data);
+          }.bind(this));
+        this.showDialogWithOneForm(event);
       },
       getStatementConverted: _.debounce(
         function () {
