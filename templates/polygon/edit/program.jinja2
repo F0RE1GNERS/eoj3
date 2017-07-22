@@ -7,15 +7,16 @@
     <table class="ui celled striped table">
       <thead>
         <tr>
-          <th colspan="4" style="text-align: right;">
+          <th colspan="5" style="text-align: right;">
             <div class="ui dropdown onhover">
               <button class="ui icon button positive compact text"><i class="plus icon"></i> Add</button>
               <div class="menu">
                 <div class="item" v-on:click="showDialogWithOneForm" data-target="#program-file-edit" data-block="true"
                      data-action="{{ url('polygon:session_create_program_file', session.id) }}">
                   <i class="write icon"></i> Manually</div>
-                <div class="item"><i class="upload icon"></i> Upload</div>
-                <div class="item"><i class="cloud download icon"></i> Import</div>
+                <div class="item" v-on:click="showDialogWithOneForm" data-target="#program-file-import"
+                     data-action="#">
+                  <i class="cloud download icon"></i> Import</div>
               </div>
             </div>
           </th>
@@ -33,10 +34,12 @@
                   data-get-content="{{ url('polygon:session_read_program', session.id) }}">
               [[ file.filename ]]</span>
           </td>
+          <td class="right aligned collapsing">[[ file.lang_display ]]</td>
+          <td class="right aligned collapsing" style="text-transform: capitalize;">[[ file.type ]]</td>
           <td class="right aligned collapsing">[[ file.modified_time ]]</td>
           <td class="right aligned collapsing">
             <div class="ui icon compact buttons">
-              <button class="ui button" data-action="{{ url('polygon:session_delete_regular_file', session.id) }}"
+              <button class="ui button" data-action="{{ url('polygon:session_delete_program_file', session.id) }}"
                       v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
                 <i class="trash icon"></i>
               </button>
@@ -50,28 +53,11 @@
     <div class="ui info message">
       <div class="header">Quick Tips</div>
       <ul class="list">
-        <li>Please mind the volume, do not upload something that is too large. And please, do not use it as a free webdisk. <b>You will be banned from EOJ for doing this.</b></li>
-        <li>Sadly only preview for images are supported.</li>
-        <li>To prevent contestants from "penetrating" your static files, all files are automatically given a random name when uploaded. Tags may be supported in the future.</li>
-        <li>The <b>copy</b> button is used to copy the path of your file to clipboard. This can be directly used in your statement.</li>
+        <li>If you import something which has the same name with an existing file, the existing file will be overwritten! So always check before importing!</li>
       </ul>
     </div>
   </div>
 </div>
-
-{% call modal(title="Upload a new file", id="program-file-upload") %}
-  <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST">
-    {% csrf_token %}
-    <div class="field">
-      <label for="files[]">Choose multiple files</label>
-      <div class="ui fluid file input action">
-        <input type="text" readonly>
-        <input type="file" name="files[]" autocomplete="off" multiple>
-        <div class="ui button">Select...</div>
-      </div>
-    </div>
-  </form>
-{% endcall %}
 
 
 {% call modal(title="Add / Edit a program", id="program-file-edit", size="small") %}
@@ -117,5 +103,23 @@
       <textarea name="code" spellcheck="false"></textarea>
     </div>
 
+  </form>
+{% endcall %}
+
+{% call modal(title="Import built-in programs", id="program-file-import") %}
+  <form class="ui form" action="" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <div class="ui selection dropdown">
+        <input type="hidden" name="type" data-important="true">
+        <i class="dropdown icon"></i>
+        <div class="text"></div>
+        <div class="menu">
+          {% for program in builtin_program_choices %}
+            <div class="item" data-value="{{ program.filename }}">{{ program }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </form>
 {% endcall %}

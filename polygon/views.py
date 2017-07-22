@@ -11,7 +11,7 @@ from django.views.generic import ListView, View, DetailView, TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
-from problem.models import Problem, ProblemManagement
+from problem.models import Problem, ProblemManagement, SpecialProgram
 from utils import random_string
 from utils.upload import save_uploaded_file_to
 from utils.language import LANG_CHOICE
@@ -20,7 +20,7 @@ from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
-    read_program_file, save_program_file
+    read_program_file, save_program_file, delete_program_file
 )
 
 
@@ -152,6 +152,7 @@ class SessionEdit(BaseSessionMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(SessionEdit, self).get_context_data(**kwargs)
         data['lang_choices'] = LANG_CHOICE
+        data['builtin_program_choices'] = SpecialProgram.objects.filter(builtin=True).all()
         return data
 
 
@@ -181,6 +182,7 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
                 dat['type'] = 'regular'
         app_data['program_special_identifier'] = ['checker', 'validator', 'generator', 'interactor', 'model']
         app_data['program_file_list'] = load_program_file_list(self.session)
+        language_choice_dict = dict(LANG_CHOICE)
         for dat in app_data['program_file_list']:
             extra_data = app_data['program'].get(dat['filename'])
             if extra_data:
@@ -188,6 +190,7 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
                 for identifier in app_data['program_special_identifier']:
                     if dat['filename'] == app_data.get(identifier):
                         dat['used'] = identifier
+                dat['lang_display'] = language_choice_dict[dat['lang']]
             else:
                 dat['remove_mark'] = True
         app_data['program_file_list'] = list(filter(lambda x: not x.get('remove_mark'), app_data['program_file_list']))
@@ -304,3 +307,11 @@ class SessionReadProgram(BaseSessionMixin, View):
     def get(self, request, sid):
         filename = request.GET['filename']
         return HttpResponse(read_program_file(self.session, filename))
+
+
+class SessionDeleteProgram(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        filename = request.POST['filename']
+        delete_program_file(self.session, filename)
+        return response_ok()

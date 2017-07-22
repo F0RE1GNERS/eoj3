@@ -6,31 +6,31 @@
 <h1 class="ui header">Session: {{ user.username }}/{{ problem.alias }}</h1>
 <div id="session-edit-app" data-api-route="{{ url('polygon:session_update_api', session.id) }}">
   <div class="ui pointing secondary tabular menu">
-    <div class="item" data-tab="meta">Meta</div>
-    <div class="item" data-tab="statement">Statement</div>
-    <div class="item" data-tab="files">Files</div>
-    <div class="item" data-tab="tests">Tests</div>
-    <div class="item" data-tab="cases">Cases</div>
-    <div class="item" data-tab="program">Programs</div>
-    <div class="item" data-tab="access">Access</div>
+    <div class="item click-able" data-tab="meta">Meta</div>
+    <div class="item click-able" data-tab="files">Files</div>
+    <div class="item click-able" data-tab="statement">Statement</div>
+    <div class="item click-able" data-tab="program">Programs</div>
+    <div class="item click-able" data-tab="cases">Cases</div>
+    <div class="item click-able" data-tab="tests">Tests</div>
+    <div class="item click-able" data-tab="access">Access</div>
   </div>
   <div class="ui tab" data-tab="meta">
     {% include 'polygon/edit/meta.jinja2' %}
   </div>
-  <div class="ui tab" data-tab="statement">
-    {% include 'polygon/edit/statement.jinja2' %}
-  </div>
   <div class="ui tab" data-tab="files">
     {% include 'polygon/edit/files.jinja2' %}
   </div>
-  <div class="ui tab" data-tab="tests">
-    <!-- Tab Content !-->
+  <div class="ui tab" data-tab="statement">
+    {% include 'polygon/edit/statement.jinja2' %}
+  </div>
+  <div class="ui tab" data-tab="program">
+    {% include 'polygon/edit/program.jinja2' %}
   </div>
   <div class="ui tab" data-tab="cases">
     <!-- Tab Content !-->
   </div>
-  <div class="ui tab" data-tab="program">
-    {% include 'polygon/edit/program.jinja2' %}
+  <div class="ui tab" data-tab="tests">
+    <!-- Tab Content !-->
   </div>
   <div class="ui tab" data-tab="access">
     <!-- Tab Content !-->

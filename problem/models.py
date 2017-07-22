@@ -96,6 +96,9 @@ class SpecialProgram(models.Model):
     code = models.TextField(blank=True)
     builtin = models.BooleanField(default=False)
 
+    def __str__(self):
+        return '%s (%s)' % (self.filename, self.category.capitalize())
+
 
 def get_input_and_output_for_case(case_hash):
     """

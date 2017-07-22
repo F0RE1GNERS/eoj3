@@ -252,6 +252,18 @@ def save_program_file(session, filename, type, lang, code, raw_filename=None):
     dump_config(session, config)
 
 
+def delete_program_file(session, filename):
+    filepath = _get_program_file_path(session, filename)
+    if not path.exists(filepath):
+        raise ValueError("File does not exist")
+    config = load_config(session)
+    if filename in list(map(lambda x: config[x], USED_PROGRAM_IN_CONFIG_LIST)):
+        raise ValueError("File is still in use")
+    config['program'].pop(filename, None)
+    dump_config(session, config)
+    remove(filepath)
+
+
 def load_config(session):
     """
     Load config of a session
