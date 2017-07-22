@@ -18,7 +18,7 @@ from .models import EditSession
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
-    statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists
+    statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time
 )
 
 
@@ -157,6 +157,7 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
     def get(self, request, sid):
         data = self.get_context_data(sid=sid)
         app_data = data['config']
+        app_data['config_update_time'] = get_config_update_time(self.session)
         app_data['problem_id'] = self.problem.id
         app_data['case_count'] = len(list(filter(lambda x: x.get('order'), app_data['case'].items())))
         app_data['pretest_count'] = len(list(filter(lambda x: x.get('pretest'), app_data['case'].items())))

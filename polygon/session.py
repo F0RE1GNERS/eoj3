@@ -256,6 +256,11 @@ def update_config(config, **kwargs):
     # TODO: is there another param?
 
 
+def get_config_update_time(session):
+    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
+    return datetime.fromtimestamp(path.getmtime(config_file)).strftime(settings.DATETIME_FORMAT_TEMPLATE)
+
+
 def get_session_dir(session):
     return path.join(settings.REPO_DIR, session.fingerprint)
 
