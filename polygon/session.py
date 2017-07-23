@@ -1,7 +1,7 @@
 import re
 import copy
 from datetime import datetime
-from os import path, makedirs, listdir, stat, remove, walk, rename
+from os import path, makedirs, listdir, stat, remove, walk, replace
 from shutil import copyfile, rmtree
 
 import yaml
@@ -11,7 +11,7 @@ from account.models import User
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from utils import random_string
 from utils.language import LANG_EXT
-from utils.hash import file_hash
+from utils.hash import file_hash, case_hash
 from .models import EditSession
 
 CONFIG_FILE_NAME = 'config.yml'
@@ -22,6 +22,7 @@ DEFAULT_POINT = 10
 PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solution']
 USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
+MAXIMUM_CASE_SIZE = 128  # in megabytes
 
 
 def init_session(problem, user):
@@ -76,6 +77,7 @@ def pull_session(session):
         case_dict[key]["point"] = DEFAULT_POINT
         case_dict[key]["pretest"] = False
         case_dict[key]["sample"] = False
+    makedirs(tests_dir, exist_ok=True)
     for ind, case in enumerate(problem.case_list, start=1):
         if case not in case_dict.keys():
             case_dict[case] = dict()
@@ -138,20 +140,6 @@ def sort_out_directory(directory):
 
 def load_statement_file_list(session):
     return sort_out_directory(path.join(get_session_dir(session), STATEMENT_DIR))
-
-
-def _get_statement_file_path(session, filename):
-    statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
-    if not normal_regex_check(filename):
-        raise ValueError("Invalid filename")
-    return path.join(statement_dir, filename)
-
-
-def _get_program_file_path(session, filename):
-    statement_dir = path.join(get_session_dir(session), PROGRAM_DIR)
-    if not normal_regex_check(filename):
-        raise ValueError("Invalid filename")
-    return path.join(statement_dir, filename)
 
 
 def create_statement_file(session, filename):
@@ -239,7 +227,7 @@ def save_program_file(session, filename, type, lang, code, raw_filename=None):
             if config.get(identifier) == raw_filename:
                 config[identifier] = filename
         old_filepath = _get_program_file_path(session, raw_filename)
-        rename(old_filepath, new_filepath)
+        replace(old_filepath, new_filepath)
     else:
         if config['program'].get(filename):
             raise ValueError('File %s already exists' % filename)
@@ -262,6 +250,52 @@ def delete_program_file(session, filename):
     config['program'].pop(filename, None)
     dump_config(session, config)
     remove(filepath)
+
+
+def save_case(session, input_binary, output_binary, raw_fingerprint=None, **kwargs):
+    fingerprint = case_hash(session.problem_id, input_binary, output_binary)
+    new_input_path, new_output_path = _get_test_file_path(session, fingerprint)
+    config = load_config(session)
+    if raw_fingerprint:
+        config['case'][fingerprint] = config['case'].pop(raw_fingerprint)
+        old_input_path, old_output_path = _get_test_file_path(session, raw_fingerprint)
+        replace(old_input_path, new_input_path)
+        replace(old_output_path, new_output_path)
+    else:
+        # This is a new case, should have point, order
+        kwargs.setdefault('point', 10)
+        try:
+            already_have = max(map(lambda d: d['order'], config['case'].values()))
+        except ValueError:
+            already_have = 0
+        kwargs.setdefault('order', already_have + 1)
+    with open(new_input_path, 'wb') as fs, open(new_output_path, 'wb') as gs:
+        fs.write(input_binary)
+        gs.write(output_binary)
+    config['case'].setdefault(fingerprint, dict())
+    config['case'][fingerprint].update(**kwargs)
+    dump_config(session, config)
+
+
+def get_case_metadata(session, fingerprint):
+    inp, oup = _get_test_file_path(session, fingerprint)
+    modified_time = max(path.getmtime(inp), path.getmtime(oup))
+    return {'modified_time': datetime.fromtimestamp(modified_time).strftime(settings.DATETIME_FORMAT_TEMPLATE),
+            'size': path.getsize(inp) + path.getsize(oup)}
+
+
+def reorder_case(session, orders):
+    """
+    :type orders: dict
+    :param orders: {fingerprint -> order_number}
+    """
+    config = load_config(session)
+    for fingerprint, d in config['case'].items():
+        d.update(order=0)  # clear first
+        if orders.get(fingerprint):
+            d.update(order=orders[fingerprint])
+    dump_config(session, config)
+
 
 
 def load_config(session):
@@ -317,6 +351,25 @@ def get_config_update_time(session):
 
 def get_session_dir(session):
     return path.join(settings.REPO_DIR, session.fingerprint)
+
+
+def _get_statement_file_path(session, filename):
+    statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
+    if not normal_regex_check(filename):
+        raise ValueError("Invalid filename")
+    return path.join(statement_dir, filename)
+
+
+def _get_program_file_path(session, filename):
+    program_dir = path.join(get_session_dir(session), PROGRAM_DIR)
+    if not normal_regex_check(filename):
+        raise ValueError("Invalid filename")
+    return path.join(program_dir, filename)
+
+
+def _get_test_file_path(session, fingerprint):
+    base = path.join(get_session_dir(session), TESTS_DIR, fingerprint)
+    return base + '.in', base + '.out'
 
 
 def normal_regex_check(alias):

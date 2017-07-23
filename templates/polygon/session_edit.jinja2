@@ -27,7 +27,7 @@
     {% include 'polygon/edit/program.jinja2' %}
   </div>
   <div class="ui tab" data-tab="cases">
-    <!-- Tab Content !-->
+    {% include 'polygon/edit/case.jinja2' %}
   </div>
   <div class="ui tab" data-tab="tests">
     <!-- Tab Content !-->
@@ -43,5 +43,15 @@
       {% csrf_token %}
     </form>
   {% endcall %}
+
+  <div class="ui basic modal tiny" id="success-modal">
+    <div class="ui icon green inverted header">
+      <i class="check circle icon"></i>
+      Congratulations!
+    </div>
+    <div class="content" style="text-align: center;">
+      <p>Your changes have been saved.</p>
+    </div>
+  </div>
 
 {% endblock %}

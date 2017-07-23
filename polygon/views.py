@@ -20,8 +20,9 @@ from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
-    read_program_file, save_program_file, delete_program_file
+    read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case
 )
+from .case import well_form_text
 
 
 def home_view(request):
@@ -163,9 +164,9 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
         app_data = data['config']
         app_data['config_update_time'] = get_config_update_time(self.session)
         app_data['problem_id'] = self.problem.id
-        app_data['case_count'] = len(list(filter(lambda x: x.get('order'), app_data['case'].items())))
-        app_data['pretest_count'] = len(list(filter(lambda x: x.get('pretest'), app_data['case'].items())))
-        app_data['sample_count'] = len(list(filter(lambda x: x.get('sample'), app_data['case'].items())))
+        app_data['case_count'] = len(list(filter(lambda x: x.get('order'), app_data['case'].values())))
+        app_data['pretest_count'] = len(list(filter(lambda x: x.get('pretest'), app_data['case'].values())))
+        app_data['sample_count'] = len(list(filter(lambda x: x.get('sample'), app_data['case'].values())))
         app_data['statement_file_list'] = load_statement_file_list(self.session)
         app_data['statement_identifier'] = ['description', 'input', 'output', 'hint']
         for dat in app_data['statement_file_list']:
@@ -194,7 +195,8 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
             else:
                 dat['remove_mark'] = True
         app_data['program_file_list'] = list(filter(lambda x: not x.get('remove_mark'), app_data['program_file_list']))
-
+        for key, val in app_data['case'].items():
+            val.update(get_case_metadata(self.session, key))
         # print(json.dumps(app_data, sort_keys=True, indent=4))
         return HttpResponse(json.dumps(app_data))
 
@@ -205,6 +207,9 @@ class BaseSessionPostMixin(BaseSessionMixin):
         try:
             return super(BaseSessionPostMixin, self).dispatch(request, *args, **kwargs)
         except Exception as e:
+            if settings.DEBUG:
+                import traceback
+                traceback.print_exc()
             return HttpResponse(json.dumps({"status": "reject", "message": "%s: %s" % (e.__class__.__name__, str(e))}))
 
 
@@ -314,4 +319,32 @@ class SessionDeleteProgram(BaseSessionPostMixin, View):
     def post(self, request, sid):
         filename = request.POST['filename']
         delete_program_file(self.session, filename)
+        return response_ok()
+
+
+class SessionCreateCaseManually(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        input = request.POST['input']
+        output = request.POST['output']
+        well_form = request.POST.get("wellForm") == "on"
+        if well_form:
+            input, output = well_form_text(input), well_form_text(output)
+        if not input:
+            raise ValueError('Input file cannot be empty')
+        save_case(self.session, input.encode(), output.encode(), well_form=well_form)
+        return response_ok()
+
+
+class SessionUpdateOrders(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = json.loads(request.POST['case'])
+        unused = json.loads(request.POST['unused'])
+        conclusion = dict()
+        for order, k in enumerate(case, start=1):
+            conclusion[k['fingerprint']] = order
+        for k in unused:
+            conclusion[k['fingerprint']] = 0
+        reorder_case(self.session, conclusion)
         return response_ok()

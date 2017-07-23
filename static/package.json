@@ -33,8 +33,10 @@
     "mathjax": "^2.7.1",
     "npm-font-open-sans": "^1.0.3",
     "semantic-ui-less": "github:ultmaster/Semantic-UI-LESS",
+    "sortablejs": "^1.6.0",
     "spectre.css": "^0.2.14",
     "typed.js": "^2.0.2",
-    "vue": "^2.4.1"
+    "vue": "^2.4.1",
+    "vuedraggable": "^2.14.1"
   }
 }

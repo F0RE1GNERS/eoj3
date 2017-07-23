@@ -319,6 +319,72 @@ sandbox 请求响应：
 + 如果 `verdict` 是 `COMPILE_ERROR` (6)，`message` 字段中记录的是编译错误信息。
 + 否则，`message` 中一定是 traceback，此时可能没有 `verdict`。
 
+### multiple 选项
+
+在下列 API 中：
+
++ `POST /generate`
++ `POST /validate`
++ `POST /judge/result`
++ `POST /judge/output`
++ `POST /judge/sandbox`
++ `POST /judge/checker`
++ `POST /judge/interactor`
+
+可以增加 multiple 字段。例如：
+
+```json
+{
+  "input": ["MSAy", "..."],
+  "max_time": 1,
+  "max_memory": 128,
+  "multiple": true,
+  "submission": {
+    "lang": "cpp",
+    "fingerprint": "test_RHEstOxREhabNQSInDaNqZbJlJoDGruz",
+    "code": "#include <cmath>\n#include <cstdio..."
+  }
+}
+```
+
+如你所见，如果 multiple 为真，对应的 input 需要是一个列表。在 generate 中，命令行参数需要是一个列表的列表，如果有输出，输出也要是一个列表。
+输出列表中的值应与输入列表一一对应。返回结果，除了 status 外，也会被包裹在列表内。具体为：
+
++ 对于 `/generate`, output 会变成一个列表；
++ 对于其他 API，多一个名为 result 的字段，为一个列表，列表内含有多个字典，按次序返回结果。
+
+例如：
+
+```json
+{
+  "output": [
+    "MTAgMTAgMjAKMyA4CjYgNgo1IDIKNSA2CjQgOQoyIDQKMTAgMwoyIDgKMyA5CjkgMwo4IDYKOCAxMAo1IDgKNyA0CjQgNAozI...",
+    "NDAwIDQwMCA4MDAwCjM5OSAyODkKMjg2IDM2MwoxODAgMTc1CjI1NSAxOTMKMzQ3IDM1NwozMTkgMzYKMzQ2IDg2CjI3NiAxM...",
+    "NDAgNDAgMTUwMAoxNyAyOQo0IDMwCjM2IDE5CjE4IDE1CjM4IDEKMjkgMzIKMjMgMzcKMjcgNDAKMiAxNwozMCAyMAoxOCAzM..."
+  ],
+  "status": "received"
+}
+```
+
+```json
+{
+  "result": [
+    {
+      "time": 0.0,
+      "message": "1 number(s): \"3\"",
+      "verdict": 0
+    },
+    {
+      "time": 0.0,
+      "message": "1 number(s): \"7\"",
+      "verdict": 0
+    }
+  ],
+  "status": "received"
+}
+```
+
+
 ### `POST /judge`
 
 + `code`

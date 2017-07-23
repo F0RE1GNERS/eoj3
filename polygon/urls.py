@@ -5,7 +5,7 @@ from .views import (
     ProblemAccess, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
     SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement,
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
-    SessionCreateProgram, SessionDeleteProgram
+    SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders
 )
 
 
@@ -32,6 +32,9 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/program/update/$', SessionUpdateProgram.as_view(), name='session_update_program_file'),
     url(r'^session/(?P<sid>\d+)/program/delete/$', SessionDeleteProgram.as_view(), name='session_delete_program_file'),
     url(r'^session/(?P<sid>\d+)/program/read/$', SessionReadProgram.as_view(), name='session_read_program'),
+
+    url(r'^session/(?P<sid>\d+)/case/add/$', SessionCreateCaseManually.as_view(), name='session_create_case_manually'),
+    url(r'^session/(?P<sid>\d+)/case/order/$', SessionUpdateOrders.as_view(), name='session_update_orders'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

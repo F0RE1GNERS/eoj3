@@ -29,12 +29,14 @@ $('.synchronize.button').click(function () {
 
 function clearAndAddExtraData(form, extra_data) {
   form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"][data-important!="true"]').remove();
-  for (val in extra_data) {
-    var already_exist = form.find('input[name="' + val + '"]');
-    if (already_exist.length > 0) {
-      already_exist.val(extra_data[val]);
-    } else {
-      form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
+  for (var val in extra_data) {
+    if (extra_data.hasOwnProperty(val)) {
+      var already_exist = form.find('input[name="' + val + '"]');
+      if (already_exist.length > 0) {
+        already_exist.val(extra_data[val]);
+      } else {
+        form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
+      }
     }
   }
 }
@@ -58,7 +60,9 @@ if ($("#session-edit-app").length > 0) {
         text: "",
         converted: "",
         contentUrl: ""
-      }
+      },
+      caseList: [],
+      unusedCaseList: []
     },
     watch: {
       statementEditorData: {
@@ -76,7 +80,27 @@ if ($("#session-edit-app").length > 0) {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
           this.appData = data;
+          this.updateCaseList();
         }.bind(this));
+      },
+      updateCaseList: function() {
+        this.caseList = [];
+        this.unusedCaseList = [];
+        for (var fingerprint in this.appData.case) {
+          if (this.appData.case.hasOwnProperty(fingerprint)) {
+            var val = this.appData.case[fingerprint];
+            var thisCase = val;
+            thisCase["fingerprint"] = fingerprint;
+            if (!val.hasOwnProperty("order") || !val["order"]) {
+              this.unusedCaseList.push(thisCase);
+            } else {
+              this.caseList.push(thisCase);
+            }
+          }
+        }
+        this.caseList.sort(function(a, b) {
+          return a["order"] - b["order"];
+        });
       },
       clearErrorMessage: function () {
         this.errorMessage = "";
@@ -102,6 +126,9 @@ if ($("#session-edit-app").length > 0) {
         if (form.find(".ui.dropdown", "select").length > 0) {
           form.find(".ui.dropdown").dropdown();
           autofocus = false;
+        }
+        if (form.find(".ui.checkbox").length > 0) {
+          form.find(".ui.checkbox").checkbox();
         }
         if (form.find(".ui.file.input").length > 0) {
           form.find(".ui.file.input").inputFile({
@@ -163,7 +190,25 @@ if ($("#session-edit-app").length > 0) {
           }.bind(this))
         },
         1000
-      )
+      ),
+      showSuccessModal: function () {
+        $("#success-modal").modal('show');
+      },
+      saveCaseOrders: function (event) {
+        $.post($(event.currentTarget).data("action"), {
+          'case': JSON.stringify(this.caseList),
+          'unused': JSON.stringify(this.unusedCaseList),
+          'csrfmiddlewaretoken': Cookies.get('csrftoken')
+        }, function (data) {
+          if (data['status'] != 'received') {
+            this.errorMessage = data["message"];
+          } else {
+            this.showSuccessModal();
+            this.updateConfig();
+          }
+        }.bind(this),
+        "json");
+      }
     },
     beforeMount: function () {
       this.updateConfig();
@@ -191,6 +236,8 @@ if ($("#session-edit-app").length > 0) {
             $(this).dropdown('clear');
         }
       });
+      $(".ui.icon.pointing.dropdown.button")
+        .dropdown();
       new Clipboard('.clipboard');
       $('form').submit(function (event) {
         var target = $(event.target);
@@ -245,6 +292,10 @@ if ($("#session-edit-app").length > 0) {
           return false;
         }
       }.bind(this));
+    },
+    updated: function () {
+      $(".ui.icon.pointing.dropdown.button")
+        .dropdown();
     }
   });
 }

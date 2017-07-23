@@ -1,75 +1,70 @@
-<div class="ui grid">
-  <div class="twelve wide column">
-    <div class="ui error message" v-if="errorMessage">
-      <i class="close icon" v-on:click="clearErrorMessage"></i>
-      [[ errorMessage ]]
-    </div>
-    <div class="ui progress" id="files-upload-progress" style="display:none">
-      <div class="bar">
-        <div class="progress"></div>
-      </div>
-      <label class="label">File upload progress</label>
-    </div>
-    <table class="ui celled striped table">
-      <thead>
-        <tr>
-          <th colspan="4">
-            <button class="ui right floated icon button positive compact" v-on:click="showDialogWithOneForm"
-                    data-target="#regular-file-upload" id="files-upload-button">
-              <i class="upload icon"></i> Add
-            </button>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="file in appData.regular_file_list" :key="file.filename">
-          <td>
-            <i class="file image outline icon" v-if="file.type == 'image'"></i>
-            <i class="file outline icon" v-else></i> [[ file.filename ]]</td>
-          <td class="right aligned collapsing">[[ file.modified_time ]]</td>
-          <td class="right aligned collapsing">[[ Math.round(file.size / 1024) ]] KB</td>
-          <td class="right aligned collapsing">
-            <div class="ui icon compact buttons">
-              <a class="ui primary button clipboard" v-bind:data-clipboard-text="file.url">
-                <i class="copy icon"></i>
-              </a>
-              <a class="ui button" v-bind:href="file.url" v-if="file.type == 'image'" target="_blank">
-                <i class="image icon"></i>
-              </a>
-              <button class="ui button" data-action="{{ url('polygon:session_delete_regular_file', session.id) }}"
-                      v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
-                <i class="trash icon"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="four wide column">
-    <div class="ui info message">
-      <div class="header">Quick Tips</div>
-      <ul class="list">
-        <li>Please mind the volume, do not upload something that is too large. And please, do not use it as a free webdisk. <b>You will be banned from EOJ for doing this.</b></li>
-        <li>Sadly only preview for images are supported.</li>
-        <li>To prevent contestants from "penetrating" your static files, all files are automatically given a random name when uploaded. Tags may be supported in the future.</li>
-        <li>The <b>copy</b> button is used to copy the path of your file to clipboard. This can be directly used in your statement.</li>
-      </ul>
-    </div>
-  </div>
-</div>
+{% extends 'polygon/edit/base.jinja2' %}
 
-{% call modal(title="Upload a new file", id="regular-file-upload") %}
-  <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST"
-        data-progress-bar="#files-upload-progress">
-    {% csrf_token %}
-    <div class="field">
-      <label for="files[]">Choose multiple files</label>
-      <div class="ui fluid file input action">
-        <input type="text" readonly>
-        <input type="file" name="files[]" autocomplete="off" multiple>
-        <div class="ui button">Select...</div>
-      </div>
+{% block framework %}
+  <div class="ui progress" id="files-upload-progress" style="display:none">
+    <div class="bar">
+      <div class="progress"></div>
     </div>
-  </form>
-{% endcall %}
+    <label class="label">File upload progress</label>
+  </div>
+  <table class="ui celled striped table">
+    <thead>
+      <tr>
+        <th colspan="4">
+          <button class="ui right floated icon button positive compact" v-on:click="showDialogWithOneForm"
+                  data-target="#regular-file-upload" id="files-upload-button">
+            <i class="upload icon"></i> Add
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="file in appData.regular_file_list" :key="file.filename">
+        <td>
+          <i class="file image outline icon" v-if="file.type == 'image'"></i>
+          <i class="file outline icon" v-else></i> [[ file.filename ]]</td>
+        <td class="right aligned collapsing">[[ file.modified_time ]]</td>
+        <td class="right aligned collapsing">[[ Math.round(file.size / 1024) ]] KB</td>
+        <td class="right aligned collapsing">
+          <div class="ui icon compact buttons">
+            <a class="ui primary button clipboard" v-bind:data-clipboard-text="file.url">
+              <i class="copy icon"></i>
+            </a>
+            <a class="ui button" v-bind:href="file.url" v-if="file.type == 'image'" target="_blank">
+              <i class="image icon"></i>
+            </a>
+            <button class="ui button" data-action="{{ url('polygon:session_delete_regular_file', session.id) }}"
+                    v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
+              <i class="trash icon"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% call modal(title="Upload a new file", id="regular-file-upload") %}
+    <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST"
+          data-progress-bar="#files-upload-progress">
+      {% csrf_token %}
+      <div class="field">
+        <label for="files[]">Choose multiple files</label>
+        <div class="ui fluid file input action">
+          <input type="text" readonly>
+          <input type="file" name="files[]" autocomplete="off" multiple>
+          <div class="ui button">Select...</div>
+        </div>
+      </div>
+    </form>
+  {% endcall %}
+
+{% endblock %}
+
+{% block tips %}
+  <ul class="list">
+    <li>Please mind the volume, do not upload something that is too large. And please, do not use it as a free webdisk. <b>You will be banned from EOJ for doing this.</b></li>
+    <li>Sadly only preview for images are supported.</li>
+    <li>To prevent contestants from "penetrating" your static files, all files are automatically given a random name when uploaded. Tags may be supported in the future.</li>
+    <li>The <b>copy</b> button is used to copy the path of your file to clipboard. This can be directly used in your statement.</li>
+  </ul>
+{% endblock %}
