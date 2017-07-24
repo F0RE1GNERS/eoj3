@@ -20,7 +20,7 @@ from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
-    read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case
+    read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case
 )
 from .case import well_form_text
 
@@ -348,3 +348,10 @@ class SessionUpdateOrders(BaseSessionPostMixin, View):
             conclusion[k['fingerprint']] = 0
         reorder_case(self.session, conclusion)
         return response_ok()
+
+
+class SessionPreviewCase(BaseSessionMixin, View):
+
+    def get(self, request, sid):
+        fingerprint = request.GET['case']
+        return HttpResponse(json.dumps(preview_case(self.session, fingerprint)))

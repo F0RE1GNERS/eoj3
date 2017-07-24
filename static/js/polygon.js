@@ -62,7 +62,9 @@ if ($("#session-edit-app").length > 0) {
         contentUrl: ""
       },
       caseList: [],
-      unusedCaseList: []
+      unusedCaseList: [],
+      previewCaseInput: "",
+      previewCaseOutput: ""
     },
     watch: {
       statementEditorData: {
@@ -191,8 +193,8 @@ if ($("#session-edit-app").length > 0) {
         },
         1000
       ),
-      showSuccessModal: function () {
-        $("#success-modal").modal('show');
+      showTargetModalNaive: function (event) {
+        $($(event.currentTarget).data("target")).modal('show');
       },
       saveCaseOrders: function (event) {
         $.post($(event.currentTarget).data("action"), {
@@ -203,11 +205,31 @@ if ($("#session-edit-app").length > 0) {
           if (data['status'] != 'received') {
             this.errorMessage = data["message"];
           } else {
-            this.showSuccessModal();
+            $("#success-modal").modal('show');
             this.updateConfig();
           }
         }.bind(this),
         "json");
+      },
+      convertStatusCodeToHelpText: function (statusCode) {
+        if (statusCode == 1) {
+          return "yes";
+        } else if (statusCode == -1) {
+          return "failed";
+        } else {
+          return "no";
+        }
+      },
+      previewCase: function (event) {
+        var button = $(event.currentTarget);
+        $.get(button.data("get-action"), {
+          'case': button.data("fingerprint")
+        }, function (data) {
+          this.previewCaseInput = data.input;
+          this.previewCaseOutput = data.output;
+          console.log(data);
+        }.bind(this), "json");
+        $("#case-preview-modal").modal('show');
       }
     },
     beforeMount: function () {

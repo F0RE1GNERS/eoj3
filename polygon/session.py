@@ -23,6 +23,7 @@ PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solutio
 USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
+USUAL_READ_SIZE = 1024
 
 
 def init_session(problem, user):
@@ -284,6 +285,17 @@ def get_case_metadata(session, fingerprint):
             'size': path.getsize(inp) + path.getsize(oup)}
 
 
+def preview_case(session, fingerprint):
+    inp, oup = _get_test_file_path(session, fingerprint)
+    with open(inp, 'r') as fs, open(oup, 'r') as gs:
+        res = {'input': fs.read(USUAL_READ_SIZE), 'output': gs.read(USUAL_READ_SIZE)}
+        if fs.read(1):
+            res['input'] += '...'
+        if gs.read(1):
+            res['output'] += '...'
+        return res
+
+
 def reorder_case(session, orders):
     """
     :type orders: dict
@@ -368,12 +380,18 @@ def _get_program_file_path(session, filename):
 
 
 def _get_test_file_path(session, fingerprint):
+    if not valid_fingerprint_check(fingerprint):
+        raise ValueError("Invalid fingerprint")
     base = path.join(get_session_dir(session), TESTS_DIR, fingerprint)
     return base + '.in', base + '.out'
 
 
 def normal_regex_check(alias):
     return re.match(r"^[\.a-z0-9_-]{4,64}$", alias)
+
+
+def valid_fingerprint_check(fingerprint):
+    return re.match(r"^[a-z0-9]{16,128}$", fingerprint)
 
 
 def listdir_with_prefix(directory):

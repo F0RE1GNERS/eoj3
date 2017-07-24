@@ -5,6 +5,9 @@
     <i class="options icon"></i>
     <div class="menu">
       <div class="item">
+        <i class="unhide icon"></i> Preview
+      </div>
+      <div class="item">
         <i class="dropdown icon"></i>
         <i class="travel icon"></i> Toolbox
         <div class="menu">
@@ -34,6 +37,39 @@
   </div>
 {% endmacro %}
 
+{% macro span_icon_status() %}
+  Modified [[ element.modified_time ]],
+  [[ Math.round(element.size / 1024) ]] KB.
+  Worth <a href="#">[[ element.point ]] points</a>.<br>
+
+  Well formed:
+  <a href="#">
+    <i class="check circle icon pink" v-if="element.wellForm"></i>
+    <i class="check circle icon pink" v-else></i>
+  </a>
+
+  Validated:
+  <a href="#">
+    <i class="check circle icon violet" v-if="element.validated == 1"></i>
+    <i class="warning circle icon violet" v-else-if="element.validated == -1"></i>
+    <i class="help circle icon violet" v-else></i>
+  </a>
+
+  Model output:
+  <a href="#">
+    <i class="check circle icon teal" v-if="element.model == 1"></i>
+    <i class="warning circle icon teal" v-else-if="element.model == -1"></i>
+    <i class="help circle icon teal" v-else></i>
+  </a>
+
+  Checked:
+  <a href="#">
+    <i class="check circle icon yellow" v-if="element.checked == 1"></i>
+    <i class="warning circle icon yellow" v-else-if="element.checked == -1"></i>
+    <i class="help circle icon yellow" v-else></i>
+  </a>
+{% endmacro %}
+
 {% block framework %}
 
   <div class="ui segments">
@@ -59,22 +95,9 @@
           </div>
           <i class="neuter icon"></i>
           <div class="content">
-            <span class="click-able header">Case [[ index + 1 ]]
-              <span data-tooltip="Well formed" data-inverted>
-                <i class="check circle icon violet"></i>
-              </span>
-              <span data-tooltip="Model solution output" data-inverted>
-                <i class="check circle icon green" v-if="element.model == 1"></i>
-                <i class="warning circle icon blue" v-else-if="element.model == -1"></i>
-                <i class="help circle icon yellow" v-else></i>
-              </span>
-              <span data-tooltip="Checked by checker" data-inverted>
-                <i class="check circle icon green" v-if="element.checked == 1"></i>
-                <i class="warning circle icon blue" v-else-if="element.checked == -1"></i>
-                <i class="help circle icon yellow" v-else></i>
-              </span>
-            </span>
-            <div class="description">Modified [[ element.modified_time ]], [[ Math.round(element.size / 1024) ]] KB. Worth [[ element.point ]] points.</div>
+            <span class="click-able header" data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
+                  @click="previewCase" :data-fingerprint="element.fingerprint">Case [[ index + 1 ]]</span>
+            <div class="description">{{ span_icon_status() }}</div>
           </div>
         </div>
         <div class="ui message" v-if="caseList.length == 0">Empty yet. Drag cases here.</div>
@@ -90,7 +113,7 @@
           <i class="genderless icon"></i>
           <div class="content">
             <span class="header">Case NaN</span>
-            <div class="description">Modified [[ element.modified_time ]], [[ Math.round(element.size / 1024) ]] KB. Worth [[ element.point ]] points.</div>
+            <div class="description">{{ span_icon_status() }}</div>
           </div>
         </div>
         <div class="ui message" v-if="unusedCaseList.length == 0">Empty yet. Drag cases here.</div>
@@ -153,6 +176,16 @@
       </div>
     </form>
   {% endcall %}
+
+  <div class="ui longer small modal" id="case-preview-modal">
+    <div class="header">Preview Case</div>
+    <div class="scrolling content">
+      <div class="ui header">Input</div>
+      <pre class="ui segment"><code>[[ previewCaseInput ]]</code></pre>
+      <div class="ui header">Output</div>
+      <pre class="ui segment"><code>[[ previewCaseOutput ]]</code></pre>
+    </div>
+  </div>
 
 {% endblock %}
 
