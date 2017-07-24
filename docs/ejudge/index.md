@@ -110,7 +110,7 @@ Docker：`curl -sSL http://acs-public-mirror.oss-cn-hangzhou.aliyuncs.com/docker
 
 阿里云内网：`sudo docker pull registry-internal.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
 
-运行：`sudo docker run -d -v /your/folder/of/ejudge:/ejudge -p YOUR_RORT:5000 registry-internal.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
+运行：`sudo docker run -d -p YOUR_RORT:5000 registry-internal.cn-hangzhou.aliyuncs.com/ultmaster/ejudge:v2`
 
 主目录 ejudge 是通过数据卷的形式挂载在容器内的，所以可以通过 `docker inspect -f {{.Mounts}} YOUR_DOCKER_ID` 的 mount 下的地址找到。
 找到该目录的意义，就在于该目录下的 `/run` 便是所有数据的存放、程序运行的位置，另外 `/run/log` 下是程序运行日志。要修改密码，修改配置，也要修改该目录下的 `config` 子目录。

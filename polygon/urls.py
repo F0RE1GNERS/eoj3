@@ -7,6 +7,7 @@ from .views import (
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
     SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders,
     SessionPreviewCase, SessionImportProgram, SessionUploadCase, SessionReformCase, SessionUpdateCasePoint,
+    SessionValidateCase
 )
 
 
@@ -41,6 +42,7 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/upload/$', SessionUploadCase.as_view(), name='session_upload_case'),
     url(r'^session/(?P<sid>\d+)/case/reform/$', SessionReformCase.as_view(), name='session_reform_case'),
     url(r'^session/(?P<sid>\d+)/case/point/$', SessionUpdateCasePoint.as_view(), name='session_update_case_point'),
+    url(r'^session/(?P<sid>\d+)/case/validate/$', SessionValidateCase.as_view(), name='session_validate_case'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

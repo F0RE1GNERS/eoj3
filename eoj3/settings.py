@@ -82,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'utils.middleware.globalrequestmiddleware.GlobalRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'eoj3.urls'

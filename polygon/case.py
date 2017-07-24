@@ -1,8 +1,22 @@
 import io
 import re
 import chardet
+import base64
+import requests
+import json
+
+from functools import wraps
+from utils import random_string
+from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
+
 
 white_space_reg = re.compile(r'[\x00-\x20]+')
+
+SERVER_URL = 'http://123.57.161.63:5002'
+TOKEN = ('ejudge', 'naive')
+TIMEOUT = 60
+VALIDATE_URL = SERVER_URL + '/validate'
+
 
 
 def read_by_formed_lines(fileobj):
@@ -25,3 +39,22 @@ def well_form_binary(binary):
         return well_form_text(binary.decode(encoding))
     except:
         return ''
+
+
+def with_report_on(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        request = GlobalRequestMiddleware.get_current_request()
+        print('The current user is "%s"' % request.user.username)
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+@with_report_on
+def validate_input(binary, validator_code, validator_lang, max_time):
+    val_data = {'fingerprint': random_string(), 'code': validator_code, 'lang': validator_lang,
+                'max_time': max_time / 1000, 'max_memory': -1, 'input': base64.b64encode(binary).decode()}
+    # result = requests.post(VALIDATE_URL, json=json.dumps(val_data), auth=TOKEN, timeout=TIMEOUT).json()
+    # print(result)
+

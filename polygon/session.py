@@ -15,7 +15,7 @@ from utils.language import LANG_EXT
 from utils.hash import file_hash, case_hash
 from utils.file_preview import sort_data_list_from_directory
 from .models import EditSession
-from .case import well_form_binary
+from .case import well_form_binary, validate_input
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -349,6 +349,15 @@ def reorder_case(session, orders):
     dump_config(session, config)
 
 
+def validate_case(session, fingerprint, validator):
+    inp, _ = _get_test_file_path(session, fingerprint)
+    with open(inp, 'rb') as fs:
+        input = fs.read()
+    config = load_config(session)
+    validate_input(input, read_program_file(session, validator),
+                   config['program'][validator]['lang'], config['time_limit'])
+
+
 def load_config(session):
     """
     Load config of a session
@@ -437,3 +446,4 @@ def listdir_with_prefix(directory):
     return list(map(lambda file: path.join(directory, file),
                     filter(lambda f2: not f2.startswith('.'),
                            listdir(directory))))
+

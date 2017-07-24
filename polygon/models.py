@@ -14,3 +14,9 @@ class EditSession(models.Model):
     class Meta:
         ordering = ["-last_synchronize"]
         unique_together = ["user", "problem"]  # You can have only one session.
+
+
+class Run(models.Model):
+
+    create_time = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User)

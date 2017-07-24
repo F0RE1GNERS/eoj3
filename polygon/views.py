@@ -21,7 +21,7 @@ from .session import (
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
     read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
-    process_uploaded_case, reform_case, readjust_case_point
+    process_uploaded_case, reform_case, readjust_case_point, validate_case
 )
 from .case import well_form_text
 
@@ -393,4 +393,13 @@ class SessionUpdateCasePoint(BaseSessionPostMixin, View):
         point = request.POST['point']
         case = request.POST['fingerprint']
         readjust_case_point(self.session, case, int(point))
+        return response_ok()
+
+
+class SessionValidateCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['fingerprint']
+        validator = request.POST['validator']
+        validate_case(self.session, case, validator)
         return response_ok()
