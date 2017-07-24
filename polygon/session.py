@@ -1,5 +1,6 @@
 import re
 import copy
+import zipfile
 from datetime import datetime
 from os import path, makedirs, listdir, stat, remove, walk, replace
 from shutil import copyfile, rmtree
@@ -12,7 +13,9 @@ from problem.models import Problem, SpecialProgram, get_input_path, get_output_p
 from utils import random_string
 from utils.language import LANG_EXT
 from utils.hash import file_hash, case_hash
+from utils.file_preview import sort_data_list_from_directory
 from .models import EditSession
+from .case import well_form_binary
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -278,6 +281,12 @@ def save_case(session, input_binary, output_binary, raw_fingerprint=None, **kwar
     dump_config(session, config)
 
 
+def update_case_config(session, fingerprint, **kwargs):
+    config = load_config(session)
+    config['case'][fingerprint].update(**kwargs)
+    dump_config(session, config)
+
+
 def get_case_metadata(session, fingerprint):
     inp, oup = _get_test_file_path(session, fingerprint)
     modified_time = max(path.getmtime(inp), path.getmtime(oup))
@@ -296,6 +305,37 @@ def preview_case(session, fingerprint):
         return res
 
 
+def process_uploaded_case(session, file_path):
+    if re.search(r'\.zip$', file_path, re.IGNORECASE):
+        # this is a zip file
+        tmp_directory = '/tmp/' + random_string()
+        with zipfile.ZipFile(file_path) as myZip:
+            myZip.extractall(path=tmp_directory)
+        for inf, ouf in sort_data_list_from_directory(tmp_directory):
+            with open(path.join(tmp_directory, inf), 'rb') as ins, open(path.join(tmp_directory, ouf), 'rb') as ous:
+                save_case(session, ins.read(), ous.read())
+        rmtree(tmp_directory)
+    else:
+        with open(file_path, 'rb') as file:
+            save_case(session, file.read(), b'')
+
+
+def reform_case(session, fingerprint, **kwargs):
+    inp, oup = _get_test_file_path(session, fingerprint)
+    with open(inp, 'rb') as fs, open(oup, 'rb') as gs:
+        input, output = fs.read(), gs.read()
+    input = well_form_binary(input).encode()
+    if not kwargs.get('only_input'):
+        output = well_form_binary(output).encode()
+    save_case(session, input, output, raw_fingerprint=fingerprint, well_form=True)
+
+
+def readjust_case_point(session, fingerprint, point):
+    if point <= 0 or point > 100:
+        raise ValueError("Point not in range")
+    update_case_config(session, fingerprint, point=point)
+
+
 def reorder_case(session, orders):
     """
     :type orders: dict
@@ -307,7 +347,6 @@ def reorder_case(session, orders):
         if orders.get(fingerprint):
             d.update(order=orders[fingerprint])
     dump_config(session, config)
-
 
 
 def load_config(session):

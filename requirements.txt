@@ -30,3 +30,4 @@ mkdocs
 mkdocs-bootswatch
 django-redis
 pyyaml
+chardet

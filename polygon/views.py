@@ -20,7 +20,8 @@ from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
-    read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case
+    read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
+    process_uploaded_case, reform_case, readjust_case_point
 )
 from .case import well_form_text
 
@@ -364,3 +365,32 @@ class SessionPreviewCase(BaseSessionMixin, View):
     def get(self, request, sid):
         fingerprint = request.GET['case']
         return HttpResponse(json.dumps(preview_case(self.session, fingerprint)))
+
+
+class SessionUploadCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        file = request.FILES['file']
+        file_directory = '/tmp'
+        file_path = save_uploaded_file_to(file, file_directory, filename=random_string(), keep_extension=True)
+        process_uploaded_case(self.session, file_path)
+        remove(file_path)
+        return response_ok()
+
+
+class SessionReformCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['fingerprint']
+        inputOnly = request.POST.get('inputOnly') == 'on'
+        reform_case(self.session, case, only_input=inputOnly)
+        return response_ok()
+
+
+class SessionUpdateCasePoint(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        point = request.POST['point']
+        case = request.POST['fingerprint']
+        readjust_case_point(self.session, case, int(point))
+        return response_ok()

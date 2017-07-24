@@ -1,10 +1,8 @@
-import zipfile
 import os
 import re
-from django.shortcuts import reverse
 
 
-def sort_data_from_zipfile(file_path):
+def sort_data_list_from_directory(directory):
     import operator
     from functools import cmp_to_key
 
@@ -22,11 +20,7 @@ def sort_data_from_zipfile(file_path):
             return -1 if x < y else 1
 
     try:
-        if not os.path.exists(file_path):
-            raise FileNotFoundError
-        saved_file = zipfile.ZipFile(file_path)
-        raw_namelist = list(filter(lambda x: os.path.split(x)[0] == '', saved_file.namelist()))
-        # print(raw_namelist)
+        raw_namelist = list(filter(lambda x: os.path.split(x)[0] == '', os.listdir(directory)))
         result = []
         file_set = set(raw_namelist)
         patterns = {'.in$': ['.out', '.ans'], '.IN$': ['.OUT', '.ANS'],
@@ -46,6 +40,13 @@ def sort_data_from_zipfile(file_path):
         return sorted(result, key=cmp_to_key(compare))
     except Exception:
         return []
+
+
+def sort_data_from_zipfile(file_path):
+    """
+    Deprecated
+    """
+    return []
 
 
 def get_file_list(file_path, prefix):

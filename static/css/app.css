@@ -56628,6 +56628,12 @@ body.pushable > .pusher {
 textarea[name="code"] {
   font-family: "Courier New", "Courier", monospace;
 }
+.click-able.label.icon {
+  margin: 0 .25rem 0 0;
+}
+.click-able.label.icon i.icon {
+  margin: 0;
+}
 .problem-header {
   margin-bottom: 1em;
 }
