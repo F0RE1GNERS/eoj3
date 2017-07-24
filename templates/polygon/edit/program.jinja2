@@ -12,7 +12,7 @@
                    data-action="{{ url('polygon:session_create_program_file', session.id) }}">
                 <i class="write icon"></i> Manually</div>
               <div class="item" v-on:click="showDialogWithOneForm" data-target="#program-file-import"
-                   data-action="#">
+                   data-action="{{ url('polygon:session_import_program_file', session.id) }}">
                 <i class="cloud download icon"></i> Import</div>
             </div>
           </div>

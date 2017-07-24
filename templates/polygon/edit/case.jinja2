@@ -11,12 +11,12 @@
         <i class="dropdown icon"></i>
         <i class="travel icon"></i> Toolbox
         <div class="menu">
-          <div class="item">Google Docs</div>
-          <div class="item">Google Drive</div>
-          <div class="item">Dropbox</div>
-          <div class="item">Adobe Creative Cloud</div>
-          <div class="item">Private FTP</div>
-          <div class="item">Another Service...</div>
+          <div class="item">Well-form</div>
+          <div class="item">Validate input</div>
+          <div class="item">Produce output</div>
+          <div class="item">Check output</div>
+          <div class="divider"></div>
+          <div class="item">Split input</div>
         </div>
       </div>
       <div class="divider"></div>
@@ -27,7 +27,10 @@
         <i class="pie chart icon"></i> Readjust points
       </div>
       <div class="item">
-        <i class="cloud download icon"></i> Download
+        <i class="cloud download icon"></i> Download input
+      </div>
+      <div class="item">
+        <i class="cloud download icon"></i> Download output
       </div>
       <div class="divider"></div>
       <div class="item">
@@ -44,8 +47,8 @@
 
   Well formed:
   <a href="#">
-    <i class="check circle icon pink" v-if="element.wellForm"></i>
-    <i class="check circle icon pink" v-else></i>
+    <i class="check circle icon pink" v-if="element.well_form"></i>
+    <i class="help circle icon pink" v-else></i>
   </a>
 
   Validated:
@@ -112,7 +115,8 @@
           </div>
           <i class="genderless icon"></i>
           <div class="content">
-            <span class="header">Case NaN</span>
+            <span class="click-able header" data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
+                  @click="previewCase" :data-fingerprint="element.fingerprint">Case NaN</span>
             <div class="description">{{ span_icon_status() }}</div>
           </div>
         </div>
@@ -140,7 +144,6 @@
     </div>
   </div>
 
-
   {% call modal(title="Add a new case", id="case-add", size="small") %}
     <form class="ui form" action="{{ url('polygon:session_create_case_manually', session.id) }}" method="POST"
           data-progress-bar="#files-upload-progress">
@@ -166,6 +169,7 @@
     <form class="ui form" action="{{ url('polygon:session_upload_regular_file', session.id) }}" method="POST"
           data-progress-bar="#files-upload-progress">
       {% csrf_token %}
+      <p>Upload an input file or tests wrapped in a zip archive.</p>
       <div class="field">
         <label for="files">Choose a file</label>
         <div class="ui fluid file input action">
@@ -199,6 +203,7 @@
         <li>doesn't contain two or more consecutive spaces;</li>
         <li>doesn't contain leading or trailing empty lines;</li>
         <li>file is not empty.</li>
+        <li>file encoding must be utf-8.</li>
       </ul>
     </li>
     <li>You can change case orders randomly, but do not forget to click <b>Save orders</b> below.</li>

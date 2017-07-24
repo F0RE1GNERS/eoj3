@@ -322,6 +322,15 @@ class SessionDeleteProgram(BaseSessionPostMixin, View):
         return response_ok()
 
 
+class SessionImportProgram(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        type = request.POST['type']
+        sp = SpecialProgram.objects.get(builtin=True, filename=type)
+        save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
+        return response_ok()
+
+
 class SessionCreateCaseManually(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
