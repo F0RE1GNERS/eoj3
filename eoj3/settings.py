@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'tagging',
     'debug_toolbar',
     'captcha',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -244,3 +245,10 @@ DEBUG_TOOLBAR_PANELS = [
 # captcha
 CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "ROUTING": "eoj3.routing.channel_routing",
+    },
+}

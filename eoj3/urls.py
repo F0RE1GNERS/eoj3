@@ -49,7 +49,6 @@ urlpatterns = [
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
-
 ]
 
 

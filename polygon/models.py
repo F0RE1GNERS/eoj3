@@ -18,5 +18,13 @@ class EditSession(models.Model):
 
 class Run(models.Model):
 
+    STATUS_CHOICE = (
+        (1, 'complete'),
+        (0, 'running'),
+        (-1, 'failed')
+    )
+
     create_time = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
+    status = models.IntegerField(choices=STATUS_CHOICE)
+    message = models.TextField
