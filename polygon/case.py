@@ -4,11 +4,13 @@ import chardet
 import base64
 import requests
 import json
+import traceback
+from threading import Thread
 
 from functools import wraps
 from utils import random_string
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
-
+from .models import Run
 
 white_space_reg = re.compile(r'[\x00-\x20]+')
 
@@ -41,20 +43,9 @@ def well_form_binary(binary):
         return ''
 
 
-def with_report_on(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        request = GlobalRequestMiddleware.get_current_request()
-        print('The current user is "%s"' % request.user.username)
-        return f(*args, **kwargs)
-
-    return decorated
-
-
-@with_report_on
 def validate_input(binary, validator_code, validator_lang, max_time):
     val_data = {'fingerprint': random_string(), 'code': validator_code, 'lang': validator_lang,
                 'max_time': max_time / 1000, 'max_memory': -1, 'input': base64.b64encode(binary).decode()}
-    # result = requests.post(VALIDATE_URL, json=json.dumps(val_data), auth=TOKEN, timeout=TIMEOUT).json()
-    # print(result)
+    return requests.post(VALIDATE_URL, json=json.dumps(val_data), auth=TOKEN, timeout=TIMEOUT).json()
+
 

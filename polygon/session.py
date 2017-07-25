@@ -1,6 +1,10 @@
 import re
 import copy
 import zipfile
+import traceback
+import traceback
+from threading import Thread
+from functools import wraps
 from datetime import datetime
 from os import path, makedirs, listdir, stat, remove, walk, replace
 from shutil import copyfile, rmtree
@@ -14,6 +18,8 @@ from utils import random_string
 from utils.language import LANG_EXT
 from utils.hash import file_hash, case_hash
 from utils.file_preview import sort_data_list_from_directory
+from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
+from .models import Run
 from .models import EditSession
 from .case import well_form_binary, validate_input
 
@@ -27,6 +33,35 @@ USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
 USUAL_READ_SIZE = 1024
+MESSAGE_STORAGE_SIZE = 4096
+
+
+def run_with_report(func, run, *args, **kwargs):
+    try:
+        d = func(*args, **kwargs)
+        run.status = 1 if d.get('status') == 'received' else -1
+        run.message = d.get('message', '')[:MESSAGE_STORAGE_SIZE]
+    except:
+        run.status = -1
+        run.message = traceback.format_exc()[:MESSAGE_STORAGE_SIZE]
+    finally:
+        run.save()
+
+
+def run_async_with_report(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        request = GlobalRequestMiddleware.get_current_request()
+        run = Run.objects.create(user=request.user, status=0)
+        func_hl = Thread(target=run_with_report, args=(f, run) + args, kwargs=kwargs)
+        func_hl.start()
+        return run.id
+
+    return decorated
+
+
+def success_response(response):
+    return response.get('status') == 'received'
 
 
 def init_session(problem, user):
@@ -349,13 +384,19 @@ def reorder_case(session, orders):
     dump_config(session, config)
 
 
+@run_async_with_report
 def validate_case(session, fingerprint, validator):
     inp, _ = _get_test_file_path(session, fingerprint)
     with open(inp, 'rb') as fs:
         input = fs.read()
     config = load_config(session)
-    validate_input(input, read_program_file(session, validator),
-                   config['program'][validator]['lang'], config['time_limit'])
+    result = validate_input(input, read_program_file(session, validator),
+                            config['program'][validator]['lang'], config['time_limit'])
+    print(result)
+    if success_response(result):
+        config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
+        dump_config(session, config)
+    return result
 
 
 def load_config(session):
@@ -446,4 +487,3 @@ def listdir_with_prefix(directory):
     return list(map(lambda file: path.join(directory, file),
                     filter(lambda f2: not f2.startswith('.'),
                            listdir(directory))))
-

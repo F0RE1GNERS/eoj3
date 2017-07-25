@@ -26,6 +26,13 @@ $('.synchronize.button').click(function () {
     })
     .modal('show');
 });
+$('.run-message-reveal-link').click(function (event) {
+  $.get($(event.currentTarget).data("get-action"), {}, function (data) {
+    if (!data) data = '[ This message is empty. ]';
+    $("#message-preview-modal").find("code").html(data);
+  });
+  $("#message-preview-modal").modal('show');
+});
 
 function clearAndAddExtraData(form, extra_data) {
   form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"][data-important!="true"]').remove();

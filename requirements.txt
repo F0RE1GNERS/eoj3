@@ -31,3 +31,4 @@ mkdocs-bootswatch
 django-redis
 pyyaml
 chardet
+channels

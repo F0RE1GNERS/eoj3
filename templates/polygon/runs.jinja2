@@ -1,0 +1,36 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Runs - {% endblock %}
+
+{% block content %}
+
+  <table class="ui celled table striped center aligned compact">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>When</th>
+        <th>Status</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in runs_list %}
+        <tr>
+          <td>{{ run.id }}</td>
+          <td>{{ run.create_time | date('Y-m-d H:i:s') }}</td>
+          <td class="capitalize">{{ run.get_status_display() }}</td>
+          <td><a class="run-message-reveal-link" data-get-action="{{ url('polygon:run_message', run.id) }}">Reveal</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ my_paginator() }}
+
+  <div class="ui longer small modal" id="message-preview-modal">
+    <div class="header">Message</div>
+    <div class="scrolling content">
+      <pre><code></code></pre>
+    </div>
+  </div>
+
+{% endblock %}

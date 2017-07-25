@@ -7,7 +7,7 @@ from .views import (
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
     SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders,
     SessionPreviewCase, SessionImportProgram, SessionUploadCase, SessionReformCase, SessionUpdateCasePoint,
-    SessionValidateCase
+    SessionValidateCase, RunsList, RunMessageView
 )
 
 
@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^session/create/$', SessionCreate.as_view(), name='session_create'),
     url(r'^session/pull/$', SessionPull.as_view(), name='session_pull'),
     url(r'^problem/(?P<pk>\d+)/access/$', ProblemAccess.as_view(), name='problem_access'),
+    url(r'^runs/$', RunsList.as_view(), name='runs'),
+    url(r'^runs/message/(?P<pk>\d+)/$', RunMessageView.as_view(), name='run_message'),
     url(r'^session/(?P<sid>\d+)/edit/$', SessionEdit.as_view(), name='session_edit'),
 
     url(r'^session/(?P<sid>\d+)/meta/save/$', SessionSaveMeta.as_view(), name='session_save_meta'),

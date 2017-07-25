@@ -66,19 +66,19 @@
   <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#validate-input-modal"
         :data-fingerprint="element.fingerprint" :data-validator="appData.validator">
     <i class="check circle icon violet" v-if="element.validated == 1"></i>
-    <i class="warning circle icon violet" v-else-if="element.validated == -1"></i>
+    <i class="remove circle icon violet" v-else-if="element.validated == -1"></i>
     <i class="help circle icon violet" v-else></i>
     Validated</span>
 
   <span class="click-able icon label">
     <i class="check circle icon teal" v-if="element.model == 1"></i>
-    <i class="warning circle icon teal" v-else-if="element.model == -1"></i>
+    <i class="remove circle icon teal" v-else-if="element.model == -1"></i>
     <i class="help circle icon teal" v-else></i>
     Model output</span>
 
   <span class="click-able icon label">
     <i class="check circle icon yellow" v-if="element.checked == 1"></i>
-    <i class="warning circle icon yellow" v-else-if="element.checked == -1"></i>
+    <i class="remove circle icon yellow" v-else-if="element.checked == -1"></i>
     <i class="help circle icon yellow" v-else></i>
   Checked</span>
 {% endmacro %}

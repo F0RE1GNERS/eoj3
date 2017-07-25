@@ -15,7 +15,7 @@ from problem.models import Problem, ProblemManagement, SpecialProgram
 from utils import random_string
 from utils.upload import save_uploaded_file_to
 from utils.language import LANG_CHOICE
-from .models import EditSession
+from .models import EditSession, Run
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
@@ -113,6 +113,21 @@ class ProblemAccess(DetailView):
 
     template_name = 'polygon/problem_meta.jinja2'
     model = Problem
+
+
+class RunsList(ListView):
+    template_name = 'polygon/runs.jinja2'
+    paginate_by = 100
+    context_object_name = 'runs_list'
+
+    def get_queryset(self):
+        return Run.objects.filter(user=self.request.user).order_by("-pk").all()
+
+
+class RunMessageView(View):
+
+    def get(self, request, pk):
+        return HttpResponse(Run.objects.get(pk=pk).message)
 
 
 class BaseSessionMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
