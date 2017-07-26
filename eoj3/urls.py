@@ -23,7 +23,7 @@ from django.views.static import serve
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
-from home.views import home_view, faq_view
+from home.views import home_view, faq_view, TestView
 from submission.views import SubmissionView, SubmissionRejudgeView
 from tests.views import test_view, test_contest_view
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
@@ -64,6 +64,7 @@ if DEBUG:
         # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='media',
         #     kwargs={'document_root': MEDIA_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r't/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
 

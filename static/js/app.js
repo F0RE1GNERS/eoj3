@@ -20,3 +20,12 @@ $('.captcha-refresh, img.captcha').click(function(){
   });
   return false;
 });
+
+// navbar search
+$('.ui.search.massive-search').search({
+  type: 'category',
+  apiSettings: {
+      url: '/api/search/?kw={query}'
+  },
+  minCharacters: 1
+});

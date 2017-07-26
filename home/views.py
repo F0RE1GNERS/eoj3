@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
 from random import randint
-
+from django.views.generic import TemplateView
 
 def home_view(request):
     return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14),})
@@ -20,3 +20,7 @@ def server_error_view(request):
 
 def faq_view(request):
     return render(request, 'faq.jinja2')
+
+
+class TestView(TemplateView):
+    template_name = 'test.jinja2'

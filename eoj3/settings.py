@@ -71,7 +71,8 @@ INSTALLED_APPS = [
     'tagging',
     'debug_toolbar',
     'captcha',
-    'channels'
+    'channels',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

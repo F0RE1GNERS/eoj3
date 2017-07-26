@@ -1,17 +1,19 @@
 from django.conf import settings
 from django.conf.urls import url
 
+from home.search_api import SearchAPI
 from submission.views import submission_count_api
 from utils.markdown3 import markdown_convert_api
 
 urlpatterns = [
-    url(r'submission/user/(?P<name>.*)', submission_count_api),
-    url(r'markdown/$', markdown_convert_api)
+    url(r'^submission/user/(?P<name>.*)/$', submission_count_api),
+    url(r'^markdown/$', markdown_convert_api),
+    url(r'^search/$', SearchAPI.as_view(), name='search')
 ]
 
 
 if settings.DEBUG:
-    from account.api_views import RegisterAPI, LoginAPI
+    from home.api_views import RegisterAPI, LoginAPI
     from contest.api_views import ContestSubmitAPI
     urlpatterns += [
         url(r'^register', RegisterAPI.as_view()),
