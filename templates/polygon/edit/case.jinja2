@@ -60,26 +60,29 @@
 
   <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#case-reform-modal" :data-fingerprint="element.fingerprint">
     <i class="check circle icon pink" v-if="element.well_form"></i>
-    <i class="help circle icon pink" v-else></i>
+    <i class="help icon pink" v-else></i>
     Well formed</span>
 
-  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#validate-input-modal"
-        :data-fingerprint="element.fingerprint" :data-validator="appData.validator">
+  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#select-program-modal"
+        :data-fingerprint="element.fingerprint" :data-program="appData.validator"
+        data-action="{{ url('polygon:session_validate_case', session.id) }}">
     <i class="check circle icon violet" v-if="element.validated == 1"></i>
-    <i class="remove circle icon violet" v-else-if="element.validated == -1"></i>
-    <i class="help circle icon violet" v-else></i>
+    <i class="remove icon violet" v-else-if="element.validated == -1"></i>
+    <i class="help icon violet" v-else></i>
     Validated</span>
 
-  <span class="click-able icon label">
+  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#select-program-modal"
+        :data-fingerprint="element.fingerprint" :data-program="appData.model"
+        data-action="{{ url('polygon:session_run_case_with_model', session.id) }}">
     <i class="check circle icon teal" v-if="element.model == 1"></i>
-    <i class="remove circle icon teal" v-else-if="element.model == -1"></i>
-    <i class="help circle icon teal" v-else></i>
+    <i class="remove icon teal" v-else-if="element.model == -1"></i>
+    <i class="help icon teal" v-else></i>
     Model output</span>
 
   <span class="click-able icon label">
     <i class="check circle icon yellow" v-if="element.checked == 1"></i>
-    <i class="remove circle icon yellow" v-else-if="element.checked == -1"></i>
-    <i class="help circle icon yellow" v-else></i>
+    <i class="remove icon yellow" v-else-if="element.checked == -1"></i>
+    <i class="help icon yellow" v-else></i>
   Checked</span>
 {% endmacro %}
 
@@ -226,13 +229,13 @@
     </div>
   </div>
 
-  {% call modal(title="Validate input", id="validate-input-modal") %}
-    <form class="ui form" action="{{ url('polygon:session_validate_case', session.id) }}" method="POST">
+  {% call modal(title="Select a program", id="select-program-modal") %}
+    <form class="ui form" action="" method="POST">
       {% csrf_token %}
       <div class="field">
         <div class="ui selection dropdown fluid">
-          <label>Validate with</label>
-          <input type="hidden" name="validator" data-important="true">
+          <label>Use</label>
+          <input type="hidden" name="program" data-important="true">
           <i class="dropdown icon"></i>
           <div class="text"></div>
           <div class="menu">

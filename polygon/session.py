@@ -1,13 +1,14 @@
-import re
+import base64
 import copy
-import zipfile
-import traceback
 import logging
-from threading import Thread
-from functools import wraps
+import re
+import traceback
+import zipfile
 from datetime import datetime
-from os import path, makedirs, listdir, stat, remove, walk, replace
+from functools import wraps
+from os import path, makedirs, listdir, remove, walk, replace
 from shutil import copyfile, rmtree
+from threading import Thread
 
 import yaml
 from django.conf import settings
@@ -15,13 +16,13 @@ from django.conf import settings
 from account.models import User
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from utils import random_string
-from utils.language import LANG_EXT
-from utils.hash import file_hash, case_hash
 from utils.file_preview import sort_data_list_from_directory
+from utils.hash import file_hash, case_hash
+from utils.language import LANG_EXT
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
-from .models import Run
+from .case import well_form_binary, validate_input, run_output
 from .models import EditSession
-from .case import well_form_binary, validate_input
+from .models import Run
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -386,9 +387,7 @@ def reorder_case(session, orders):
 
 @run_async_with_report
 def validate_case(session, fingerprint, validator):
-    inp, _ = _get_test_file_path(session, fingerprint)
-    with open(inp, 'rb') as fs:
-        input = fs.read()
+    input = _get_test_input(session, fingerprint)
     config = load_config(session)
     result = validate_input(input, read_program_file(session, validator),
                             config['program'][validator]['lang'], config['time_limit'])
@@ -397,6 +396,17 @@ def validate_case(session, fingerprint, validator):
         config = load_config(session)  # TODO: lock config
         config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
         dump_config(session, config)
+    return result
+
+
+@run_async_with_report
+def get_case_output(session, fingerprint, model):
+    input = _get_test_input(session, fingerprint)
+    config = load_config(session)
+    result = run_output(read_program_file(session, model), config['program'][model]['lang'],
+                        config['time_limit'], input)
+    if success_response(result):
+        save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
     return result
 
 
@@ -474,6 +484,12 @@ def _get_test_file_path(session, fingerprint):
         raise ValueError("Invalid fingerprint")
     base = path.join(get_session_dir(session), TESTS_DIR, fingerprint)
     return base + '.in', base + '.out'
+
+
+def _get_test_input(session, fingerprint):
+    inp, _ = _get_test_file_path(session, fingerprint)
+    with open(inp, 'rb') as fs:
+        return fs.read()
 
 
 def normal_regex_check(alias):
