@@ -71,7 +71,6 @@ INSTALLED_APPS = [
     'tagging',
     'debug_toolbar',
     'captcha',
-    'channels',
     'rest_framework',
 ]
 

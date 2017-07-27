@@ -2,7 +2,7 @@ import re
 import copy
 import zipfile
 import traceback
-import traceback
+import logging
 from threading import Thread
 from functools import wraps
 from datetime import datetime
@@ -50,9 +50,9 @@ def run_with_report(func, run, *args, **kwargs):
 
 def run_async_with_report(f):
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(label, *args, **kwargs):
         request = GlobalRequestMiddleware.get_current_request()
-        run = Run.objects.create(user=request.user, status=0)
+        run = Run.objects.create(user=request.user, status=0, label=label)
         func_hl = Thread(target=run_with_report, args=(f, run) + args, kwargs=kwargs)
         func_hl.start()
         return run.id
@@ -392,8 +392,9 @@ def validate_case(session, fingerprint, validator):
     config = load_config(session)
     result = validate_input(input, read_program_file(session, validator),
                             config['program'][validator]['lang'], config['time_limit'])
-    print(result)
+    logging.info(result)
     if success_response(result):
+        config = load_config(session)  # TODO: lock config
         config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
         dump_config(session, config)
     return result

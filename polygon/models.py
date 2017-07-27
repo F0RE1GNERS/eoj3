@@ -27,4 +27,5 @@ class Run(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
     status = models.IntegerField(choices=STATUS_CHOICE)
+    label = models.TextField(blank=True)
     message = models.TextField(blank=True)

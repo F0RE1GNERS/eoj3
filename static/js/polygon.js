@@ -34,6 +34,16 @@ $('.run-message-reveal-link').click(function (event) {
   $("#message-preview-modal").modal('show');
 });
 
+function updateRunNumber(delta) {
+  var run_number_label = $("#run-number"),
+    new_number = parseInt(run_number_label.html()) + delta;
+  run_number_label.html(new_number);
+  if (new_number > 0)
+    run_number_label.removeClass("hidden");
+  else
+    run_number_label.addClass("hidden");
+}
+
 function clearAndAddExtraData(form, extra_data) {
   form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"][data-important!="true"]').remove();
   for (var val in extra_data) {
@@ -237,6 +247,15 @@ if ($("#session-edit-app").length > 0) {
           console.log(data);
         }.bind(this), "json");
         $("#case-preview-modal").modal('show');
+      },
+      longPollRunResult: function (id) {
+        updateRunNumber(1);
+        longPoll("/api/polygon/run/" + id + "/", function () {
+          this.updateConfig();
+          updateRunNumber(-1);
+        }.bind(this), 1000, function (data) {
+          return data["run_status"] != 0;
+        });
       }
     },
     beforeMount: function () {
@@ -284,7 +303,10 @@ if ($("#session-edit-app").length > 0) {
                 this.errorMessage = "";
                 setTimeout(function () {
                   target.removeClass("success");
-                }, 5000);
+                }, 2000);
+                if (data.hasOwnProperty("run_id")) {
+                  this.longPollRunResult(data["run_id"]);
+                }
               } else {
                 target.form('add errors', [data["message"]]);
                 this.errorMessage = data["message"];

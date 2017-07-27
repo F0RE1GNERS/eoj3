@@ -44,8 +44,9 @@ def register_view(request):
         return redirect(reverse('polygon:home'))
 
 
-def response_ok():
-    return HttpResponse(json.dumps({"status": "received"}))
+def response_ok(**kwargs):
+    kwargs.update(status='received')
+    return HttpResponse(json.dumps(kwargs))
 
 
 class SessionList(ListView):
@@ -127,7 +128,17 @@ class RunsList(ListView):
 class RunMessageView(View):
 
     def get(self, request, pk):
-        return HttpResponse(Run.objects.get(pk=pk).message)
+        try:
+            run = Run.objects.get(pk=pk, user=request.user)
+            return HttpResponse(run.message)
+        except Run.DoesNotExist:
+            return HttpResponse("")
+
+
+class RunStatus(View):
+
+    def get(self, request, pk):
+        return response_ok(run_status=Run.objects.get(pk=pk, user=request.user).status)
 
 
 class BaseSessionMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
@@ -416,5 +427,4 @@ class SessionValidateCase(BaseSessionPostMixin, View):
     def post(self, request, sid):
         case = request.POST['fingerprint']
         validator = request.POST['validator']
-        validate_case(self.session, case, validator)
-        return response_ok()
+        return response_ok(run_id=validate_case("Validate a case", self.session, case, validator))
