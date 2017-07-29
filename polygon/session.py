@@ -4,6 +4,7 @@ import logging
 import re
 import traceback
 import zipfile
+import time
 from datetime import datetime
 from functools import wraps
 from os import path, makedirs, listdir, remove, walk, replace
@@ -20,7 +21,10 @@ from utils.file_preview import sort_data_list_from_directory
 from utils.hash import file_hash, case_hash
 from utils.language import LANG_EXT
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
-from .case import well_form_binary, validate_input, run_output
+from .case import (
+    well_form_binary, validate_input, run_output, check_output_with_result,
+    check_output_with_result_multiple, run_output_multiple, validate_input_multiple
+)
 from .models import EditSession
 from .models import Run
 
@@ -39,7 +43,10 @@ MESSAGE_STORAGE_SIZE = 4096
 
 def run_with_report(func, run, *args, **kwargs):
     try:
+        start = time.time()
         d = func(*args, **kwargs)
+        ed = time.time()
+        logging.info('%.3fs %s' % (ed - start, str(d)))
         run.status = 1 if d.get('status') == 'received' else -1
         run.message = d.get('message', '')[:MESSAGE_STORAGE_SIZE]
     except:
@@ -386,27 +393,83 @@ def reorder_case(session, orders):
 
 
 @run_async_with_report
-def validate_case(session, fingerprint, validator):
-    input = _get_test_input(session, fingerprint)
+def validate_case(session, validator, fingerprint=None):
     config = load_config(session)
-    result = validate_input(input, read_program_file(session, validator),
-                            config['program'][validator]['lang'], config['time_limit'])
-    logging.info(result)
+    all_fingerprints = list(config['case'].keys())
+    if fingerprint:
+        input = _get_test_input(session, fingerprint)
+        call_func = validate_input
+        multiple = False
+    else:
+        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
+        call_func = validate_input_multiple
+        multiple = True
+    result = call_func(input, read_program_file(session, validator),
+                       config['program'][validator]['lang'], config['time_limit'])
     if success_response(result):
-        config = load_config(session)  # TODO: lock config
-        config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
+        config = load_config(session)
+        if multiple:
+            for i, res in zip(all_fingerprints, result['result']):
+                config['case'][i]['validated'] = -1 if res['verdict'] != 0 else 1
+        else:
+            config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
         dump_config(session, config)
     return result
 
 
 @run_async_with_report
-def get_case_output(session, fingerprint, model):
-    input = _get_test_input(session, fingerprint)
+def get_case_output(session, model, fingerprint=None):
     config = load_config(session)
-    result = run_output(read_program_file(session, model), config['program'][model]['lang'],
-                        config['time_limit'], input)
+    all_fingerprints = list(config['case'].keys())
+    if fingerprint:
+        input = _get_test_input(session, fingerprint)
+        call_func = run_output
+        multiple = False
+    else:
+        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
+        call_func = run_output_multiple
+        multiple = True
+    result = call_func(read_program_file(session, model), config['program'][model]['lang'],
+                       config['time_limit'], input)
     if success_response(result):
-        save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
+        config = load_config(session)
+        if multiple:
+            for i, inp, res in zip(all_fingerprints, input, result['output']):
+                save_case(session, inp, base64.b64decode(res), raw_fingerprint=i, model=True)
+        else:
+            save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
+        dump_config(session, config)
+    return result
+
+
+@run_async_with_report
+def check_case(session, submission, checker, fingerprint=None):
+    config = load_config(session)
+    all_fingerprints = list(config['case'].keys())
+    if fingerprint:
+        input, output = _get_test_input_and_output(session, fingerprint)
+        call_func = check_output_with_result
+        multiple = False
+    else:
+        inp_with_oup = list(map(lambda fp: _get_test_input_and_output(session, fp), all_fingerprints))
+        input, output = zip(*inp_with_oup)
+        call_func = check_output_with_result_multiple
+        multiple = True
+    kw = {}
+    if config['interactor']:
+        kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
+    result = call_func(_get_program_tuple(session, submission, config),
+                       _get_program_tuple(session, checker, config),
+                       config['time_limit'], config['memory_limit'],
+                       input, output, **kw)
+    if success_response(result):
+        config = load_config(session)
+        if multiple:
+            for i, res in zip(all_fingerprints, result['result']):
+                update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
+        else:
+            update_case_config(session, fingerprint, checked=1 if result['verdict'] == 0 else -1)
+        dump_config(session, config)
     return result
 
 
@@ -490,6 +553,18 @@ def _get_test_input(session, fingerprint):
     inp, _ = _get_test_file_path(session, fingerprint)
     with open(inp, 'rb') as fs:
         return fs.read()
+
+
+def _get_test_input_and_output(session, fingerprint):
+    inp, oup = _get_test_file_path(session, fingerprint)
+    with open(inp, 'rb') as fs, open(oup, 'rb') as gs:
+        return fs.read(), gs.read()
+
+
+def _get_program_tuple(session, filename, config=None):
+    if not config:
+        config = load_config(session)
+    return read_program_file(session, filename), config['program'][filename]['lang']
 
 
 def normal_regex_check(alias):

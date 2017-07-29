@@ -59,6 +59,7 @@ function clearAndAddExtraData(form, extra_data) {
 }
 
 function bindFormAndButtonData(form, button) {
+  button.removeData();
   form.attr("action", button.data("action"));
   clearAndAddExtraData(form, button.data());
 }
@@ -244,7 +245,6 @@ if ($("#session-edit-app").length > 0) {
         }, function (data) {
           this.previewCaseInput = data.input;
           this.previewCaseOutput = data.output;
-          console.log(data);
         }.bind(this), "json");
         $("#case-preview-modal").modal('show');
       },

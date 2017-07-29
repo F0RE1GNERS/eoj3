@@ -5,34 +5,15 @@
     <i class="options icon"></i>
     <div class="menu">
       <div class="item">
-        <i class="unhide icon"></i> Preview
-      </div>
-      <div class="item">
-        <i class="dropdown icon"></i>
-        <i class="travel icon"></i> Toolbox
-        <div class="menu">
-          <div class="item">Well-form</div>
-          <div class="item">Validate input</div>
-          <div class="item">Produce output</div>
-          <div class="item">Check output</div>
-          <div class="divider"></div>
-          <div class="item">Split input</div>
-        </div>
+        <i class="cut icon"></i> Split input
       </div>
       <div class="divider"></div>
-      <div class="item">
-        <i class="edit icon"></i> Edit
-      </div>
-      <div class="item">
-        <i class="pie chart icon"></i> Readjust points
-      </div>
       <div class="item">
         <i class="cloud download icon"></i> Download input
       </div>
       <div class="item">
         <i class="cloud download icon"></i> Download output
       </div>
-      <div class="divider"></div>
       <div class="item">
         <i class="trash icon"></i> Delete
       </div>
@@ -79,7 +60,9 @@
     <i class="help icon teal" v-else></i>
     Model output</span>
 
-  <span class="click-able icon label">
+  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#check-output-modal"
+        :data-fingerprint="element.fingerprint" :data-program="appData.model" :data-checker="appData.checker"
+        data-action="{{ url('polygon:session_check_case_output', session.id) }}">
     <i class="check circle icon yellow" v-if="element.checked == 1"></i>
     <i class="remove icon yellow" v-else-if="element.checked == -1"></i>
     <i class="help icon yellow" v-else></i>
@@ -140,12 +123,18 @@
       </draggable>
     </div>
 
+    <!-- Toolbox -->
+
     <div class="ui segment">
 
       <div class="ui icon bottom left pointing dropdown button">
         <i class="travel icon"></i>
         <div class="menu">
-          <div class="item">Item 1</div>
+          <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"
+               :data-program="appData.validator" data-action="{{ url('polygon:session_validate_all_case', session.id) }}">
+            Validate all</div>
+          <div class="item">Output all</div>
+          <div class="item">Check all</div>
         </div>
       </div>
 
@@ -246,6 +235,34 @@
     </form>
   {% endcall %}
 
+  {% call modal(title="Check output", id="check-output-modal") %}
+    <form class="ui form" action="" method="POST">
+      {% csrf_token %}
+      <div class="field">
+        <div class="ui selection dropdown fluid">
+          <label>Run with</label>
+          <input type="hidden" name="program" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="ui selection dropdown fluid">
+          <label>Check with</label>
+          <input type="hidden" name="checker" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  {% endcall %}
+
 {% endblock %}
 
 {% block tips %}
@@ -254,5 +271,6 @@
       {{ reform_property_list() }}
     </li>
     <li>You can change case orders randomly, but do not forget to click <b>Save orders</b> below.</li>
+    <li>Special note on <b>Model output</b>: If the problem is to be interactive, the interactor will not be used when generating the output. Therefore, do consider using a special program.</li>
   </ul>
 {% endblock %}

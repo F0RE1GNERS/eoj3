@@ -263,7 +263,7 @@ sandbox 请求响应：
 ```json
 {
   "input": "MSAy",
-  "output": "Mw=="
+  "output": "Mw==",
   "max_time": 1,
   "max_memory": 128,
   "submission": {
@@ -347,7 +347,7 @@ sandbox 请求响应：
 }
 ```
 
-如你所见，如果 multiple 为真，对应的 input 需要是一个列表。在 generate 中，命令行参数需要是一个列表的列表，如果有输出，输出也要是一个列表。
+如你所见，如果 multiple 为真，对应的 input, output 需要是一个列表。在 generate 中，命令行参数需要是一个列表的列表，如果有输出，输出也要是一个列表。
 输出列表中的值应与输入列表一一对应。返回结果，除了 status 外，也会被包裹在列表内。具体为：
 
 + 对于 `/generate`, output 会变成一个列表；
