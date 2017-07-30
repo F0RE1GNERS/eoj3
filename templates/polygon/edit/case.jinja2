@@ -40,7 +40,8 @@
   Worth <a @click="showDialogWithOneForm" data-target="#case-point-modal"
         :data-fingerprint="element.fingerprint" :data-point="element.point">[[ element.point ]] points</a>.<br>
 
-  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#case-reform-modal" :data-fingerprint="element.fingerprint">
+  <span class="click-able icon label" @click="showDialogWithOneForm" data-target="#case-reform-modal"
+        :data-fingerprint="element.fingerprint" data-action="{{ url('polygon:session_reform_case', session.id) }}">
     <i class="check circle icon pink" v-if="element.well_form"></i>
     <i class="help icon pink" v-else></i>
     Well formed</span>
@@ -85,6 +86,10 @@
             <i class="write icon"></i> Manually</div>
           <div class="item" v-on:click="showDialogWithOneForm" data-target="#case-file-upload">
             <i class="upload icon"></i> Upload</div>
+          <div class="item" v-on:click="showDialogWithOneForm" data-target="#generate-input-modal" data-block="true">
+            <i class="keyboard icon"></i> Generate</div>
+          <div class="item" v-on:click="showDialogWithOneForm" data-target="#stress-test-modal" data-block="true">
+            <i class="hourglass start icon"></i> Stress</div>
         </div>
       </div>
     </div>
@@ -131,18 +136,22 @@
       <div class="ui icon bottom left pointing dropdown button">
         <i class="travel icon"></i>
         <div class="menu">
+          <div class="item" @click="showDialogWithOneForm" data-target="#case-reform-modal"
+               data-action="{{ url('polygon:session_reform_all_case', session.id) }}">
+            Reform all cases
+          </div>
           <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"
                :data-program="appData.validator" data-action="{{ url('polygon:session_validate_all_case', session.id) }}">
-            Validate all
+            Validate all cases
           </div>
           <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"
                :data-program="appData.model" data-action="{{ url('polygon:session_run_all_case_with_model', session.id) }}">
-            Output all
+            Produce all outputs
           </div>
           <div class="item" @click="showDialogWithOneForm" data-target="#check-output-modal"
                :data-program="appData.model" :data-checker="appData.checker"
                data-action="{{ url('polygon:session_check_all_case_output', session.id) }}">
-            Check all
+            Check all cases
           </div>
         </div>
       </div>
@@ -198,7 +207,7 @@
   {% call modal(title="Reform a case", id="case-reform-modal") %}
     <p>Case-reform will do the following. To make sure:</p>
     {{ reform_property_list() }}
-    <form class="ui form" action="{{ url('polygon:session_reform_case', session.id) }}" method="POST">
+    <form class="ui form" action="" method="POST">
       {% csrf_token %}
       <div class="ui checkbox field">
         <input type="checkbox" name="onlyInput">
@@ -266,6 +275,74 @@
           <div class="text"></div>
           <div class="menu">
             <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  {% endcall %}
+
+  {% call modal(title='Generate input', id='generate-input-modal') %}
+    <form class="ui form" action="{{ url('polygon:session_generate_input', session.id) }}" method="POST">
+      {% csrf_token %}
+      <div class="field">
+        <div class="ui selection dropdown fluid">
+          <label>Generate with</label>
+          <input type="hidden" name="generator" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="input">This will generate [[ generateParamLength ]] cases.</label>
+        <textarea name="param" v-model="generateParam"></textarea>
+      </div>
+    </form>
+  {% endcall %}
+
+  {% call modal(title='Stress test', id='stress-test-modal') %}
+    <form class="ui form" action="{{ url('polygon:session_create_case_from_stress', session.id) }}" method="POST">
+      {% csrf_token %}
+      <div class="field">
+        <label>Suspect:</label>
+        <div class="ui selection dropdown fluid">
+          <input type="hidden" name="submission" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Generator:</label>
+        <div class="ui selection dropdown fluid">
+          <input type="hidden" name="generator" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="input">This will generate [[ generateParamLength ]] cases.</label>
+        <textarea name="param" v-model="generateParam"></textarea>
+      </div>
+      <div class="field">
+        <label>Time:</label>
+        <div class="ui selection dropdown fluid">
+          <input type="hidden" name="time" data-important="true">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            <div class="item" data-value="1">1 min</div>
+            <div class="item" data-value="2">2 mins</div>
+            <div class="item" data-value="3">3 mins</div>
+            <div class="item" data-value="4">4 mins</div>
+            <div class="item" data-value="5">5 mins</div>
           </div>
         </div>
       </div>

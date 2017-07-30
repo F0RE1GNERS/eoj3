@@ -23,7 +23,7 @@ from .session import (
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
     read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case,
-    get_test_file_path
+    get_test_file_path, generate_input, stress
 )
 from .case import well_form_text
 
@@ -499,6 +499,28 @@ class SessionDownloadOutput(BaseSessionMixin, View):
 class SessionGenerateInput(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
-        case = request.POST['program']
+        generator = request.POST['generator']
         raw_param = request.POST['param']
+        return response_ok(run_id=generate_input('Generate cases', self.session, generator, raw_param))
+
+
+class SessionAddCaseFromStress(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        generator = request.POST['generator']
+        raw_param = request.POST['param']
+        submission = request.POST['submission']
+        time = int(request.POST['time']) * 60
+        if time < 60 or time > 300:
+            raise ValueError('Time not in range')
+        return response_ok(run_id=stress('Stress test', self.session, generator, submission, raw_param, time))
+
+
+class SessionReformAllCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        inputOnly = request.POST.get('inputOnly') == 'on'
+        config = load_config(self.session)
+        for case in list(config['case'].keys()):
+            reform_case(self.session, case, only_input=inputOnly)
         return response_ok()

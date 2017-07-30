@@ -82,7 +82,8 @@ if ($("#session-edit-app").length > 0) {
       caseList: [],
       unusedCaseList: [],
       previewCaseInput: "",
-      previewCaseOutput: ""
+      previewCaseOutput: "",
+      generateParam: ""
     },
     watch: {
       statementEditorData: {
@@ -90,6 +91,11 @@ if ($("#session-edit-app").length > 0) {
           this.getStatementConverted();
         },
         deep: true
+      }
+    },
+    computed: {
+      generateParamLength: function () {
+        return this.generateParam.split('\n').length;
       }
     },
     methods: {

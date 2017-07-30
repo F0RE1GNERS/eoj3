@@ -23,7 +23,8 @@ from utils.language import LANG_EXT
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
 from .case import (
     well_form_binary, validate_input, run_output, check_output_with_result,
-    check_output_with_result_multiple, run_output_multiple, validate_input_multiple
+    check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
+    stress_test, generate_multiple
 )
 from .models import EditSession
 from .models import Run
@@ -487,6 +488,60 @@ def check_case(session, submission, checker, fingerprint=None):
         else:
             update_case_config(session, fingerprint, checked=1 if result['verdict'] == 0 else -1)
     return result
+
+
+@run_async_with_report
+def generate_input(session, generator, param_raw):
+    # Parse param
+    param_list = []
+    for line_num, param_line in enumerate(param_raw.split('\n')):
+        param_list.append(re.split(r'\s+', param_line))
+    if len(param_list) == 0:
+        raise ValueError('Must have at least one set of command line arguments.')
+    config = load_config(session)
+    result = generate_multiple(_get_program_tuple(session, generator, config), config['time_limit'],
+                               config['memory_limit'], param_list)
+    if success_response(result):
+        outputs = result['output']
+        for output in outputs:
+            save_case(session, base64.b64decode(output), b'')
+        result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
+    return result
+
+
+@run_async_with_report
+def stress(session, generator, submission, param_raw, time):
+    config = load_config(session)
+    model = config['model']
+    if model == submission:
+        raise ValueError('Model and your test program are the same.')
+    if not model:
+        raise ValueError('You must assign a model program.')
+
+    param_list = []
+    for line_num, param_line in enumerate(param_raw.split('\n')):
+        param_list.append(re.split(r'\s+', param_line))
+    if len(param_list) == 0:
+        raise ValueError('Must have at least one set of command line arguments.')
+
+    config = load_config(session)
+
+    kw = {}
+    if config.get('interactive'):
+        kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
+    result = stress_test(_get_program_tuple(session, model, config),
+                         _get_program_tuple(session, submission, config),
+                         _get_program_tuple(session, generator, config),
+                         param_list, config['time_limit'], config['memory_limit'], time,
+                         _get_program_tuple(session, config['checker'], config), kw)
+
+    if success_response(result):
+        outputs = result['output']
+        for output in outputs:
+            save_case(session, base64.b64decode(output), b'')
+        result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
+    return result
+
 
 
 def load_config(session):

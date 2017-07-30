@@ -14,10 +14,13 @@ white_space_reg = re.compile(r'[\x00-\x20]+')
 SERVER_URL = 'http://123.57.161.63:5002'
 TOKEN = ('ejudge', 'naive')
 TIMEOUT = 60
-LONG_TEST_TIMEOUT = 1200
+LONG_TEST_TIMEOUT = 600
+MAX_GENERATE = 5
 VALIDATE_URL = SERVER_URL + '/validate'
 OUTPUT_URL = SERVER_URL + '/judge/output'
 CHECKER_URL = SERVER_URL + '/judge/checker'
+GENERATOR_URL = SERVER_URL + '/generate'
+STRESS_URL = SERVER_URL + '/stress'
 
 
 
@@ -128,6 +131,35 @@ def check_output_with_result_multiple(submission, checker, max_time, max_memory,
     return requests.post(CHECKER_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
 
 
+def generate_multiple(generator, max_time, max_memory, command_line_args):
+    data = {
+        'max_time': max_time / 1000,
+        'max_memory': -1,
+        "command_line_args": command_line_args,
+        'multiple': True
+    }
+    data.update(_pre_json_program_from_kwargs(generator))
+    return requests.post(GENERATOR_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+
+
+def stress_test(model, submission, generator, command_line_args_list, max_time, max_memory, max_sum_time,
+                checker, interactor=None):
+    data = {
+        "std": _pre_json_program_from_kwargs(model),
+        "submission": _pre_json_program_from_kwargs(submission),
+        "generator": _pre_json_program_from_kwargs(generator),
+        "checker": _pre_json_program_from_kwargs(checker),
+        "max_time": max_time,
+        "max_sum_time": max_sum_time,
+        "max_memory": max_memory,
+        "command_line_args_list": command_line_args_list,
+        "max_generate": MAX_GENERATE
+    }
+    if interactor:
+        data.update(interactor=_pre_json_program_from_kwargs(interactor))
+    return requests.post(STRESS_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+
+
 def _pre_json_program_from_kwargs(*args, **kwargs):
     if len(args) == 1:
         assert isinstance(args[0], tuple)
@@ -143,5 +175,3 @@ def _pre_json_program_from_kwargs(*args, **kwargs):
         "fingerprint": random_string(),
         "code": code
     }
-
-
