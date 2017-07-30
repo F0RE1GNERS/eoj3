@@ -144,6 +144,8 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
+    if problem.interactor:
+        config["interactive"] = True
     config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",
@@ -301,11 +303,11 @@ def delete_program_file(session, filename):
 
 def save_case(session, input_binary, output_binary, raw_fingerprint=None, **kwargs):
     fingerprint = case_hash(session.problem_id, input_binary, output_binary)
-    new_input_path, new_output_path = _get_test_file_path(session, fingerprint)
+    new_input_path, new_output_path = get_test_file_path(session, fingerprint)
     config = load_config(session)
     if raw_fingerprint:
         config['case'][fingerprint] = config['case'].pop(raw_fingerprint)
-        old_input_path, old_output_path = _get_test_file_path(session, raw_fingerprint)
+        old_input_path, old_output_path = get_test_file_path(session, raw_fingerprint)
         replace(old_input_path, new_input_path)
         replace(old_output_path, new_output_path)
     else:
@@ -331,14 +333,14 @@ def update_case_config(session, fingerprint, **kwargs):
 
 
 def get_case_metadata(session, fingerprint):
-    inp, oup = _get_test_file_path(session, fingerprint)
+    inp, oup = get_test_file_path(session, fingerprint)
     modified_time = max(path.getmtime(inp), path.getmtime(oup))
     return {'modified_time': datetime.fromtimestamp(modified_time).strftime(settings.DATETIME_FORMAT_TEMPLATE),
             'size': path.getsize(inp) + path.getsize(oup)}
 
 
 def preview_case(session, fingerprint):
-    inp, oup = _get_test_file_path(session, fingerprint)
+    inp, oup = get_test_file_path(session, fingerprint)
     with open(inp, 'r') as fs, open(oup, 'r') as gs:
         res = {'input': fs.read(USUAL_READ_SIZE), 'output': gs.read(USUAL_READ_SIZE)}
         if fs.read(1):
@@ -364,7 +366,7 @@ def process_uploaded_case(session, file_path):
 
 
 def reform_case(session, fingerprint, **kwargs):
-    inp, oup = _get_test_file_path(session, fingerprint)
+    inp, oup = get_test_file_path(session, fingerprint)
     with open(inp, 'rb') as fs, open(oup, 'rb') as gs:
         input, output = fs.read(), gs.read()
     input = well_form_binary(input).encode()
@@ -389,6 +391,24 @@ def reorder_case(session, orders):
         d.update(order=0)  # clear first
         if orders.get(fingerprint):
             d.update(order=orders[fingerprint])
+    dump_config(session, config)
+
+
+def _normalize_case_order(config):
+    for index, d in enumerate(sorted(filter(lambda x: x.get('order'),
+                                            config['case'].values()),
+                                     key=lambda x: x['order']),
+                              start=1):
+        d.update(order=index)
+
+
+def delete_case(session, fingerprint):
+    config = load_config(session)
+    config['case'].pop(fingerprint)
+    old_input_path, old_output_path = get_test_file_path(session, fingerprint)
+    remove(old_input_path)
+    remove(old_output_path)
+    _normalize_case_order(config)
     dump_config(session, config)
 
 
@@ -432,13 +452,11 @@ def get_case_output(session, model, fingerprint=None):
     result = call_func(read_program_file(session, model), config['program'][model]['lang'],
                        config['time_limit'], input)
     if success_response(result):
-        config = load_config(session)
         if multiple:
-            for i, inp, res in zip(all_fingerprints, input, result['output']):
-                save_case(session, inp, base64.b64decode(res), raw_fingerprint=i, model=True)
+            for i, inp, res in zip(all_fingerprints, input, result['result']):
+                save_case(session, inp, base64.b64decode(res['output']), raw_fingerprint=i, model=True)
         else:
             save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
-        dump_config(session, config)
     return result
 
 
@@ -456,20 +474,18 @@ def check_case(session, submission, checker, fingerprint=None):
         call_func = check_output_with_result_multiple
         multiple = True
     kw = {}
-    if config['interactor']:
+    if config.get('interactive'):
         kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
     result = call_func(_get_program_tuple(session, submission, config),
                        _get_program_tuple(session, checker, config),
                        config['time_limit'], config['memory_limit'],
                        input, output, **kw)
     if success_response(result):
-        config = load_config(session)
         if multiple:
             for i, res in zip(all_fingerprints, result['result']):
                 update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
         else:
             update_case_config(session, fingerprint, checked=1 if result['verdict'] == 0 else -1)
-        dump_config(session, config)
     return result
 
 
@@ -542,7 +558,7 @@ def _get_program_file_path(session, filename):
     return path.join(program_dir, filename)
 
 
-def _get_test_file_path(session, fingerprint):
+def get_test_file_path(session, fingerprint):
     if not valid_fingerprint_check(fingerprint):
         raise ValueError("Invalid fingerprint")
     base = path.join(get_session_dir(session), TESTS_DIR, fingerprint)
@@ -550,13 +566,13 @@ def _get_test_file_path(session, fingerprint):
 
 
 def _get_test_input(session, fingerprint):
-    inp, _ = _get_test_file_path(session, fingerprint)
+    inp, _ = get_test_file_path(session, fingerprint)
     with open(inp, 'rb') as fs:
         return fs.read()
 
 
 def _get_test_input_and_output(session, fingerprint):
-    inp, oup = _get_test_file_path(session, fingerprint)
+    inp, oup = get_test_file_path(session, fingerprint)
     with open(inp, 'rb') as fs, open(oup, 'rb') as gs:
         return fs.read(), gs.read()
 

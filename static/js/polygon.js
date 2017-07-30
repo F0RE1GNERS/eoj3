@@ -278,10 +278,13 @@ if ($("#session-edit-app").length > 0) {
       $('.ui.dropdown.onhover').dropdown({
         on: 'hover'
       });
+      $('.ui.checkbox').checkbox();
       $('.ui.selection.dropdown').dropdown({
         onChange: function (val) {
-          if (val == '(none)')
+          if (val == '(none)') {
             $(this).dropdown('clear');
+            $(this).find('input').val('');
+          }
         }
       });
       $(".ui.icon.pointing.dropdown.button")

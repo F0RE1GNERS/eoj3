@@ -8,7 +8,8 @@ from .views import (
     SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders,
     SessionPreviewCase, SessionImportProgram, SessionUploadCase, SessionReformCase, SessionUpdateCasePoint,
     SessionValidateCase, RunsList, RunMessageView, SessionRunCaseOutput, SessionCheckCaseOutput,
-    SessionCheckAllCaseOutput, SessionRunAllCaseOutput, SessionValidateAllCase
+    SessionCheckAllCaseOutput, SessionRunAllCaseOutput, SessionValidateAllCase, SessionDeleteCase,
+    SessionDownloadInput, SessionDownloadOutput
 )
 
 
@@ -51,6 +52,9 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/validate/all/$', SessionValidateAllCase.as_view(), name='session_validate_all_case'),
     url(r'^session/(?P<sid>\d+)/case/output/all/$', SessionRunAllCaseOutput.as_view(), name='session_run_all_case_with_model'),
     url(r'^session/(?P<sid>\d+)/case/check/all/$', SessionCheckAllCaseOutput.as_view(), name='session_check_all_case_output'),
+    url(r'^session/(?P<sid>\d+)/case/delete/$', SessionDeleteCase.as_view(), name='session_delete_case'),
+    url(r'^session/(?P<sid>\d+)/case/download/input/$', SessionDownloadInput.as_view(), name='session_download_case_input'),
+    url(r'^session/(?P<sid>\d+)/case/download/output/$', SessionDownloadOutput.as_view(), name='session_download_case_output'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

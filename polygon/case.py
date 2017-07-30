@@ -14,6 +14,7 @@ white_space_reg = re.compile(r'[\x00-\x20]+')
 SERVER_URL = 'http://123.57.161.63:5002'
 TOKEN = ('ejudge', 'naive')
 TIMEOUT = 60
+LONG_TEST_TIMEOUT = 1200
 VALIDATE_URL = SERVER_URL + '/validate'
 OUTPUT_URL = SERVER_URL + '/judge/output'
 CHECKER_URL = SERVER_URL + '/judge/checker'
@@ -57,7 +58,7 @@ def validate_input(binary, validator_code, validator_lang, max_time):
         'input': base64encode(binary)
     }
     val_data.update(_pre_json_program_from_kwargs(lang=validator_lang, code=validator_code))
-    return requests.post(VALIDATE_URL, json=json.dumps(val_data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(VALIDATE_URL, json=val_data, auth=TOKEN, timeout=TIMEOUT).json()
 
 
 def run_output(model_code, model_lang, max_time, input):
@@ -67,7 +68,7 @@ def run_output(model_code, model_lang, max_time, input):
         "max_memory": -1,
         "submission": _pre_json_program_from_kwargs(lang=model_lang, code=model_code)
     }
-    return requests.post(OUTPUT_URL, json=json.dumps(data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(OUTPUT_URL, json=data, auth=TOKEN, timeout=TIMEOUT).json()
 
 
 def check_output_with_result(submission, checker, max_time, max_memory, input, output, interactor=None):
@@ -87,7 +88,7 @@ def check_output_with_result(submission, checker, max_time, max_memory, input, o
     }
     if interactor:
         data.update(interactor=_pre_json_program_from_kwargs(interactor))
-    return requests.post(CHECKER_URL, json=json.dumps(data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(CHECKER_URL, json=data, auth=TOKEN, timeout=TIMEOUT).json()
 
 
 def validate_input_multiple(binary, validator_code, validator_lang, max_time):
@@ -98,7 +99,7 @@ def validate_input_multiple(binary, validator_code, validator_lang, max_time):
         'multiple': True
     }
     val_data.update(_pre_json_program_from_kwargs(lang=validator_lang, code=validator_code))
-    return requests.post(VALIDATE_URL, json=json.dumps(val_data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(VALIDATE_URL, json=val_data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
 
 
 def run_output_multiple(model_code, model_lang, max_time, input):
@@ -109,7 +110,7 @@ def run_output_multiple(model_code, model_lang, max_time, input):
         "submission": _pre_json_program_from_kwargs(lang=model_lang, code=model_code),
         'multiple': True
     }
-    return requests.post(OUTPUT_URL, json=json.dumps(data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(OUTPUT_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
 
 
 def check_output_with_result_multiple(submission, checker, max_time, max_memory, input, output, interactor=None):
@@ -124,7 +125,7 @@ def check_output_with_result_multiple(submission, checker, max_time, max_memory,
     }
     if interactor:
         data.update(interactor=_pre_json_program_from_kwargs(interactor))
-    return requests.post(CHECKER_URL, json=json.dumps(data), auth=TOKEN, timeout=TIMEOUT).json()
+    return requests.post(CHECKER_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
 
 
 def _pre_json_program_from_kwargs(*args, **kwargs):

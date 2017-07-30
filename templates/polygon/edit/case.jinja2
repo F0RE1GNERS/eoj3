@@ -8,13 +8,14 @@
         <i class="cut icon"></i> Split input
       </div>
       <div class="divider"></div>
-      <div class="item">
+      <a class="item" :href="'{{ url('polygon:session_download_case_input', session.id) }}?fingerprint=' + element.fingerprint">
         <i class="cloud download icon"></i> Download input
-      </div>
-      <div class="item">
+      </a>
+      <a class="item" :href="'{{ url('polygon:session_download_case_output', session.id) }}?fingerprint=' + element.fingerprint">
         <i class="cloud download icon"></i> Download output
-      </div>
-      <div class="item">
+      </a>
+      <div class="item" @click="showDeleteDialog" :data-fingerprint="element.fingerprint"
+           data-action="{{ url('polygon:session_delete_case', session.id) }}">
         <i class="trash icon"></i> Delete
       </div>
     </div>
@@ -132,9 +133,17 @@
         <div class="menu">
           <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"
                :data-program="appData.validator" data-action="{{ url('polygon:session_validate_all_case', session.id) }}">
-            Validate all</div>
-          <div class="item">Output all</div>
-          <div class="item">Check all</div>
+            Validate all
+          </div>
+          <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"
+               :data-program="appData.model" data-action="{{ url('polygon:session_run_all_case_with_model', session.id) }}">
+            Output all
+          </div>
+          <div class="item" @click="showDialogWithOneForm" data-target="#check-output-modal"
+               :data-program="appData.model" :data-checker="appData.checker"
+               data-action="{{ url('polygon:session_check_all_case_output', session.id) }}">
+            Check all
+          </div>
         </div>
       </div>
 

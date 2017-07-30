@@ -100,7 +100,6 @@
             <i class="dropdown icon"></i>
             <div class="text">[[ appData.interactor ]]</div>
             <div class="menu">
-              <div class="item" data-value="(none)">------</div>
               <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
             </div>
           </div>
@@ -112,7 +111,6 @@
             <i class="dropdown icon"></i>
             <div class="text">[[ appData.validator ]]</div>
             <div class="menu">
-              <div class="item" data-value="(none)">------</div>
               <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
             </div>
           </div>
@@ -124,7 +122,6 @@
             <i class="dropdown icon"></i>
             <div class="text">[[ appData.model ]]</div>
             <div class="menu">
-              <div class="item" data-value="(none)">------</div>
               <div class="item" v-for="file in appData.program_file_list" :key="file.filename">[[ file.filename ]]</div>
             </div>
           </div>
@@ -144,6 +141,11 @@
           <label>Sample number</label>
           <input type="number" readonly name="sample-number" v-model="appData.sample_count">
         </div>
+      </div>
+
+      <div class="ui checkbox field">
+        <input type="checkbox" name="interactive">
+        <label>Is interactive</label>
       </div>
 
     </div>

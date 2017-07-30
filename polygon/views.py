@@ -15,13 +15,15 @@ from problem.models import Problem, ProblemManagement, SpecialProgram
 from utils import random_string
 from utils.upload import save_uploaded_file_to
 from utils.language import LANG_CHOICE
+from utils.download import respond_as_attachment
 from .models import EditSession, Run
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
     read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
-    process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case
+    process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case,
+    get_test_file_path
 )
 from .case import well_form_text
 
@@ -246,6 +248,7 @@ class SessionSaveMeta(BaseSessionPostMixin, View):
         param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator', 'model',
                       'description', 'input', 'output', 'hint']
         kw = {x: request.POST[x] for x in param_list}
+        kw.update(interactive=request.POST.get('interactive') == 'on')
         for param in ['checker', 'interactor', 'validator', 'model']:
             if kw[param] and not program_file_exists(self.session, kw[param]):
                 raise ValueError("Program file does not exist")
@@ -467,3 +470,35 @@ class SessionCheckAllCaseOutput(BaseSessionPostMixin, View):
         submission = request.POST['program']
         checker = request.POST['checker']
         return response_ok(run_id=check_case("Check all cases", self.session, submission, checker))
+
+
+class SessionDeleteCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['fingerprint']
+        delete_case(self.session, case)
+        return response_ok()
+
+
+class SessionDownloadInput(BaseSessionMixin, View):
+
+    def get(self, request, sid):
+        case = request.GET['fingerprint']
+        input, _ = get_test_file_path(self.session, case)
+        return respond_as_attachment(request, input, case + '.in')
+
+
+class SessionDownloadOutput(BaseSessionMixin, View):
+
+    def get(self, request, sid):
+        case = request.GET['fingerprint']
+        _, output = get_test_file_path(self.session, case)
+        return respond_as_attachment(request, output, case + '.in')
+
+
+class SessionGenerateInput(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['program']
+        raw_param = request.POST['param']
+        return response_ok()

@@ -32,7 +32,7 @@
 import requests
 token = ('ejudge', 'password')  # token is a tuple
 data = {'fingerprint': '123123'}  # data is a dict
-response = requests.post(url, json=json.dumps(data), auth=token).json()  # response is a dict
+response = requests.post(url, json=data, auth=token).json()  # response is a dict
 ```
 
 回复 JSON 中，一般有：
