@@ -38,3 +38,13 @@ $('.ui.dropdown.user-search')
     }
   })
 ;
+
+$(".post-link")
+  .on('click', function(e) {
+    var link = $(e.currentTarget).data('link');
+    $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
+        location.reload();
+      }
+    );
+  })
+  .attr('href', 'javascript:void(0)');
