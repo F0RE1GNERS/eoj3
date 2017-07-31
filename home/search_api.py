@@ -45,3 +45,12 @@ class SearchAPI(APIView):
             results['user'] = query_user(kw)
             results['problem'] = query_problem(kw, all=is_admin_or_root(request.user))
         return Response(dict(results=results))
+
+
+class SearchUserAPI(APIView):
+    def get(self, request):
+        kw = request.GET.get('kw')
+        results = dict()
+        if kw:
+            results = query_user(kw)
+        return Response(results)

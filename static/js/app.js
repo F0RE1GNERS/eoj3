@@ -29,3 +29,10 @@ $('.ui.search.massive-search').search({
   },
   minCharacters: 1
 });
+
+$('.ui.search.user-search').search({
+  apiSettings: {
+      url: '/api/user-search/?kw={query}'
+  },
+  minCharacters: 1
+});

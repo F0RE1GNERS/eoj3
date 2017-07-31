@@ -13,7 +13,7 @@ def get_problem_accept_count(problem_id, contest_id=0):
     """
     get problem count, with cache
 
-    :param problem_id: type int, problem id
+    :type problem_id: int
     :param contest_id: do not use it or set it to 0 if no contest is specified
     :return:
     """
