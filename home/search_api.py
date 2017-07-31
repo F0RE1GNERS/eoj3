@@ -50,7 +50,8 @@ class SearchAPI(APIView):
 class SearchUserAPI(APIView):
     def get(self, request):
         kw = request.GET.get('kw')
-        results = dict()
+        results = list()
         if kw:
-            results = query_user(kw)
-        return Response(results)
+            for user in User.objects.filter(username__icontains=kw).all().only('username', 'pk')[:5]:
+                results.append(dict(name=user.username, value=user.pk))
+        return Response(dict(success=True, results=results))

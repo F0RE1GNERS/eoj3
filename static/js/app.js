@@ -30,9 +30,11 @@ $('.ui.search.massive-search').search({
   minCharacters: 1
 });
 
-$('.ui.search.user-search').search({
-  apiSettings: {
-    url: '/api/search/user/?kw={query}'
-  },
-  minCharacters: 1
-});
+
+$('.ui.dropdown.user-search')
+  .dropdown({
+    apiSettings: {
+      url: '/api/search/user/?kw={query}'
+    }
+  })
+;
