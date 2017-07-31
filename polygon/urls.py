@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import (
-    home_view, register_view, SessionList, SessionCreate, SessionPull,
+    home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
     ProblemAccess, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
     SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement,
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
@@ -24,6 +24,8 @@ urlpatterns = [
     url(r'^runs/$', RunsList.as_view(), name='runs'),
     url(r'^runs/message/(?P<pk>\d+)/$', RunMessageView.as_view(), name='run_message'),
     url(r'^session/(?P<sid>\d+)/edit/$', SessionEdit.as_view(), name='session_edit'),
+    url(r'^session/(?P<sid>\d+)/push/$', SessionPush.as_view(), name='session_push'),
+    url(r'^session/(?P<sid>\d+)/pull/hot/$', SessionPullHotReload.as_view(), name='session_pull_hot'),
 
     url(r'^session/(?P<sid>\d+)/meta/save/$', SessionSaveMeta.as_view(), name='session_save_meta'),
 

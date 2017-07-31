@@ -12,6 +12,7 @@ class Server(models.Model):
     token = models.CharField(max_length=192)
     add_time = models.DateTimeField(auto_now_add=True)
     last_seen_time = models.DateTimeField(auto_now=True)
+    enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name + ' - ' + self.ip

@@ -3,39 +3,41 @@
 {% block title %}Edit Session - {% endblock %}
 
 {% block content %}
-<h1 class="ui header">Session: {{ user.username }}/{{ problem.alias }}</h1>
 <div id="session-edit-app" data-api-route="{{ url('polygon:session_update_api', session.id) }}">
-  <div class="ui pointing secondary tabular menu">
-    <div class="item click-able" data-tab="meta">Meta</div>
-    <div class="item click-able" data-tab="files">Files</div>
-    <div class="item click-able" data-tab="statement">Statement</div>
-    <div class="item click-able" data-tab="program">Programs</div>
-    <div class="item click-able" data-tab="cases">Cases</div>
-    <div class="item click-able" data-tab="tests">Tests</div>
-    <div class="item click-able" data-tab="access">Access</div>
+  <div class="ui header">
+    {% if problem.access_type != 'READ' %}
+    <div class="ui buttons right floated" id="session-create-button">
+      <button class="ui button" @click="showDialogWithOneForm" data-target="#pull-confirmation">Pull</button>
+      <div class="or"></div>
+      <button class="ui green button" @click="showDialogWithOneForm" data-target="#push-confirmation"><i class="send icon"></i> Push</button>
+    </div>
+    {% endif %}
+    <h1>Session: {{ user.username }}/{{ problem.alias }}</h1>
   </div>
-  <div class="ui tab" data-tab="meta">
-    {% include 'polygon/edit/meta.jinja2' %}
+  <div>
+    <div class="ui pointing secondary tabular menu">
+      <div class="item click-able" data-tab="meta">Meta</div>
+      <div class="item click-able" data-tab="files">Files</div>
+      <div class="item click-able" data-tab="statement">Statement</div>
+      <div class="item click-able" data-tab="program">Programs</div>
+      <div class="item click-able" data-tab="cases">Cases</div>
+    </div>
+    <div class="ui tab" data-tab="meta">
+      {% include 'polygon/edit/meta.jinja2' %}
+    </div>
+    <div class="ui tab" data-tab="files">
+      {% include 'polygon/edit/files.jinja2' %}
+    </div>
+    <div class="ui tab" data-tab="statement">
+      {% include 'polygon/edit/statement.jinja2' %}
+    </div>
+    <div class="ui tab" data-tab="program">
+      {% include 'polygon/edit/program.jinja2' %}
+    </div>
+    <div class="ui tab" data-tab="cases">
+      {% include 'polygon/edit/case.jinja2' %}
+    </div>
   </div>
-  <div class="ui tab" data-tab="files">
-    {% include 'polygon/edit/files.jinja2' %}
-  </div>
-  <div class="ui tab" data-tab="statement">
-    {% include 'polygon/edit/statement.jinja2' %}
-  </div>
-  <div class="ui tab" data-tab="program">
-    {% include 'polygon/edit/program.jinja2' %}
-  </div>
-  <div class="ui tab" data-tab="cases">
-    {% include 'polygon/edit/case.jinja2' %}
-  </div>
-  <div class="ui tab" data-tab="tests">
-    <!-- Tab Content !-->
-  </div>
-  <div class="ui tab" data-tab="access">
-    <!-- Tab Content !-->
-  </div>
-</div>
 
   {% call modal(title="Delete confirmation", id="delete-confirmation") %}
     <p>Are you sure you want to delete? All your changes will be lost.</p>
@@ -54,4 +56,19 @@
     </div>
   </div>
 
+  {% call modal(title="Pull confirmation", id="pull-confirmation") %}
+    <p>Are you sure you want to pull data from problem repository? All your changes will be lost.</p>
+    <form action="{{ url('polygon:session_pull_hot', session.id) }}" method="POST">
+      {% csrf_token %}
+    </form>
+  {% endcall %}
+
+  {% call modal(title="Push confirmation", id="push-confirmation") %}
+    <p>Are you sure you want to push all your changes online? All your changes will be permanent.</p>
+    <form action="{{ url('polygon:session_push', session.id) }}" method="POST">
+      {% csrf_token %}
+    </form>
+  {% endcall %}
+
+</div>
 {% endblock %}

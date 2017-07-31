@@ -23,7 +23,6 @@ class Problem(models.Model):
     source = models.CharField(max_length=128, blank=True)
     difficulty = models.FloatField(default=1500.0)
 
-
     visible = models.BooleanField(default=False)
     maintaining = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)

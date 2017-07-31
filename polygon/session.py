@@ -16,6 +16,7 @@ from django.conf import settings
 
 from account.models import User
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
+from problem.tasks import upload_problem_to_judge_server
 from utils import random_string
 from utils.file_preview import sort_data_list_from_directory
 from utils.hash import file_hash, case_hash
@@ -130,8 +131,9 @@ def pull_session(session):
     for ind, case in enumerate(problem.case_list, start=1):
         if case not in case_dict.keys():
             case_dict[case] = dict()
-            copyfile(get_input_path(case), path.join(tests_dir, case + '.in'))
-            copyfile(get_output_path(case), path.join(tests_dir, case + '.out'))
+            now_input_path, now_output_path = get_test_file_path(session, case)
+            copyfile(get_input_path(case), now_input_path)
+            copyfile(get_output_path(case), now_output_path)
         case_dict[case]["order"] = ind
         case_dict[case]["point"] = point_list[ind - 1]
         if case in problem.pretest_list:
@@ -184,7 +186,7 @@ def push_session(session):
     :return:
     """
     problem = session.problem
-    if any(s.last_synchronize > session.last_synchronize for s in problem.editsession_set):
+    if any(s.last_synchronize > session.last_synchronize for s in problem.editsession_set.all()):
         raise Exception('Sorry, there has been a newer session, try to re-pull.')
     config = load_config(session)
     problem.alias = config['alias']
@@ -196,6 +198,46 @@ def push_session(session):
     problem.input = read_statement_file(session, config['input'])
     problem.output = read_statement_file(session, config['output'])
     problem.hint = read_statement_file(session, config['hint'])
+    for type in ['checker', 'validator', 'interactor']:
+        file = config[type]
+        if type == 'interactor' and not config['interactive']:
+            file = ''
+        if file:
+            file_config = config['program'][file]
+            if not SpecialProgram.objects.filter(fingerprint=file_config['fingerprint']).exists():
+                SpecialProgram.objects.create(fingerprint=file_config['fingerprint'], lang=file_config['lang'],
+                                              filename=file, category='checker',
+                                              code=read_program_file(session, file))
+            setattr(problem, type, file_config['fingerprint'])
+        else:
+            setattr(problem, type, '')
+    case_order = {}
+    case_list, sample_list, pretest_list = [], [], []
+    for k, v in config['case'].items():
+        if not v['order']:
+            continue
+        session_case_input, session_case_output = get_test_file_path(session, k)
+        problem_case_input, problem_case_output = get_input_path(k), get_output_path(k)
+        if not path.exists(problem_case_input):
+            copyfile(session_case_input, problem_case_input)
+            copyfile(session_case_output, problem_case_output)
+        case_list.append((k, v['point']))
+        if v.get('pretest'):
+            pretest_list.append(k)
+        if v.get('sample'):
+            sample_list.append(k)
+        case_order[k] = v['order']
+    cases, points = zip(*sorted(case_list, key=lambda x: case_order[x[0]]))
+    pretest_list.sort(key=lambda x: case_order[x])
+    sample_list.sort(key=lambda x: case_order[x])
+    problem.cases = ','.join(cases)
+    problem.points = ','.join(map(str, points))
+    problem.pretests = ','.join(pretest_list)
+    problem.sample = ','.join(sample_list)
+    problem.save()
+
+    upload_problem_to_judge_server(problem)
+    pull_session(session)
 
 
 def sort_out_directory(directory):
@@ -602,6 +644,7 @@ def update_config(config, **kwargs):
     pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
     pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
     pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
+    pop_and_check(kwargs, new_config, 'interactive', 'interactive', None, None)
     for i in STATEMENT_TYPE_LIST + USED_PROGRAM_IN_CONFIG_LIST:
         # Please check in advance
         pop_and_check(kwargs, new_config, i, i, None, None)

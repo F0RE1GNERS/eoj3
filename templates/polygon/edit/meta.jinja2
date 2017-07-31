@@ -20,7 +20,7 @@
 
       <div class="field">
         <label>Title</label>
-        <input type="text" name="source" v-model="appData.title">
+        <input type="text" name="title" v-model="appData.title">
       </div>
 
       <div class="two fields">
@@ -149,7 +149,7 @@
       </div>
 
       <div class="ui checkbox field">
-        <input type="checkbox" name="interactive">
+        <input type="checkbox" name="interactive" v-model="appData.interactive">
         <label>Is interactive</label>
       </div>
 

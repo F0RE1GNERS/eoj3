@@ -13,9 +13,10 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement, SpecialProgram
 from utils import random_string
-from utils.upload import save_uploaded_file_to
-from utils.language import LANG_CHOICE
 from utils.download import respond_as_attachment
+from utils.language import LANG_CHOICE
+from utils.upload import save_uploaded_file_to
+from .case import well_form_text
 from .models import EditSession, Run
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
@@ -23,9 +24,8 @@ from .session import (
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
     read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case,
-    get_test_file_path, generate_input, stress
+    get_test_file_path, generate_input, stress, push_session
 )
-from .case import well_form_text
 
 
 def home_view(request):
@@ -543,4 +543,18 @@ class SessionToggleSampleCase(BaseSessionPostMixin, View):
         config = load_config(self.session)
         config['case'][case]['sample'] = not bool(config['case'][case].get('sample'))
         dump_config(self.session, config)
+        return response_ok()
+
+
+class SessionPullHotReload(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        pull_session(self.session)
+        return response_ok()
+
+
+class SessionPush(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        push_session(self.session)
         return response_ok()
