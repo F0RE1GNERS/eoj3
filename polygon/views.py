@@ -246,7 +246,7 @@ class SessionSaveMeta(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
         param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator', 'model',
-                      'description', 'input', 'output', 'hint']
+                      'description', 'input', 'output', 'hint', 'title']
         kw = {x: request.POST[x] for x in param_list}
         kw.update(interactive=request.POST.get('interactive') == 'on')
         for param in ['checker', 'interactor', 'validator', 'model']:
@@ -523,4 +523,24 @@ class SessionReformAllCase(BaseSessionPostMixin, View):
         config = load_config(self.session)
         for case in list(config['case'].keys()):
             reform_case(self.session, case, only_input=inputOnly)
+        return response_ok()
+
+
+class SessionTogglePretestCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['fingerprint']
+        config = load_config(self.session)
+        config['case'][case]['pretest'] = not bool(config['case'][case].get('pretest'))
+        dump_config(self.session, config)
+        return response_ok()
+
+
+class SessionToggleSampleCase(BaseSessionPostMixin, View):
+
+    def post(self, request, sid):
+        case = request.POST['fingerprint']
+        config = load_config(self.session)
+        config['case'][case]['sample'] = not bool(config['case'][case].get('sample'))
+        dump_config(self.session, config)
         return response_ok()

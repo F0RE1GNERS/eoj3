@@ -10,7 +10,7 @@ import traceback
 from django.utils import timezone
 from django.db import transaction
 
-from dispatcher.models import ServerProblemStatus, Server
+from dispatcher.models import Server
 from django.conf import settings
 from problem.models import Problem
 from migrate.models import OldSubmission

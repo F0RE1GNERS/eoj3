@@ -12,6 +12,7 @@ FCMP_FINGERPRINT = '3813d49afd13857026fcd4643f51689c39639f83c2b4136b8d95ed285510
 
 
 class Problem(models.Model):
+
     alias = models.CharField(max_length=64, blank=True)
     title = models.CharField(max_length=192, blank=True)
     description = models.TextField(blank=True)
@@ -20,9 +21,11 @@ class Problem(models.Model):
     sample = models.TextField(blank=True)
     hint = models.TextField(blank=True)
     source = models.CharField(max_length=128, blank=True)
-    difficulty = models.FloatField(default=5.0)
+    difficulty = models.FloatField(default=1500.0)
+
 
     visible = models.BooleanField(default=False)
+    maintaining = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
@@ -63,8 +66,7 @@ class Problem(models.Model):
         return list(map(int, list(filter(lambda x: x, self.points.split(',')))))  # point list should be as long as case list
 
     def show_sample(self):
-        return cache.get_or_set('problem_%d_sample',
-                                [get_input_and_output_for_case(case) for case in self.sample_list])
+        return [get_input_and_output_for_case(case) for case in self.sample_list]
 
 
 register(Problem)

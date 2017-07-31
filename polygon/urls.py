@@ -10,7 +10,7 @@ from .views import (
     SessionValidateCase, RunsList, RunMessageView, SessionRunCaseOutput, SessionCheckCaseOutput,
     SessionCheckAllCaseOutput, SessionRunAllCaseOutput, SessionValidateAllCase, SessionDeleteCase,
     SessionDownloadInput, SessionDownloadOutput, SessionGenerateInput, SessionAddCaseFromStress,
-    SessionReformAllCase
+    SessionReformAllCase, SessionTogglePretestCase, SessionToggleSampleCase
 )
 
 
@@ -59,6 +59,8 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/download/output/$', SessionDownloadOutput.as_view(), name='session_download_case_output'),
     url(r'^session/(?P<sid>\d+)/case/generate/$', SessionGenerateInput.as_view(), name='session_generate_input'),
     url(r'^session/(?P<sid>\d+)/case/stress/$', SessionAddCaseFromStress.as_view(), name='session_create_case_from_stress'),
+    url(r'^session/(?P<sid>\d+)/case/pretest/$', SessionTogglePretestCase.as_view(), name='session_toggle_pretest_case'),
+    url(r'^session/(?P<sid>\d+)/case/sample/$', SessionToggleSampleCase.as_view(), name='session_toggle_sample_case'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

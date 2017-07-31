@@ -98,6 +98,7 @@ def pull_session(session):
     session_dir = get_session_dir(session)
     config = load_config(session)
     config['alias'] = problem.alias
+    config['title'] = problem.title
     config['time_limit'] = problem.time_limit
     config['memory_limit'] = problem.memory_limit
     config['source'] = problem.source
@@ -175,6 +176,26 @@ def pull_session(session):
     dump_config(session, config)
     session.last_synchronize = datetime.now()
     session.save(update_fields=["last_synchronize"])
+
+
+def push_session(session):
+    """
+    :type session: EditSession
+    :return:
+    """
+    problem = session.problem
+    if any(s.last_synchronize > session.last_synchronize for s in problem.editsession_set):
+        raise Exception('Sorry, there has been a newer session, try to re-pull.')
+    config = load_config(session)
+    problem.alias = config['alias']
+    problem.title = config['title']
+    problem.time_limit = config['time_limit']
+    problem.memory_limit = config['memory_limit']
+    problem.source = config['source']
+    problem.description = read_statement_file(session, config['description'])
+    problem.input = read_statement_file(session, config['input'])
+    problem.output = read_statement_file(session, config['output'])
+    problem.hint = read_statement_file(session, config['hint'])
 
 
 def sort_out_directory(directory):

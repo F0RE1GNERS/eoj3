@@ -34,6 +34,21 @@
   </ul>
 {% endmacro %}
 
+{% macro span_pretest_and_sample() %}
+  <span class="click-able icon label" @click="postLink" :data-fingerprint="element.fingerprint"
+        data-action="{{ url('polygon:session_toggle_sample_case', session.id) }}"
+        data-tooltip="Sample test" data-inverted="" style="margin-left:1em">
+    <i class="tv icon blue" v-if="element.sample"></i>
+    <i class="tv icon grey" v-else></i>
+  </span>
+  <span class="click-able icon label" @click="postLink" :data-fingerprint="element.fingerprint"
+        data-action="{{ url('polygon:session_toggle_pretest_case', session.id) }}"
+        data-tooltip="Pretest" data-inverted="">
+    <i class="hide icon blue" v-if="element.pretest"></i>
+    <i class="hide icon grey" v-else></i>
+  </span>
+{% endmacro %}
+
 {% macro span_icon_status() %}
   Modified [[ element.modified_time ]],
   [[ Math.round(element.size / 1024) ]] KB.
@@ -103,8 +118,13 @@
           </div>
           <i class="neuter icon"></i>
           <div class="content">
-            <span class="click-able header" data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
-                  @click="previewCase" :data-fingerprint="element.fingerprint">Case [[ index + 1 ]]</span>
+            <div class="click-able header">
+              <span data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
+                    @click="previewCase" :data-fingerprint="element.fingerprint">
+                Case [[ index + 1 ]]
+              </span>
+              {{ span_pretest_and_sample() }}
+            </div>
             <div class="description">{{ span_icon_status() }}</div>
           </div>
         </div>

@@ -217,6 +217,13 @@ if ($("#session-edit-app").length > 0) {
         },
         1000
       ),
+      postLink: function (event) {
+        var data = { csrfmiddlewaretoken: Cookies.get('csrftoken') };
+        var buttonData = $(event.currentTarget).data();
+        $.post(buttonData['action'], Object.assign(data, buttonData), function (data) {
+          this.updateConfig();
+        }.bind(this))
+      },
       showTargetModalNaive: function (event) {
         $($(event.currentTarget).data("target")).modal('show');
       },

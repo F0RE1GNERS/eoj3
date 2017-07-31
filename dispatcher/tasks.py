@@ -9,7 +9,7 @@ from multiprocessing import cpu_count
 from django.utils import timezone
 from django.db import transaction
 
-from .models import ServerProblemStatus, Server
+from .models import Server
 from django.conf import settings
 from problem.models import Problem
 from contest.tasks import update_problem_and_participant

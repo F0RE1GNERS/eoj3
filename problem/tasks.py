@@ -1,8 +1,10 @@
 from random import uniform
+
 from django.core.cache import cache
 
+from dispatcher.models import Server
 from submission.models import Submission, SubmissionStatus
-
+from .models import Problem
 
 PROBLEM_AC_COUNT_FOR_CONTEST = 'problem_{problem}_ac_in_contest_{contest}'
 
@@ -38,3 +40,11 @@ def get_many_problem_accept_count(problem_ids, contest_id=0):
         else:
             ans[problem_id] = cache_res[cache_name]
     return ans
+
+
+def upload_problem_to_judge_server(problem):
+    """
+    :param problem: the problem to be uploaded
+    :type problem: Problem
+    """
+    pass
