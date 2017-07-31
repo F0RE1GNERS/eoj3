@@ -3,11 +3,7 @@
 {% block title %}Problem Meta - {% endblock %}
 
 {% block content %}
-  <h1 class="ui header">Problem Meta</h1>
-  <div class="ui secondary menu small">
-    <a class="active item" href="{{ url('polygon:problem_meta', problem.id) }}">META</a>
-    <a class="item" href="#">ACCESS</a>
-  </div>
+  <h1 class="ui header">Problem {{ problem.id }} Management</h1>
 
   <form class="ui form">
     <div class="field">
