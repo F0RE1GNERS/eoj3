@@ -25,14 +25,14 @@ $('.captcha-refresh, img.captcha').click(function(){
 $('.ui.search.massive-search').search({
   type: 'category',
   apiSettings: {
-      url: '/api/search/?kw={query}'
+    url: '/api/search/?kw={query}'
   },
   minCharacters: 1
 });
 
 $('.ui.search.user-search').search({
   apiSettings: {
-      url: '/api/user-search/?kw={query}'
+    url: '/api/search/user/?kw={query}'
   },
   minCharacters: 1
 });

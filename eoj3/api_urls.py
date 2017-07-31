@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^submission/user/(?P<name>.*)/$', submission_count_api),
     url(r'^markdown/$', markdown_convert_api),
     url(r'^search/$', search_api.SearchAPI.as_view(), name='search'),
-    url(r'^user-search/$', search_api.SearchUserAPI.as_view(), name='user_search'),
+    url(r'^search/user/$', search_api.SearchUserAPI.as_view(), name='user_search'),
     url(r'^polygon/run/(?P<pk>\d+)', RunStatus.as_view())
 ]
 

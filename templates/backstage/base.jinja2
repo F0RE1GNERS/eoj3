@@ -4,18 +4,15 @@
 {% block title %}Backstage - {% endblock %}
 
 {% block page_header %}
-  Backstage
+  Backstage: {% block content_header %}{% endblock %}
 {% endblock %}
 
 {% block content %}
 
   <div class="ui grid">
     <div class="twelve wide column">
-      <div class="ui header">{% block content_header %}{% endblock %}</div>
-      <div>
-        {% block backstage_content %}
-        {% endblock %}
-      </div>
+      {% block backstage_content %}
+      {% endblock %}
     </div>
     <div class="four wide column">
       <div class="ui link list">
