@@ -3,13 +3,12 @@
 
 {% block title %}Submission #{{ submission.pk }} - {% endblock %}
 
-{% block content %}
+{% block page_header %}
+  Submission #{{ submission.pk }}
+{% endblock %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Submission #{{ submission.pk }}</h1>
-    </div>
-  </div>
+
+{% block content %}
 
   <div class="container">
   {% if is_frozen != 'f2' %}

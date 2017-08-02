@@ -29,8 +29,8 @@ $('.ui.search.massive-search').search({
   },
   minCharacters: 1
 });
-
-
+$('.ui.search.dropdown.language')
+  .dropdown();
 $('.ui.dropdown.user-search')
   .dropdown({
     apiSettings: {

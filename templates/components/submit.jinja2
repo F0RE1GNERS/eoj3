@@ -1,0 +1,31 @@
+{% macro submit_view() %}
+
+  {% include 'components/message.jinja2' %}
+
+  <form class="ui form" action="" method="post">
+    {% csrf_token %}
+    <div class="ui segments">
+      <div class="ui right aligned compact segment">
+        <!-- TODO: default language -->
+        <select class="ui search dropdown language" id="id_lang" name="lang">
+          <option value="">Language</option>
+          {% for identifier, display in lang_choices %}
+            <option value="{{ identifier }}">{{ display }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="ui compact segment">
+        <input type="hidden" name="code" id="id_code">
+        <div id="editor" style="height: 400px; position: relative"></div>
+      </div>
+      <div class="ui compact right aligned segment">
+        <button class="ui right labeled icon green button">
+           <i class="icon send"></i> Save
+        </button>
+      </div>
+    </div>
+
+
+  </form>
+
+{% endmacro %}

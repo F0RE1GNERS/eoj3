@@ -1,0 +1,13 @@
+{% extends 'problem/detail/base.jinja2' %}
+{% from 'components/submit.jinja2' import submit_view with context %}
+
+{% block problem_content %}
+
+  {{ submit_view() }}
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
+  <script src="/static/js/editor.js"></script>
+{% endblock %}

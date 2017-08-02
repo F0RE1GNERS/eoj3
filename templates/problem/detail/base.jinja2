@@ -2,13 +2,13 @@
 
 {% block title %}Problem #{{ problem.pk }} - {% endblock %}
 
-{% block page_header %}{{ problem.pk }} - {{ problem.title }}{% endblock %}
+{% block page_header %}{{ problem.pk }}. {{ problem.title }}{% endblock %}
 
 {% block content %}
 
   <div class="ui secondary menu small weight normal">
     <a class="item {{ active('problem:detail') }}" href="{{ url('problem:detail', problem.pk) }}">DESCRIPTION</a>
-    <a class="item {{ active('problem:submit') }}" href="#">SUBMIT</a>
+    <a class="item {{ active('problem:submit') }}" href="{{ url('problem:submit', problem.pk) }}">SUBMIT</a>
     <a class="item {{ active('problem:statistics') }}" href="#">STATISTICS</a>
     <a class="item {{ active('problem:discussion') }}" href="{{ url('problem:status') }}">DISCUSSION</a>
   </div>
@@ -18,9 +18,4 @@
 
   {% include 'components/math_support.jinja2' %}
 
-{% endblock %}
-
-{% block script %}
-  <script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
-  <script src="/static/js/editor.js"></script>
 {% endblock %}

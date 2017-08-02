@@ -1,6 +1,8 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse, get_object_or_404
 from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
+from django.views.generic import TemplateView
+from django.views.generic.base import ContextMixin, TemplateResponseMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
 
 from django.core.exceptions import PermissionDenied
@@ -14,6 +16,7 @@ from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
 from account.permissions import is_admin_or_root
 from utils.authentication import test_site_open
+from utils.language import LANG_CHOICE
 
 
 class ProblemList(ListView):
@@ -81,18 +84,27 @@ class ProblemList(ListView):
         return data
 
 
-class ProblemView(FormView):
-    template_name = 'problem/detail/problem.jinja2'
-    form_class = SubmitForm
+class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, **kwargs)
-        return super(ProblemView, self).dispatch(request, *args, **kwargs)
+        self.user = request.user
+        return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        if self.request.user.is_authenticated:
-            return {'lang': self.request.user.preferred_lang}
-        return {'lang': 'cpp'}
+    def test_func(self):
+        if is_admin_or_root(self.user) and self.problem.problemmanagement_set.filter(user=self.user).exists():
+            return True
+        return self.problem.visible
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
+        data['problem'] = self.problem = get_object_or_404(Problem, **kwargs)
+        return data
+
+
+class ProblemView(ProblemDetailMixin, TemplateView):
+
+    template_name = 'problem/detail/problem.jinja2'
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
@@ -111,15 +123,15 @@ class ProblemView(FormView):
 
         return data
 
-    def form_valid(self, form):
-        if not test_site_open(self.request):
-            raise PermissionDenied("Site is closed now.")
-        if (not self.problem.visible and not is_admin_or_root(self.request.user)) or \
-                not self.request.user.is_authenticated:
-            raise PermissionDenied("You don't have the access.")
-        submission = form.save(commit=False)
-        submit_code(submission, self.request.user, self.kwargs.get('pk'))
-        return HttpResponseRedirect(reverse('submission', args=[submission.pk]))
+
+class ProblemSubmitView(ProblemDetailMixin, TemplateView):
+
+    template_name = 'problem/detail/submit.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemSubmitView, self).get_context_data(**kwargs)
+        data['lang_choices'] = LANG_CHOICE
+        return data
 
 
 class StatusList(ListView):

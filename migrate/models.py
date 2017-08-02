@@ -1,5 +1,5 @@
 from django.db import models
-from submission.models import SubmissionStatus, STATUS_CHOICE, get_color_from_status
+from submission.models import SubmissionStatus, STATUS_CHOICE
 from utils.language import LANG_CHOICE
 
 

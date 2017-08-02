@@ -33,6 +33,10 @@ var code = $("#id_code");
 editor.getSession().setValue(code.val());
 editor.setTheme("ace/theme/chrome");
 editor.getSession().setMode("ace/mode/" + map[lang.val()]);
+editor.setOptions({
+  fontFamily: "Courier",
+  fontSize: "12pt"
+});
 lang.on("change", function (event) {
   editor.getSession().setMode("ace/mode/" + map[event.target.value]);
 });

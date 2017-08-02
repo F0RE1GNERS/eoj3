@@ -15,7 +15,7 @@ import datetime
 
 from account.models import User
 from account.permissions import is_admin_or_root
-from .models import Submission, get_color_from_status, SubmissionStatus
+from .models import Submission, SubmissionStatus
 from dispatcher.tasks import send_rejudge
 from utils.authentication import test_site_open
 
