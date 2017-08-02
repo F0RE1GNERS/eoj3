@@ -43,6 +43,26 @@ lang.on("change", function (event) {
 function setVal() {
   code.val(editor.getSession().getValue())
 }
-$('form').submit(function () {
-  $(this).find('button[type=submit]').prop('disabled', true);
-});
+
+if ($("#older-submission").length > 0) {
+  Vue.options.delimiters = ["[[", "]]"];
+  window.vm = new Vue({
+    el: "#older-submission",
+    data: {
+      submission: [],
+      current: 0
+    },
+    methods: {
+      updateSubmission: function () {
+        this.apiRoute = $(this.$el).data("api-route");
+        $.getJSON(this.apiRoute, function (data) {
+          this.submission = data;
+          console.log(this.submission);
+        }.bind(this));
+      }
+    },
+    beforeMount: function () {
+      this.updateSubmission();
+    }
+  });
+}

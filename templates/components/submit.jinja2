@@ -7,12 +7,16 @@
     <div class="ui segments">
       <div class="ui right aligned compact segment">
         <!-- TODO: default language -->
-        <select class="ui search dropdown language" id="id_lang" name="lang">
-          <option value="">Language</option>
-          {% for identifier, display in lang_choices %}
-            <option value="{{ identifier }}">{{ display }}</option>
-          {% endfor %}
-        </select>
+        <div class="ui selection search language dropdown">
+          <input name="code" id="id_lang" type="hidden" value="python">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            {% for identifier, display in lang_choices %}
+            <div class="item" data-value="{{ identifier }}">{{ display }}</div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
       <div class="ui compact segment">
         <input type="hidden" name="code" id="id_code">
@@ -20,12 +24,28 @@
       </div>
       <div class="ui compact right aligned segment">
         <button class="ui right labeled icon green button">
-           <i class="icon send"></i> Save
+           <i class="icon send"></i> Submit
         </button>
       </div>
     </div>
 
-
   </form>
+
+  <div id="older-submission" data-api-route="{{ url('problem:submission', problem.id) }}" style="margin-top: 4em">
+    <div v-if="current >= 0 && current < submission.length">
+      <div v-html="submission[current].code_as_html"></div>
+    </div>
+    <div v-if="submission.length > 0">
+      <h3 class="ui horizontal divider header">
+        PAST SUBMISSIONS
+      </h3>
+      <div class="ui labels">
+        <a v-for="sub in submission" :class="['ui', 'label', STATUS_COLOR[sub.status]]">
+          [[ STATUS[sub.status] ]]
+          <div class="detail">#[[ sub.id ]]</div>
+        </a>
+      </div>
+    </div>
+  </div>
 
 {% endmacro %}

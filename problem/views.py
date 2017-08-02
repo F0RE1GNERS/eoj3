@@ -1,6 +1,7 @@
-from django.shortcuts import render, HttpResponseRedirect, reverse, get_object_or_404
+import json
+from django.shortcuts import render, HttpResponse, reverse, get_object_or_404
 from django.views.generic.list import ListView
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
@@ -111,9 +112,6 @@ class ProblemView(ProblemDetailMixin, TemplateView):
         if not is_admin_or_root(self.request.user) and not self.problem.visible:
             raise PermissionDenied("You don't have the access.")
         data['problem'] = self.problem
-        if self.request.user.is_authenticated:
-            data['submissions'] = self.problem.submission_set.only("create_time", "pk", "status", "problem_id").\
-                                 filter(author=self.request.user).all()[:10]
 
         show_tags = True
         if self.request.user.is_authenticated:
@@ -127,6 +125,9 @@ class ProblemView(ProblemDetailMixin, TemplateView):
 class ProblemSubmitView(ProblemDetailMixin, TemplateView):
 
     template_name = 'problem/detail/submit.jinja2'
+
+    def test_func(self):
+        return super(ProblemSubmitView, self).test_func() and self.user.is_authenticated
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmitView, self).get_context_data(**kwargs)
@@ -172,3 +173,17 @@ class StatusList(ListView):
                 if is_admin_or_root(user) or submission.author == user:
                     submission.is_privileged = True
         return data
+
+
+class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
+
+    def test_func(self):
+        return super(ProblemPersonalSubmissionAPI, self).test_func() and self.user.is_authenticated
+
+    def get(self, request, pk):
+        subs = []
+        SUB_FIELDS = ["id", "lang", "code_as_html", "create_time_display", "judge_time_display",
+                      "status", "status_detail"]
+        for sub in self.problem.submission_set.filter(author=self.user).order_by("-create_time").all():
+            subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
+        return HttpResponse(json.dumps(subs))

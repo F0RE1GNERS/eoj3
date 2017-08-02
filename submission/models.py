@@ -2,7 +2,8 @@ from django.db import models
 from account.models import User
 from problem.models import Problem
 from contest.models import Contest
-from utils.language import LANG_CHOICE
+from utils.language import LANG_CHOICE, transform_code_to_html
+from utils.time import datetime_display
 
 
 class SubmissionStatus(object):
@@ -60,11 +61,8 @@ class Submission(models.Model):
     judge_end_time = models.DateTimeField(blank=True, null=True)
 
     status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.WAITING)
-    status_percent = models.IntegerField(default=0)
     status_detail = models.TextField(blank=True)
-    status_time = models.IntegerField(default=0)
-    status_memory = models.IntegerField(default=0)
-    code_length = models.IntegerField(default=0)
+    status_time = models.FloatField(default=0)
 
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
@@ -73,6 +71,22 @@ class Submission(models.Model):
 
     class Meta:
         ordering = ['-pk']
+
+    @property
+    def verbose_status(self):
+        return dict(STATUS_CHOICE)[self.status]
+
+    @property
+    def create_time_display(self):
+        return datetime_display(self.create_time)
+
+    @property
+    def judge_time_display(self):
+        return datetime_display(self.judge_end_time)
+
+    @property
+    def code_as_html(self):
+        return transform_code_to_html(self.code, self.lang)
 
     def is_judged(self):
         return SubmissionStatus.is_judged(self.status)
