@@ -2,9 +2,6 @@ from django.db import models
 from problem.models import Problem
 
 
-DEFAULT_USERNAME = 'ejudge'
-
-
 class Server(models.Model):
     name = models.CharField(max_length=30, unique=True)
     ip = models.CharField(max_length=30)
@@ -19,3 +16,7 @@ class Server(models.Model):
 
     class Meta:
         ordering = ["last_seen_time"]
+
+    @property
+    def http_address(self):
+        return 'http://' + self.ip + ':' + self.token

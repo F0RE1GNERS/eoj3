@@ -17,8 +17,11 @@
     <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }} item">Servers</a>
     <a href="{{ url('backstage:migrate') }}" class="{{ active('backstage:migrate') }} item">Migrate</a>
   </div>
+  {% include 'components/message.jinja2' %}
 
   {% block backstage_content %}
   {% endblock %}
+
+  {% include 'components/delete_confirmation.jinja2' %}
 
 {% endblock %}

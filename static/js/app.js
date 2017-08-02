@@ -48,3 +48,33 @@ $(".post-link")
     );
   })
   .attr('href', 'javascript:void(0)');
+
+$(".delete-link")
+  .on('click', function (e) {
+    var link = $(e.currentTarget).data('link');
+    $("#delete-confirmation")
+      .modal({
+        onApprove: function () {
+          $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
+              location.reload();
+            }
+          );
+        }
+      })
+      .modal('show');
+  })
+  .attr('href', 'javascript:void(0)');
+
+$(".ui.checkbox.immediate")
+  .checkbox({
+    onChange: function () {
+      var link = $(this).data('link');
+      $.post(link, {
+        'csrfmiddlewaretoken': Cookies.get('csrftoken'),
+        'checked': $(this).prop('checked')
+      }, function (data) {
+        location.reload();
+      });
+
+    }
+  });

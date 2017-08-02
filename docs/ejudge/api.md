@@ -2,6 +2,8 @@
 
 ## 快速检索
 
++ `POST /config/token` 改密码
++ `GET /exist/case/:fid` 判断 Case 是否已经上传
 + `GET /ping` 如果成功，返回 pong
 + `POST /upload/case/:fid/:io` 上传测试用例，永久保存
 + `POST /upload/:type` 上传测试程序，永久保存
@@ -45,6 +47,22 @@ response = requests.post(url, json=data, auth=token).json()  # response is a dic
 `status` 和 `message` 有特殊含义的，会在 API 中注明。会返回其他键值对的，也会在 API 中注明。否则就按照上述标准。
 
 在文档中，字段名的含义是统一的。一旦解释过一次，下面的解释将从简处理。
+
+### `POST /config/token`
+
++ `token` 新密码
+
+需要认证。
+
+### `POST /exist/case/:fid`
+
+返回
+
+```json
+{
+  "exist": true
+}
+```
 
 ### `POST /upload/case/:fid/:io`
 

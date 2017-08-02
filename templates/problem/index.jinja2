@@ -9,7 +9,7 @@
     <tr>
       <th class="center aligned one wide">#</th>
       <th>Name</th>
-      <th class="center aligned three wide">Solved</th>
+      <th class="center aligned collapsing">Solved</th>
     </tr>
   </thead>
   <tbody>
@@ -17,10 +17,12 @@
       <tr class="center aligned middle aligned">
         <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
         <td class="left aligned middle aligned">
-          <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+          <div style="float:right">
           {% for tag in problem.my_tags %}
-            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label ui">{{ tag }}</a>
+            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui">{{ tag }}</a>
           {% endfor %}
+          </div>
+          <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
         <td class="{% if problem.status %}{{ problem.status }}{% endif %}">
           <i class="fa fa-user" aria-hidden="true"></i> x {{ problem.accept_count }}

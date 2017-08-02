@@ -5,7 +5,7 @@ from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, 
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
-from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh
+from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 
@@ -51,6 +51,8 @@ urlpatterns = [
     url(r'^server/(?P<pk>\d+)/edit/$', ServerUpdate.as_view(), name='server_edit'),
     url(r'^server/(?P<pk>\d+)/delete/$', ServerDelete.as_view(), name='server_delete'),
     url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh'),
+    url(r'^server/(?P<pk>\d+)/enable/$', ServerEnableOrDisable.as_view(), name='server_enable'),
+    url(r'^server/(?P<pk>\d+)/edit/token/$', ServerUpdateToken.as_view(), name='server_update_token'),
 
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
