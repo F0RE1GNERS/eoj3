@@ -107,9 +107,44 @@ window.STATUS_COLOR[1] = 'orange';
 window.STATUS_COLOR[2] = 'orange';
 window.STATUS_COLOR[3] = 'orange';
 window.STATUS_COLOR[4] = 'yellow';
-window.STATUS_COLOR[5] = 'yellow';
+window.STATUS_COLOR[5] = 'violet';
 window.STATUS_COLOR[6] = 'grey';
 window.STATUS_COLOR[7] = 'orange';
 window.STATUS_COLOR[8] = 'orange';
 window.STATUS_COLOR[11] = 'orange';
 window.STATUS_COLOR[12] = 'green';
+
+window.STATUS_ICON = {};
+window.STATUS_ICON[-4] = 'help';
+window.STATUS_ICON[-3] = 'help';
+window.STATUS_ICON[-2] = 'help';
+window.STATUS_ICON[-1] = 'remove';
+window.STATUS_ICON[0] = 'check';
+window.STATUS_ICON[1] = 'remove';
+window.STATUS_ICON[2] = 'remove';
+window.STATUS_ICON[3] = 'remove';
+window.STATUS_ICON[4] = 'remove';
+window.STATUS_ICON[5] = 'remove';
+window.STATUS_ICON[6] = 'warning';
+window.STATUS_ICON[7] = 'remove';
+window.STATUS_ICON[8] = 'remove';
+window.STATUS_ICON[11] = 'remove';
+window.STATUS_ICON[12] = 'check';
+
+window.LANGUAGE_DISPLAY = {
+  'c': 'C',
+  'cpp': 'C++11',
+  'python': 'Python 3',
+  'java': 'Java 8',
+  'cc14': 'C++14',
+  'cs': 'C#',
+  'py2': 'Python 2',
+  'php': 'PHP 7',
+  'perl': 'Perl',
+  'hs': 'Haskell',
+  'js': 'Javascript',
+  'ocaml': 'OCaml',
+  'pypy': 'PyPy',
+  'pas': 'Pascal',
+  'rs': 'Rust'
+};

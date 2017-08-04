@@ -183,7 +183,7 @@ class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
     def get(self, request, pk):
         subs = []
         SUB_FIELDS = ["id", "lang", "code_as_html", "create_time_display", "judge_time_display",
-                      "status", "status_detail"]
+                      "status", "status_detail_list", "code", "status_time"]
         for sub in self.problem.submission_set.filter(author=self.user).order_by("-create_time").all():
             subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
         return HttpResponse(json.dumps(subs))

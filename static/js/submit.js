@@ -50,19 +50,68 @@ if ($("#older-submission").length > 0) {
     el: "#older-submission",
     data: {
       submission: [],
-      current: 0
+      current: -1,
+      time: 'NaN',
+      subcurrent: {},
+      LANGUAGE_DISPLAY: window.LANGUAGE_DISPLAY,
+      STATUS_COLOR: window.STATUS_COLOR,
+      STATUS_ICON: window.STATUS_ICON,
+      STATUS: window.STATUS
+    },
+    watch: {
+      current: {
+        handler: function (newStatement) {
+          this.updateCurrentDisplay();
+        }
+      }
     },
     methods: {
+      updateCurrentDisplay: function () {
+        if (this.current < 0 || this.current >= this.submission.length) {
+          this.time = 'NaN';
+        } else {
+          this.subcurrent = this.submission[this.current];
+          if (typeof this.submission[this.current].status_time == 'number')
+            this.time = this.submission[this.current].status_time.toFixed(3) + 's';
+          else this.time = 'NaN';
+          console.log(this.subcurrent);
+          for (var i = 0; i < this.subcurrent.status_detail_list.length; ++i) {
+            if (!this.subcurrent.status_detail_list[i].hasOwnProperty("verdict"))
+              this.subcurrent.status_detail_list[i].verdict = -3;
+          }
+        }
+      },
       updateSubmission: function () {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
           this.submission = data;
-          console.log(this.submission);
+          var toUpdate = -1;
+          for (var i = 0; i < this.submission.length; ++i) {
+            if (this.submission[i].status == -2 || this.submission[i].status == -3) {
+              toUpdate = i;
+              break;
+            }
+          }
+          if (toUpdate >= 0) {
+            this.current = toUpdate;
+            // setTimeout(function () {
+            //   this.updateSubmission();
+            // }, 500);
+          }
         }.bind(this));
+      },
+      toggleCurrent: function (event) {
+        this.current = $(event.currentTarget).attr("index");
+        $('html, body').animate({
+          scrollTop: $("#older-submission").offset().top - $("#navbar").height() - 15
+        }, 500);
       }
     },
     beforeMount: function () {
       this.updateSubmission();
+    },
+    mounted: function () {
+      new Clipboard('.clipboard');
     }
   });
 }

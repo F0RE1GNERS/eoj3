@@ -208,7 +208,7 @@ REPO_DIR = os.path.join(BASE_DIR, "repo")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
-DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M'
+DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M:%S'
 
 # modified
 TIME_ZONE = 'Asia/Shanghai'

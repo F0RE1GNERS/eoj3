@@ -3,8 +3,9 @@ from random import uniform
 from django.core.cache import cache
 
 from dispatcher.models import Server
+from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from submission.models import Submission, SubmissionStatus
-from .models import Problem
+from .models import Problem, SpecialProgram
 
 PROBLEM_AC_COUNT_FOR_CONTEST = 'problem_{problem}_ac_in_contest_{contest}'
 
@@ -42,9 +43,13 @@ def get_many_problem_accept_count(problem_ids, contest_id=0):
     return ans
 
 
-def upload_problem_to_judge_server(problem):
+def upload_problem_to_judge_server(problem, server):
     """
     :param problem: the problem to be uploaded
     :type problem: Problem
+    :type server: Server
     """
-    pass
+    return all(upload_case(server, case) for case in problem.case_list) and \
+           (problem.checker and upload_checker(server, SpecialProgram.objects.get(fingerprint=problem.checker))) and \
+           (problem.validator and upload_validator(server, SpecialProgram.objects.get(fingerprint=problem.validator))) and \
+           (problem.interactor and upload_interactor(server, SpecialProgram.objects.get(fingerprint=problem.interactor)))

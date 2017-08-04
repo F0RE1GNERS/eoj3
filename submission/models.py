@@ -4,6 +4,7 @@ from problem.models import Problem
 from contest.models import Contest
 from utils.language import LANG_CHOICE, transform_code_to_html
 from utils.time import datetime_display
+import json
 
 
 class SubmissionStatus(object):
@@ -61,8 +62,10 @@ class Submission(models.Model):
     judge_end_time = models.DateTimeField(blank=True, null=True)
 
     status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.WAITING)
+    # add empty dict to detail list if there are still cases to judge
     status_detail = models.TextField(blank=True)
     status_time = models.FloatField(default=0)
+    status_message = models.TextField(blank=True)
 
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
@@ -87,6 +90,13 @@ class Submission(models.Model):
     @property
     def code_as_html(self):
         return transform_code_to_html(self.code, self.lang)
+
+    @property
+    def status_detail_list(self):
+        try:
+            return json.loads(self.status_detail)
+        except json.JSONDecodeError:
+            return []
 
     def is_judged(self):
         return SubmissionStatus.is_judged(self.status)

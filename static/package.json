@@ -29,6 +29,7 @@
     "gulp-autoprefixer": "^3.1.0",
     "jquery": "^3.2.1",
     "jquery-address": "^1.6.0",
+    "jquery.scrollto": "^2.1.2",
     "js-cookie": "^2.1.4",
     "lodash": "^4.17.4",
     "mathjax": "^2.7.1",

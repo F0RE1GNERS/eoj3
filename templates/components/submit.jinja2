@@ -31,16 +31,61 @@
 
   </form>
 
-  <div id="older-submission" data-api-route="{{ url('problem:submission', problem.id) }}" style="margin-top: 4em">
-    <div v-if="current >= 0 && current < submission.length">
-      <div v-html="submission[current].code_as_html"></div>
+  <div id="older-submission" data-api-route="{{ url('problem:submission', problem.id) }}">
+    <div v-if="current >= 0 && current < submission.length" style="margin-top: 3em">
+      <h3 class="ui horizontal divider header">
+        SUB #[[ submission[current].id ]]
+      </h3>
+      <div class="ui segment">
+        <a class="ui top right attached label clipboard" :data-clipboard-text="subcurrent.code">
+          <i class="copy icon"></i> [[ LANGUAGE_DISPLAY[subcurrent.lang] ]]
+        </a>
+        <div v-html="subcurrent.code_as_html"></div>
+      </div>
+      <table class="ui celled table">
+        <thead>
+          <tr class="center aligned">
+            <th>#</th>
+            <th>Language</th>
+            <th>Send</th>
+            <th>Judged</th>
+            <th>Status</th>
+            <th>CPU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="center aligned">
+            <th>[[ subcurrent.id ]]</th>
+            <td>[[ LANGUAGE_DISPLAY[subcurrent.lang] ]]</td>
+            <td>[[ subcurrent.create_time_display ]]</td>
+            <td>[[ subcurrent.judge_time_display ]]</td>
+            <td><h5 :class="['ui', 'header', STATUS_COLOR[subcurrent.status] ]">
+              <i :class="['icon', 'circle', 'fitted', STATUS_ICON[subcurrent.status] ]"></i>
+              [[ STATUS[subcurrent.status] ]]
+            </h5></td>
+            <td>[[ time ]]</td>
+          </tr>
+          <tr>
+            <td colspan="6" style="padding-top:4em; padding-bottom: 4em;">
+              <div v-if="subcurrent.status == -2 || subcurrent.status == -3">
+                <div class="ui active large centered inline loader"></div>
+              </div>
+              <p v-if="subcurrent.status_detail_list.length > 1">
+                <i v-for="(detail, index) in subcurrent.status_detail_list"
+                   :class="['ui', 'icon', 'bordered', 'fitted', 'small', STATUS_ICON[detail.verdict], STATUS_COLOR[detail.verdict] ]"></i>
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div v-if="submission.length > 0">
+    <div v-if="submission.length > 0" id="current-submission" style="margin-top: 3em">
       <h3 class="ui horizontal divider header">
         PAST SUBMISSIONS
       </h3>
       <div class="ui labels">
-        <a v-for="sub in submission" :class="['ui', 'label', STATUS_COLOR[sub.status]]">
+        <a v-for="(sub, index) in submission" :class="['ui', 'label', STATUS_COLOR[sub.status]]" :key="sub.id"
+          @click="toggleCurrent" :index="index">
           [[ STATUS[sub.status] ]]
           <div class="detail">#[[ sub.id ]]</div>
         </a>
