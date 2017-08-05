@@ -9,7 +9,7 @@
   <div class="ui secondary menu small weight normal">
     <a class="item {{ active('problem:detail') }}" href="{{ url('problem:detail', problem.pk) }}">DESCRIPTION</a>
     <a class="item {{ active('problem:submit') }}" href="{{ url('problem:submit', problem.pk) }}">SUBMIT</a>
-    <a class="item {{ active('problem:statistics') }}" href="#">STATISTICS</a>
+    <a class="item {{ active('problem:statistics') }}" href="{{ url('problem:statistics', problem.pk) }}">STATISTICS</a>
     <a class="item {{ active('problem:discussion') }}" href="{{ url('problem:status') }}">DISCUSSION</a>
   </div>
 

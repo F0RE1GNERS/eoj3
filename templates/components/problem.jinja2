@@ -23,7 +23,18 @@
     {% if problem.sample %}
       <div class="passage examples">
         <h3 class="title">Examples</h3>
-        {{ problem.sample | sample | safe }}
+        {% for input, output in problem.sample_display %}
+          <div class="example">
+            <div class="input">
+              <div class="title">Input</div>
+              <pre>{{ input }}</pre>
+            </div>
+            <div class="output">
+              <div class="title">Output</div>
+              <pre>{{ output }}</pre>
+            </div>
+          </div>
+        {% endfor %}
       </div>
     {% endif %}
     {% if problem.hint %}

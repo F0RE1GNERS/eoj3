@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import ProblemList, ProblemView, StatusList, ProblemSubmitView, ProblemPersonalSubmissionAPI
+from .views import ProblemList, ProblemView, StatusList, ProblemSubmitView, ProblemPersonalSubmissionAPI, ProblemStatisticsView
 
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/submit/$', ProblemSubmitView.as_view(), name='submit'),
     url(r'^(?P<pk>\d+)/submissions/$', ProblemPersonalSubmissionAPI.as_view(), name='submission'),
     url(r'^status/$', StatusList.as_view(), name='status'),
+    url(r'^(?P<pk>\d+)/statistics/$', ProblemStatisticsView.as_view(), name='statistics'),
 ]

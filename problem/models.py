@@ -64,7 +64,8 @@ class Problem(models.Model):
     def point_list(self):
         return list(map(int, list(filter(lambda x: x, self.points.split(',')))))  # point list should be as long as case list
 
-    def show_sample(self):
+    @property
+    def sample_display(self):
         return [get_input_and_output_for_case(case) for case in self.sample_list]
 
 

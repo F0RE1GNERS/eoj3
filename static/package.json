@@ -10,7 +10,6 @@
     "gulp-less": "^3.3.2",
     "gulp-load-plugins": "^1.1.0",
     "gulp-plumber": "^1.1.0",
-    "gulp-sass": "^2.1.0",
     "hover.css": "^2.2.0"
   },
   "scripts": {

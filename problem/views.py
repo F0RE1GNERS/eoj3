@@ -11,7 +11,11 @@ from tagging.models import Tag, TaggedItem, ContentType
 from collections import Counter
 
 from .models import Problem
-from .tasks import get_many_problem_accept_count, create_submission, judge_submission_on_problem
+from .tasks import create_submission, judge_submission_on_problem
+from .statistics import (
+    get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
+    get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count
+)
 from submission.forms import SubmitForm
 from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
@@ -139,6 +143,21 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
         submission = create_submission(self.problem, self.user, request.POST['code'], request.POST['lang'])
         judge_submission_on_problem(submission)
         return HttpResponse()
+
+
+class ProblemStatisticsView(ProblemDetailMixin, TemplateView):
+
+    template_name = 'problem/detail/statistics.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
+        data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
+        data['user_all_count'] = get_problem_all_user_count(self.problem.id)
+        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id)
+        data['ac_count'] = get_problem_accept_count(self.problem.id)
+        data['all_count'] = get_problem_all_count(self.problem.id)
+        data['ratio'] = get_problem_accept_ratio(self.problem.id)
+        return data
 
 
 class StatusList(ListView):
