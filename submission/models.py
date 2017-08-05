@@ -98,6 +98,10 @@ class Submission(models.Model):
         except json.JSONDecodeError:
             return []
 
+    @status_detail_list.setter
+    def status_detail_list(self, lis):
+        self.status_detail = json.dumps(lis)
+
     def is_judged(self):
         return SubmissionStatus.is_judged(self.status)
 

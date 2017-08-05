@@ -18,6 +18,7 @@
 + `POST /judge/checker` 返回程序输出检查器的运行结果
 + `POST /judge/interactor` 返回交互程序的运行结果
 + `POST /judge` 提交判题
++ `GET /query` 查询
 
 另有：socket.io `judge` 事件用于提交判题，格式与 `POST /judge` 相同。
 
@@ -414,6 +415,7 @@ sandbox 请求响应：
 + `cases` 有序列表，测试用例指纹。返回结果也按照这个顺序
 + `checker` 输出检查程序指纹
 + `interactor` 交互题中的交互程序指纹
++ `hold` 可选，若指定 `hold` 为 `false` （默认为 `true`），则连接立即断开，之后要通过 `query` 查询结果。
 
 （最后几项必须预先上传）
 
@@ -462,35 +464,9 @@ sandbox 请求响应：
 但对于 Runtime Error 的情况，错误信息是在 `detail` 中的每一次运行内的。
 
 
-## Socket.io
+### `GET /query`
 
-对于 socket.io，提供了 `judge` 事件，也就是上面的 `/judge` API。传入 JSON 几乎相同，但需要手动添加验证信息：
+示例：`/query?fingerprint=xxx`
 
-```python
-data.update(username=token[0], password=token[1])
-```
-
-你可能需要监听 `judge_reply` 事件，因为回复都是这里来的。
-
-由于 Python 对于 socket.io 客户端的支持不佳，所以可能要用到不大好用的 socketio-client。然后可以直接 emit 字典哦。
-
-```python
-from socketIO_client import SocketIO, LoggingNamespace
-result = None
-
-def callback(*args):
-    nonlocal news_length, result
-    body = args[0]
-    if body.get('verdict') != Verdict.JUDGING.value:
-        result = body
-    # emit to user
-
-with SocketIO('localhost', 5000, LoggingNamespace) as socketIO:
-    socketIO.emit('judge', data)
-    socketIO.on('judge_reply', callback)
-    while not result:
-        socketIO.wait(seconds=1)
-```
-
-推荐的使用方案是，先使用 socket.io 进行判题，若失败，则回滚到 requests 请求。
+返回结果同 `/judge`
 

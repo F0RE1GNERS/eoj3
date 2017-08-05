@@ -40,9 +40,23 @@ editor.setOptions({
 lang.on("change", function (event) {
   editor.getSession().setMode("ace/mode/" + map[event.target.value]);
 });
-function setVal() {
-  code.val(editor.getSession().getValue())
-}
+editor.getSession().on("change", function () {
+  code.val(editor.getSession().getValue());
+});
+
+$("#problem-submit").click(function (event) {
+  var button = $(event.currentTarget);
+  var form = button.closest("form");
+  form.addClass("loading");
+  $.post(form.attr("action"), form.serialize(), function () {
+    vm.updateSubmission();
+    form.removeClass("loading");
+    $('html, body').animate({
+      scrollTop: $("#older-submission").offset().top - $("#navbar").height() - 15
+    }, 500);
+  });
+  return false;
+});
 
 if ($("#older-submission").length > 0) {
   Vue.options.delimiters = ["[[", "]]"];
@@ -94,10 +108,11 @@ if ($("#older-submission").length > 0) {
           }
           if (toUpdate >= 0) {
             this.current = toUpdate;
-            // setTimeout(function () {
-            //   this.updateSubmission();
-            // }, 500);
+            setTimeout(function () {
+              this.updateSubmission();
+            }.bind(this), 500);
           }
+          this.updateCurrentDisplay();
         }.bind(this));
       },
       toggleCurrent: function (event) {

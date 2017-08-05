@@ -1,12 +1,12 @@
 from django.conf.urls import url
 
+from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
 from .base_views import Index
-from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch, SPJCompiler
+from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
-from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
-from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken
-from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
+from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch, SPJCompiler
+from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 
 
@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^server/(?P<pk>\d+)/refresh/$', ServerRefresh.as_view(), name='server_refresh'),
     url(r'^server/(?P<pk>\d+)/enable/$', ServerEnableOrDisable.as_view(), name='server_enable'),
     url(r'^server/(?P<pk>\d+)/edit/token/$', ServerUpdateToken.as_view(), name='server_update_token'),
+    url(r'^server/(?P<pk>\d+)/synchronize/$', ServerSynchronize.as_view(), name='server_synchronize'),
 
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),

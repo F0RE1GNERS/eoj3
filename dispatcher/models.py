@@ -9,6 +9,7 @@ class Server(models.Model):
     token = models.CharField(max_length=192)
     add_time = models.DateTimeField(auto_now_add=True)
     last_seen_time = models.DateTimeField(auto_now=True)
+    last_synchronize_time = models.DateTimeField(null=True)
     enabled = models.BooleanField(default=False)
 
     def __str__(self):
@@ -19,4 +20,4 @@ class Server(models.Model):
 
     @property
     def http_address(self):
-        return 'http://' + self.ip + ':' + self.token
+        return 'http://' + self.ip + ':' + str(self.port)

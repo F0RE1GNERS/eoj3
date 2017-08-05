@@ -6,9 +6,8 @@
     {% csrf_token %}
     <div class="ui segments">
       <div class="ui right aligned compact segment">
-        <!-- TODO: default language -->
         <div class="ui selection search language dropdown">
-          <input name="code" id="id_lang" type="hidden" value="python">
+          <input name="lang" id="id_lang" type="hidden" value="python">
           <i class="dropdown icon"></i>
           <div class="text"></div>
           <div class="menu">
@@ -23,7 +22,7 @@
         <div id="editor" style="height: 400px; position: relative"></div>
       </div>
       <div class="ui compact right aligned segment">
-        <button class="ui right labeled icon green button">
+        <button class="ui right labeled icon green button" id="problem-submit">
            <i class="icon send"></i> Submit
         </button>
       </div>
@@ -42,20 +41,20 @@
         </a>
         <div v-html="subcurrent.code_as_html"></div>
       </div>
-      <table class="ui celled table">
+      <table class="ui celled table structured">
         <thead>
           <tr class="center aligned">
             <th>#</th>
             <th>Language</th>
             <th>Send</th>
             <th>Judged</th>
-            <th>Status</th>
+            <th>Verdict</th>
             <th>CPU</th>
           </tr>
         </thead>
         <tbody>
           <tr class="center aligned">
-            <th>[[ subcurrent.id ]]</th>
+            <th rowspan="2" style="padding:1em">[[ subcurrent.id ]]</th>
             <td>[[ LANGUAGE_DISPLAY[subcurrent.lang] ]]</td>
             <td>[[ subcurrent.create_time_display ]]</td>
             <td>[[ subcurrent.judge_time_display ]]</td>
@@ -66,14 +65,20 @@
             <td>[[ time ]]</td>
           </tr>
           <tr>
-            <td colspan="6" style="padding-top:4em; padding-bottom: 4em;">
+            <td colspan="5" style="padding-top:4em; padding-bottom: 4em; padding-left: 2em; padding-right: 2em;">
               <div v-if="subcurrent.status == -2 || subcurrent.status == -3">
                 <div class="ui active large centered inline loader"></div>
               </div>
               <p v-if="subcurrent.status_detail_list.length > 1">
-                <i v-for="(detail, index) in subcurrent.status_detail_list"
-                   :class="['ui', 'icon', 'bordered', 'fitted', 'small', STATUS_ICON[detail.verdict], STATUS_COLOR[detail.verdict] ]"></i>
+                <span v-for="(detail, index) in subcurrent.status_detail_list"
+                      :data-tooltip="(index+1) + '/' + (subcurrent.status_detail_list.length) + ': ' + STATUS[detail.verdict]">
+                  <i :class="['ui', 'icon', 'bordered', 'fitted', 'small', STATUS_ICON[detail.verdict], STATUS_COLOR[detail.verdict] ]"></i>
+                </span>
               </p>
+              <div v-if="subcurrent.status_message.length > 0">
+                <h3 class="ui header">Error Message</h3>
+                <pre style="white-space: pre-wrap;">[[ subcurrent.status_message ]]</pre>
+              </div>
             </td>
           </tr>
         </tbody>

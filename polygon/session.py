@@ -15,6 +15,7 @@ import yaml
 from django.conf import settings
 
 from account.models import User
+from dispatcher.models import Server
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from problem.tasks import upload_problem_to_judge_server
 from utils import random_string
@@ -236,7 +237,10 @@ def push_session(session):
     problem.sample = ','.join(sample_list)
     problem.save()
 
-    upload_problem_to_judge_server(problem)
+    for server in Server.objects.filter(enabled=True).all():
+        upload_problem_to_judge_server(problem, server)
+        server.last_synchronize_time = datetime.now()
+        server.save(update_fields=['last_synchronize_time'])
     pull_session(session)
 
 
@@ -631,7 +635,7 @@ def dump_config(session, config):
 def update_config(config, **kwargs):
     def pop_and_check(kw, conf, prop, varname, convert_func, check_func, ):
         _var = kw.pop(prop, None)
-        if _var:
+        if _var is not None:
             if convert_func:
                 _var = convert_func(_var)
             if check_func and not check_func(_var):
@@ -640,6 +644,7 @@ def update_config(config, **kwargs):
 
     new_config = copy.deepcopy(config)
 
+    pop_and_check(kwargs, new_config, 'title', 'title', None, None)
     pop_and_check(kwargs, new_config, 'alias', 'alias', None, normal_regex_check)
     pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
     pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)

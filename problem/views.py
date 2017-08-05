@@ -11,7 +11,7 @@ from tagging.models import Tag, TaggedItem, ContentType
 from collections import Counter
 
 from .models import Problem
-from .tasks import get_many_problem_accept_count
+from .tasks import get_many_problem_accept_count, create_submission, judge_submission_on_problem
 from submission.forms import SubmitForm
 from submission.models import Submission, SubmissionStatus
 from dispatcher.tasks import submit_code
@@ -90,6 +90,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, **kwargs)
         self.user = request.user
+        self.request = request
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
@@ -99,7 +100,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
 
     def get_context_data(self, **kwargs):
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
-        data['problem'] = self.problem = get_object_or_404(Problem, **kwargs)
+        data['problem'] = self.problem
         return data
 
 
@@ -133,6 +134,11 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
         data = super(ProblemSubmitView, self).get_context_data(**kwargs)
         data['lang_choices'] = LANG_CHOICE
         return data
+
+    def post(self, request, pk):
+        submission = create_submission(self.problem, self.user, request.POST['code'], request.POST['lang'])
+        judge_submission_on_problem(submission)
+        return HttpResponse()
 
 
 class StatusList(ListView):
@@ -183,7 +189,7 @@ class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
     def get(self, request, pk):
         subs = []
         SUB_FIELDS = ["id", "lang", "code_as_html", "create_time_display", "judge_time_display",
-                      "status", "status_detail_list", "code", "status_time"]
+                      "status", "status_detail_list", "code", "status_time", "status_message"]
         for sub in self.problem.submission_set.filter(author=self.user).order_by("-create_time").all():
             subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
         return HttpResponse(json.dumps(subs))

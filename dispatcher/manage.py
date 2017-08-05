@@ -3,8 +3,12 @@ from .utils import is_success_response
 import requests
 from django.conf import settings
 from os import path
+import traceback
 
 DEFAULT_USERNAME = 'ejudge'
+
+
+# TODO: missing exception handling
 
 
 def update_token(server, new_password):
@@ -28,7 +32,7 @@ def upload_case(server, case):
     if requests.get(url_check_exist).json().get('exist'):
         return True
     with open(path.join(settings.TESTDATA_DIR, case + '.in'), 'rb') as inf,\
-            open(path.join(settings.TESTDATA_DIR, case + '.out'), 'wb') as ouf:
+            open(path.join(settings.TESTDATA_DIR, case + '.out'), 'rb') as ouf:
         res1 = requests.post(url_input, data=inf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
         res2 = requests.post(url_output, data=ouf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
     return is_success_response(res1) and is_success_response(res2)
@@ -39,7 +43,7 @@ def _upload_special_program(server, url, sp):
         'fingerprint': sp.fingerprint,
         'lang': sp.lang,
         'code': sp.code
-    }).json()
+    }, auth=(DEFAULT_USERNAME, server.token)).json()
 
 
 def upload_checker(server, checker):

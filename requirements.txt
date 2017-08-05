@@ -32,3 +32,4 @@ django-redis
 pyyaml
 chardet
 channels
+socketio-client

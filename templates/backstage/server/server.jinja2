@@ -13,6 +13,7 @@
         <th>Name</th>
         <th>Address</th>
         <th>Last Seen</th>
+        <th>Synchronized</th>
         <th>Edit</th>
         <th>Synchronize</th>
         <th>Update token</th>
@@ -30,8 +31,9 @@
           <td>{{ server.name }}</td>
           <td>{{ server.ip }}:{{ server.port }}</td>
           <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
+          <td>{% if server.last_synchronize_time %}{{ server.last_synchronize_time | date('Y-m-d H:i:s') }}{% else %}Never{% endif %}</td>
           <td><a href="{{ url('backstage:server_edit', server.pk) }}">Edit</a></td>
-          <td><a href="{{ url('backstage:server_synchronize', server.pk) }}">Syncrhonize</a></td>
+          <td><a class="post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}">Synchronize</a></td>
           <td><a href="{{ url('backstage:server_update_token', server.pk) }}">Update</a></td>
           <td><a class="delete-link" data-link="{{ url('backstage:server_delete', server.pk) }}">Delete</a></td>
         </tr>
@@ -40,7 +42,7 @@
     <tfoot class="full-width">
       <tr>
         <th></th>
-        <th colspan="6">
+        <th colspan="8">
           <a href="{{ url('backstage:server_create') }}" class="ui right floated small primary labeled icon button">
             <i class="server icon"></i> Add Server
           </a>

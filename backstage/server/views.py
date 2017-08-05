@@ -1,3 +1,6 @@
+import threading
+from datetime import datetime
+
 from django.contrib import messages
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import FormView
@@ -6,6 +9,8 @@ from django.views.generic.list import ListView
 
 from dispatcher.models import Server
 from dispatcher.manage import update_token
+from problem.models import Problem
+from problem.tasks import upload_problem_to_judge_server
 from .forms import ServerEditForm, ServerUpdateTokenForm
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
@@ -73,4 +78,21 @@ class ServerUpdateToken(BaseBackstageMixin, FormView):
                 messages.success(request, 'Token update succeeded.')
                 return HttpResponseRedirect(reverse('backstage:server'))
         messages.error(request, 'Update token failed. Please recheck your server status.')
+        return HttpResponseRedirect(reverse('backstage:server'))
+
+
+class ServerSynchronize(BaseBackstageMixin, View):
+
+    def post(self, request, pk):
+
+        def synchronize_func(server):
+            for problem in Problem.objects.all():
+                # TODO: update progressbar and exception handling
+                if not upload_problem_to_judge_server(problem, server):
+                    return
+            server.last_synchronize_time = datetime.now()
+            server.save(update_fields=['last_synchronize_time'])
+
+        server = Server.objects.get(pk=pk)
+        threading.Thread(target=synchronize_func, args=(server,)).start()
         return HttpResponseRedirect(reverse('backstage:server'))
