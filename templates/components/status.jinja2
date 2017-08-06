@@ -1,0 +1,105 @@
+{% from 'components/nickname.jinja2' import clickable_nickname %}
+
+{% macro status(in_contest=False, hide_problems=False) %}
+
+  <table class="ui celled table striped center aligned compact">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>When</th>
+        <th>
+          <div class="ui accordion status-filter">
+            <div class="title">
+              Who
+              <i class="filter icon"></i>
+            </div>
+            <div class="{% if param_user %}active{% endif %} content" style="font-weight: normal">
+              <div class="ui compact search selection dropdown status-filter" data-filter-type="user">
+                <input type="hidden" value="{{ param_user }}">
+                <i class="dropdown icon"></i>
+                <div class="default text">Select</div>
+                <div class="menu">
+                </div>
+              </div>
+            </div>
+          </div>
+        </th>
+        {% if not hide_problems %}
+          {% if in_contest %}
+            <th>Problem</th>
+          {% else %}
+            <th>
+              <div class="ui accordion status-filter">
+                <div class="title">
+                  Problem
+                  <i class="filter icon"></i>
+                </div>
+                <div class="{% if param_problem %}active{% endif %} content" style="font-weight: normal">
+                  <div class="ui compact search selection dropdown status-filter" data-filter-type="problem">
+                    <input type="hidden" value="{{ param_problem }}">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select</div>
+                    <div class="menu">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </th>
+          {% endif %}
+        {% endif %}
+        <th>
+          <div class="ui dropdown status-filter" data-filter-type="lang" data-value="{{ param_lang }}">
+            <div class="text">Lang</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="ui icon search input">
+                <i class="search icon"></i>
+                <input type="text" placeholder="Languages">
+              </div>
+              <div class="scrolling menu">
+                <div class="item" data-value="all">(All)</div>
+                {% for identifier, display in lang_choices %}
+                <div class="item" data-value="{{ identifier }}">{{ display }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </th>
+        <th>
+          <div class="ui scrolling dropdown status-filter" data-filter-type="verdict" data-value="{{ param_verdict }}">
+            <div class="text">Verdict</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="item" data-value="all">(All)</div>
+              {% for identifier, display in verdict_choices %}
+              <div class="item" data-value="v{{ identifier }}">{{ display }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for submission in submission_list %}
+        <tr>
+          <td>{{ submission.id }}</td>
+          <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ clickable_nickname(submission.author) }}</td>
+          {% if not hide_problems %}
+            {% if not in_contest %}
+              <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
+            {% else %}
+              <td>...</td>
+            {% endif %}
+          {% endif %}
+          <td>{{ submission.get_lang_display() }}</td>
+          <td><h5 class="ui header status-span" data-status="{{ submission.status }}"></h5></td>
+          <td>{{ submission.get_time_display() }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ my_paginator() }}
+
+{% endmacro %}

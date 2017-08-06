@@ -40,7 +40,7 @@ class Problem(models.Model):
     manager = models.ManyToManyField(User, through='ProblemManagement')
 
     def __str__(self):
-        return '%d - %s' % (self.pk, self.title)
+        return '%d. %s' % (self.pk, self.title)
 
     class Meta:
         ordering = ["-pk"]

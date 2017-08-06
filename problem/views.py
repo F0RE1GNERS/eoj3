@@ -17,7 +17,7 @@ from .statistics import (
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count
 )
 from submission.forms import SubmitForm
-from submission.models import Submission, SubmissionStatus
+from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from dispatcher.tasks import submit_code
 from account.permissions import is_admin_or_root
 from utils.authentication import test_site_open
@@ -161,20 +161,19 @@ class ProblemStatisticsView(ProblemDetailMixin, TemplateView):
 
 
 class StatusList(ListView):
+
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
+    local_queryset = Submission.objects.all()
 
     def get_queryset(self):
         kw = self.request.GET.get('keyword')
         author = self.request.GET.get('author')
         prob = self.request.GET.get('problem')
-        queryset = Submission.objects.select_related('problem', 'author').only('pk', 'contest_id', 'create_time',
-                                                                               'author_id', 'author__username',
-                                                                               'author__nickname', 'author__magic',
-                                                                               'problem_id', 'problem__title', 'lang',
-                                                                               'status', 'status_percent', 'status_time',
-                                                                               'status_memory')
+        queryset = Submission.objects.select_related('problem', 'author').\
+            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
+                 'problem__title', 'lang', 'status', 'status_time')
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(contest__isnull=True, problem__visible=True)
         if author and author.isdigit():
@@ -191,8 +190,14 @@ class StatusList(ListView):
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)
         user = self.request.user
-        # print(reverse('status') + '?keyword=' + str(1))
         data['keyword'] = self.request.GET.get('keyword')
+        data['param_verdict'], data['param_lang'], data['param_user'], data['param_problem'] = \
+            self.request.GET.get('verdict', ''), self.request.GET.get('lang', ''),\
+            self.request.GET.get('user', ''), self.request.GET.get('problem', '')
+        data['lang_choices'] = LANG_CHOICE
+        data['verdict_choices'] = STATUS_CHOICE
+
+
         if user.is_authenticated:
             for submission in data['submission_list']:
                 if is_admin_or_root(user) or submission.author == user:

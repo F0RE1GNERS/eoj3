@@ -1,3 +1,5 @@
 {% macro clickable_nickname(user) %}
-  <a class="decoration-free" href="{{ url('generic', user.username) }}">{{ user.get_username_display() | safe }}</a>
+  <h5 class="ui header {{ user.magic }}">
+    <a style="color: inherit;" href="{{ url('generic', user.username) }}">{{ user.username }}</a>
+  </h5>
 {% endmacro %}

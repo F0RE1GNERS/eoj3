@@ -81,10 +81,10 @@ def invalidate_problem(problem_id, contest_id=0):
 
     all_count = problem_filter.count()
     accept_count = problem_accept_filter.count()
-    accept_ratio = int(accept_count / all_count * 100)
+    accept_ratio = int(accept_count / all_count * 100) if all_count > 0 else 0
     all_user_count = problem_filter.values('author_id').distinct().count()
     accept_user_count = problem_accept_filter.values("author_id").distinct().count()
-    accept_user_ratio = int(accept_user_count / all_user_count * 100)
+    accept_user_ratio = int(accept_user_count / all_user_count * 100) if all_user_count > 0 else 0
 
     cache.set(PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest_id), all_count, cache_time)
     cache.set(PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest_id), accept_count, cache_time)

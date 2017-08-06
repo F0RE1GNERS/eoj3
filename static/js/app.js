@@ -31,10 +31,54 @@ $('.ui.search.massive-search').search({
 });
 $('.ui.search.dropdown.language')
   .dropdown();
+
+// url param plugin
+function getUrlParamAsObject () {
+  var search = location.search.substring(1);
+  return search ? JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}',
+                             function (key, value) { return key === "" ? value : decodeURIComponent(value) })
+                : {};
+}
+function encodeObjectAsUrlParamString (myObject) {
+  return '?' + $.param(myObject);
+}
+
+$('.ui.accordion.status-filter').accordion({
+  onClose: function () {
+    $(this).find('.ui.dropdown')
+      .dropdown('clear');
+  }
+});
+$('.ui.dropdown.status-filter').each(function () {
+  var api_url = null;
+  if ($(this).data('filter-type') == 'user')
+    api_url = '/api/search/user/?kw={query}';
+  else if ($(this).data('filter-type') == 'problem')
+    api_url = '/api/search/problem/?kw={query}';
+  $(this).dropdown({
+    onChange: function (value) {
+      var obj = getUrlParamAsObject();
+      var type = $(this).data('filter-type');
+      if (value == 'all')
+        value = '';
+      if (!value && obj.hasOwnProperty(type)) {
+        delete obj[type];
+      } if (value) {
+        obj[type] = value;
+      }
+      console.log(obj);
+      location.href = encodeObjectAsUrlParamString(obj);
+    }.bind(this),
+    apiSettings: api_url ? {
+      url: api_url
+    } : false
+  });
+});
+
 $('.ui.dropdown.user-search')
   .dropdown({
     apiSettings: {
-      url: '/api/search/user/?kw={query}'
+      url: $(this).data('query') || '/api/search/user/?kw={query}'
     }
   })
 ;
@@ -148,3 +192,12 @@ window.LANGUAGE_DISPLAY = {
   'pas': 'Pascal',
   'rs': 'Rust'
 };
+
+$("h5.ui.header.status-span").each(function () {
+  var status = parseInt($(this).data('status'));
+  $(this).html(STATUS[status]);
+  $(this).addClass(STATUS_COLOR[status]);
+  if (status != 0) {
+    $(this).css("font-weight", 600);
+  }
+});

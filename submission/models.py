@@ -107,7 +107,9 @@ class Submission(models.Model):
 
     def get_time_display(self):
         if self.status >= SubmissionStatus.WRONG_ANSWER and self.status != SubmissionStatus.COMPILE_ERROR:
-            return '%.3fs' % self.status_time
+            return '%.3f' % self.status_time
+        else:
+            return 'NaN'
 
     def get_status_display_in_contest(self):
         addition = ''

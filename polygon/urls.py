@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
-    ProblemAccess, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
+    ProblemMeta, ProblemPreview, ProblemStatus, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
     SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement,
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
     SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders,
@@ -20,7 +20,9 @@ urlpatterns = [
     url(r'^session/$', SessionList.as_view(), name='session'),
     url(r'^session/create/$', SessionCreate.as_view(), name='session_create'),
     url(r'^session/pull/$', SessionPull.as_view(), name='session_pull'),
-    url(r'^problem/(?P<pk>\d+)/access/$', ProblemAccess.as_view(), name='problem_access'),
+    url(r'^problem/(?P<pk>\d+)/preview/$', ProblemPreview.as_view(), name='problem_preview'),
+    url(r'^problem/(?P<pk>\d+)/meta/$', ProblemMeta.as_view(), name='problem_meta'),
+    url(r'^problem/(?P<pk>\d+)/status/$', ProblemStatus.as_view(), name='problem_status'),
     url(r'^runs/$', RunsList.as_view(), name='runs'),
     url(r'^runs/message/(?P<pk>\d+)/$', RunMessageView.as_view(), name='run_message'),
     url(r'^session/(?P<sid>\d+)/edit/$', SessionEdit.as_view(), name='session_edit'),

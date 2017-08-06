@@ -3,7 +3,7 @@
 
 {% block problem_content %}
 
-  {{ problem_view(problem.title, problem.total_accept_number, problem.total_submit_number, False) }}
+  {{ problem_view(problem.title, False) }}
   {% include 'components/math_support.jinja2' %}
 
 {% endblock %}
