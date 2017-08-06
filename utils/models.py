@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.cache import cache
 
+
 class SiteSettings(models.Model):
     # We store key, value pair here
     key = models.CharField(max_length=254, primary_key=True)

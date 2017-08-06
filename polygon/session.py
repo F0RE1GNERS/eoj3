@@ -112,9 +112,9 @@ def pull_session(session):
     statement_dir = path.join(session_dir, STATEMENT_DIR)
     makedirs(statement_dir, exist_ok=True)
     with open(path.join(statement_dir, description_file), 'w') as f1, \
-        open(path.join(statement_dir, input_file), 'w') as f2, \
-        open(path.join(statement_dir, output_file), 'w') as f3, \
-        open(path.join(statement_dir, hint_file), 'w') as f4:
+            open(path.join(statement_dir, input_file), 'w') as f2, \
+            open(path.join(statement_dir, output_file), 'w') as f3,\
+            open(path.join(statement_dir, hint_file), 'w') as f4:
         f1.write(problem.description)
         f2.write(problem.input)
         f3.write(problem.output)
