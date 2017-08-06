@@ -165,10 +165,13 @@ class StatusList(ListView):
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
-    local_queryset = Submission.objects.all()
+    allow_problem_query = True
+
+    def get_selected_from(self):
+        return Submission.objects.all()
 
     def get_queryset(self):
-        queryset = Submission.objects.select_related('problem', 'author').\
+        queryset = self.get_selected_from().select_related('problem', 'author').\
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
                  'problem__title', 'lang', 'status', 'status_time')
         if not is_admin_or_root(self.request.user):
@@ -176,7 +179,7 @@ class StatusList(ListView):
 
         if 'user' in self.request.GET:
             queryset = queryset.filter(author_id=self.request.GET['user'])
-        if 'problem' in self.request.GET:
+        if self.allow_problem_query and 'problem' in self.request.GET:
             queryset = queryset.filter(problem_id=self.request.GET['problem'])
         if 'lang' in self.request.GET:
             queryset = queryset.filter(lang=self.request.GET['lang'])
@@ -199,7 +202,6 @@ class StatusList(ListView):
             self.request.GET.get('user', ''), self.request.GET.get('problem', '')
         data['lang_choices'] = LANG_CHOICE
         data['verdict_choices'] = STATUS_CHOICE
-
 
         if user.is_authenticated:
             for submission in data['submission_list']:
