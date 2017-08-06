@@ -20,8 +20,7 @@ def query_user(kw):
     return dict(name='User', results=results)
 
 
-def query_problem(kw, all=False):
-    results = list()
+def get_problem_q_object(kw, all=False):
     q_list = list()
     if len(kw) >= 3:
         q_list.append(Q(title__icontains=kw))
@@ -31,6 +30,14 @@ def query_problem(kw, all=False):
         q = reduce(or_, q_list)
         if not all:
             q &= Q(visible=True)
+        return q
+    return None
+
+
+def query_problem(kw, all=False):
+    results = list()
+    q = get_problem_q_object(kw, all)
+    if q:
         for problem in Problem.objects.filter(q).distinct().all()[:5]:
             results.append(dict(title=str(problem),
                                 url=reverse('problem:detail', kwargs=dict(pk=problem.pk))))
@@ -54,4 +61,15 @@ class SearchUserAPI(APIView):
         if kw:
             for user in User.objects.filter(username__icontains=kw).all().only('username', 'pk')[:5]:
                 results.append(dict(name=user.username, value=user.pk))
+        return Response(dict(success=True, results=results))
+
+
+class SearchProblemAPI(APIView):
+    def get(self, request):
+        kw = request.GET.get('kw')
+        results = list()
+        q = get_problem_q_object(kw, is_admin_or_root(request.user))
+        if q:
+            for problem in Problem.objects.filter(q).distinct().all()[:5]:
+                results.append(dict(name=str(problem), value=problem.pk))
         return Response(dict(success=True, results=results))

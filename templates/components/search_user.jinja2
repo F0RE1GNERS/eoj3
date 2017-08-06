@@ -1,1 +1,9 @@
-<select class="ui fluid search dropdown user-search" multiple=""></select>
+{% macro user_search_multiple(name="", extra_class="", query="", exist=[]) %}
+  <div class="ui multiple search selection dropdown user-search {{ extra_class }}" data-query="{{ query }}">
+    <input type="hidden" name="{{ name }}" value="{{ exist | map(attribute='user_id') | join(',') }}">
+    <i class="dropdown icon"></i>
+    <div class="default text">Search for users</div>
+    <div class="menu">
+    </div>
+  </div>
+{% endmacro %}

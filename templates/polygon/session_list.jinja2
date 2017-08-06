@@ -26,8 +26,8 @@
         <button class="ui right floated primary basic button icon synchronize" data-problem="{{ problem.id }}">
           <i class="refresh icon"></i>
         </button>
-        <a href="{{ url('polygon:problem_access', problem.id) }}" class="ui right floated secondary basic button icon">
-          <i class="lock icon"></i>
+        <a href="{{ url('polygon:problem_preview', problem.id) }}" class="ui right floated secondary basic button icon">
+          <i class="browser icon"></i>
         </a>
       {% endif %}
       <div class="item">

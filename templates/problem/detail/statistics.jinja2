@@ -1,0 +1,85 @@
+{% extends 'problem/detail/base.jinja2' %}
+
+{% block problem_content %}
+
+  <table class="ui very padded two column celled table">
+    <thead>
+      <tr class="center aligned">
+        <th>
+          <h4 class="ui header">
+            <i class="user icon"></i>
+            BY AUTHORS
+          </h4>
+        </th>
+        <th>
+          <h4 class="ui header">
+            <i class="tag icon"></i>
+            TOTAL
+          </h4>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="ui three statistics">
+            <div class="statistic">
+              <div class="value">
+                {{ user_ac_count }}
+              </div>
+              <div class="label">
+                Solved
+              </div>
+            </div>
+            <div class="statistic">
+              <div class="value">
+                {{ user_all_count }}
+              </div>
+              <div class="label">
+                Attempted
+              </div>
+            </div>
+            <div class="statistic">
+              <div class="value">
+                {{ user_ratio }}
+              </div>
+              <div class="label">
+                Percent
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="ui three statistics">
+            <div class="statistic">
+              <div class="value">
+                {{ ac_count }}
+              </div>
+              <div class="label">
+                Accepted
+              </div>
+            </div>
+            <div class="statistic">
+              <div class="value">
+                {{ all_count }}
+              </div>
+              <div class="label">
+                Submitted
+              </div>
+            </div>
+            <div class="statistic">
+              <div class="value">
+                {{ ratio }}
+              </div>
+              <div class="label">
+                Percent
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+{% endblock %}

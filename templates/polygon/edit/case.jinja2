@@ -112,7 +112,7 @@
     <div class="ui segment">
       <div class="ui header">Current</div>
       <draggable class="ui middle aligned list" v-model="caseList" :options="{group:'caseList'}">
-        <div class="item" v-for="(element, index) in caseList">
+        <div class="item" v-for="(element, index) in caseList" :key="element.fingerprint">
           <div class="right floated content">
             {{ option_dropdown() }}
           </div>
@@ -134,7 +134,7 @@
     <div class="ui segment">
       <div class="ui header">Unused Cases</div>
       <draggable class="ui middle aligned list" v-model="unusedCaseList" :options="{group:'caseList'}">
-        <div class="item" v-for="element in unusedCaseList">
+        <div class="item" v-for="element in unusedCaseList" :key="element.fingerprint">
           <div class="right floated content">
             {{ option_dropdown() }}
           </div>

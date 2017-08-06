@@ -39,17 +39,32 @@ class Contest(models.Model):
         ('work', 'School Work'),
     )
 
+    TEST_DURING_CONTEST_CHOICE = (
+        ('none', 'None'),
+        ('sample', 'Samples'),
+        ('pretest', 'Pretests'),
+        ('all', 'All')
+    )
+
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
 
+    always_running = models.BooleanField(default=False)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
+    standings_update_time = models.DateTimeField(blank=True, null=True)
+
     freeze = models.BooleanField(default=False)
     freeze_time = models.DateTimeField(blank=True, null=True)
-    standings_update_time = models.DateTimeField(blank=True, null=True)
+    last_counts = models.BooleanField(default=False)  # Treat last submission as valid submission
+    penalty_counts = models.BooleanField(default=True)  # Whether penalty counts in case of the same scores
+    partial_score = models.BooleanField(default=False)  # Use points to calculate scores
+    run_tests_during_contest = models.IntegerField(choices=TEST_DURING_CONTEST_CHOICE, default='all')
+    standings_without_problem = models.BooleanField(default=False)  # Have a standing without specific problems
+    allow_code_share = models.BooleanField(default=False)  # Can view others' codes after AC
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
@@ -59,7 +74,6 @@ class Contest(models.Model):
     standings_public = models.BooleanField(default=True)
 
     objects = ContestManager()
-    contest_header = models.TextField('Header of standings', blank=True)
 
     class Meta:
         ordering = ['-pk']
@@ -85,19 +99,11 @@ class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
     contest = models.ForeignKey(Contest)
     identifier = models.CharField(max_length=12)
-    total_submit_number = models.IntegerField(default=0)
-    total_accept_number = models.IntegerField(default=0)
+    weight = models.IntegerField(default=100)
 
     class Meta:
         unique_together = ('problem', 'contest')
         ordering = ['identifier']
-
-    def add_submit(self, add=1):
-        # Added when submitting
-        self.total_submit_number += add
-
-    def add_accept(self, add=1):
-        self.total_accept_number += add
 
     def __str__(self):
         return self.identifier + '. ' + self.problem.title

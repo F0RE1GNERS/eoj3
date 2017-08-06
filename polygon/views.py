@@ -12,6 +12,7 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement, SpecialProgram
+from submission.statistics import get_accept_problem_count
 from utils import random_string
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
@@ -28,9 +29,12 @@ from .session import (
 )
 
 
+def authorization(user):
+    return get_accept_problem_count(user.id) >= 100
+
+
 def home_view(request):
-    return render(request, 'polygon/home.jinja2', context={'polygon_authorized': True})
-    # TODO: polygon authorization
+    return render(request, 'polygon/home.jinja2', context={'polygon_authorized': authorization(request.user)})
 
 
 def register_view(request):
@@ -40,7 +44,8 @@ def register_view(request):
     else:
         if request.POST.get('terms') != 'on':
             return render(request, template_name, context={'register_error': 'You did\'nt accept terms of use.'})
-        # TODO: or not authorized:
+        if not authorization(request.user):
+            return render(request, template_name, context={'register_error': 'You are not authorized.'})
         request.user.polygon_enabled = True
         request.user.save(update_fields=['polygon_enabled'])
         return redirect(reverse('polygon:home'))
@@ -51,7 +56,13 @@ def response_ok(**kwargs):
     return HttpResponse(json.dumps(kwargs))
 
 
-class SessionList(ListView):
+class PolygonBaseMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.polygon_enabled
+
+
+class SessionList(PolygonBaseMixin, ListView):
     template_name = 'polygon/session_list.jinja2'
     paginate_by = 20
     context_object_name = 'problem_manage_list'
@@ -72,7 +83,7 @@ class SessionList(ListView):
         return data
 
 
-class SessionCreate(View):
+class SessionCreate(PolygonBaseMixin, View):
 
     def post(self, request):
         """
@@ -93,7 +104,7 @@ class SessionCreate(View):
             return redirect(request.POST['next'])
 
 
-class SessionPull(View):
+class SessionPull(PolygonBaseMixin, View):
 
     def post(self, request):
         problem = get_object_or_404(Problem, id=request.POST['problem'])
@@ -112,13 +123,74 @@ class SessionPull(View):
         return redirect(request.POST['next'])
 
 
-class ProblemAccess(DetailView):
+class ProblemMeta(PolygonBaseMixin, TemplateView):
 
     template_name = 'polygon/problem_meta.jinja2'
-    model = Problem
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, **kwargs)
+        return super(ProblemMeta, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
+            self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
+            return super(ProblemMeta, self).test_func()
+        return False
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemMeta, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        data['admin_list'] = self.problem.problemmanagement_set.filter(permission='a')
+        data['write_list'] = self.problem.problemmanagement_set.filter(permission='w')
+        data['read_list'] = self.problem.problemmanagement_set.filter(permission='r')
+        return data
+
+    def post(self, request, pk):
+        upload_permission_dict = dict()
+        for x in map(int, filter(lambda x: x, request.POST['read'].split(','))):
+            upload_permission_dict[x] = 'r'
+        for x in map(int, filter(lambda x: x, request.POST['write'].split(','))):
+            upload_permission_dict[x] = 'w'  # possible rewrite happens here
+        for record in self.problem.problemmanagement_set.all():
+            upload = upload_permission_dict.pop(record.user_id, None)
+            if record.permission == 'a':
+                continue
+            if upload is None:
+                record.delete()
+            else:
+                record.permission = upload
+                record.save(update_fields=['permission'])
+        for key, val in upload_permission_dict.items():
+            self.problem.problemmanagement_set.create(user_id=key, permission=val)
+        return redirect(reverse('polygon:problem_meta', kwargs={'pk': pk}))
 
 
-class RunsList(ListView):
+class ProblemPreview(PolygonBaseMixin, TemplateView):
+
+    template_name = 'polygon/problem_preview.jinja2'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, **kwargs)
+        return super(ProblemPreview, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists():
+            return super(ProblemPreview, self).test_func()
+        return False
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemPreview, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        data['lang_choices'] = LANG_CHOICE
+        return data
+
+
+class ProblemStatus(PolygonBaseMixin, TemplateView):
+
+    template_name = 'polygon/problem_status.jinja2'
+
+
+class RunsList(PolygonBaseMixin, ListView):
     template_name = 'polygon/runs.jinja2'
     paginate_by = 100
     context_object_name = 'runs_list'
@@ -127,7 +199,7 @@ class RunsList(ListView):
         return Run.objects.filter(user=self.request.user).order_by("-pk").all()
 
 
-class RunMessageView(View):
+class RunMessageView(PolygonBaseMixin, View):
 
     def get(self, request, pk):
         try:
@@ -137,13 +209,13 @@ class RunMessageView(View):
             return HttpResponse("")
 
 
-class RunStatus(View):
+class RunStatus(PolygonBaseMixin, View):
 
     def get(self, request, pk):
         return response_ok(run_status=Run.objects.get(pk=pk, user=request.user).status)
 
 
-class BaseSessionMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
+class BaseSessionMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
     raise_exception = True
 
     def dispatch(self, request, *args, **kwargs):
@@ -166,7 +238,7 @@ class BaseSessionMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
                 return False
             if self.session.user != self.user:
                 return False
-        return True
+        return super(BaseSessionMixin, self).test_func()
 
     def get_context_data(self, **kwargs):
         data = super(BaseSessionMixin, self).get_context_data(**kwargs)

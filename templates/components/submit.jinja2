@@ -1,8 +1,8 @@
-{% macro submit_view() %}
+{% macro submit_view(submit_action="") %}
 
   {% include 'components/message.jinja2' %}
 
-  <form class="ui form" action="" method="post">
+  <form class="ui form" action="{{ submit_action }}" method="post">
     {% csrf_token %}
     <div class="ui segments">
       <div class="ui right aligned compact segment">
