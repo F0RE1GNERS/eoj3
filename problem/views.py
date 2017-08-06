@@ -168,23 +168,26 @@ class StatusList(ListView):
     local_queryset = Submission.objects.all()
 
     def get_queryset(self):
-        kw = self.request.GET.get('keyword')
-        author = self.request.GET.get('author')
-        prob = self.request.GET.get('problem')
         queryset = Submission.objects.select_related('problem', 'author').\
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
                  'problem__title', 'lang', 'status', 'status_time')
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(contest__isnull=True, problem__visible=True)
-        if author and author.isdigit():
-            queryset = queryset.filter(author_id=author)
-        if prob and prob.isdigit():
-            queryset = queryset.filter(problem_id=prob)
-        if kw:
-            q = Q(author__username__iexact=kw)
-            if kw.isdigit():
-                q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
-            queryset = queryset.filter(q)
+
+        if 'user' in self.request.GET:
+            queryset = queryset.filter(author_id=self.request.GET['user'])
+        if 'problem' in self.request.GET:
+            queryset = queryset.filter(problem_id=self.request.GET['problem'])
+        if 'lang' in self.request.GET:
+            queryset = queryset.filter(lang=self.request.GET['lang'])
+        if 'verdict' in self.request.GET:
+            queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
+        #
+        # if kw:
+        #     q = Q(author__username__iexact=kw)
+        #     if kw.isdigit():
+        #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
+        #     queryset = queryset.filter(q)
         return queryset.all()[:10000]
 
     def get_context_data(self, **kwargs):
