@@ -1,9 +1,18 @@
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
 
+<div class="ui header">Author: {{ clickable_nickname(author, tag_name='span', i_am_not_header=True) }}</div>
+
 {% for submission in submission_list %}
-  <div class="list">
-    <div class="item">
-      {{ submission.id }} {{ clickable_nickname(submission.author) }} {{ submission.create_time | date('Y-m-d H:i:s') }}
-    </div>
-  </div>
+
+  <p>
+    {% set surl = url(request.resolver_match.namespace + ':' + request.resolver_match.url_name, submission.id) %}
+    <a class="submission-view-trigger" data-fetch="{{ surl }}" data-id="{{ submission.id }}">{{ submission.id }}</a>
+    <i class="icon long arrow right"></i>
+    <a class="ui horizontal label submission-view-trigger status-label" data-fetch="{{ surl }}" data-id="{{ submission.id }}"
+       data-status="{{ submission.status }}"></a>
+    <i>{{ submission.create_time | date('Y-m-d H:i:s') }}</i>
+  </p>
+
 {% endfor %}
+
+{{ submission_block }}

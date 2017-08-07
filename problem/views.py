@@ -99,7 +99,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if is_admin_or_root(self.user) and self.problem.admin_staff.filter(user=self.user).exists():
+        if is_admin_or_root(self.user) and self.problem.problemmanagement_set.filter(user=self.user).exists():
             return True
         return self.problem.visible
 
@@ -233,13 +233,13 @@ class ProblemSubmissionView(TemplateView):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
         submission = Submission.objects.get(pk=self.kwargs.get('pk'))
         if submission.author == self.request.user or \
-                submission.problem.admin_staff.filter(user=self.request.user).exists() or \
+                submission.problem.problemmanagement_set.filter(user=self.request.user).exists() or \
                 is_admin_or_root(self.request.user):
             submission_block = render_submission(submission)
         else:
             submission_block = ''
-        submission_set = submission.problem.submission_set.only("user_id", "problem_id", "id", "status", "create_time",
+        submission_set = submission.problem.submission_set.only("author_id", "problem_id", "id", "status", "create_time",
                                                                 "author_id", "author__username", "author__magic").\
-            filter(user_id=submission.user_id, problem_id=submission.problem_id)
-        data.update(submission_block=submission_block, submission_set=submission_set)
+            filter(author_id=submission.author_id, problem_id=submission.problem_id)
+        data.update(submission_block=submission_block, submission_list=submission_set, author=submission.author)
         return data

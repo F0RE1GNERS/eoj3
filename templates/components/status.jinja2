@@ -8,42 +8,26 @@
         <th>#</th>
         <th>When</th>
         <th>
-          <div class="ui accordion status-filter">
-            <div class="title">
-              Who
-              <i class="filter icon"></i>
-            </div>
-            <div class="{% if param_user %}active{% endif %} content" style="font-weight: normal">
-              <div class="ui search selection dropdown status-filter" data-filter-type="user">
-                <input type="hidden" value="{{ param_user }}">
-                <i class="dropdown icon"></i>
-                <div class="default text">Select</div>
-                <div class="menu">
-                </div>
-              </div>
+          <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}">
+            <span class="text">Who</span>
+            <div class="menu">
+              <div class="item">Who</div>
             </div>
           </div>
+          <span class="restore"><i class="close icon"></i></span>
         </th>
         {% if not hide_problems %}
           {% if in_contest %}
             <th>Problem</th>
           {% else %}
             <th>
-              <div class="ui accordion status-filter">
-                <div class="title">
-                  Problem
-                  <i class="filter icon"></i>
-                </div>
-                <div class="{% if param_problem %}active{% endif %} content" style="font-weight: normal">
-                  <div class="ui search selection dropdown status-filter" data-filter-type="problem">
-                    <input type="hidden" value="{{ param_problem }}">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">Select</div>
-                    <div class="menu">
-                    </div>
-                  </div>
+              <div class="ui dropdown status-filter search" data-filter-type="problem" data-value="{{ param_problem }}">
+                <span class="text">Problem</span>
+                <div class="menu">
+                  <div class="item">Problem</div>
                 </div>
               </div>
+              <span class="restore"><i class="close icon"></i></span>
             </th>
           {% endif %}
         {% endif %}
@@ -83,7 +67,7 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-          <td><a class="submission-view-trigger" href="" data-fetch="{{ url(fetch_submission_url, submission.id) }}">{{ submission.id }}</a></td>
+          <td><a class="submission-view-trigger" data-id="{{ submission.id }}" data-fetch="{{ url(fetch_submission_url, submission.id) }}">{{ submission.id }}</a></td>
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ clickable_nickname(submission.author) }}</td>
           {% if not hide_problems %}
@@ -106,7 +90,6 @@
     <i class="close icon"></i>
     <div class="header"></div>
     <div class="scrolling content">
-      <p>Very long content goes here</p>
     </div>
   </div>
 

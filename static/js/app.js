@@ -49,6 +49,23 @@ $('.ui.accordion.status-filter').accordion({
       .dropdown('clear');
   }
 });
+
+$.filterChangeTo = function (filter, value) {
+  var obj = getUrlParamAsObject();
+  var originalObj = $.extend({}, obj);
+  if (value == 'all')
+    value = '';
+  if (!value && obj.hasOwnProperty(filter)) {
+    delete obj[filter];
+  } if (value) {
+    obj[filter] = value;
+  }
+  if (!_.isEqual(obj, originalObj)) {
+    console.log(obj, originalObj);
+    location.href = encodeObjectAsUrlParamString(obj);
+  }
+};
+
 $('.ui.dropdown.status-filter').each(function () {
   var api_url = null;
   if ($(this).data('filter-type') == 'user')
@@ -57,25 +74,20 @@ $('.ui.dropdown.status-filter').each(function () {
     api_url = '/api/search/problem/?kw={query}';
   $(this).dropdown({
     onChange: function (value) {
-      var obj = getUrlParamAsObject();
-      var originalObj = $.extend({}, originalObject);
-      var type = $(this).data('filter-type');
-      if (value == 'all')
-        value = '';
-      if (!value && obj.hasOwnProperty(type)) {
-        delete obj[type];
-      } if (value) {
-        obj[type] = value;
-      }
-      if (!_.isEqual(obj, originalObj)) {
-        location.href = encodeObjectAsUrlParamString(obj);
-      }
+      $.filterChangeTo($(this).data('filter-type'), value);
     }.bind(this),
     apiSettings: api_url ? {
       url: api_url
     } : false
   });
 });
+
+$('.restore')
+  .click(function (event) {
+    var dropdown = $(event.currentTarget).prev(".ui.dropdown.status-filter");
+    dropdown.dropdown('restore defaults');
+    $.filterChangeTo(dropdown.data('filter-type'), '');
+  });
 
 $('.ui.dropdown.user-search')
   .dropdown({
@@ -121,7 +133,6 @@ $(".ui.checkbox.immediate")
       }, function (data) {
         location.reload();
       });
-
     }
   });
 
@@ -198,7 +209,7 @@ window.LANGUAGE_DISPLAY = {
 };
 
 $.parseStatusDisplay = function () {
-  $("h5.ui.header.status-span").each(function () {
+  $("h5.ui.header.status-span, .status-label").each(function () {
     var status = parseInt($(this).data('status'));
     var icon = '<i class="icon circle fitted ' + STATUS_ICON[status] + '"></i>';
     if ($(this).hasClass("with-icon"))
@@ -216,16 +227,20 @@ $.parseStatusDisplay = function () {
     icon.addClass(STATUS_COLOR[status]);
     icon.addClass(STATUS_ICON[status]);
   });
+  $(".submission-view-trigger")
+    .click(function (event) {
+      var button = $(event.currentTarget);
+      var header = "Submission #" + button.data('id');
+      $.get(button.data('fetch'), {}, function (data) {
+        $(".submission-modal .header").html(header);
+        $(".submission-modal .content").html(data);
+        $(".submission-modal").modal('show');
+        $.parseStatusDisplay();
+      })
+    })
+    .attr('href', 'javascript:void(0);');
+  new Clipboard('.clipboard');
 };
 
 $.parseStatusDisplay();
 
-$(".submission-view-trigger").click(function (event) {
-  var button = $(event.currentTarget);
-  var header = "Submission #" + button.html();
-  $(".submission-modal").modal('show');
-  $.get(button.data('fetch'), {}, function (data) {
-    $(".submission-modal .header").html(header);
-    $(".submission-modal .content").html(data);
-  })
-});

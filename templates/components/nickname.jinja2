@@ -1,5 +1,5 @@
-{% macro clickable_nickname(user) %}
-  <h5 class="ui header {{ user.magic }}">
+{% macro clickable_nickname(user, tag_name='h5', i_am_not_header=False) %}
+  <{{ tag_name }} class="{% if not i_am_not_header %}ui header{% endif %} {{ user.magic }}">
     <a style="color: inherit;" href="{{ url('generic', user.username) }}">{{ user.username }}</a>
-  </h5>
+  </{{ tag_name }}>
 {% endmacro %}
