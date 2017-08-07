@@ -102,6 +102,24 @@ class Submission(models.Model):
     def status_detail_list(self, lis):
         self.status_detail = json.dumps(lis)
 
+    @property
+    def status_detail_display(self):
+        r, l = [], self.status_detail_list
+        status_dictionary = dict(STATUS_CHOICE)
+        count = len(l)
+        for index, s in enumerate(l, start=1):
+            u, v = -233, '%d/%d' % (index, count)  # Magic number: display nothing
+            if ('verdict' in s) and SubmissionStatus.is_judged(s['verdict']):
+                u = s['verdict']
+                t = status_dictionary[u]
+                if s['verdict'] == SubmissionStatus.ACCEPTED:
+                    t += ', %.3fs' % s.get('time', 0.0)
+                elif s['verdict'] == SubmissionStatus.RUNTIME_ERROR:
+                    t += ', %s' % s.get('message', 'NaN')
+                v += ': ' + t
+            r.append((u, v))
+        return r
+
     def is_judged(self):
         return SubmissionStatus.is_judged(self.status)
 

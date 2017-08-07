@@ -217,8 +217,8 @@ class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
 
     def get(self, request, pk):
         subs = []
-        SUB_FIELDS = ["id", "lang", "code_as_html", "create_time_display", "judge_time_display",
-                      "status", "status_detail_list", "code", "status_time", "status_message"]
-        for sub in self.problem.submission_set.filter(author=self.user).order_by("-create_time").all():
+        SUB_FIELDS = ["id", "status"]
+        for sub in self.problem.submission_set.filter(author=self.user).only("create_time", "author", *SUB_FIELDS).\
+                order_by("-create_time").all():
             subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
         return HttpResponse(json.dumps(subs))

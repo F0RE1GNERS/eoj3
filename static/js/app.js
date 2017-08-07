@@ -142,6 +142,7 @@ window.STATUS[11] = 'Judge Error';
 window.STATUS[12] = 'Pretest Passed';
 
 window.STATUS_COLOR = {};
+window.STATUS_COLOR[-233] = '';
 window.STATUS_COLOR[-4] = 'black';
 window.STATUS_COLOR[-3] = 'blue';
 window.STATUS_COLOR[-2] = 'blue';
@@ -159,6 +160,7 @@ window.STATUS_COLOR[11] = 'orange';
 window.STATUS_COLOR[12] = 'green';
 
 window.STATUS_ICON = {};
+window.STATUS_ICON[-233] = '';
 window.STATUS_ICON[-4] = 'help';
 window.STATUS_ICON[-3] = 'help';
 window.STATUS_ICON[-2] = 'help';
@@ -193,11 +195,25 @@ window.LANGUAGE_DISPLAY = {
   'rs': 'Rust'
 };
 
-$("h5.ui.header.status-span").each(function () {
-  var status = parseInt($(this).data('status'));
-  $(this).html(STATUS[status]);
-  $(this).addClass(STATUS_COLOR[status]);
-  if (status != 0) {
-    $(this).css("font-weight", 600);
-  }
-});
+$.parseStatusDisplay = function () {
+  $("h5.ui.header.status-span").each(function () {
+    var status = parseInt($(this).data('status'));
+    var icon = '<i class="icon circle fitted ' + STATUS_ICON[status] + '"></i>';
+    if ($(this).hasClass("with-icon"))
+      $(this).html(icon + STATUS[status]);
+    else
+      $(this).html(STATUS[status]);
+    $(this).addClass(STATUS_COLOR[status]);
+    if (status != 0) {
+      $(this).css("font-weight", 600);
+    }
+  });
+  $("span.status-icon").each(function () {
+    var status = parseInt($(this).data('status'));
+    var icon = $(this).find('i.icon');
+    icon.addClass(STATUS_COLOR[status]);
+    icon.addClass(STATUS_ICON[status]);
+  });
+};
+
+$.parseStatusDisplay();

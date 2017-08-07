@@ -1,0 +1,47 @@
+<h3 class="ui horizontal divider header">
+  SUB #{{ submission.id }}
+</h3>
+<div class="ui segment">
+  <a class="ui top right attached label clipboard" data-clipboard-text="{{ submission.code }}">
+    <i class="copy icon"></i> {{ submission.get_lang_display() }}
+  </a>
+  <div>{{ submission.code_as_html | safe }}</div>
+</div>
+<table class="ui celled table structured">
+  <thead>
+    <tr class="center aligned">
+      <th>#</th>
+      <th>Language</th>
+      <th>Sent</th>
+      <th>Judged</th>
+      <th>Verdict</th>
+      <th>CPU</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="center aligned">
+      <th rowspan="2" style="padding:1em">{{ submission.id }}</th>
+      <td>{{ submission.get_lang_display() }}</td>
+      <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+      <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
+      <td><h5 class="ui header status-span with-icon" data-status="{{ submission.status }}"></h5></td>
+      <td>{{ submission.get_time_display() }}</td>
+    </tr>
+    <tr>
+      <td colspan="5" style="">
+        {% if submission.status == -2 or submission.status == -3 %}
+          <div class="ui active large centered inline loader"></div>
+        {% endif %}
+        <div class="testcases">
+          {% for status_number, detail in submission.status_detail_display %}
+            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}"><i class="icon"></i></span>
+          {% endfor %}
+        </div>
+        {% if submission.status_message %}
+          <h3 class="ui header">Error Message</h3>
+          <pre style="white-space: pre-wrap;">{{ submission.status_message }}</pre>
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
