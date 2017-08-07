@@ -43,3 +43,23 @@ class ReplyAPI(APIView):
             uc.unread = True
             uc.save()
         return Response(status=status.HTTP_200_OK)
+
+
+class ConversationAPI(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, pk):
+        c = get_object_or_404(Conversation, pk=pk)
+        uc_qs = UserConversation.objects.filter(conversation=c, user=request.user).all()
+        if uc_qs.exists() is False:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        uc = uc_qs.first()  # type: UserConversation
+        uc.unread = False
+        data = list()
+        for msg in c.messages.all():
+            data.append(dict(sender=msg.sender.username,
+                             avatar=msg.sender.avatar_small.url,
+                             content=msg.content,
+                             time=msg.sent_time,
+                             is_self=msg.sender == request.user))
+        return Response(data)

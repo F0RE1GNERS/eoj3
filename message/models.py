@@ -21,12 +21,6 @@ class Conversation(models.Model):
         for user in users:
             UserConversation.objects.create(conversation=self, user=user)
 
-    def mark_all_read(self, user: User):
-        uc: UserConversation = UserConversation.objects.filter(conversation=self).filter(user=user).first()
-        if uc:
-            uc.unread = False
-            uc.save()
-
     objects = ConversationManager()
 
 
@@ -42,9 +36,7 @@ class UserConversation(models.Model):
 class Message(models.Model):
     content = models.TextField('content', blank=True)
     sender = models.ForeignKey(User, related_name='sent_messages')
-    # recipient = models.ForeignKey(User, related_name='received_messages')
     sent_time = models.DateTimeField(auto_now_add=True)
-    # unread = models.BooleanField(default=True)
     conversation = models.ForeignKey(Conversation, related_name='messages', null=True)
 
 
