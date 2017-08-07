@@ -165,10 +165,13 @@ class StatusList(ListView):
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
-    local_queryset = Submission.objects.all()
+    allow_problem_query = True
+
+    def get_selected_from(self):
+        return Submission.objects.all()
 
     def get_queryset(self):
-        queryset = Submission.objects.select_related('problem', 'author').\
+        queryset = self.get_selected_from().select_related('problem', 'author').\
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
                  'problem__title', 'lang', 'status', 'status_time')
         if not is_admin_or_root(self.request.user):
@@ -176,7 +179,7 @@ class StatusList(ListView):
 
         if 'user' in self.request.GET:
             queryset = queryset.filter(author_id=self.request.GET['user'])
-        if 'problem' in self.request.GET:
+        if self.allow_problem_query and 'problem' in self.request.GET:
             queryset = queryset.filter(problem_id=self.request.GET['problem'])
         if 'lang' in self.request.GET:
             queryset = queryset.filter(lang=self.request.GET['lang'])
@@ -200,7 +203,6 @@ class StatusList(ListView):
         data['lang_choices'] = LANG_CHOICE
         data['verdict_choices'] = STATUS_CHOICE
 
-
         if user.is_authenticated:
             for submission in data['submission_list']:
                 if is_admin_or_root(user) or submission.author == user:
@@ -215,8 +217,8 @@ class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
 
     def get(self, request, pk):
         subs = []
-        SUB_FIELDS = ["id", "lang", "code_as_html", "create_time_display", "judge_time_display",
-                      "status", "status_detail_list", "code", "status_time", "status_message"]
-        for sub in self.problem.submission_set.filter(author=self.user).order_by("-create_time").all():
+        SUB_FIELDS = ["id", "status"]
+        for sub in self.problem.submission_set.filter(author=self.user).only("create_time", "author", *SUB_FIELDS).\
+                order_by("-create_time").all():
             subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
         return HttpResponse(json.dumps(subs))

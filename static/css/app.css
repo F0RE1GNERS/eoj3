@@ -56727,6 +56727,23 @@ textarea[name="code"] {
   color: #ad1457;
   border: none;
 }
+.testcases {
+  min-height: 17px;
+}
+.testcases span {
+  display: block;
+  float: left;
+  border: 1px solid #C9C9C9;
+  margin-left: 2px;
+  padding: 0px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 11px;
+  height: 17px;
+  width: 17px;
+  background-color: #F9F9F9;
+  padding-top: 1px;
+}
 .highlight .hll {
   background-color: #ffffcc;
 }

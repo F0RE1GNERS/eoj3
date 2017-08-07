@@ -24,7 +24,7 @@ from django.views.static import serve
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
 from home.views import home_view, faq_view, TestView
-from submission.views import SubmissionView, SubmissionRejudgeView
+from submission.views import SubmissionView, SubmissionRejudgeView, pure_submission_api
 from tests.views import test_view, test_contest_view
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^faq/$', faq_view, name='faq'),
     url(r'^problem/', include('problem.urls', namespace='problem')),
     url(r'^submission/(?P<pk>\d+)/$', SubmissionView.as_view(), name='submission'),
+    url(r'^submission/rendered/(?P<pk>\d+)/$', pure_submission_api),
     url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
     url(r'^contest/', include('contest.urls', namespace='contest')),
     url(r'^login/$', my_login, name='login'),

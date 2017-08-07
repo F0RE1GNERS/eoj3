@@ -12,6 +12,8 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
 from problem.models import Problem, ProblemManagement, SpecialProgram
+from problem.views import StatusList
+from submission.models import Submission
 from submission.statistics import get_accept_problem_count
 from utils import random_string
 from utils.download import respond_as_attachment
@@ -185,9 +187,21 @@ class ProblemPreview(PolygonBaseMixin, TemplateView):
         return data
 
 
-class ProblemStatus(PolygonBaseMixin, TemplateView):
+class ProblemStatus(PolygonBaseMixin, StatusList):
 
     template_name = 'polygon/problem_status.jinja2'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, **kwargs)
+        return super(ProblemStatus, self).dispatch(request, *args, **kwargs)
+
+    def get_selected_from(self):
+        return Submission.objects.filter(problem_id=self.problem.id)
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemStatus, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        return data
 
 
 class RunsList(PolygonBaseMixin, ListView):

@@ -1,5 +1,5 @@
 AIPlayground
-migrations/
+migrations/*
 db.sqlite3
 .idea/
 !migrations/__init__.py
@@ -17,5 +17,5 @@ cdn/
 node_modules/
 bower_components/
 media/
-static/css/
 repo/
+css/app.css

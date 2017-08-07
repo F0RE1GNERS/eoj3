@@ -1,23 +1,36 @@
+import datetime
 import json
-from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect
-from django.views.generic.list import ListView
-from django.views.generic import View
+
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.http import JsonResponse
-
+from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect, HttpResponse
+from django.template import loader, Context
+from django.views.generic import View
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
-import json
-import datetime
+from pygments.lexers import get_lexer_by_name
 
 from account.models import User
 from account.permissions import is_admin_or_root
-from .models import Submission, SubmissionStatus
 from dispatcher.tasks import send_rejudge
 from utils.authentication import test_site_open
+from .models import Submission, SubmissionStatus
+
+
+def render_submission(submission: Submission) -> str:
+    t = loader.get_template('components/single_submission.jinja2')
+    c = Context({'submission': submission})
+    return t.render(c)
+
+
+def pure_submission_api(request, pk):
+    submission = Submission.objects.get(pk=pk)
+    if not is_admin_or_root(request.user) and submission.status == SubmissionStatus.SYSTEM_ERROR and submission.status_message:
+        submission.status_message = 'This message is only available to admins. Send feedback for details.'
+    if is_admin_or_root(request.user) or submission.user == request.user:
+        return HttpResponse(render_submission(submission))
+    raise PermissionDenied
 
 
 class SubmissionView(UserPassesTestMixin, View):
@@ -94,3 +107,5 @@ def submission_count_api(request, name):
     submissions = Submission.objects.filter(author=user, create_time__gte=one_year_ago)
     result = {submission.create_time.timestamp(): 1 for submission in submissions}
     return JsonResponse(result)
+
+

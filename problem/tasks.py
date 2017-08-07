@@ -1,3 +1,4 @@
+from datetime import datetime
 from threading import Thread
 
 from dispatcher.judge import send_judge_through_watch
@@ -42,12 +43,12 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.status_message = data['message']
             submission.status = data.get('verdict', SubmissionStatus.WAITING)
             submission.status_detail_list = data.get('detail', [])
-            submission.status_detail_list = submission.status_detail_list + \
-                                            [{}] * max(0, len(case_list) - len(submission.status_detail_list))
+            submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
             submission.save(update_fields=['status_message', 'status_detail', 'status'])
             if SubmissionStatus.is_judged(data.get('verdict')):
                 submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
-                submission.save(update_fields=['status_time'])
+                submission.judge_end_time = datetime.fromtimestamp(data.get('timestamp'))
+                submission.save(update_fields=['status_time', 'judge_end_time'])
                 Thread(callback).start()
                 return True
             return False

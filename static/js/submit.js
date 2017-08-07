@@ -35,7 +35,7 @@ editor.setTheme("ace/theme/chrome");
 editor.getSession().setMode("ace/mode/" + map[lang.val()]);
 editor.setOptions({
   fontFamily: "Courier",
-  fontSize: "12pt"
+  fontSize: "11pt"
 });
 lang.on("change", function (event) {
   editor.getSession().setMode("ace/mode/" + map[event.target.value]);
@@ -44,6 +44,13 @@ editor.getSession().on("change", function () {
   code.val(editor.getSession().getValue());
 });
 
+function scrollToCurrentSubmission () {
+  $('html, body').animate({
+    scrollTop: $("#older-submission").offset().top - $("#navbar").height() - 15
+  }, 500);
+}
+
+
 $("#problem-submit").click(function (event) {
   var button = $(event.currentTarget);
   var form = button.closest("form");
@@ -51,9 +58,7 @@ $("#problem-submit").click(function (event) {
   $.post(form.attr("action"), form.serialize(), function () {
     vm.updateSubmission();
     form.removeClass("loading");
-    $('html, body').animate({
-      scrollTop: $("#older-submission").offset().top - $("#navbar").height() - 15
-    }, 500);
+    scrollToCurrentSubmission();
   });
   return false;
 });
@@ -66,7 +71,7 @@ if ($("#older-submission").length > 0) {
       submission: [],
       current: -1,
       time: 'NaN',
-      subcurrent: {},
+      subcurrent: "",
       LANGUAGE_DISPLAY: window.LANGUAGE_DISPLAY,
       STATUS_COLOR: window.STATUS_COLOR,
       STATUS_ICON: window.STATUS_ICON,
@@ -81,18 +86,14 @@ if ($("#older-submission").length > 0) {
     },
     methods: {
       updateCurrentDisplay: function () {
-        if (this.current < 0 || this.current >= this.submission.length) {
-          this.time = 'NaN';
+        var c = this.current;
+        if (c >= 0 && c < this.submission.length) {
+          $.get('/submission/rendered/' + this.submission[c].id, function (data) {
+            this.subcurrent = data;
+            scrollToCurrentSubmission();
+          }.bind(this));
         } else {
-          this.subcurrent = this.submission[this.current];
-          if (typeof this.submission[this.current].status_time == 'number')
-            this.time = this.submission[this.current].status_time.toFixed(3) + 's';
-          else this.time = 'NaN';
-          console.log(this.subcurrent);
-          for (var i = 0; i < this.subcurrent.status_detail_list.length; ++i) {
-            if (!this.subcurrent.status_detail_list[i].hasOwnProperty("verdict"))
-              this.subcurrent.status_detail_list[i].verdict = -3;
-          }
+          this.subcurrent = "";
         }
       },
       updateSubmission: function () {
@@ -117,9 +118,6 @@ if ($("#older-submission").length > 0) {
       },
       toggleCurrent: function (event) {
         this.current = $(event.currentTarget).attr("index");
-        $('html, body').animate({
-          scrollTop: $("#older-submission").offset().top - $("#navbar").height() - 15
-        }, 500);
       }
     },
     beforeMount: function () {
@@ -127,6 +125,9 @@ if ($("#older-submission").length > 0) {
     },
     mounted: function () {
       new Clipboard('.clipboard');
+    },
+    updated: function () {
+      $.parseStatusDisplay();
     }
   });
 }
