@@ -18,6 +18,7 @@ from .statistics import (
 )
 from submission.forms import SubmitForm
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
+from submission.views import render_submission
 from dispatcher.tasks import submit_code
 from account.permissions import is_admin_or_root
 from utils.authentication import test_site_open
@@ -98,7 +99,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if is_admin_or_root(self.user) and self.problem.problemmanagement_set.filter(user=self.user).exists():
+        if is_admin_or_root(self.user) and self.problem.admin_staff.filter(user=self.user).exists():
             return True
         return self.problem.visible
 
@@ -222,3 +223,23 @@ class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
                 order_by("-create_time").all():
             subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
         return HttpResponse(json.dumps(subs))
+
+
+class ProblemSubmissionView(TemplateView):
+
+    template_name = 'submission.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
+        submission = Submission.objects.get(pk=self.kwargs.get('pk'))
+        if submission.author == self.request.user or \
+                submission.problem.admin_staff.filter(user=self.request.user).exists() or \
+                is_admin_or_root(self.request.user):
+            submission_block = render_submission(submission)
+        else:
+            submission_block = ''
+        submission_set = submission.problem.submission_set.only("user_id", "problem_id", "id", "status", "create_time",
+                                                                "author_id", "author__username", "author__magic").\
+            filter(user_id=submission.user_id, problem_id=submission.problem_id)
+        data.update(submission_block=submission_block, submission_set=submission_set)
+        return data

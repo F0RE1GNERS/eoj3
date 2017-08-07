@@ -1,6 +1,6 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
 
-{% macro status(in_contest=False, hide_problems=False) %}
+{% macro status(in_contest=False, hide_problems=False, fetch_submission_url='problem:submission_view') %}
 
   <table class="ui celled table striped center aligned compact">
     <thead>
@@ -14,7 +14,7 @@
               <i class="filter icon"></i>
             </div>
             <div class="{% if param_user %}active{% endif %} content" style="font-weight: normal">
-              <div class="ui compact search selection dropdown status-filter" data-filter-type="user">
+              <div class="ui search selection dropdown status-filter" data-filter-type="user">
                 <input type="hidden" value="{{ param_user }}">
                 <i class="dropdown icon"></i>
                 <div class="default text">Select</div>
@@ -35,7 +35,7 @@
                   <i class="filter icon"></i>
                 </div>
                 <div class="{% if param_problem %}active{% endif %} content" style="font-weight: normal">
-                  <div class="ui compact search selection dropdown status-filter" data-filter-type="problem">
+                  <div class="ui search selection dropdown status-filter" data-filter-type="problem">
                     <input type="hidden" value="{{ param_problem }}">
                     <i class="dropdown icon"></i>
                     <div class="default text">Select</div>
@@ -83,7 +83,7 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-          <td>{{ submission.id }}</td>
+          <td><a class="submission-view-trigger" href="" data-fetch="{{ url(fetch_submission_url, submission.id) }}">{{ submission.id }}</a></td>
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ clickable_nickname(submission.author) }}</td>
           {% if not hide_problems %}
@@ -101,5 +101,13 @@
     </tbody>
   </table>
   {{ my_paginator() }}
+
+  <div class="ui modal submission-modal">
+    <i class="close icon"></i>
+    <div class="header"></div>
+    <div class="scrolling content">
+      <p>Very long content goes here</p>
+    </div>
+  </div>
 
 {% endmacro %}

@@ -62,7 +62,7 @@ class Contest(models.Model):
     last_counts = models.BooleanField(default=False)  # Treat last submission as valid submission
     penalty_counts = models.BooleanField(default=True)  # Whether penalty counts in case of the same scores
     partial_score = models.BooleanField(default=False)  # Use points to calculate scores
-    run_tests_during_contest = models.IntegerField(choices=TEST_DURING_CONTEST_CHOICE, default='all')
+    run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default='all')
     standings_without_problem = models.BooleanField(default=False)  # Have a standing without specific problems
     allow_code_share = models.BooleanField(default=False)  # Can view others' codes after AC
 

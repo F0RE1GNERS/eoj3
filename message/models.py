@@ -17,15 +17,15 @@ class Conversation(models.Model):
     class Meta:
         ordering = ['-last_update']
 
-    def add_users(self, *users: User):
-        for user in users:
-            UserConversation.objects.create(conversation=self, user=user)
-
-    def mark_all_read(self, user: User):
-        uc: UserConversation = UserConversation.objects.filter(conversation=self).filter(user=user).first()
-        if uc:
-            uc.unread = False
-            uc.save()
+    # def add_users(self, *users: User):
+    #     for user in users:
+    #         UserConversation.objects.create(conversation=self, user=user)
+    #
+    # def mark_all_read(self, user: User):
+    #     uc: UserConversation = UserConversation.objects.filter(conversation=self).filter(user=user).first()
+    #     if uc:
+    #         uc.unread = False
+    #         uc.save()
 
     objects = ConversationManager()
 

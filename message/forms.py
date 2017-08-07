@@ -18,5 +18,5 @@ class StartConversationForm(forms.Form):
 
     def create(self, sender: User):
         msg = Message.objects.create(sender=sender, content=self.cleaned_data['content'])
-        c: Conversation = Conversation.objects.start_conversation(msg=msg, recipient=self.cleaned_data['recipient'])
+        c = Conversation.objects.start_conversation(msg=msg, recipient=self.cleaned_data['recipient'])
         return c

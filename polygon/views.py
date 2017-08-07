@@ -70,7 +70,7 @@ class SessionList(PolygonBaseMixin, ListView):
     context_object_name = 'problem_manage_list'
 
     def get_queryset(self):
-        return self.request.user.problemmanagement_set.select_related("problem").\
+        return self.request.user.admin_staff.select_related("problem").\
             all().order_by("problem__update_time").reverse()
 
     def get_context_data(self, **kwargs):
@@ -134,17 +134,17 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
         return super(ProblemMeta, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
-            self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
+        if self.problem.admin_staff.filter(user=self.request.user, permission='a').exists() or \
+            self.problem.admin_staff.filter(user=self.request.user, permission='w').exists():
             return super(ProblemMeta, self).test_func()
         return False
 
     def get_context_data(self, **kwargs):
         data = super(ProblemMeta, self).get_context_data(**kwargs)
         data['problem'] = self.problem
-        data['admin_list'] = self.problem.problemmanagement_set.filter(permission='a')
-        data['write_list'] = self.problem.problemmanagement_set.filter(permission='w')
-        data['read_list'] = self.problem.problemmanagement_set.filter(permission='r')
+        data['admin_list'] = self.problem.admin_staff.filter(permission='a')
+        data['write_list'] = self.problem.admin_staff.filter(permission='w')
+        data['read_list'] = self.problem.admin_staff.filter(permission='r')
         return data
 
     def post(self, request, pk):
@@ -153,7 +153,7 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
             upload_permission_dict[x] = 'r'
         for x in map(int, filter(lambda x: x, request.POST['write'].split(','))):
             upload_permission_dict[x] = 'w'  # possible rewrite happens here
-        for record in self.problem.problemmanagement_set.all():
+        for record in self.problem.admin_staff.all():
             upload = upload_permission_dict.pop(record.user_id, None)
             if record.permission == 'a':
                 continue
@@ -163,7 +163,7 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
                 record.permission = upload
                 record.save(update_fields=['permission'])
         for key, val in upload_permission_dict.items():
-            self.problem.problemmanagement_set.create(user_id=key, permission=val)
+            self.problem.admin_staff.create(user_id=key, permission=val)
         return redirect(reverse('polygon:problem_meta', kwargs={'pk': pk}))
 
 
@@ -176,7 +176,7 @@ class ProblemPreview(PolygonBaseMixin, TemplateView):
         return super(ProblemPreview, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists():
+        if self.problem.admin_staff.filter(user=self.request.user, permission='a').exists():
             return super(ProblemPreview, self).test_func()
         return False
 
@@ -239,7 +239,7 @@ class BaseSessionMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
                 raise PermissionDenied
             self.session = get_object_or_404(EditSession, pk=kwargs.get('sid'))
             self.problem = self.session.problem
-            self.access = self.problem.problemmanagement_set.get(user=self.user).permission
+            self.access = self.problem.admin_staff.get(user=self.user).permission
             self.config = load_config(self.session)
         except ProblemManagement.DoesNotExist:
             raise PermissionDenied

@@ -58,6 +58,7 @@ $('.ui.dropdown.status-filter').each(function () {
   $(this).dropdown({
     onChange: function (value) {
       var obj = getUrlParamAsObject();
+      var originalObj = $.extend({}, originalObject);
       var type = $(this).data('filter-type');
       if (value == 'all')
         value = '';
@@ -66,8 +67,9 @@ $('.ui.dropdown.status-filter').each(function () {
       } if (value) {
         obj[type] = value;
       }
-      console.log(obj);
-      location.href = encodeObjectAsUrlParamString(obj);
+      if (!_.isEqual(obj, originalObj)) {
+        location.href = encodeObjectAsUrlParamString(obj);
+      }
     }.bind(this),
     apiSettings: api_url ? {
       url: api_url
@@ -217,3 +219,13 @@ $.parseStatusDisplay = function () {
 };
 
 $.parseStatusDisplay();
+
+$(".submission-view-trigger").click(function (event) {
+  var button = $(event.currentTarget);
+  var header = "Submission #" + button.html();
+  $(".submission-modal").modal('show');
+  $.get(button.data('fetch'), {}, function (data) {
+    $(".submission-modal .header").html(header);
+    $(".submission-modal .content").html(data);
+  })
+});

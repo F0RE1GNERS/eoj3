@@ -1,92 +1,9 @@
-{% extends 'base.jinja2' %}
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
 
-{% block title %}Submission #{{ submission.pk }} - {% endblock %}
-
-{% block page_header %}
-  Submission #{{ submission.pk }}
-{% endblock %}
-
-
-{% block content %}
-
-  <div class="container">
-  {% if is_frozen != 'f2' %}
-    <div class="alert alert-{{ submission.get_verdict_color() }}" role="alert">
-      <span class="verdict-lg">{{ submission.get_status_display() }}</span>
+{% for submission in submission_list %}
+  <div class="list">
+    <div class="item">
+      {{ submission.id }} {{ clickable_nickname(submission.author) }} {{ submission.create_time | date('Y-m-d H:i:s') }}
     </div>
-  {% endif %}
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Who</th>
-            <th>Problem</th>
-            <th>Lang</th>
-            <th>Verdict</th>
-            <th>Sent</th>
-            {% if submission.is_judged() %}
-            <th>Judged</th>
-            <th>Time</th>
-            <th>Memory</th>
-            {% endif %}
-            {% if is_privileged %}
-            <th>Rejudge</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td scope="row">{{ submission.pk }}</td>
-            <td>{{ clickable_nickname(submission.author) }}</td>
-            {% if contest_problem %}
-              <td>{{ contest_problem }}</td>
-            {% else %}
-              <td><a href="{{ url('problem', submission.problem_id) }}">{{ submission.problem }}</a></td>
-            {% endif %}
-            <td>{{ submission.get_lang_display() }}</td>
-            <td>{% if is_frozen == 'f2' %}N/A{% else %}{{ submission.get_status_display() }}{% endif %}</td>
-            <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
-            {% if submission.is_judged() %}
-              {% if is_frozen == 'f2' %}
-                <td>N/A</td><td>N/A</td><td>N/A</td>
-              {% else %}
-                <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
-                <td>{{ submission.get_time_display() }}</td>
-                <td>{{ submission.get_memory_display() }}</td>
-              {% endif %}
-            {% endif %}
-            {% if is_privileged %}
-            <td><a role="button" class="btn btn-default" href="{{ url('rejudge', submission.pk) }}">Rejudge</a></td>
-            {% endif %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="code-block">
-      {{ code | safe }}
-    </div>
-    {% if is_judged and is_frozen != 'f2' %}
-      {% if not is_not_detailed and detail %}
-        {% for message in detail %}
-          <div class="panel panel-{{ message.color }}">
-            <div class="panel-heading">
-              <h3 class="panel-title">Case #{{ message.count }}</h3>
-            </div>
-            <div class="panel-body">
-              time: {{ message.time }}ms, memory: {{ message.memory }}KB, verdict: <strong>{{ message.verdict | status_choice }}</strong>
-            </div>
-          </div>
-        {% endfor %}
-      {% elif detail_ce %}
-        <h3>Compile Error Message</h3>
-        <div class="code-block">
-          <pre>{{ detail_ce }}</pre>
-        </div>
-      {% endif %}
-    {% endif %}
-
   </div>
-
-{% endblock %}
+{% endfor %}
