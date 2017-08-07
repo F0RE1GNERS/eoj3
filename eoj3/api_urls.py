@@ -5,6 +5,7 @@ from home import search_api
 from submission.views import submission_count_api
 from utils.markdown3 import markdown_convert_api
 from polygon.views import RunStatus
+from message.views import ReplyAPI
 
 urlpatterns = [
     url(r'^submission/user/(?P<name>.*)/$', submission_count_api),
@@ -12,7 +13,8 @@ urlpatterns = [
     url(r'^search/$', search_api.SearchAPI.as_view(), name='search'),
     url(r'^search/user/$', search_api.SearchUserAPI.as_view(), name='user_search'),
     url(r'^search/problem/$', search_api.SearchProblemAPI.as_view(), name='problem_search'),
-    url(r'^polygon/run/(?P<pk>\d+)', RunStatus.as_view())
+    url(r'^polygon/run/(?P<pk>\d+)/$', RunStatus.as_view()),
+    url(r'^message/reply/(?P<pk>\d+)/$', ReplyAPI.as_view())
 ]
 
 
