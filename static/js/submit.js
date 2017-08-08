@@ -50,7 +50,6 @@ function scrollToCurrentSubmission () {
   }, 500);
 }
 
-
 $("#problem-submit").click(function (event) {
   var button = $(event.currentTarget);
   var form = button.closest("form");
@@ -90,7 +89,6 @@ if ($("#older-submission").length > 0) {
         if (c >= 0 && c < this.submission.length) {
           $.get('/submission/rendered/' + this.submission[c].id, function (data) {
             this.subcurrent = data;
-            scrollToCurrentSubmission();
           }.bind(this));
         } else {
           this.subcurrent = "";
@@ -118,6 +116,7 @@ if ($("#older-submission").length > 0) {
       },
       toggleCurrent: function (event) {
         this.current = $(event.currentTarget).attr("index");
+        scrollToCurrentSubmission();
       }
     },
     beforeMount: function () {

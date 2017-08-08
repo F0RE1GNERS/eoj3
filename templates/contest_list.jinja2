@@ -2,17 +2,11 @@
 
 {% block title %}Contests - {% endblock %}
 
+{% block page_header %}Contests{% endblock %}
+
 {% block content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Contests</h1>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="table-responsive">
-      <table class="table table-bordered">
+      <table class="ui table">
         <thead>
           <tr>
             <th width="42%">Name</th>
@@ -44,9 +38,7 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>
 
     {{ my_paginator() }}
-  </div>
 
 {% endblock %}

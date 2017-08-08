@@ -41,14 +41,16 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     timeout_count = 0
 
     try:
-        response = requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token), timeout=timeout).json()
+        response = add_timestamp_to_reply(requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token),
+                                                        timeout=timeout).json())
         if response.get('status') != 'received':
             callback(response)
         while timeout_count < timeout:
             interval = 0.5
             time.sleep(interval)
-            if callback(requests.get(watch_url, json={'fingerprint': data['fingerprint']},
-                                     auth=(DEFAULT_USERNAME, server.token), timeout=timeout).json()):
+            response = add_timestamp_to_reply(requests.get(watch_url, json={'fingerprint': data['fingerprint']},
+                                              auth=(DEFAULT_USERNAME, server.token), timeout=timeout).json())
+            if callback(response):
                 break
             timeout_count += interval
         if timeout_count >= timeout:
