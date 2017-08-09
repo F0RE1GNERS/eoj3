@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import PermissionDenied
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import render, redirect, reverse, get_object_or_404, HttpResponse
-from django.views.generic import ListView, View, DetailView, TemplateView
+from django.views.generic import ListView, View, TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root

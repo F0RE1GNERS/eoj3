@@ -64,8 +64,8 @@ class Contest(models.Model):
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
 
     always_running = models.BooleanField(default=False)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
     create_time = models.DateTimeField(auto_now_add=True)
     standings_update_time = models.DateTimeField(blank=True, null=True)
 

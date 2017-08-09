@@ -1,28 +1,24 @@
 import json
-from django.shortcuts import render, HttpResponse, reverse, get_object_or_404
-from django.views.generic.list import ListView
+
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+from django.shortcuts import HttpResponse, get_object_or_404
 from django.views.generic import TemplateView, View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import Q
-
-from django.core.exceptions import PermissionDenied
+from django.views.generic.list import ListView
 from tagging.models import Tag, TaggedItem, ContentType
-from collections import Counter
 
+from account.permissions import is_admin_or_root
+from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
+from submission.views import render_submission
+from utils.language import LANG_CHOICE
 from .models import Problem
-from .tasks import create_submission, judge_submission_on_problem
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count
 )
-from submission.forms import SubmitForm
-from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
-from submission.views import render_submission
-from dispatcher.tasks import submit_code
-from account.permissions import is_admin_or_root
-from utils.authentication import test_site_open
-from utils.language import LANG_CHOICE
+from .tasks import create_submission, judge_submission_on_problem
 
 
 class ProblemList(ListView):

@@ -1,0 +1,43 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Sessions - {% endblock %}
+
+{% block content %}
+
+  <table class="ui celled table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="6">
+          <a href="#" class="ui right floated small primary labeled icon button">
+            <i class="server icon"></i> Add Contest
+          </a>
+        </th>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Public</th>
+        <th>Visible</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contest in contest_list %}
+        <tr>
+          <td><a href="{{ url('polygon:contest_meta', contest.id) }}">{{ contest.title }}</a></td>
+          <td class="collapsing">{{ contest.start_time | date('Y-m-d H:i:s') }}</td>
+          <td class="collapsing">{{ contest.end_time | date('Y-m-d H:i:s') }}</td>
+          <td class="collapsing">{{ contest.public }}</td>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('polygon:contest_toggle_visible', contest.id) }}" type="checkbox" {% if contest.visible %}checked{% endif %}>
+            </div>
+          </td>
+          <td class="collapsing"><a href="#">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

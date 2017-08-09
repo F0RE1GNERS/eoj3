@@ -7,7 +7,7 @@ class ContestEditForm(forms.ModelForm):
     class Meta:
         model = Contest
 
-        fields = ['__all__']
+        exclude = ['visible']
         help_texts = {
             'start_time': 'YYYY-MM-DD --:--(:--)',
             'end_time': 'YYYY-MM-DD --:--(:--)',

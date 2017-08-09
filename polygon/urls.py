@@ -13,6 +13,10 @@ from .views import (
     SessionReformAllCase, SessionTogglePretestCase, SessionToggleSampleCase
 )
 
+from .contest import (
+    ContestList, ContestEdit, ContestToggleVisible
+)
+
 
 urlpatterns = [
     url(r'^$', home_view, name='home'),
@@ -65,6 +69,10 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/stress/$', SessionAddCaseFromStress.as_view(), name='session_create_case_from_stress'),
     url(r'^session/(?P<sid>\d+)/case/pretest/$', SessionTogglePretestCase.as_view(), name='session_toggle_pretest_case'),
     url(r'^session/(?P<sid>\d+)/case/sample/$', SessionToggleSampleCase.as_view(), name='session_toggle_sample_case'),
+
+    url(r'^contest/list/$', ContestList.as_view(), name='contest_list'),
+    url(r'^contest/(?P<pk>\d+)/visible/$', ContestToggleVisible.as_view(), name='contest_toggle_visible'),
+    url(r'^contest/(?P<pk>\d+)/meta/$', ContestEdit.as_view(), name='contest_meta'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]
