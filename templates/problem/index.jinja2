@@ -25,7 +25,7 @@
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
         <td class="{% if problem.status %}{{ problem.status }}{% endif %}">
-          <i class="fa fa-user" aria-hidden="true"></i> x {{ problem.accept_count }}
+          <i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}
         </td>
       </tr>
     {% endfor %}

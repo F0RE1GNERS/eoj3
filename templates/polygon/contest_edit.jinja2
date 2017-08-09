@@ -1,0 +1,12 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Edit contest profile - {{ contest.title }}
+{% endblock %}
+
+{% block backstage_content %}
+  <div class="content-section">
+  {% include 'components/form.jinja2' %}
+  </div>
+
+{% endblock %}

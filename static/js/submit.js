@@ -55,7 +55,7 @@ $("#problem-submit").click(function (event) {
   var form = button.closest("form");
   form.addClass("loading");
   $.post(form.attr("action"), form.serialize(), function () {
-    vm.updateSubmission();
+    vm.updateSubmission(true);
     form.removeClass("loading");
     scrollToCurrentSubmission();
   });
@@ -94,19 +94,14 @@ if ($("#older-submission").length > 0) {
           this.subcurrent = "";
         }
       },
-      updateSubmission: function () {
+      updateSubmission: function (resetCurrent) {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
           this.submission = data;
-          var toUpdate = -1;
-          for (var i = 0; i < this.submission.length; ++i) {
-            if (this.submission[i].status == -2 || this.submission[i].status == -3) {
-              toUpdate = i;
-              break;
-            }
+          if (resetCurrent) {
+            this.current = 0;
           }
-          if (toUpdate >= 0) {
-            this.current = toUpdate;
+          if (this.submission[this.current].status == -2 || this.submission[this.current].status == -3) {
             setTimeout(function () {
               this.updateSubmission();
             }.bind(this), 500);
@@ -117,6 +112,7 @@ if ($("#older-submission").length > 0) {
       toggleCurrent: function (event) {
         this.current = $(event.currentTarget).attr("index");
         scrollToCurrentSubmission();
+        this.updateSubmission();
       }
     },
     beforeMount: function () {

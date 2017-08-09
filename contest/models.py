@@ -46,6 +46,18 @@ class Contest(models.Model):
         ('all', 'All')
     )
 
+    CODE_SHARE_CHOICE = (
+        (0, 'Forbidden'),
+        (1, 'Share code after contest for AC Users'),
+        (2, 'Share code after contest for all'),
+        (3, 'Share code after AC during contest'),
+    )
+
+    CONTEST_STATUS_CHOICE = (
+        (1, 'Running'),
+        (2, 'Ended'),
+    )
+
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
     rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
@@ -64,7 +76,9 @@ class Contest(models.Model):
     partial_score = models.BooleanField(default=False)  # Use points to calculate scores
     run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default='all')
     standings_without_problem = models.BooleanField(default=False)  # Have a standing without specific problems
-    allow_code_share = models.BooleanField(default=False)  # Can view others' codes after AC
+    allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
+
+    system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
@@ -74,6 +88,7 @@ class Contest(models.Model):
     standings_public = models.BooleanField(default=True)
 
     objects = ContestManager()
+    manager = models.ManyToManyField(User, related_name='managing_contests')
 
     class Meta:
         ordering = ['-pk']

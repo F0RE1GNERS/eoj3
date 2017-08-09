@@ -1,0 +1,7 @@
+<h1 class="ui header">Contest: {{ contest.title }}</h1>
+
+<div class="ui pointing secondary menu">
+  <a class="item {{ active('polygon:problem_preview') }}" href="{{ url('polygon:problem_preview', problem.id) }}">Preview</a>
+  <a class="item {{ active('polygon:problem_meta') }}" href="{{ url('polygon:problem_meta', problem.id) }}">Meta</a>
+  <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submissions</a>
+</div>

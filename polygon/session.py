@@ -459,9 +459,6 @@ def reorder_case(session, orders):
         d.update(order=0)  # clear first
         if orders.get(fingerprint):
             d.update(order=orders[fingerprint])
-        else:
-            d.update(pretest=False)
-            d.update(sample=False)
     dump_config(session, config)
 
 
