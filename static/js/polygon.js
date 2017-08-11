@@ -1,4 +1,15 @@
 $('.ui.accordion').accordion();
+$('.ui.calendar').calendar({
+  formatter: {
+    date: function (date, settings) {
+      console.log(settings);
+      return moment(date).format('YYYY-MM-DD');
+    },
+    time: function (date, settings, forCalendar) {
+      return moment(date).format('HH:mm');
+    }
+  }
+});
 $('#session-create-button').click(function () {
   $("#session-create")
     .modal({
@@ -292,14 +303,7 @@ if ($("#session-edit-app").length > 0) {
         on: 'hover'
       });
       $('.ui.checkbox').checkbox();
-      $('.ui.selection.dropdown').dropdown({
-        onChange: function (val) {
-          if (val == '(none)') {
-            $(this).dropdown('clear');
-            $(this).find('input').val('');
-          }
-        }
-      });
+      $('.ui.selection.dropdown').dropdown();
       $(".ui.icon.pointing.dropdown.button")
         .dropdown();
       new Clipboard('.clipboard');

@@ -32,11 +32,10 @@ class ContestManager(models.Manager):
 
 class Contest(models.Model):
 
-    RULE_CHOICE = (
+    SCORING_METHOD_CHOICE = (
         ('acm', 'ACM Rule'),
         ('oi', 'OI Rule'),
-        ('oi2', 'Traditional OI Rule'),
-        ('work', 'School Work'),
+        ('cf', 'Codeforces Rule')
     )
 
     TEST_DURING_CONTEST_CHOICE = (
@@ -60,7 +59,6 @@ class Contest(models.Model):
 
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
-    rule = models.CharField('Rule', max_length=12, choices=RULE_CHOICE, default='acm')
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
 
     always_running = models.BooleanField(default=False)
@@ -69,14 +67,18 @@ class Contest(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     standings_update_time = models.DateTimeField(blank=True, null=True)
 
-    freeze = models.BooleanField(default=False)
+    freeze = models.BooleanField('The standings will be frozen', default=False)
     freeze_time = models.DateTimeField(blank=True, null=True)
-    last_counts = models.BooleanField(default=False)  # Treat last submission as valid submission
-    penalty_counts = models.BooleanField(default=True)  # Whether penalty counts in case of the same scores
-    partial_score = models.BooleanField(default=False)  # Use points to calculate scores
+    scoring_method = models.CharField(default='acm', max_length=5, choices=SCORING_METHOD_CHOICE)
     run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default='all')
-    standings_without_problem = models.BooleanField(default=False)  # Have a standing without specific problems
     allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
+
+    last_counts = models.BooleanField('The last submission (instead of the best) will be scored', default=False)  # Treat last submission as valid submission
+    penalty_counts = models.BooleanField('Use penalty to sort participants with the same score', default=True)  # Whether penalty counts in case of the same scores
+    standings_without_problem = models.BooleanField('Show standings without a list of solved problems (often used when there is too many problems)',
+                                                    default=False)  # Have a standing without specific problems
+    standings_public = models.BooleanField('Make standings public even if the contest is private', default=True)
+    standings_disabled = models.BooleanField("Users won't be able to see their standings in any case", default=False)
 
     system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
 
@@ -85,7 +87,6 @@ class Contest(models.Model):
 
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
-    standings_public = models.BooleanField(default=True)
 
     objects = ContestManager()
     manager = models.ManyToManyField(User, related_name='managing_contests')
@@ -108,6 +109,10 @@ class Contest(models.Model):
         if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
             return 'f'  # You cannot see other participants' result
         return 'a'  # Available
+
+    @property
+    def supported_language_list(self):
+        return list(filter(lambda x: x, self.allowed_lang.split(',')))
 
 
 class ContestProblem(models.Model):

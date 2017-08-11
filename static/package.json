@@ -32,6 +32,7 @@
     "js-cookie": "^2.1.4",
     "lodash": "^4.17.4",
     "mathjax": "^2.7.1",
+    "moment": "^2.18.1",
     "npm-font-open-sans": "^1.0.3",
     "semantic-ui-calendar": "0.0.8",
     "semantic-ui-less": "github:ultmaster/Semantic-UI-LESS",

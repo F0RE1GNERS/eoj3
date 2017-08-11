@@ -2,6 +2,9 @@
 $('.ui.checkbox')
   .checkbox()
 ;
+$('.ui.selection.dropdown')
+  .dropdown()
+;
 $('.message .close')
   .on('click', function() {
     $(this)

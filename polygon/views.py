@@ -97,6 +97,8 @@ class SessionCreate(PolygonBaseMixin, View):
             if not normal_regex_check(alias):
                 raise ValueError
             problem = Problem.objects.create(alias=alias)
+            problem.title = 'Problem #%d' % problem.id
+            problem.save(update_fields=['title'])
             if is_admin_or_root(request.user):
                 permission = 'a'
             else:

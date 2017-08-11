@@ -1,18 +1,41 @@
 from django import forms
 from contest.models import Contest
 from django.utils import timezone
+from utils.language import LANG_CHOICE
+
+
+class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
+
+    def _split_comma(self, value):
+        return list(filter(lambda u: u, map(lambda t: t.strip(), value.split(','))))
+
+    def to_python(self, value):
+        if ',' in value:
+            return self._split_comma(value)
+        if isinstance(value, (tuple, list)):
+            return self._split_comma(value[0])
+        return super(CommaSeparatedMultipleChoiceField, self).to_python(value)
 
 
 class ContestEditForm(forms.ModelForm):
     class Meta:
         model = Contest
 
-        exclude = ['visible']
+        exclude = ['visible', 'standings_update_time', 'problems', 'participants', 'manager', 'system_tested',
+                   'standings_update_time', 'allowed_lang']
         help_texts = {
             'start_time': 'YYYY-MM-DD --:--(:--)',
             'end_time': 'YYYY-MM-DD --:--(:--)',
             'freeze_time': 'YYYY-MM-DD --:--(:--)',
         }
+
+    field_order = ['public', 'title', 'description', 'public', 'allowed_lang', 'start_time', 'end_time']
+    allowed_lang = CommaSeparatedMultipleChoiceField(choices=LANG_CHOICE)
+
+    def __init__(self, *args, **kwargs):
+        super(ContestEditForm, self).__init__(*args, **kwargs)
+        contest = self.instance
+        self.fields['allowed_lang'].initial = contest.allowed_lang
 
     def clean(self):
         cleaned_data = super(ContestEditForm, self).clean()
@@ -25,3 +48,4 @@ class ContestEditForm(forms.ModelForm):
             if not (start_time <= freeze_time <= end_time):
                 raise forms.ValidationError('Freeze time is not legal', code='invalid')
         return cleaned_data
+

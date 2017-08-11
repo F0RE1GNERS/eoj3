@@ -5,7 +5,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic import ListView, View
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from account.permissions import is_admin_or_root
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, reverse, redirect
 
 
 class ContestEdit(PolygonBaseMixin, UpdateView):
@@ -13,6 +13,12 @@ class ContestEdit(PolygonBaseMixin, UpdateView):
     form_class = ContestEditForm
     template_name = 'polygon/contest_edit.jinja2'
     queryset = Contest.objects.all()
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.allowed_lang = ','.join(form.cleaned_data['allowed_lang'])
+        instance.save()
+        return redirect(self.request.path)
 
 
 class ContestList(PolygonBaseMixin, ListView):

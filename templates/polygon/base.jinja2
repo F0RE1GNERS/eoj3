@@ -1,6 +1,10 @@
 {% extends 'html_base.jinja2' %}
 {% from 'components/modal.jinja2' import modal with context %}
 
+{% block css %}
+  <style href="/static/node_modules/semantic-ui-calendar/dist/calendar.min.css"></style>
+{% endblock %}
+
 {% block base_title %}EOJ Polygon{% endblock %}
 
 {% block _content %}
@@ -49,5 +53,6 @@
   <script src="/static/node_modules/vue/dist/vue.min.js"></script>
   <script src="/static/node_modules/sortablejs/Sortable.min.js"></script>
   <script src="/static/node_modules/vuedraggable/dist/vuedraggable.js"></script>
+  <script src="/static/node_modules/semantic-ui-calendar/dist/calendar.min.js"></script>
   <script src="/static/js/polygon.js"></script>
 {% endblock %}
