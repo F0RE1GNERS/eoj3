@@ -8,9 +8,9 @@
     <thead class="full-width">
       <tr>
         <th colspan="6">
-          <a href="#" class="ui right floated small primary labeled icon button">
+          <button id="contest-create-button" class="ui right floated small primary labeled icon button">
             <i class="server icon"></i> Add Contest
-          </a>
+          </button>
         </th>
       </tr>
       <tr>
@@ -39,5 +39,25 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <div class="ui basic tiny modal" id="contest-create">
+    <div class="ui icon header">
+      <i class="flag checkered icon"></i>
+      Create a contest
+    </div>
+    <div class="content">
+      <p>Are you sure you want to create a contest? You can not undo this.</p>
+    </div>
+    <div class="actions">
+      <div class="ui red basic cancel inverted button">
+        <i class="remove icon"></i>
+        No
+      </div>
+      <a class="ui green ok inverted button post-link" data-link="{{ url('polygon:contest_create') }}">
+        <i class="checkmark icon"></i>
+        Yes
+      </a>
+    </div>
+  </div>
 
 {% endblock %}

@@ -1,10 +1,28 @@
 {% extends 'polygon/base.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
 
 {% block title %}Contest Edit - {% endblock %}
 
 {% block content %}
 
   {% include 'polygon/components/contest_header.jinja2' %}
+
+  <div class="ui fluid accordion" style="margin-bottom: 2em;">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      Edit Admin Access
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:contest_access_manage', contest.id) }}">
+        {% csrf_token %}
+        <div class="field">
+          {{ user_search_multiple(name='admin', exist=admin_list) }}
+        </div>
+        <button class="ui submit button">You Must Save Here</button>
+      </form>
+    </div>
+  </div>
+
   {% include 'components/form.jinja2' %}
 
 {% endblock %}

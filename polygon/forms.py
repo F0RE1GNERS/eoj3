@@ -29,7 +29,7 @@ class ContestEditForm(forms.ModelForm):
             'freeze_time': 'YYYY-MM-DD --:--(:--)',
         }
 
-    field_order = ['public', 'title', 'description', 'public', 'allowed_lang', 'start_time', 'end_time']
+    field_order = ['title', 'description', 'public', 'allowed_lang', 'start_time', 'end_time']
     allowed_lang = CommaSeparatedMultipleChoiceField(choices=LANG_CHOICE)
 
     def __init__(self, *args, **kwargs):

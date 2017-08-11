@@ -2,7 +2,6 @@ $('.ui.accordion').accordion();
 $('.ui.calendar').calendar({
   formatter: {
     date: function (date, settings) {
-      console.log(settings);
       return moment(date).format('YYYY-MM-DD');
     },
     time: function (date, settings, forCalendar) {
@@ -19,6 +18,10 @@ $('#session-create-button').click(function () {
     })
     .modal('show')
   ;
+});
+$('#contest-create-button').click(function () {
+  $("#contest-create")
+    .modal('show');
 });
 $("#session-create-form")
   .form({

@@ -14,7 +14,7 @@ from .views import (
 )
 
 from .contest import (
-    ContestList, ContestEdit, ContestToggleVisible
+    ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage
 )
 
 
@@ -71,8 +71,10 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/sample/$', SessionToggleSampleCase.as_view(), name='session_toggle_sample_case'),
 
     url(r'^contest/list/$', ContestList.as_view(), name='contest_list'),
+    url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),
     url(r'^contest/(?P<pk>\d+)/visible/$', ContestToggleVisible.as_view(), name='contest_toggle_visible'),
     url(r'^contest/(?P<pk>\d+)/meta/$', ContestEdit.as_view(), name='contest_meta'),
+    url(r'^contest/(?P<pk>\d+)/access/$', ContestAccessManage.as_view(), name='contest_access_manage'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

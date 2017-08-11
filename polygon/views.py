@@ -144,9 +144,9 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ProblemMeta, self).get_context_data(**kwargs)
         data['problem'] = self.problem
-        data['admin_list'] = self.problem.problemmanagement_set.filter(permission='a')
-        data['write_list'] = self.problem.problemmanagement_set.filter(permission='w')
-        data['read_list'] = self.problem.problemmanagement_set.filter(permission='r')
+        data['admin_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='a').select_related("user")))
+        data['write_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='w').select_related("user")))
+        data['read_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='r').select_related("user")))
         return data
 
     def post(self, request, pk):

@@ -12,7 +12,7 @@ def get_invitation_code():
 
 
 def get_language_all_list():
-    return ', '.join(sorted(dict(LANG_CHOICE).keys()))
+    return ','.join(sorted(dict(LANG_CHOICE).keys()))
 
 
 class ContestManager(models.Manager):
