@@ -1,0 +1,37 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Contest Problems - {% endblock %}
+
+{% block content %}
+
+  {% include 'polygon/components/contest_header.jinja2' %}
+
+  <div id="contest-problem-app" data-api-route="{{ url('polygon:contest_problem_manage', contest.id) }}?data=true">
+    <table class="ui celled table">
+      <thead>
+        <tr>
+          <th class="collapsing center aligned">#</th>
+          <th class="collapsing center aligned">ID</th>
+          <th>Title</th>
+          <th class="center aligned">Accepted</th>
+          <th class="center aligned">Solved</th>
+          <th class="collapsing center aligned">Edit</th>
+        </tr>
+      </thead>
+      <draggable v-model="appData" :element="'tbody'">
+        <tr class="item" v-for="ele in appData" :key="ele.pid">
+          <td class="collapsing center aligned">[[ ele.identifier ]]</td>
+          <td class="collapsing center aligned">[[ ele.id ]]</td>
+          <td>[[ ele.title ]]</td>
+          <td class="center aligned">[[ ele.ac1 + ' / ' + ele.tot1 + ' (' + ele.ratio1 + '%)' ]]</td>
+          <td class="center aligned">[[ ele.ac2 + ' / ' + ele.tot2 + ' (' + ele.ratio2 + '%)' ]]</td>
+          <td class="center aligned"><a href="#">Delete</a></td>
+        </tr>
+      </draggable>
+      <tfoot>
+
+      </tfoot>
+    </table>
+  </div>
+
+{% endblock %}

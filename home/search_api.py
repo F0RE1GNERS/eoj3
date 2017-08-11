@@ -20,7 +20,7 @@ def query_user(kw):
     return dict(name='User', results=results)
 
 
-def get_problem_q_object(kw, all=False):
+def get_problem_q_object(kw, all=False, managing=None):
     q_list = list()
     if len(kw) >= 3:
         q_list.append(Q(title__icontains=kw))
@@ -30,6 +30,8 @@ def get_problem_q_object(kw, all=False):
         q = reduce(or_, q_list)
         if not all:
             q &= Q(visible=True)
+        if managing:
+            q |= Q(problemmanagement__user=managing)
         return q
     return None
 
@@ -67,8 +69,9 @@ class SearchUserAPI(APIView):
 class SearchProblemAPI(APIView):
     def get(self, request):
         kw = request.GET.get('kw')
+        managing = request.user if request.GET.get('managing') else None
         results = list()
-        q = get_problem_q_object(kw, is_admin_or_root(request.user))
+        q = get_problem_q_object(kw, is_admin_or_root(request.user), managing)
         if q:
             for problem in Problem.objects.filter(q).distinct().all()[:5]:
                 results.append(dict(name=str(problem), value=problem.pk))

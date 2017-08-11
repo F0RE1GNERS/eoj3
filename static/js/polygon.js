@@ -373,3 +373,25 @@ if ($("#session-edit-app").length > 0) {
     }
   });
 }
+
+if ($("#contest-problem-app").length > 0) {
+  Vue.options.delimiters = ["[[", "]]"];
+  new Vue({
+    el: "#contest-problem-app",
+    data: {
+      appData: {}
+    },
+    methods: {
+      updateConfig: function () {
+        this.apiRoute = $(this.$el).data("api-route");
+        $.getJSON(this.apiRoute, function (data) {
+          this.appData = data;
+          console.log(this.appData);
+        }.bind(this));
+      }
+    },
+    beforeMount: function () {
+      this.updateConfig();
+    }
+  });
+}

@@ -2,7 +2,7 @@
 
 <div class="ui pointing secondary menu">
   <a class="item {{ active('polygon:contest_meta') }}" href="{{ url('polygon:contest_meta', contest.id) }}">Meta</a>
-  <a class="item {{ active('polygon:contest_problem') }}" href="#">Problems</a>
+  <a class="item {{ active('polygon:contest_problem') }}" href="{{ url('polygon:contest_problem_manage', contest.id) }}">Problems</a>
   <a class="item {{ active('polygon:contest_invitation') }}" href="#">Invitations</a>
   <a class="item {{ active('polygon:contest_participant') }}" href="#">Participants</a>
   <a class="item {{ active('polygon:contest_clarification') }}" href="#">Clarifications</a>

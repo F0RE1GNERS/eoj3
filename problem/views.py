@@ -14,6 +14,7 @@ from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission
 from utils.language import LANG_CHOICE
 from .models import Problem
+from .permission import has_permission_for_problem_management
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count
@@ -229,8 +230,7 @@ class ProblemSubmissionView(TemplateView):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
         submission = Submission.objects.get(pk=self.kwargs.get('pk'))
         if submission.author == self.request.user or \
-                submission.problem.problemmanagement_set.filter(user=self.request.user).exists() or \
-                is_admin_or_root(self.request.user):
+            has_permission_for_problem_management(self.request.user, submission.problem):
             submission_block = render_submission(submission)
         else:
             submission_block = ''
