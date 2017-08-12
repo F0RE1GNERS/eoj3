@@ -13,31 +13,19 @@
 
   <table class="ui celled table">
     <thead>
-      <tr class="center aligned">
-        <th class="left aligned">Name</th>
-        <th>Start</th>
-        <th>Length</th>
+      <tr  class="center aligned">
+        <th class="collapsing">#</th>
+        <th>Name</th>
         <th class="collapsing">Public</th>
-        <th class="collapsing">Status</th>
         <th class="collapsing">Standings</th>
       </tr>
     </thead>
     <tbody>
       {% for contest in contest_list %}
         <tr class="center aligned">
-          <td class="left aligned {% if not contest.visible %}deleted{% endif %}"><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
-          <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
-          <td>{{ contest.length | timedelta }}</td>
+          <td class="semi-bold {% if not contest.visible %}deleted{% endif %}">{{ contest.pk }}</>
+          <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
-          <td style="text-transform: capitalize;">
-          {% if contest.status == 0 %}
-            <h5 class="ui header red">Running</h5>
-          {% elif contest.status == -1 %}
-            <h5 class="ui header teal">Pending</h5>
-          {% else %}
-            Ended
-          {% endif %}
-          </td>
           <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participant_size }}</a></td>
         </tr>
       {% endfor %}

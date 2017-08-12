@@ -24,12 +24,22 @@
           </div>
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
-        <td class="{% if problem.status %}{{ problem.status }}{% endif %}">
-          <i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}
+        <td class="selectable {% if problem.personal_label > 0 %}positive{% elif problem.personal_label < 0 %}negative{% endif %}">
+          <a href="#"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
         </td>
       </tr>
     {% endfor %}
   </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="3" class="right aligned">
+        <div class="ui checkbox">
+          <input type="checkbox" name="showTags" checked>
+          <label>Show tags</label>
+        </div>
+      </th>
+    </tr>
+  </tfoot>
 </table>
 
   {{ my_paginator() }}

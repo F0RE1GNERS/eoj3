@@ -1,12 +1,13 @@
 from django.conf.urls import url
 
-from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView
+from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList
 from .submit import ContestMySubmission, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings
 from .clarification import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery, ContestClarificationAnswer
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
+    url(r'^always/$', ContestAlwaysRunningList.as_view(), name='always_running'),
     url(r'^(?P<cid>\d+)/$', DashboardView.as_view(), name='dashboard'),
     url(r'^(?P<cid>\d+)/standings/$', ContestStandings.as_view(), name='standings'),
     url(r'^(?P<cid>\d+)/problem/(?P<pid>\w+)/$', ContestProblemDetail.as_view(), name='problem'),

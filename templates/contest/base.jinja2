@@ -2,84 +2,96 @@
 
 {% block title %}{% block contest_title %}{% endblock %}{{ contest.title }} - {% endblock %}
 
+{% block page_header %}{{ contest.title }}{% endblock %}
+
 {% block content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>{{ contest.title }}</h1>
-    </div>
+  <div class="ui secondary menu small">
+    <a class="{{ active('contest:dashboard') }} item" href="{{ url('contest:dashboard', contest.pk) }}">DASHBOARD</a>
+    <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}">SUBMIT</a>
+    <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">STATUS</a>
+    <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">STANDINGS</a>
+    <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">CLARIFICATION</a>
+    {% if is_volunteer or is_privileged %}
+      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">BALLOON</a>
+    {% endif %}
   </div>
-  <div class="container">
-    <div class="row">
 
-      <div class="col-12 col-md-3 col-md-push-9 bd-sidebar bd-contest-sidebar">
-        <div class="contest-progress">
-          <h4>Contest {{ contest_status }}</h4>
-          <div class="progress" style="margin-bottom: 2px">
-            <div class="progress-bar bg-info countdown-progress" role="progressbar" style="width: {{ progress }}%"
-                 data-status="{{ contest_status }}" data-acc="{{ progress_acc }}" data-all="{{ progress_all }}"
-                 aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          {% if contest_status == 'pending' %}
-            <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
-          {% elif contest_status == 'running' %}
-            <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>
+  <div class="ui grid">
+    <div class="eleven wide column">
+      {% block contest_content %}
+      {% endblock %}
+    </div>
+    <div class="five wide column">
+      {% if contest.always_running %}
+      {% else %}
+        <div class="ui header">
+          {% if contest.status == 0 %}
+            Contest Running
+          {% elif contest.status == -1 %}
+            Contest Pending
+          {% elif contest.pending_system_tests %}
+            Pending System Tests
+          {% else %}
+            Contest Ended
           {% endif %}
         </div>
-        <a class="link-lg {{ active('contest:dashboard') }}" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
-        <a class="link-lg {{  active('contest:problem') }}">Problem</a>
-        {% if has_permission %}
+      {% endif %}
+
+      {% if has_permission %}
+        <div class="ui link list">
           {% for contest_problem in contest_problem_list %}
-            <a class="link-sm {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+            <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
                href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
                 {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
             </a>
           {% endfor %}
-        {% endif %}
-        <a class="link-lg {{ active('contest:submit') }}" href="{{ url('contest:submit', contest.pk) }}{% if contest_problem %}?pid={{ contest_problem.identifier }}{% endif %}">Submit</a>
-        <a class="link-lg {{ active('contest:submission') }}" href="{{ url('contest:submission', contest.pk) }}">My submissions</a>
-        <a class="link-lg {{ active('contest:status') }}" href="{{ url('contest:status', contest.pk) }}">Status</a>
-        <a class="link-lg {{ active('contest:standings') }}" target="_blank" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
-        <a class="link-lg {{ active('contest:clarification') }}" href="{{ url('contest:clarification', contest.pk) }}">Clarification <span class="badge" id="clarification-badge" style="display:none;">NEW</span></a>
-        {% if is_volunteer or is_privileged %}<a class="link-lg {{ active('contest:balloon') }}" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>{% endif %}
-
-      </div>
-      <div class="col-12 col-md-9 col-md-pull-3 bd-content">
-        {% block contest_content %}
-        {% endblock %}
-      </div>
-
+        </div>
+      {% endif %}
     </div>
   </div>
 
-  <div class="modal fade" id="refreshNotification" tabindex="-1" role="dialog" aria-labelledby="refreshNotificationLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">{{ contest.title }}</h4>
-        </div>
-        <div class="modal-body">
-          Contest status has changed. Click to refresh the page.
-        </div>
-        <div class="modal-footer">
-          <button type="button" onclick="location.reload(true);" class="btn btn-primary">OK</button>
-        </div>
+{#        <div class="contest-progress">#}
+{#          <h4>Contest {{ contest_status }}</h4>#}
+{#          <div class="progress" style="margin-bottom: 2px">#}
+{#            <div class="progress-bar bg-info countdown-progress" role="progressbar" style="width: {{ progress }}%"#}
+{#                 data-status="{{ contest_status }}" data-acc="{{ progress_acc }}" data-all="{{ progress_all }}"#}
+{#                 aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>#}
+{#          </div>#}
+{#          {% if contest_status == 'pending' %}#}
+{#            <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>#}
+{#          {% elif contest_status == 'running' %}#}
+{#            <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>#}
+{#          {% endif %}#}
+{#        </div>#}
+
+  <div class="ui basic modal" id="refreshNotification">
+    <div class="ui icon header">
+      <i class="announcement icon"></i>
+      Announcement
+    </div>
+    <div class="content">
+      Contest status has changed. Click to refresh the page.
+    </div>
+    <div class="actions">
+      <div class="ui green ok inverted button" onclick="location.reload(true);">
+        <i class="checkmark icon"></i>
+        OK
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="stayNotification" tabindex="-1" role="dialog" aria-labelledby="refreshNotificationLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">{{ contest.title }}</h4>
-        </div>
-        <div class="modal-body" id="stayNotificationBody">
-          Notification
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-        </div>
+  <div class="ui basic modal" id="stayNotification">
+    <div class="ui icon header">
+      <i class="announcement icon"></i>
+      Announcement
+    </div>
+    <div class="content" id="stayNotificationBody">
+    </div>
+    <div class="actions">
+      <div class="ui green ok inverted button">
+        <i class="checkmark icon"></i>
+        OK
       </div>
     </div>
   </div>

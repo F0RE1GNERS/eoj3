@@ -7,6 +7,8 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 
 from account.permissions import is_admin_or_root, is_volunteer
+from problem.statistics import get_many_problem_accept_count
+from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from submission.models import SubmissionStatus
 from .models import Contest, ContestProblem, ContestInvitation
 from .tasks import add_participant_with_invitation
@@ -33,11 +35,10 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
         self.contest_problem_list = list(self.contest.contestproblem_set.select_related('problem').
                                          defer('problem__description', 'problem__input', 'problem__output',
-                                               'problem__sample', 'problem__hint').all())
-        self.is_frozen = self.contest.get_frozen()
+                                               'problem__hint').all())
 
         self.user = request.user
-        self.privileged = is_admin_or_root(self.user)
+        self.privileged = is_admin_or_root(self.user) or self.contest.manager.filter(user=self.user).exists()
         self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
@@ -67,21 +68,8 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['contest'] = self.contest
         data['contest_status'] = self.contest.get_status()
         data['current_time'] = timezone.now()
-
-        if data['contest_status'] == 'ended':
-            data['progress'] = 100
-        elif data['contest_status'] == 'running':
-            data['progress_acc'] = int((timezone.now() - self.contest.start_time).total_seconds())
-            data['progress_all'] = int((self.contest.end_time - self.contest.start_time).total_seconds())
-            data['progress'] = int(data['progress_acc'] / data['progress_all'] * 100)
-            data['time_delta'] = data['progress_all'] - data['progress_acc']
-        elif data['contest_status'] == 'pending':
-            data['progress'] = 0
-            data['time_delta'] = int((self.contest.start_time - timezone.now()).total_seconds())
         data['contest_problem_list'] = self.contest_problem_list
         data['has_permission'] = self.test_func()
-        data['is_frozen'] = self.is_frozen
-
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer
 
@@ -98,33 +86,26 @@ class DashboardView(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)
-        problem_as_contest_problem = {}
-        problem_status = {}
 
         if self.registered:
             data['registered'] = True
 
         data['has_permission'] = super(DashboardView, self).test_func()
         if data['has_permission']:
-            for contest_problem in data['contest_problem_list']:
-                problem_as_contest_problem[contest_problem.problem_id] = contest_problem.identifier
             if self.user.is_authenticated:
-                submissions = self.contest.submission_set.filter(author=self.user).all()
-                for submission in submissions:
-                    try:
-                        contest_problem = problem_as_contest_problem[submission.problem_id]
-                        if problem_status.get(contest_problem) != 'success':
-                            if submission.status == SubmissionStatus.ACCEPTED:
-                                problem_status[contest_problem] = 'success'
-                            elif not SubmissionStatus.is_judged(submission.status):
-                                problem_status[contest_problem] = 'warning'
-                            elif SubmissionStatus.is_penalty(submission.status):
-                                problem_status[contest_problem] = 'danger'
-                    except KeyError:
-                        pass
-
-                for contest_problem in self.contest_problem_list:
-                    contest_problem.status = problem_status.get(contest_problem.identifier)
+                attempt_list = set(get_attempted_problem_list(self.request.user.id, self.contest.id))
+                accept_list = set(get_accept_problem_list(self.request.user.id, self.contest.id))
+                for problem in data['contest_problem_list']:
+                    if problem.problem_id in accept_list:
+                        problem.personal_label = 1
+                    elif problem.problem_id in attempt_list:
+                        problem.personal_label = -1
+                    else:
+                        problem.personal_label = 0
+        accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
+                                                     self.contest.id)
+        for problem in data['contest_problem_list']:
+            problem.accept_count = accept_count[problem.problem_id]
 
         return data
 
@@ -156,11 +137,21 @@ class ContestBoundUser(View):
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
 
 
-
 class ContestList(ListView):
     template_name = 'contest_list.jinja2'
     paginate_by = 30
     context_object_name = 'contest_list'
 
     def get_queryset(self):
-        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user))
+        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user), always_running=False)
+
+
+class ContestAlwaysRunningList(ListView):
+    template_name = 'contest_always_running.jinja2'
+    paginate_by = 30
+    context_object_name = 'contest_list'
+
+    def get_queryset(self):
+        user = self.request.user if self.request.user.is_authenticated else None
+        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user), filter_user=user,
+                                               sorting_by_id=True, always_running=True)

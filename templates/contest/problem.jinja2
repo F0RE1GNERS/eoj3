@@ -2,6 +2,7 @@
 {% from 'components/problem.jinja2' import problem_view with context %}
 {% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
 {% block contest_content %}
-  {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest_problem.total_accept_number, contest_problem.total_submit_number, True) }}
+  <h2 class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</h2>
+  {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
   {% include 'components/math_support.jinja2' %}
 {% endblock %}

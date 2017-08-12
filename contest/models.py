@@ -17,16 +17,25 @@ def get_language_all_list():
 
 class ContestManager(models.Manager):
 
-    def get_status_list(self, all=False):
-        if all:
-            contest_list = super(ContestManager, self).get_queryset().all()
+    def get_status_list(self, all=False, filter_user=None, sorting_by_id=False, always_running=None):
+        q = models.Q()
+        if not all:
+            q &= models.Q(visible=True)
+            if filter_user:
+                q |= models.Q(manager=filter_user)
+        if always_running is not None:
+            q &= models.Q(always_running=always_running)
+        contest_list = super(ContestManager, self).get_queryset().filter(q)
+
+        if sorting_by_id:
+            contest_list = contest_list.order_by("-pk")
         else:
-            contest_list = super(ContestManager, self).get_queryset().filter(visible=True).all()
-        contest_list = contest_list.order_by("-start_time")
+            contest_list = contest_list.order_by("-start_time")
+            for contest in contest_list:
+                contest.length = contest.end_time - contest.start_time
         for contest in contest_list:
             contest.status = contest.get_status()
             contest.participant_size = contest.participants.count()
-            contest.length = contest.end_time - contest.start_time
         return contest_list
 
 
@@ -62,8 +71,8 @@ class Contest(models.Model):
     allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
 
     always_running = models.BooleanField(default=False)
-    start_time = models.DateTimeField(blank=True, null=True)
-    end_time = models.DateTimeField(blank=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    end_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
     create_time = models.DateTimeField(auto_now_add=True)
     standings_update_time = models.DateTimeField(blank=True, null=True)
 
@@ -96,19 +105,25 @@ class Contest(models.Model):
 
     def get_status(self):
         now = timezone.now()
-        if self.start_time <= now <= self.end_time:
-            return 'running'
-        elif now < self.start_time:
-            return 'pending'
-        else:
-            return 'ended'
+        try:
+            if self.always_running or self.start_time <= now <= self.end_time:
+                return 0  # running
+            elif now < self.start_time:
+                return -1  # pending
+            else:
+                return 1  # ended
+        except:
+            return -2  # error
 
-    def get_frozen(self):
-        if self.rule == 'oi2' and self.start_time <= timezone.now() <= self.end_time:
-            return 'f2' # You cannot see the result of yourself
+    @property
+    def is_frozen(self):
         if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
-            return 'f'  # You cannot see other participants' result
-        return 'a'  # Available
+            return True
+        return False
+
+    @property
+    def pending_system_tests(self):
+        return self.get_status() > 0 and self.run_tests_during_contest != 'all' and not self.system_tested
 
     @property
     def supported_language_list(self):

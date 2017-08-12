@@ -41,8 +41,11 @@ class ContestEditForm(forms.ModelForm):
         cleaned_data = super(ContestEditForm, self).clean()
         start_time = cleaned_data.get('start_time')
         end_time = cleaned_data.get('end_time')
-        if start_time >= end_time:
-            raise forms.ValidationError("Start time should be earlier than end time.", code='invalid')
+        if not cleaned_data.get('always_running'):
+            if not start_time or not end_time:
+                raise forms.ValidationError("For contests not always running, you must assign a start time and a end time", code="invalid")
+            if start_time >= end_time:
+                raise forms.ValidationError("Start time should be earlier than end time.", code='invalid')
         if cleaned_data.get('freeze'):
             freeze_time = cleaned_data.get('freeze_time')
             if not (start_time <= freeze_time <= end_time):

@@ -19,7 +19,7 @@ var timer = setInterval(function() {
 
   // There is only one progress bar
   var progress = $(".countdown-progress");
-  if (progress.data('status') == 'running') {
+  if (progress.attr('data-status') == "0") {
     progress.data('acc', progress.data('acc') + 1);
     var now_progress = Math.round(progress.data('acc') / progress.data('all') * 100);
     progress.css("width", now_progress + "%");

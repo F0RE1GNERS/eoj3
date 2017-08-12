@@ -7,7 +7,7 @@
   <table class="ui celled table center aligned">
     <thead class="full-width">
       <tr>
-        <th colspan="6">
+        <th colspan="5">
           <button id="contest-create-button" class="ui right floated small primary labeled icon button">
             <i class="server icon"></i> Add Contest
           </button>
@@ -19,7 +19,6 @@
         <th>End</th>
         <th>Public</th>
         <th>Visible</th>
-        <th>Edit</th>
       </tr>
     </thead>
     <tbody>
@@ -34,7 +33,6 @@
               <input data-link="{{ url('polygon:contest_toggle_visible', contest.id) }}" type="checkbox" {% if contest.visible %}checked{% endif %}>
             </div>
           </td>
-          <td class="collapsing"><a href="#">Edit</a></td>
         </tr>
       {% endfor %}
     </tbody>
