@@ -10,28 +10,48 @@
     <table class="ui celled table">
       <thead>
         <tr>
+          <th colspan="7" class="right aligned">
+            <div class="ui action input">
+              <div class="ui multiple search selection dropdown problem-search"
+                 data-query="{{ url('api:problem_search') }}?kw={query}&managing=true">
+                <input type="hidden" id="add_problem_input">
+                <i class="dropdown icon"></i>
+                <div class="default text">Search for problems</div>
+                <div class="menu"></div>
+              </div>
+              <div class="ui teal button" @click="addProblem" data-url="{{ url('polygon:contest_problem_create', contest.id) }}">Add</div>
+            </div>
+          </th>
+        </tr>
+        <tr>
           <th class="collapsing center aligned">#</th>
           <th class="collapsing center aligned">ID</th>
+          <th>Alias</th>
           <th>Title</th>
           <th class="center aligned">Accepted</th>
           <th class="center aligned">Solved</th>
           <th class="collapsing center aligned">Edit</th>
         </tr>
       </thead>
-      <draggable v-model="appData" :element="'tbody'">
-        <tr class="item" v-for="ele in appData" :key="ele.pid">
+      <tbody is="draggable" v-model="appData" element="tbody">
+        <tr v-for="ele in appData" :key="ele.pid">
           <td class="collapsing center aligned">[[ ele.identifier ]]</td>
           <td class="collapsing center aligned">[[ ele.id ]]</td>
+          <td>[[ ele.alias ]]</td>
           <td>[[ ele.title ]]</td>
           <td class="center aligned">[[ ele.ac1 + ' / ' + ele.tot1 + ' (' + ele.ratio1 + '%)' ]]</td>
           <td class="center aligned">[[ ele.ac2 + ' / ' + ele.tot2 + ' (' + ele.ratio2 + '%)' ]]</td>
-          <td class="center aligned"><a href="#">Delete</a></td>
+          <td class="center aligned"><a href="javascript:void(0)" @click="deleteConfirmation" data-url="{{ url('polygon:contest_problem_delete', contest.id) }}" :data-pid="ele.pid">Delete</a></td>
         </tr>
-      </draggable>
+      </tbody>
       <tfoot>
-
+        <tr><th colspan="7" class="right aligned">
+          <button class="ui teal button" @click="reorderProblem" data-url="{{ url('polygon:contest_problem_reorder', contest.id) }}">Save orders</button>
+        </th></tr>
       </tfoot>
     </table>
   </div>
+
+  {% include 'components/delete_confirmation.jinja2' %}
 
 {% endblock %}

@@ -14,7 +14,8 @@ from .views import (
 )
 
 from .contest import (
-    ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage
+    ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage,
+    ContestProblemCreate, ContestProblemReorder, ContestProblemDelete
 )
 
 
@@ -76,6 +77,9 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/meta/$', ContestEdit.as_view(), name='contest_meta'),
     url(r'^contest/(?P<pk>\d+)/access/$', ContestAccessManage.as_view(), name='contest_access_manage'),
     url(r'^contest/(?P<pk>\d+)/problems/$', ContestProblemManage.as_view(), name='contest_problem_manage'),
+    url(r'^contest/(?P<pk>\d+)/problems/create/$', ContestProblemCreate.as_view(), name='contest_problem_create'),
+    url(r'^contest/(?P<pk>\d+)/problems/reorder/$', ContestProblemReorder.as_view(), name='contest_problem_reorder'),
+    url(r'^contest/(?P<pk>\d+)/problems/delete/', ContestProblemDelete.as_view(), name='contest_problem_delete'),
 
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

@@ -379,19 +379,59 @@ if ($("#contest-problem-app").length > 0) {
   new Vue({
     el: "#contest-problem-app",
     data: {
-      appData: {}
+      appData: []
     },
     methods: {
       updateConfig: function () {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
           this.appData = data;
-          console.log(this.appData);
         }.bind(this));
+      },
+      addCsrfToken: function (data) {
+        data['csrfmiddlewaretoken'] = Cookies.get('csrftoken');
+        return data;
+      },
+      addProblem: function () {
+        var data = { 'problems': $("#add_problem_input").val() };
+        data = this.addCsrfToken(data);
+        $.post($(event.currentTarget).data("url"), data, function (data) {
+          this.updateConfig();
+        }.bind(this), "json");
+      },
+      reorderProblem: function () {
+        var data = { 'orders': JSON.stringify(this.appData) };
+        data = this.addCsrfToken(data);
+        $.post($(event.currentTarget).data("url"), data, function (data) {
+          this.updateConfig();
+        }.bind(this), "json");
+      },
+      deleteConfirmation: function (e) {
+        var button = $(e.currentTarget);
+        $("#delete-confirmation")
+          .modal({
+            onApprove: function () {
+              $.post(button.data("url"), {
+                'csrfmiddlewaretoken': Cookies.get('csrftoken'),
+                'pid': button.data("pid")
+              }, function (data) {
+                this.updateConfig();
+              }.bind(this));
+            }.bind(this)
+          })
+          .modal('show');
       }
     },
     beforeMount: function () {
       this.updateConfig();
+    },
+    mounted: function () {
+      $('.ui.dropdown.problem-search')
+        .dropdown({
+          apiSettings: {
+            url: $(this).data('query') || '/api/search/problem/?kw={query}'
+          }
+        });
     }
   });
 }

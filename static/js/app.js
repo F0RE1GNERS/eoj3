@@ -100,6 +100,13 @@ $('.ui.dropdown.user-search')
   })
 ;
 
+$('.ui.dropdown.problem-search')
+  .dropdown({
+    apiSettings: {
+      url: $(this).data('query') || '/api/search/problem/?kw={query}'
+    }
+  });
+
 $(".post-link")
   .on('click', function(e) {
     var link = $(e.currentTarget).data('link');

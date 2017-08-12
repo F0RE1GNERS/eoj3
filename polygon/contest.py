@@ -16,10 +16,12 @@ from django.shortcuts import get_object_or_404, reverse, redirect, HttpResponse
 from django.db import transaction
 
 
-def reorder_contest_problem_identifiers(contest: Contest):
+def reorder_contest_problem_identifiers(contest: Contest, orders=None):
     with transaction.atomic():
-        problems = contest.contestproblem_set.select_for_update().order_by('identifier').all()
-        if problems.count() > 26:
+        problems = list(contest.contestproblem_set.select_for_update().order_by('identifier').all())
+        if orders:
+            problems.sort(key=lambda x: orders[x.id])
+        if len(problems) > 26:
             for index, problem in enumerate(problems, start=1):
                 problem.identifier = str(1000 + index)
                 problem.save(update_fields=['identifier'])
@@ -48,7 +50,7 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
         return super(PolygonContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(user=self.request.user).exists():
+        if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(id=self.request.user.id).exists():
             return False
         return super(PolygonContestMixin, self).test_func()
 
@@ -120,7 +122,7 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
         if 'data' in request.GET:
             problems = self.contest.contestproblem_set.select_related('problem').all()
             data = []
-            SUB_FIELDS = ["title", "id"]
+            SUB_FIELDS = ["title", "id", "alias"]
             STATISTIC_FIELDS = [
                 ('ac1', get_problem_accept_count),
                 ('ac2', get_problem_accept_user_count),
@@ -139,6 +141,13 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
         return super(ContestProblemManage, self).get(request, *args, **kwargs)
 
 
+class ContestProblemReorder(PolygonContestMixin, TemplateView):
+
+    def post(self, request, *args, **kwargs):
+        data = {k['pid']: index for (index, k) in enumerate(json.loads(request.POST['orders']))}
+        reorder_contest_problem_identifiers(self.contest, data)
+        return response_ok()
+
 
 class ContestProblemCreate(PolygonContestMixin, View):
 
@@ -156,9 +165,17 @@ class ContestProblemCreate(PolygonContestMixin, View):
 
         problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split(','))))
         for problem in problems:
-            if self.contest.contestproblem_set.objects.filter(problem_id=problem).exists():
+            if self.contest.contestproblem_set.filter(problem_id=problem).exists():
                 continue
             identifier = get_next_identifier([x.identifier for x in self.contest.contestproblem_set.all()])
             self.contest.contestproblem_set.create(problem_id=problem, identifier=identifier)
+        reorder_contest_problem_identifiers(self.contest)
+        return response_ok()
+
+
+class ContestProblemDelete(PolygonContestMixin, View):
+
+    def post(self, request, pk):
+        self.contest.contestproblem_set.filter(id=request.POST['pid']).delete()
         reorder_contest_problem_identifiers(self.contest)
         return response_ok()
