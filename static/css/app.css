@@ -56670,6 +56670,9 @@ textarea[name="code"] {
 .text.blue {
   color: #3B83C0;
 }
+.ui.text.menu .active.item {
+  font-weight: 600;
+}
 .problem-header {
   margin-bottom: 1em;
 }

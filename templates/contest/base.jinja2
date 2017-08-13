@@ -6,14 +6,14 @@
 
 {% block content %}
 
-  <div class="ui secondary menu small">
-    <a class="{{ active('contest:dashboard') }} item" href="{{ url('contest:dashboard', contest.pk) }}">DASHBOARD</a>
-    <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}">SUBMIT</a>
-    <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">STATUS</a>
-    <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">STANDINGS</a>
-    <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">CLARIFICATION</a>
+  <div class="ui text menu">
+    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
+    <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}">Submit</a>
+    <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
+    <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
+    <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">Clarification</a>
     {% if is_volunteer or is_privileged %}
-      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">BALLOON</a>
+      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>
     {% endif %}
   </div>
 
@@ -23,29 +23,53 @@
       {% endblock %}
     </div>
     <div class="five wide column">
+      <div class="ui segments">
       {% if contest.always_running %}
+        <div class="ui center aligned header">
+          Always Running
+        </div>
       {% else %}
-        <div class="ui header">
-          {% if contest.status == 0 %}
-            Contest Running
-          {% elif contest.status == -1 %}
-            Contest Pending
-          {% elif contest.pending_system_tests %}
-            Pending System Tests
-          {% else %}
-            Contest Ended
-          {% endif %}
+        <div class="ui segment">
+          <div class="ui center aligned header">
+            {% if contest.status == 0 %}
+              Contest Running
+            {% elif contest.status == -1 %}
+              Contest Pending
+            {% elif contest.pending_system_tests %}
+              Pending System Tests
+            {% else %}
+              Contest Ended
+            {% endif %}
+          </div>
+        </div>
+        <div class="ui segment">
+          <div class="ui indicating progress" data-status="{{ contest.status }}">
+            <div class="bar"></div>
+            {% if time_remaining %}
+            <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
+            {% else %}
+            <div class="label">NaN</div>
+            {% endif %}
+          </div>
         </div>
       {% endif %}
+      </div>
 
       {% if has_permission %}
-        <div class="ui link list">
-          {% for contest_problem in contest_problem_list %}
-            <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
-               href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-                {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
-            </a>
-          {% endfor %}
+        <div class="ui segments">
+          <div class="ui segment">
+            <h3 class="ui center aligned header">Problems</h3>
+          </div>
+          <div class="ui segment">
+            <div class="ui link list">
+              {% for contest_problem in contest_problem_list %}
+                <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+                   href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                    {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       {% endif %}
     </div>
@@ -96,6 +120,10 @@
     </div>
   </div>
 
+{% endblock %}
+
+
+{% block script %}
   <script src="/static/js/countdown.js"></script>
   <script>
     var last_update_time = "";
@@ -123,5 +151,4 @@
     get_clarification();
 
   </script>
-
 {% endblock %}

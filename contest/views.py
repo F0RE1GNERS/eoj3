@@ -54,7 +54,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         if not self.contest.visible:
             self.permission_denied_message = 'Contest is not visible.'
             return False
-        if self.contest.get_status() == 'pending':
+        if self.contest.status == 'pending':
             self.permission_denied_message = "Contest hasn't started."
             return False
         if self.registered:
@@ -66,8 +66,17 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
         data['contest'] = self.contest
-        data['contest_status'] = self.contest.get_status()
+        data['contest_status'] = self.contest.status
         data['current_time'] = timezone.now()
+        if not self.contest.always_running:
+            data['time_remaining'] = 0
+            if data['contest_status'] < 0:
+                data['time_remaining'] = (self.contest.start_time - data['current_time']).total_seconds()
+            elif data['contest_status'] == 0:
+                data['time_remaining'] = (self.contest.end_time - data['current_time']).total_seconds()
+            data['time_all'] = 0
+            if data['contest_status'] == 0:
+                data['time_all'] = (self.contest.end_time - self.contest.start_time).total_seconds()
         data['contest_problem_list'] = self.contest_problem_list
         data['has_permission'] = self.test_func()
         data['is_privileged'] = self.privileged

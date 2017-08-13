@@ -5,7 +5,7 @@
   {% if contest.always_running %}
     <p>Always Running.</p>
   {% else %}
-    <p><strong>From</strong> {{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}</p>
+    <p>{{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}</p>
   {% endif %}
   {% if contest.is_frozen != 'a' %}<p>Standings are frozen now.</p>{% endif %}
 

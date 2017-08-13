@@ -34,7 +34,6 @@ class ContestManager(models.Manager):
             for contest in contest_list:
                 contest.length = contest.end_time - contest.start_time
         for contest in contest_list:
-            contest.status = contest.get_status()
             contest.participant_size = contest.participants.count()
         return contest_list
 
@@ -103,7 +102,8 @@ class Contest(models.Model):
     class Meta:
         ordering = ['-pk']
 
-    def get_status(self):
+    @property
+    def status(self):
         now = timezone.now()
         try:
             if self.always_running or self.start_time <= now <= self.end_time:

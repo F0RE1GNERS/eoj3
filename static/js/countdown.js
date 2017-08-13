@@ -1,3 +1,11 @@
+$(".ui.progress").each(function () {
+  if ($(this).data("status")) {
+    var status = $(this).data("status");
+    if (status > 0) $(this).progress({ percent: 100 });
+    else $(this).progress({ percent: 0 });
+  }
+});
+
 var timer = setInterval(function() {
   function fixedTwo(number) {
     if (number == 0) return "00";
@@ -5,26 +13,24 @@ var timer = setInterval(function() {
   }
 
   var countdowns = $(".countdown");
-  for (var i = 0; i < countdowns.length; ++i) {
-    var countdown = $(countdowns[i]);
-    var seconds = countdown.data("delta-seconds") - 1;
-    countdown.data("delta-seconds", seconds);
+  countdowns.each(function () {
+    var seconds = Math.floor($(this).data("delta-seconds")) - 1;
+    $(this).data("delta-seconds", seconds);
     var show_time = Math.floor(seconds / 3600) + ":" + fixedTwo(Math.floor((seconds % 3600) / 60)) + ":" + fixedTwo(seconds % 60);
-    countdown.html(show_time);
+    $(this).html(show_time);
     if (seconds <= 0) {
       clearInterval(timer);
       $('#refreshNotification').modal('show');
     }
-  }
 
-  // There is only one progress bar
-  var progress = $(".countdown-progress");
-  if (progress.attr('data-status') == "0") {
-    progress.data('acc', progress.data('acc') + 1);
-    var now_progress = Math.round(progress.data('acc') / progress.data('all') * 100);
-    progress.css("width", now_progress + "%");
-    progress.attr("aria-valuenow", now_progress);
-  }
-
+    var progress = $(this).closest(".ui.progress");
+    var now_progress = 0;
+    if ($(this).data("duration") > 0) {
+      now_progress = 100 - $(this).data('delta-seconds') / $(this).data('duration') * 100;
+      progress.progress({
+        percent: now_progress
+      });
+    }
+  });
 
 }, 1000);
