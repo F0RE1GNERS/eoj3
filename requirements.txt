@@ -33,3 +33,4 @@ pyyaml
 chardet
 channels
 socketio-client
+django-extensions
