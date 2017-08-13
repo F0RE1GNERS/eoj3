@@ -116,7 +116,7 @@ if ($("#older-submission").length > 0) {
       }
     },
     beforeMount: function () {
-      this.updateSubmission();
+      this.updateSubmission(true);
     },
     mounted: function () {
       new Clipboard('.clipboard');

@@ -34,7 +34,12 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     """
 
     problem = submission.problem
-    case_list = problem.case_list
+    if kwargs.get('case') == 'pretest':
+        case_list = problem.pretest_list
+    elif kwargs.get('case') == 'sample':
+        case_list = problem.sample_list
+    else:
+        case_list = problem.case_list
 
     def on_receive_data(data):
         judge_time = datetime.fromtimestamp(data['timestamp'])

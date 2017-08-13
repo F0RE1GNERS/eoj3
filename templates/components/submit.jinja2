@@ -4,7 +4,7 @@
 
   <form class="ui form" action="{{ submit_action }}" method="post">
     {% csrf_token %}
-    <div class="ui segments">
+    <div class="ui segments" style="margin-top: 0">
       <div class="ui right aligned compact segment">
         <div class="ui selection search language dropdown">
           <input name="lang" id="id_lang" type="hidden" value="python">
@@ -16,6 +16,18 @@
             {% endfor %}
           </div>
         </div>
+        {% if contest %}
+        <div class="ui selection search language dropdown" style="float:left;">
+          <input name="problem" type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="text">Select Problem</div>
+          <div class="menu">
+            {% for contest_problem in contest_problem_list %}
+            <div class="item" data-value="{{ contest_problem.identifier }}">{{ contest_problem }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
       <div class="ui compact segment">
         <input type="hidden" name="code" id="id_code">
@@ -30,7 +42,7 @@
 
   </form>
 
-  <div id="older-submission" data-api-route="{{ url('problem:submission', problem.id) }}">
+  <div id="older-submission" data-api-route="{{ url('contest:submission', contest.id) }}">
     <div v-html="subcurrent" style="margin-top: 3em;"></div>
     <div v-if="submission.length > 0" id="current-submission" style="margin-top: 3em">
       <h3 class="ui horizontal divider header">
@@ -40,7 +52,11 @@
         <a v-for="(sub, index) in submission" :class="['ui', 'label', STATUS_COLOR[sub.status]]" :key="sub.id"
           @click="toggleCurrent" :index="index">
           [[ STATUS[sub.status] ]]
-          <div class="detail">#[[ sub.id ]]</div>
+          {% if contest %}
+            <div class="detail">[[ sub.problem_id ]]</div>
+          {% else %}
+            <div class="detail">#[[ sub.id ]]</div>
+          {% endif %}
         </a>
       </div>
     </div>

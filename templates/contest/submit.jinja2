@@ -1,43 +1,16 @@
 {% extends 'contest/base.jinja2' %}
-{% block contest_title %}Submit Your Code - {% endblock %}
+{% from 'components/submit.jinja2' import submit_view with context %}
+
+{% block contest_title %}Submit - {% endblock %}
+
 {% block contest_content %}
 
-<div class="content-header">
-  <h2>Submit your code</h2>
-</div>
-{% include 'components/message.jinja2' %}
-<form class="form-horizontal" action="{{ request.path }}" method="post" onsubmit="setVal()">
-  {% csrf_token %}
+  {{ submit_view() }}
 
-  <div class="form-group">
-    <label for="problem_identifier" class="col-sm-2 control-label">Problem</label>
-    <div class="col-sm-10">
-      {{ render_field(form.problem_identifier, {'class': "form-control"}) }}
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label">Language</label>
-    <div class="col-sm-10">
-      {{ render_field(form.lang, {'class': "form-control"}) }}
-    </div>
-  </div>
-  <div class="form-group {% if form.code.errors %}has-error{% endif %}">
-    <label class="col-sm-2 control-label">Code</label>
-    <div class="col-sm-10">
-      <input type="hidden" name="code" id="id_code" value="{{ form.code.value() or "" }}">
-      <div id="editor" style="height: 400px; position: relative"></div>
-      {% for error in form.code.errors %}
-        <span id="help-block" class="help-block">{{ error | escape }}</span>
-      {% endfor %}
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button class="btn btn-primary" type="submit">Submit</button>
-    </div>
-  </div>
-</form>
+{% endblock %}
 
-  <script src="/static/js/ace/ace.js"></script>
-  <script src="/static/js/editor.js"></script>
+{% block local_script %}
+  <script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
+  <script src="/static/node_modules/vue/dist/vue.js"></script>
+  <script src="/static/js/submit.js"></script>
 {% endblock %}
