@@ -163,6 +163,9 @@ class StatusList(ListView):
     def get_selected_from(self):
         return Submission.objects.all()
 
+    def reinterpret_problem_identifier(self, value):
+        return value
+
     def get_queryset(self):
         queryset = self.get_selected_from().select_related('problem', 'author').\
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
@@ -173,7 +176,7 @@ class StatusList(ListView):
         if 'user' in self.request.GET:
             queryset = queryset.filter(author_id=self.request.GET['user'])
         if self.allow_problem_query and 'problem' in self.request.GET:
-            queryset = queryset.filter(problem_id=self.request.GET['problem'])
+            queryset = queryset.filter(problem_id=self.reinterpret_problem_identifier(self.request.GET['problem']))
         if 'lang' in self.request.GET:
             queryset = queryset.filter(lang=self.request.GET['lang'])
         if 'verdict' in self.request.GET:

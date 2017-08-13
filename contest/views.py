@@ -7,6 +7,7 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 
 from account.permissions import is_admin_or_root, is_volunteer
+from problem.models import Problem
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from submission.models import SubmissionStatus
@@ -20,12 +21,12 @@ def time_formatter(seconds):
                              seconds % 60)
 
 
-def get_contest_problem(contest_problem_list, problem_id):
-    get_result = list(filter(lambda p: p.problem_id == problem_id, contest_problem_list))
+def get_contest_problem(contest: Contest, problem_id: int) -> (ContestProblem, None):
+    get_result = list(filter(lambda p: p.problem_id == problem_id, contest.contest_problem_list))
     if len(get_result) > 0:
         return get_result[0]
     else:
-        return 'N/A'
+        return None
 
 
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
@@ -33,10 +34,6 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
-        self.contest_problem_list = list(self.contest.contestproblem_set.select_related('problem').
-                                         defer('problem__description', 'problem__input', 'problem__output',
-                                               'problem__hint').all())
-
         self.user = request.user
         self.privileged = is_admin_or_root(self.user) or self.contest.manager.filter(user=self.user).exists()
         self.volunteer = is_volunteer(self.user)
@@ -77,7 +74,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             data['time_all'] = 0
             if data['contest_status'] == 0:
                 data['time_all'] = (self.contest.end_time - self.contest.start_time).total_seconds()
-        data['contest_problem_list'] = self.contest_problem_list
+        data['contest_problem_list'] = self.contest.contest_problem_list
         data['has_permission'] = self.test_func()
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer

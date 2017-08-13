@@ -64,16 +64,15 @@ $.filterChangeTo = function (filter, value) {
     obj[filter] = value;
   }
   if (!_.isEqual(obj, originalObj)) {
-    console.log(obj, originalObj);
     location.href = encodeObjectAsUrlParamString(obj);
   }
 };
 
 $('.ui.dropdown.status-filter').each(function () {
   var api_url = null;
-  if ($(this).data('filter-type') == 'user')
+  if ($(this).data('filter-type') == 'user' && !$(this).hasClass("local"))
     api_url = '/api/search/user/?kw={query}';
-  else if ($(this).data('filter-type') == 'problem')
+  else if ($(this).data('filter-type') == 'problem' && !$(this).hasClass("local"))
     api_url = '/api/search/problem/?kw={query}';
   $(this).dropdown({
     onChange: function (value) {

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 
+from problem.views import StatusList
 from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter, get_contest_problem
@@ -36,7 +37,7 @@ class ContestSubmit(BaseContestMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(ContestSubmit, self).get_form_kwargs()
-        kwargs['contest_problem_list'] = self.contest_problem_list
+        kwargs['contest_problem_list'] = self.contest.contest_problem_list
         kwargs['contest_allowed_lang'] = self.contest_allowed_lang
         return kwargs
 
@@ -72,31 +73,25 @@ class ContestMySubmission(BaseContestMixin, ListView):
         data = super(ContestMySubmission, self).get_context_data(**kwargs)
         for submission in data['submission_list']:
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
-            submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
+            submission.contest_problem = get_contest_problem(self.contest, submission.problem_id)
         return data
 
 
-class ContestStatus(BaseContestMixin, ListView):
-    template_name = 'contest/status.jinja2'
-    paginate_by = 50
-    context_object_name = 'submission_list'
+class ContestStatus(BaseContestMixin, StatusList):
 
-    def get_queryset(self):
-        queryset = self.contest.submission_set.select_related('author', 'contest').\
-            only('pk', 'contest_id', 'contest__rule', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'lang', 'status', 'status_percent')
-        if self.privileged or self.contest.get_frozen() == 'a':
-            return queryset.all()
-        elif self.contest.get_frozen() == 'f2':
-            return queryset.none()
-        else:
-            return queryset.filter(create_time__lt=self.contest.freeze_time).all()
+    template_name = 'contest/status.jinja2'
+
+    def get_selected_from(self):
+        return self.contest.submission_set.all()
+
+    def reinterpret_problem_identifier(self, value):
+        return self.contest.contestproblem_set.get(identifier=value).problem_id
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
+        find_contest_problem = {k.problem_id: k for k in self.contest.contest_problem_list}
         for submission in data['submission_list']:
-            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
-            submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
+            submission.contest_problem = find_contest_problem[submission.problem_id]
         return data
 
 
@@ -127,7 +122,7 @@ class ContestBalloon(BaseContestMixin, ListView):
         for submission in data['submission_list']:
             submission.comment = contest_participant_set[submission.author_id]
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
-            submission.contest_problem = get_contest_problem(self.contest_problem_list, submission.problem_id)
+            submission.contest_problem = get_contest_problem(self.contest, submission.problem_id)
             if type(submission.contest_problem) == ContestProblem:
                 submission.contest_problem = submission.contest_problem.identifier
         return data

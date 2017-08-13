@@ -129,6 +129,15 @@ class Contest(models.Model):
     def supported_language_list(self):
         return list(filter(lambda x: x, self.allowed_lang.split(',')))
 
+    @property
+    def contest_problem_list(self):
+        if not hasattr(self, '_contest_problem_list'):
+            self._contest_problem_list = list(self.contestproblem_set.select_related('problem').
+                                              defer('problem__description', 'problem__input', 'problem__output',
+                                                    'problem__hint').all())
+        return self._contest_problem_list
+
+
 
 class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
