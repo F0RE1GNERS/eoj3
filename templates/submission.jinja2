@@ -9,7 +9,11 @@
 
   {{ submission_block }}
 
-  <div id="past-submissions" data-url="{{ url('problem:past_submission', submission.problem_id) }}"></div>
+  {% if contest %}
+    <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id) }}"></div>
+  {% else %}
+    <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
+  {% endif %}
 {% endblock %}
 
 {% block script %}

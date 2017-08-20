@@ -10,8 +10,9 @@ from problem.views import StatusList, ProblemPersonalSubmissionAPI
 from problem.tasks import create_submission, judge_submission_on_problem
 from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
-from .views import BaseContestMixin, time_formatter, get_contest_problem
+from .views import BaseContestMixin, time_formatter
 from submission.models import Submission, SubmissionStatus
+from submission.views import render_submission
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import submit_code_for_contest
 from utils.language import LANG_CHOICE
@@ -37,29 +38,59 @@ class ContestSubmit(BaseContestMixin, TemplateView):
         if request.POST['lang'] not in self.contest.supported_language_list:
             raise PermissionDenied
         problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
-        if self.contest.run_tests_during_contest == 'none':
-            status = SubmissionStatus.SUBMITTED
-        else:
-            status = SubmissionStatus.WAITING
         submission = create_submission(problem, self.user, request.POST['code'], request.POST['lang'],
-                                       contest=self.contest, status=status)
+                                       contest=self.contest)
         if self.contest.run_tests_during_contest != 'none':
             judge_submission_on_problem(submission, callback=None, case=self.contest.run_tests_during_contest,
                                         status_private=self.contest.is_frozen)
-        return HttpResponse()
+        else:
+            submission.status = submission.status_private = SubmissionStatus.SUBMITTED
+            submission.save(update_fields=['status', 'status_private'])
+        return HttpResponse(json.dumps({"url": reverse('contest:submission_api',
+                                                       kwargs={'cid': self.contest.id, 'sid': submission.id})}))
 
 
-class ContestMySubmission(BaseContestMixin, View):
+class ContestSubmissionAPI(BaseContestMixin, TemplateView):
 
-    def get(self, request, cid):
-        subs = []
-        SUB_FIELDS = ["id", "status", "problem_id"]
-        for sub in self.contest.submission_set.filter(author=self.user).only("create_time", "author", "status", "problem_id"). \
-                order_by("-create_time").all():
-            subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
-        for sub in subs:
-            sub["problem_id"] = get_contest_problem(self.contest, sub["problem_id"]).identifier
-        return HttpResponse(json.dumps(subs))
+    template_name = 'components/single_submission.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestSubmissionAPI, self).get_context_data(**kwargs)
+        data['submission'] = Submission.objects.get(contest_id=self.kwargs.get('cid'),
+                                                    author=self.request.user,
+                                                    pk=self.kwargs.get('sid'))
+        data['hide_problem'] = True
+        return data
+
+
+class ContestSubmissionView(BaseContestMixin, TemplateView):
+
+    template_name = 'submission.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestSubmissionView, self).get_context_data(**kwargs)
+        data['submission'] = submission = Submission.objects.get(contest_id=self.kwargs.get('cid'),
+                                                                 pk=self.kwargs.get('sid'))
+        submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
+        submission_block = render_submission(submission)
+        data['submission_block'] = submission_block
+        return data
+
+
+
+class ContestMySubmission(BaseContestMixin, TemplateView):
+
+    template_name = 'components/past_submissions.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestMySubmission, self).get_context_data(**kwargs)
+        data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status",
+                                                                   "create_time", "contest_id",
+                                                                   "author_id", "author__username",
+                                                                   "author__magic"). \
+            filter(author_id=self.request.user.pk)
+        self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        return data
 
 
 class ContestStatus(BaseContestMixin, StatusList):
@@ -76,9 +107,7 @@ class ContestStatus(BaseContestMixin, StatusList):
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
-        find_contest_problem = {k.problem_id: k for k in self.contest.contest_problem_list}
-        for submission in data['submission_list']:
-            submission.contest_problem = find_contest_problem[submission.problem_id]
+        self.contest.add_contest_problem_to_submissions(data['submission_list'])
         return data
 
 
@@ -109,7 +138,7 @@ class ContestBalloon(BaseContestMixin, ListView):
         for submission in data['submission_list']:
             submission.comment = contest_participant_set[submission.author_id]
             submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
-            submission.contest_problem = get_contest_problem(self.contest, submission.problem_id)
+            submission.contest_problem = self.contest.get(submission.problem_id)
             if type(submission.contest_problem) == ContestProblem:
                 submission.contest_problem = submission.contest_problem.identifier
         return data

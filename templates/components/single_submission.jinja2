@@ -10,6 +10,9 @@
   <thead>
     <tr class="center aligned">
       <th>#</th>
+      {% if not hide_problem %}
+      <th>Problem</th>
+      {% endif %}
       <th>Language</th>
       <th>Sent</th>
       <th>Judged</th>
@@ -20,6 +23,13 @@
   <tbody>
     <tr class="center aligned">
       <th rowspan="2" style="padding:1em">{{ submission.id }}</th>
+    {% if not hide_problem %}
+      {% if submission.contest_id and submission.contest_problem %}
+        <td><a href="{{ url('contest:problem', submission.contest_id, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
+      {% else %}
+        <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
+      {% endif %}
+    {% endif %}
       <td>{{ submission.get_lang_display() }}</td>
       <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
       <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
@@ -27,7 +37,11 @@
       <td>{{ submission.get_time_display() }}</td>
     </tr>
     <tr>
-      <td colspan="5" style="">
+    {% if hide_problem %}
+      <td colspan="5">
+    {% else %}
+      <td colspan="6">
+    {% endif %}
         {% if submission.status == -2 or submission.status == -3 %}
           <div class="ui active large centered inline loader" style="margin-bottom:1em;"></div>
         {% endif %}

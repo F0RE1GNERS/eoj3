@@ -21,14 +21,6 @@ def time_formatter(seconds):
                              seconds % 60)
 
 
-def get_contest_problem(contest: Contest, problem_id: int) -> (ContestProblem, None):
-    get_result = list(filter(lambda p: p.problem_id == problem_id, contest.contest_problem_list))
-    if len(get_result) > 0:
-        return get_result[0]
-    else:
-        return None
-
-
 class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
     raise_exception = True  # TODO show permission denied message
 

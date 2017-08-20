@@ -217,7 +217,7 @@ class ProblemPersonalSubmissionAPI(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         submission = Submission.objects.get(problem_id=self.kwargs.get('pk'), author=self.request.user,
                                             pk=self.kwargs.get('sid'))
-        return {'submission': submission}
+        return {'submission': submission, 'hide_problem': True}
 
 
 class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
@@ -248,4 +248,5 @@ class ProblemSubmissionView(TemplateView):
         else:
             submission_block = ''
         data['submission_block'] = submission_block
+        data['problem'] = submission.problem
         return data

@@ -137,6 +137,17 @@ class Contest(models.Model):
                                                     'problem__hint').all())
         return self._contest_problem_list
 
+    def get_contest_problem(self, problem_id):
+        get_result = list(filter(lambda p: p.problem_id == problem_id, self.contest_problem_list))
+        if len(get_result) > 0:
+            return get_result[0]
+        else:
+            return None
+
+    def add_contest_problem_to_submissions(self, submissions):
+        find_contest_problem = {k.problem_id: k for k in self.contest_problem_list}
+        for submission in submissions:
+            submission.contest_problem = find_contest_problem[submission.problem_id]
 
 
 class ContestProblem(models.Model):
