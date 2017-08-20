@@ -5,72 +5,34 @@
 {% endblock %}
 
 {% block backstage_content %}
-  {% include 'components/message.jinja2' %}
-  <p>
-    <a role="button" class="btn btn-default" href="{{ url('backstage:problem_create') }}">Add a problem</a>
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#rejudgeModal">Rejudge</button>
-    <a role="button" class="btn btn-default" target="_blank" href="{{ url('backstage:spj_compiler') }}">Compiler</a>
-  </p>
-  <div class="scrollable">
-    <table class="table">
-      <thead>
+
+  <table class="ui celled definition table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th>Visible</th>
+        <th>Name</th>
+        <th>Alias</th>
+        <th>Created</th>
+        <th>Update</th>
+        <th>Access</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
         <tr>
-          <th width="10%">#</th>
-          <th>Name</th>
-          <th>Goto</th>
-{#          <th>Visible</th>#}
-          <th width="15%">Profile</th>
-          <th width="15%">Testdata</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for problem in problem_list %}
-          <tr>
-            <th {% if not problem.visible %}style="text-decoration: line-through"{% endif %} scope="row">{{ problem.pk }}</th>
-            <td>{{ problem.title }}</td>
-            <td><a href="{{ url('problem', problem.pk) }}" target="_blank">View</a></td>
-{#            <td><a href="javascript:void(0);" class="visible-link" data-link="{{ url('backstage:problem_visible_switch', problem.pk) }}">{{ problem.visible }}</a></td>#}
-            <td><a href="{{ url('backstage:problem_edit', problem.pk) }}">Edit</a></td>
-            <td><a href="{{ url('backstage:problem_testdata', problem.pk) }}">Testdata</a></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {{ my_paginator() }}
-
-
-  <div class="modal fade" id="rejudgeModal" tabindex="-1" role="dialog"
-       aria-labelledby="rejudgeModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="rejudgeModalLabel">Rejudge</h4>
-        </div>
-        <form class="form-horizontal" style="margin-bottom:0" id="rejudgeModalForm" action="{{ url('backstage:problem_rejudge') }}" method="post">
-          <div class="modal-body">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.path }}">
-            <div class="form-group">
-              <label for="problem" class="col-sm-2 control-label">Problem</label>
-              <div class="col-sm-10">
-                <input class="form-control" id="problem" name="problem">
-              </div>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:problem_visible_switch', problem.id) }}" type="checkbox" {% if problem.visible %}checked{% endif %}>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-submit">Rejudge</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-{#  {{ post_link('.visible-link') }}#}
+          </td>
+          <td>{{ problem.title }}</td>
+          <td>{{ problem.alias }}</td>
+          <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
+          <td><a href="{{ url('backstage:problem_meta', problem.pk) }}">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
 {% endblock %}

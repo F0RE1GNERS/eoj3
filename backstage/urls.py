@@ -5,7 +5,7 @@ from .base_views import Index
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
-from .problem.views import ProblemCreate, ProblemUpdate, ProblemList, TestData, FileManager, FileDelete, ProblemRejudge, ProblemVisibleSwitch, SPJCompiler
+from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemMeta
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 
@@ -18,15 +18,8 @@ urlpatterns = [
     url(r'^account/password/(?P<pk>\d+)/$', AccountPasswordChange.as_view(), name='account_password_change'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
-    url(r'^problem/create/$', ProblemCreate.as_view(), name='problem_create'),
-    url(r'^problem/(?P<pk>\d+)/edit/$', ProblemUpdate.as_view(), name='problem_edit'),
-    url(r'^problem/(?P<pk>\d+)/testdata/$', TestData.as_view(), name='problem_testdata'),
-    url(r'^problem/(?P<pk>\d+)/file/$', FileManager.as_view(), name='problem_file'),
-    url(r'^problem/(?P<pk>\d+)/file/delete/(?P<path>.*)$', FileDelete.as_view(), name='problem_file_delete'),
-    url(r'^problem/rejudge/$', ProblemRejudge.as_view(), name='problem_rejudge'),
-    url(r'^problem/visible/(?P<pk>\d+)/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),
-    # url(r'^problem/(?P<pk>\d+)/delete/$', ProblemDelete.as_view(), name='problem_delete'),
-    url(r'^compiler/$', SPJCompiler.as_view(), name='spj_compiler'),
+    url(r'^problem/(?P<pk>\d+)/visible/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),
+    url(r'^problem/(?P<pk>\d+)/meta/$', ProblemMeta.as_view(), name='problem_meta'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),

@@ -137,7 +137,7 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
 
     def test_func(self):
         if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
-            self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
+                self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
             return super(ProblemMeta, self).test_func()
         return False
 
