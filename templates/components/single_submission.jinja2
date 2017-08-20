@@ -1,3 +1,5 @@
+{# This template is for author only if access directly #}
+
 <div class="ui segment">
   <a class="ui top right attached label clipboard" data-clipboard-text="{{ submission.code }}">
     <i class="copy icon"></i> {{ submission.get_lang_display() }}
@@ -21,7 +23,7 @@
       <td>{{ submission.get_lang_display() }}</td>
       <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
       <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
-      <td><h5 class="ui header status-span with-icon" data-status="{{ submission.status }}"></h5></td>
+      <td><h5 class="ui header status-span with-icon" data-status="{{ submission.status_private }}"></h5></td>
       <td>{{ submission.get_time_display() }}</td>
     </tr>
     <tr>

@@ -56607,6 +56607,9 @@ body.pushable > .pusher {
 .ui.accordion.list .item .title {
   padding: 0;
 }
+#past-submissions {
+  margin-top: 3em;
+}
 .deleted {
   text-decoration: line-through;
 }

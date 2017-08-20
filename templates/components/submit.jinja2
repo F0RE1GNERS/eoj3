@@ -42,24 +42,8 @@
 
   </form>
 
-  <div id="older-submission" data-api-route="{{ url('contest:submission', contest.id) }}">
-    <div v-html="subcurrent" style="margin-top: 3em;"></div>
-    <div v-if="submission.length > 0" id="current-submission" style="margin-top: 3em">
-      <h3 class="ui horizontal divider header">
-        PAST SUBMISSIONS
-      </h3>
-      <div class="ui labels">
-        <a v-for="(sub, index) in submission" :class="['ui', 'label', STATUS_COLOR[sub.status]]" :key="sub.id"
-          @click="toggleCurrent" :index="index">
-          [[ STATUS[sub.status] ]]
-          {% if contest %}
-            <div class="detail">[[ sub.problem_id ]]</div>
-          {% else %}
-            <div class="detail">#[[ sub.id ]]</div>
-          {% endif %}
-        </a>
-      </div>
-    </div>
-  </div>
+  <div id="current-submission"></div>
+
+  <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
 
 {% endmacro %}

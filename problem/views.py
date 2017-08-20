@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.shortcuts import HttpResponse, get_object_or_404
+from django.shortcuts import HttpResponse, get_object_or_404, reverse, render
 from django.views.generic import TemplateView, View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
@@ -85,7 +85,7 @@ class ProblemList(ListView):
 class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
 
     def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, **kwargs)
+        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
         self.user = request.user
         self.request = request
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
@@ -135,7 +135,8 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
     def post(self, request, pk):
         submission = create_submission(self.problem, self.user, request.POST['code'], request.POST['lang'])
         judge_submission_on_problem(submission)
-        return HttpResponse()
+        return HttpResponse(json.dumps({"url": reverse('problem:submission_api',
+                                                       kwargs={'pk': self.problem.id, 'sid': submission.id})}))
 
 
 class ProblemStatisticsView(ProblemDetailMixin, TemplateView):
@@ -206,18 +207,31 @@ class StatusList(ListView):
         return data
 
 
-class ProblemPersonalSubmissionAPI(ProblemDetailMixin, View):
+class ProblemPersonalSubmissionAPI(UserPassesTestMixin, TemplateView):
+
+    template_name = 'components/single_submission.jinja2'
 
     def test_func(self):
-        return super(ProblemPersonalSubmissionAPI, self).test_func() and self.user.is_authenticated
+        return self.request.user.is_authenticated
 
-    def get(self, request, pk):
-        subs = []
-        SUB_FIELDS = ["id", "status"]
-        for sub in self.problem.submission_set.filter(author=self.user).only("create_time", "author", *SUB_FIELDS).\
-                order_by("-create_time").all():
-            subs.append({k: getattr(sub, k) for k in SUB_FIELDS})
-        return HttpResponse(json.dumps(subs))
+    def get_context_data(self, **kwargs):
+        submission = Submission.objects.get(problem_id=self.kwargs.get('pk'), author=self.request.user,
+                                            pk=self.kwargs.get('sid'))
+        return {'submission': submission}
+
+
+class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
+
+    template_name = 'components/past_submissions.jinja2'
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def get_context_data(self, **kwargs):
+        submission_set = Submission.objects.only("problem_id", "id", "status", "create_time",
+                                                 "author_id", "author__username", "author__magic"). \
+            filter(author_id=self.request.user.pk, problem_id=kwargs.get('pk'))
+        return {'submission_list': submission_set}
 
 
 class ProblemSubmissionView(TemplateView):
@@ -226,14 +240,12 @@ class ProblemSubmissionView(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
-        data['submission'] = submission = Submission.objects.get(pk=self.kwargs.get('pk'))
+        data['submission'] = submission = Submission.objects.get(problem_id=self.kwargs.get('pk'),
+                                                                 pk=self.kwargs.get('sid'))
         if submission.author == self.request.user or \
             has_permission_for_problem_management(self.request.user, submission.problem):
             submission_block = render_submission(submission)
         else:
             submission_block = ''
-        submission_set = submission.problem.submission_set.only("author_id", "problem_id", "id", "status", "create_time",
-                                                                "author_id", "author__username", "author__magic").\
-            filter(author_id=submission.author_id, problem_id=submission.problem_id)
-        data.update(submission_block=submission_block, submission_list=submission_set, author=submission.author)
+        data['submission_block'] = submission_block
         return data

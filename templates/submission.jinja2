@@ -1,22 +1,17 @@
 {% extends 'base.jinja2' %}
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
 
+{% block title %}Submission #{{ submission.id }} - {% endblock %}
+
 {% block page_header %}Submission #{{ submission.id }}{% endblock %}
 
 {% block content %}
 
   {{ submission_block }}
 
-  {% for submission in submission_list %}
+  <div id="past-submissions" data-url="{{ url('problem:past_submission', submission.problem_id) }}"></div>
+{% endblock %}
 
-    <p>
-      {% set surl = url(request.resolver_match.namespace + ':' + request.resolver_match.url_name, request.resolver_match.kwargs.name, submission.id) %}
-      <a class="submission-view-trigger" data-fetch="{{ surl }}" data-id="{{ submission.id }}">{{ submission.id }}</a>
-      <i class="icon long arrow right"></i>
-      <a class="ui horizontal label submission-view-trigger status-label" data-fetch="{{ surl }}" data-id="{{ submission.id }}"
-         data-status="{{ submission.status }}"></a>
-      <i>{{ submission.create_time | date('Y-m-d H:i:s') }}</i>
-    </p>
-
-  {% endfor %}
+{% block script %}
+  <script src="/static/js/submit.js"></script>
 {% endblock %}

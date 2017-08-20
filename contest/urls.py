@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList
-from .submit import ContestMySubmission, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch
+from .submission import ContestMySubmission, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings
 from .clarification import ContestClarificationView, ContestClarificationToggle, ContestClarificationQuery, ContestClarificationAnswer
 

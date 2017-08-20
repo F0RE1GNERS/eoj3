@@ -1,6 +1,6 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
 
-{% macro status(in_contest=False, hide_problems=False, fetch_submission_url='problem:submission_view') %}
+{% macro status(in_contest=False, hide_problems=False) %}
 
   <table class="ui celled table striped center aligned compact">
     <thead>
@@ -106,12 +106,5 @@
     </tbody>
   </table>
   {{ my_paginator() }}
-
-  <div class="ui modal submission-modal">
-    <i class="close icon"></i>
-    <div class="header"></div>
-    <div class="scrolling content">
-    </div>
-  </div>
 
 {% endmacro %}

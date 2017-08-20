@@ -35,6 +35,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     """
     :type submission: Submission
     :param callback: function, call when judge result is received
+    :param status_private: make the status private only (when the contest scoreboard is frozen)
     :return:
     """
 
@@ -56,6 +57,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             submission.status_private = data.get('verdict', SubmissionStatus.WAITING)
             if not kwargs.get('status_private'):
                 submission.status = data.get('verdict', SubmissionStatus.WAITING)
+            else:
+                submission.status = SubmissionStatus.SUBMITTED
             submission.status_detail_list = data.get('detail', [])
             submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
             submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private'])
