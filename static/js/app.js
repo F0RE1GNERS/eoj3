@@ -236,18 +236,6 @@ $.parseStatusDisplay = function () {
     icon.addClass(STATUS_COLOR[status]);
     icon.addClass(STATUS_ICON[status]);
   });
-  $(".submission-view-trigger")
-    .click(function (event) {
-      var button = $(event.currentTarget);
-      var header = "Submission #" + button.data('id');
-      $.get(button.data('fetch'), {}, function (data) {
-        $(".submission-modal .header").html(header);
-        $(".submission-modal .content").html(data);
-        $(".submission-modal").modal('show');
-        $.parseStatusDisplay();
-      })
-    })
-    .attr('href', 'javascript:void(0);');
   new Clipboard('.clipboard');
 };
 

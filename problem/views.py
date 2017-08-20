@@ -226,7 +226,7 @@ class ProblemSubmissionView(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
-        submission = Submission.objects.get(pk=self.kwargs.get('pk'))
+        data['submission'] = submission = Submission.objects.get(pk=self.kwargs.get('pk'))
         if submission.author == self.request.user or \
             has_permission_for_problem_management(self.request.user, submission.problem):
             submission_block = render_submission(submission)
