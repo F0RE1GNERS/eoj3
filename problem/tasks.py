@@ -36,16 +36,19 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     :type submission: Submission
     :param callback: function, call when judge result is received
     :param status_private: make the status private only (when the contest scoreboard is frozen)
+    :param case: can be pretest or sample or all
     :return:
     """
 
     problem = submission.problem
+    case_list = []
     if kwargs.get('case') == 'pretest':
         case_list = problem.pretest_list
     elif kwargs.get('case') == 'sample':
         case_list = problem.sample_list
-    else:
+    if not case_list:  # case list is empty (e.g. something wrong with pretest list)
         case_list = problem.case_list
+    point_query = dict(zip(problem.case_list, problem.point_list))
 
     def on_receive_data(data):
         judge_time = datetime.fromtimestamp(data['timestamp'])
@@ -59,14 +62,20 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.status = data.get('verdict', SubmissionStatus.WAITING)
             else:
                 submission.status = SubmissionStatus.SUBMITTED
-            submission.status_detail_list = data.get('detail', [])
-            submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
+
+            details = data.get('detail', [])
+            # Add points to details
+            for index, detail in enumerate(details):
+                detail['score'] = point_query.get(case_list[index], 10)  # 10 points by default
+            submission.status_detail_list = details + [{}] * (len(case_list) - len(details))
             submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private'])
+
             if SubmissionStatus.is_judged(data.get('verdict')):
                 submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
-                Thread(callback).start()
+                if callback:
+                    Thread(target=callback).start()
                 return True
             return False
         else:

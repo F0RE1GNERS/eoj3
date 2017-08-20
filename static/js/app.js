@@ -132,6 +132,19 @@ $(".delete-link")
   })
   .attr('href', 'javascript:void(0)');
 
+$(".modal-link")
+  .on('click', function (e) {
+    var modal = $(e.currentTarget).data('target');
+    $(modal)
+      .modal({
+        onApprove: function () {
+          $(this).find("form").submit();
+        }
+      })
+      .modal('show');
+  })
+  .attr('href', 'javascript:void(0)');
+
 $(".ui.checkbox.immediate")
   .checkbox({
     onChange: function () {

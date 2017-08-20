@@ -11,6 +11,7 @@ from problem.tasks import create_submission, judge_submission_on_problem
 from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter
+from .tasks import judge_submission_on_contest
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
 from submission.forms import ContestSubmitForm
@@ -40,12 +41,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
         problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
         submission = create_submission(problem, self.user, request.POST['code'], request.POST['lang'],
                                        contest=self.contest)
-        if self.contest.run_tests_during_contest != 'none':
-            judge_submission_on_problem(submission, callback=None, case=self.contest.run_tests_during_contest,
-                                        status_private=self.contest.is_frozen)
-        else:
-            submission.status = submission.status_private = SubmissionStatus.SUBMITTED
-            submission.save(update_fields=['status', 'status_private'])
+        judge_submission_on_contest(submission)
         return HttpResponse(json.dumps({"url": reverse('contest:submission_api',
                                                        kwargs={'cid': self.contest.id, 'sid': submission.id})}))
 

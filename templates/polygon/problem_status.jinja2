@@ -6,6 +6,6 @@
 {% block content %}
   {% include 'polygon/components/problem_header.jinja2' %}
 
-  {{ status(hide_problems=True) }}
+  {{ status(hide_problems=True, rejudge=True) }}
 
 {% endblock %}

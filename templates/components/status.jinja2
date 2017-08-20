@@ -1,6 +1,7 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
+{% from 'components/modal.jinja2' import modal %}
 
-{% macro status(in_contest=False, hide_problems=False) %}
+{% macro status(in_contest=False, hide_problems=False, rejudge=False) %}
 
   <table class="ui celled table striped center aligned compact">
     <thead>
@@ -79,6 +80,9 @@
           </div>
         </th>
         <th>Time</th>
+      {% if rejudge %}
+        <th><a class="modal-link" data-target="#rejudge-confirmation">Rejudge</a></th>
+      {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -101,10 +105,22 @@
           <td>{{ submission.get_lang_display() }}</td>
           <td><h5 class="ui header status-span" data-status="{{ submission.status }}"></h5></td>
           <td>{{ submission.get_time_display() }}</td>
+        {% if rejudge %}
+          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>
+        {% endif %}
         </tr>
       {% endfor %}
     </tbody>
   </table>
   {{ my_paginator() }}
+
+  {% if rejudge %}
+    {% call modal(title="Rejudge confirmation", id="rejudge-confirmation") %}
+      <p>Are you sure you want to rejudge all submissions?</p>
+      <form action="{{ url('polygon:rejudge_problem', problem.id) }}" method="POST">
+        {% csrf_token %}
+      </form>
+    {% endcall %}
+  {% endif %}
 
 {% endmacro %}

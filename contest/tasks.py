@@ -2,9 +2,23 @@ from django.utils import timezone
 from django.db import transaction
 from .models import Contest, ContestParticipant
 from account.models import User
-from submission.models import SubmissionStatus
+from problem.tasks import judge_submission_on_problem
+from submission.models import SubmissionStatus, Submission
 from functools import cmp_to_key
 import time
+from threading import Thread
+
+
+def judge_submission_on_contest(submission: Submission, callback=None, **kwargs):
+    contest = submission.contest
+    cases = 'all' if contest.status > 0 else contest.run_tests_during_contest
+    if cases != 'none':
+        judge_submission_on_problem(submission, callback=callback, case=cases,
+                                    status_private=contest.is_frozen)
+    else:
+        submission.status = submission.status_private = SubmissionStatus.SUBMITTED
+        submission.save(update_fields=['status', 'status_private'])
+        Thread(callback).start()
 
 
 def recalculate_for_participant(contest, submissions, problems):

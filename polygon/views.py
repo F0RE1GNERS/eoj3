@@ -29,6 +29,7 @@ from .session import (
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case,
     get_test_file_path, generate_input, stress, push_session
 )
+from .rejudge import rejudge_submission, rejudge_all_submission_on_problem
 
 
 def authorization(user):
@@ -178,7 +179,7 @@ class ProblemPreview(PolygonBaseMixin, TemplateView):
         return super(ProblemPreview, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists():
+        if self.problem.problemmanagement_set.filter(user=self.request.user).exists():
             return super(ProblemPreview, self).test_func()
         return False
 
@@ -187,6 +188,44 @@ class ProblemPreview(PolygonBaseMixin, TemplateView):
         data['problem'] = self.problem
         data['lang_choices'] = LANG_CHOICE
         return data
+
+
+class RejudgeSubmission(PolygonBaseMixin, View):
+
+    template_name = 'polygon/problem_preview.jinja2'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(Submission, pk=kwargs.get('sid'))
+        return super(RejudgeSubmission, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if self.submission.problem.problemmanagement_set.filter(
+                user=self.request.user).exists() or self.submission.contest.manager.filter(
+                user=self.request.user).exists():
+            return super(RejudgeSubmission, self).test_func()
+        return False
+
+    def post(self, request, sid):
+        rejudge_submission(self.submission)
+        return HttpResponse()
+
+
+class RejudgeProblem(PolygonBaseMixin, View):
+
+    template_name = 'polygon/problem_preview.jinja2'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
+        return super(RejudgeProblem, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if self.problem.problemmanagement_set.filter(user=self.request.user).exists():
+            return super(RejudgeProblem, self).test_func()
+        return False
+
+    def post(self, request, pk):
+        rejudge_all_submission_on_problem(self.problem)
+        return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
 
 
 class ProblemStatus(PolygonBaseMixin, StatusList):

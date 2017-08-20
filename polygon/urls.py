@@ -1,5 +1,9 @@
 from django.conf.urls import url
 
+from .contest import (
+    ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage,
+    ContestProblemCreate, ContestProblemReorder, ContestProblemDelete
+)
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
     ProblemMeta, ProblemPreview, ProblemStatus, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
@@ -10,12 +14,8 @@ from .views import (
     SessionValidateCase, RunsList, RunMessageView, SessionRunCaseOutput, SessionCheckCaseOutput,
     SessionCheckAllCaseOutput, SessionRunAllCaseOutput, SessionValidateAllCase, SessionDeleteCase,
     SessionDownloadInput, SessionDownloadOutput, SessionGenerateInput, SessionAddCaseFromStress,
-    SessionReformAllCase, SessionTogglePretestCase, SessionToggleSampleCase
-)
-
-from .contest import (
-    ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage,
-    ContestProblemCreate, ContestProblemReorder, ContestProblemDelete
+    SessionReformAllCase, SessionTogglePretestCase, SessionToggleSampleCase, RejudgeSubmission,
+    RejudgeProblem
 )
 
 
@@ -28,6 +28,9 @@ urlpatterns = [
     url(r'^problem/(?P<pk>\d+)/preview/$', ProblemPreview.as_view(), name='problem_preview'),
     url(r'^problem/(?P<pk>\d+)/meta/$', ProblemMeta.as_view(), name='problem_meta'),
     url(r'^problem/(?P<pk>\d+)/status/$', ProblemStatus.as_view(), name='problem_status'),
+
+    url(r'^problem/(?P<pk>\d+)/rejudge/$', RejudgeProblem.as_view(), name='rejudge_problem'),
+    url(r'^rejudge/(?P<sid>\d+)/$', RejudgeSubmission.as_view(), name='rejudge_submission'),
     url(r'^runs/$', RunsList.as_view(), name='runs'),
     url(r'^runs/message/(?P<pk>\d+)/$', RunMessageView.as_view(), name='run_message'),
     url(r'^session/(?P<sid>\d+)/edit/$', SessionEdit.as_view(), name='session_edit'),
