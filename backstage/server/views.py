@@ -2,6 +2,7 @@ import threading
 from datetime import datetime
 
 from django.contrib import messages
+from django.core.cache import cache
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import FormView
 from django.views.generic import View
@@ -36,6 +37,11 @@ class ServerList(BaseBackstageMixin, ListView):
     template_name = 'backstage/server/server.jinja2'
     queryset = Server.objects.all()
     context_object_name = 'server_list'
+
+    def get_context_data(self, **kwargs):
+        data = super(ServerList, self).get_context_data(**kwargs)
+        data['server_synchronize_status'] = cache.get('server_synchronize_status', 0)
+        return data
 
 
 class ServerRefresh(BaseBackstageMixin, View):
@@ -86,10 +92,13 @@ class ServerSynchronize(BaseBackstageMixin, View):
     def post(self, request, pk):
 
         def synchronize_func(server):
+            count, idx = Problem.objects.all().count(), 0
             for problem in Problem.objects.all():
-                # TODO: update progressbar and exception handling
+                cache.set('server_synchronize_status', idx / count * 100, 60)
+                idx += 1
                 if not upload_problem_to_judge_server(problem, server):
                     return
+            cache.set('server_synchronize_status', 100)
             server.last_synchronize_time = datetime.now()
             server.save(update_fields=['last_synchronize_time'])
 

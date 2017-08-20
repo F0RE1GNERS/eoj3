@@ -21,9 +21,14 @@ def upload_problem_to_judge_server(problem, server):
            (not problem.interactor or upload_interactor(server, SpecialProgram.objects.get(fingerprint=problem.interactor)))
 
 
-def create_submission(problem, author, code, lang, contest=None):
+def create_submission(problem, author, code, lang, contest=None, status=SubmissionStatus.WAITING):
     assert len(code) > 0 and len(code) <= 65536
-    return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest)
+    if isinstance(problem, (int, str)):
+        return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
+                                         status=status, status_private=status)
+    else:
+        return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
+                                         status=status, status_private=status)
 
 
 def judge_submission_on_problem(submission, callback=None, **kwargs):
@@ -46,13 +51,14 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         if submission.judge_end_time and judge_time < submission.judge_end_time:
             return True
         if data.get('status') == 'received':
-            # TODO: cache
             if 'message' in data:
                 submission.status_message = data['message']
-            submission.status = data.get('verdict', SubmissionStatus.WAITING)
+            submission.status_private = data.get('verdict', SubmissionStatus.WAITING)
+            if not kwargs.get('status_private'):
+                submission.status = data.get('verdict', SubmissionStatus.WAITING)
             submission.status_detail_list = data.get('detail', [])
             submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
-            submission.save(update_fields=['status_message', 'status_detail', 'status'])
+            submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private'])
             if SubmissionStatus.is_judged(data.get('verdict')):
                 submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
                 submission.judge_end_time = judge_time

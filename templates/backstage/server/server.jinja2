@@ -6,8 +6,16 @@
 
 {% block backstage_content %}
 
+  <div class="ui progress" style="display: none;" data-progress="{{ server_synchronize_status }}">
+    <div class="bar">
+      <div class="progress"></div>
+    </div>
+    <div class="label">Uploading Data</div>
+  </div>
+
   <table class="ui celled definition table center aligned">
     <thead class="full-width">
+
       <tr>
         <th>Enabled</th>
         <th>Name</th>

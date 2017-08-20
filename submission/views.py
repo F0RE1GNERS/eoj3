@@ -26,8 +26,11 @@ def render_submission(submission: Submission) -> str:
 
 def pure_submission_api(request, pk):
     submission = Submission.objects.get(pk=pk)
-    if not is_admin_or_root(request.user) and submission.status == SubmissionStatus.SYSTEM_ERROR and submission.status_message:
-        submission.status_message = 'This message is only available to admins. Send feedback for details.'
+    if not is_admin_or_root(request.user) and submission.status_message:
+        if submission.status == SubmissionStatus.SYSTEM_ERROR:
+            submission.status_message = 'This message is only available to admins. Send feedback for details.'
+        if request.user != submission.author:
+            submission.status_message = 'This message is only available to the author.'
     if is_admin_or_root(request.user) or submission.user == request.user:
         return HttpResponse(render_submission(submission))
     raise PermissionDenied

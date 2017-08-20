@@ -50,9 +50,7 @@ def run():
                 problem.save(update_fields=['cases', 'points'])
 
             if not is_hexdigest(problem.sample[:64]):
-                samples = [list(filter(lambda x: x, map(strip_and_remove_slash, re.split(r'(\r?\n)(?<!\\)-+(\1)', problem.sample))))]
                 lst = list(filter(lambda x: x, map(strip_and_remove_slash, re.split(r'(\r?\n)(?<!\\)-+(\1)', problem.sample))))
-                case_list = problem.case_list
                 sample_list = []
                 for i in range(0, len(lst), 2):
                     if i + 1 >= len(lst):
@@ -63,11 +61,8 @@ def run():
                     with open(input_path, 'wb') as inf, open(output_path, 'wb') as ouf:
                         inf.write(I)
                         ouf.write(O)
-                    case_list.append(ha)
                     sample_list.append(ha)
                 problem.sample = ','.join(sample_list)
-                problem.cases = ','.join(case_list)
-                problem.points = ','.join('10' for i in range(len(case_list)))
                 problem.save(update_fields=['cases', 'points', 'sample'])
     except:
         traceback.print_exc()
