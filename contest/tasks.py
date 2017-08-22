@@ -21,34 +21,43 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
         Thread(callback).start()
 
 
-def recalculate_for_participant(contest, submissions, problems):
+PARTICIPANT_RANK_DETAIL = 'c{contest}_u{user}_rank_detail'
+PARTICIPANT_RANK_DETAIL_PRIVATE = 'c{contest}_u{user}_rank_detail_private'
+PARTICIPANT_RANK = 'c{contest}_u{user}_rank'
+PARTICIPANT_RANK_LIST = 'c{contest}_rank_list'
+
+
+def recalculate_for_participant(contest: Contest, user: User, privilege=False):
     """
-    :param contest: contest
-    :param submissions: submissions
-    :param problems: contest problems
-    :return: (calculated score, penalty, cache)
+    :param contest
+    :param user
+    :param privilege: privilege will cause the calculation works for all submissions even after board frozen
+    :return {
+        penalty: int (seconds),
+        score: int,
+        detail: {
+            <problem_id>: {
+                solved: boolean
+                attempt: int (submission count including the first accepted one),
+                score: int (individual score for each problem),
+                time: int (first accept solution time, in seconds),
+                first_blood: boolean
+            }
+        }
+    }
 
     Penalty is the same for all rules: Every failed submission till the accepted one
     will add 1200 to it. And the accepted one will add the time (seconds) to it
 
-    Score is different for rules:
-    1. ACM Rule: solved problems
-    2. OI Rule: The sum of passed percentage for every problem
+    Score methods depend on the contest rule:
+    1. ACM rule: individual score is all one, total score is solved problem number.
+    2. OI rule: individual score is problem weight times the weight of cases passed (round to integer).
+    3. CF rule: individual score is problem weight, but will only be available if the solution is by all means correct.
 
-    Cache is different for rules:
-    1. ACM Rule: solved, penalty, <td>
-        <span class="font-weight-bold text-success">+</span>
-        or
-        <span class="text-danger">-1</span>
-        <br><span class="text-small">i:s(if accepted)</span></td>
-        Note that CE is ignored on the board.
-    2. OI Rule: score, penalty, <td>
-        <span class="font-weight-bold text-success">100</span>
-        or
-        <span class="text-warning">30</span>
-        or
-        <span class="text-danger">0</span>
-        <br><span class="text-small">i:s(if accepted)</span></td>
+    How much percent one can get is a bit complicated:
+    1) The total percent will decrease from contest beginning to contest end from 100% to 50%.
+    2) Every failed submission will induce a 50-point loss to the score
+    3) The final score, once accepted will not be lower than 30% of the total score.
     """
 
     def get_penalty(start_time, submit_time):
@@ -57,148 +66,46 @@ def recalculate_for_participant(contest, submissions, problems):
         :param submit_time: time in DateTimeField
         :return: penalty in seconds
         """
-        return int((submit_time - start_time).total_seconds())
+        return max(int((submit_time - start_time).total_seconds()), 0)
 
-    def get_time_display(time):
-        """
-        :param time: time in seconds
-        :return: mm:ss
-        """
-        time_in_minutes = time // 60
-        return "%.2d:%.2d" % (time_in_minutes // 60, time_in_minutes % 60)
+    detail = {}
+    contest_length = get_penalty(contest.start_time, contest.end_time)
+    for submission in contest.submission_set.filter(author=user).only("status", "status_private", "contest_id",
+                                                                      "problem_id", "author_id",
+                                                                      "create_time").order_by("create_time"):
+        contest_problem = contest.get_contest_problem(submission.problem_id)
+        if not contest_problem:  # This problem has been probably deleted
+            continue
+        detail.setdefault(submission.problem_id,
+                          {'solved': False, 'attempt': 0, 'score': -1, 'first_blood': False, 'time': 0})
+        d = detail[submission.problem_id]
+        status = submission.status_private if privilege else submission.status
+        if not SubmissionStatus.is_penalty(status):
+            continue  # This is probably CE or SE ...
+        time = get_penalty(contest.start_time, submission.create_time)
+        score = 0
+        if contest.scoring_method == 'oi':
+            score = int(submission.partial_score / submission.total_score * contest_problem.weight)
+        elif contest.scoring_method == 'acm' and SubmissionStatus.is_accepted(status):
+            score = 1
+        elif contest.scoring_method == 'cf' and SubmissionStatus.is_accepted(status):
+            score = int(min(contest_problem.weight * 0.3,
+                            contest_problem.weight * (1 - 0.5 * time / contest_length) - d['attempt'] * 50))
+        if not contest.last_counts and (d['solved'] or d['score'] >= score):
+            # We have to tell whether this is the best
+            continue
 
-    # Get the cache: problem => contest_problem identifier
-    from collections import Counter, defaultdict
-    wrong = Counter()
-    subcnt = Counter()
-    accept = set()
-    waiting = set()
-    max_score = defaultdict(int)
-    latest_score = defaultdict(int)
-    accept_time = dict()
-    first_blood = set()
-    penalty = 0
+        d['attempt'] += 1
+        d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
+        if contest.submission_set.filter(problem_id=submission.problem_id,
+                                         status=SubmissionStatus.ACCEPTED).last():
+            d.update(first_blood=True)
 
-    identify_problem = dict()
-    for problem in problems:
-        identify_problem[problem.problem_id] = problem.identifier
-    subs = [(identify_problem[submission.problem_id], submission.status, submission.status_percent,
-             submission.create_time, submission.problem_id, submission.pk)
-            for submission in submissions if identify_problem.get(submission.problem_id)]
-
-    # pre-processing: find all waiting problems
-    for sub in reversed(subs):
-        problem, status, _, create_time, _, _ = sub
-        # After freeze time, everything becomes waiting
-        if contest.get_frozen() == 'f' and create_time >= contest.freeze_time:
-            status = SubmissionStatus.WAITING
-        if contest.get_frozen() == 'f2':
-            status = SubmissionStatus.WAITING
-        if status == SubmissionStatus.WAITING or status == SubmissionStatus:
-            waiting.add(problem)
-
-    # From beginning to the end
-    for sub in reversed(subs):
-        problem, status, score, create_time, original_problem, submission_id = sub
-        subcnt[problem] += 1
-
-        # If problem is waiting, then nothing can be done to this problem
-        # It is waiting forever......
-        if problem not in waiting:
-            max_score[problem] = max(max_score[problem], score)
-            latest_score[problem] = score
-
-            if status == SubmissionStatus.WAITING or status == SubmissionStatus.JUDGING:
-                waiting.add(problem)
-                if problem in accept:
-                    accept.remove(problem)
-            if problem not in accept:
-                if status == SubmissionStatus.ACCEPTED:
-                    accept.add(problem)
-                    accept_time[problem] = get_penalty(contest.start_time, create_time)
-                    if contest.rule != 'oi2':
-                        penalty += accept_time[problem] + wrong[problem] * 1200
-                    # check if it is first blood
-                    if contest.submission_set.filter(problem_id=original_problem,
-                                                     status=SubmissionStatus.ACCEPTED).last().pk == submission_id:
-                        first_blood.add(problem)
-                elif SubmissionStatus.is_penalty(status):
-                    wrong[problem] += 1
-
-    score = 0
-    cache = ''
-
-    # HTML Caching and global score
-    html_danger = '<span class="verdict-danger">{text}</span>'
-    html_success = '<span class="verdict-success">{text}</span>'
-    html_first_blood = '<span class="verdict-first-blood">{text}</span>'
-    html_warning = '<span class="verdict-warning">{text}</span>'
-    html_info = '<span class="verdict-info">{text}</span>'
-    html_small = '<span class="text-small">{text}</span>'
-    html_column = '<td>{column}</td>'
-
-    if contest.rule == 'acm':
-        score = len(accept)
-        for problem in sorted(identify_problem.values()):
-            if problem in waiting:
-                sub_cache = html_info.format(text='?')
-            elif problem in accept:
-                success_cache = '+' + (str(wrong[problem]) if wrong[problem] > 0 else '')
-                if problem in first_blood:
-                    sub_cache = html_first_blood.format(text=success_cache)
-                else:
-                    sub_cache = html_success.format(text=success_cache)
-                sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
-            elif wrong[problem] > 0:
-                danger_cache = '-' + (str(wrong[problem]))
-                sub_cache = html_danger.format(text=danger_cache)
-            else:
-                sub_cache = ''
-            cache += html_column.format(column=sub_cache)
-    elif contest.rule == 'work':
-        score = len(accept)
-    elif contest.rule == 'oi':
-        score = sum(max_score.values())
-        for problem in sorted(identify_problem.values()):
-            local_score = max_score[problem]
-            if problem in waiting:
-                sub_cache = html_info.format(text='?')
-            elif local_score == 100:
-                if problem in first_blood:
-                    sub_cache = html_first_blood.format(text=local_score)
-                else:
-                    sub_cache = html_success.format(text=local_score)
-                sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
-            elif local_score > 0:
-                sub_cache = html_warning.format(text=local_score)
-            elif wrong[problem] > 0 and local_score == 0:
-                sub_cache = html_danger.format(text=local_score)
-            else:
-                sub_cache = ''
-            cache += html_column.format(column=sub_cache)
-    elif contest.rule == 'oi2':
-        score = sum(latest_score.values())
-        for problem in sorted(identify_problem.values()):
-            local_score = latest_score[problem]
-            if problem in waiting:
-                sub_cache = html_info.format(text='?')
-            elif local_score == 100:
-                sub_cache = html_success.format(text=local_score)
-                sub_cache += '<br>' + html_small.format(text=get_time_display(accept_time[problem]))
-            elif local_score > 0:
-                sub_cache = html_warning.format(text=local_score)
-            elif subcnt[problem] > 0 and local_score == 0:
-                sub_cache = html_danger.format(text=local_score)
-            else:
-                sub_cache = ''
-            cache += html_column.format(column=sub_cache)
-    if contest.rule == 'oi2':
-        cache = html_column.format(column=score) + cache
-    else:
-        cache = html_column.format(column=score) + html_column.format(column=int(penalty // 60)) + cache
-
-    # print(score, penalty, cache)
-    return score, penalty, cache
+    return {
+        'penalty': sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'], detail.values())),
+        'score': sum(map(lambda x: x['score'], detail.values())),
+        'detail': detail
+    }
 
 
 def update_problem_and_participant(contest_id, problem_id, user_id, accept_increment=0):

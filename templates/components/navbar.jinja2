@@ -17,7 +17,7 @@
           <i class="dropdown icon"></i>
           <div class="menu">
             <a class="item" href="{{ url('generic', request.user.username) }}">Blog</a>
-            <a class="item" href="{{ url('problem:status') }}?author={{ request.user.pk }}">Submissions</a>
+            <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">Submissions</a>
             <a class="item" href="{{ url('account:profile') }}">Settings</a>
             <a class="item" href="{{ url('account:migrate') }}">Migrate</a>
             <a class="item" href="{{ url('feedback') }}">Feedback</a>

@@ -67,7 +67,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             # Add points to details
             for index, detail in enumerate(details):
                 detail['score'] = point_query.get(case_list[index], 10)  # 10 points by default
-            submission.status_detail_list = details + [{}] * (len(case_list) - len(details))
+            for index in range(len(details), len(case_list)):
+                details.append({'score': point_query.get(case_list[index], 10)})
+            submission.status_detail_list = details
             submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):

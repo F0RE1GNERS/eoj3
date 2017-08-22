@@ -31,6 +31,10 @@ class SubmissionStatus(object):
     def is_penalty(status):
         return SubmissionStatus.is_judged(status) and status != SubmissionStatus.COMPILE_ERROR
 
+    @staticmethod
+    def is_accepted(status):
+        return status == SubmissionStatus.ACCEPTED or status == SubmissionStatus.PRETEST_PASSED
+
 
 STATUS_CHOICE = (
     (-4, 'Submitted'),
@@ -136,3 +140,16 @@ class Submission(models.Model):
         if self.contest is not None and (self.contest.rule == 'oi' or self.contest.rule == 'oi2') and self.is_judged():
             addition = ' %d%%' % self.status_percent
         return self.get_status_display() + addition
+
+    @property
+    def partial_score(self):
+        if not hasattr(self, '_partial_score'):
+            self._partial_score = sum(
+                map(lambda x: x.get('score', 10) if x.get('verdict', -1) == 0 else 0, self.status_detail_list))
+        return self._partial_score
+
+    @property
+    def total_score(self):
+        if not hasattr(self, '_total_score'):
+            self._total_score = sum(map(lambda x: x.get('score', 10), self.status_detail_list))
+        return self._total_score
