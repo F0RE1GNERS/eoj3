@@ -94,7 +94,16 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
 
 
 def get_contest_rank(contest: Contest, start_from=0, length=-1, privilege=False):
-    pass
+    if length == -1:
+        lst = get_contest_rank_list(contest, privilege=privilege)[start_from:]
+    else:
+        lst = get_contest_rank_list(contest, privilege=privilege)[start_from:start_from + length]
+    details = get_all_contest_participants_detail(contest, users=list(map(lambda x: x[0], lst)), privilege=privilege)
+    for idx, item in enumerate(lst):
+        rank = item[1]
+        lst[idx] = details[item[0]]
+        lst[idx].update(rank=rank)
+    return lst
 
 
 def get_contest_user_ids(contest: Contest):
@@ -102,10 +111,10 @@ def get_contest_user_ids(contest: Contest):
                 values_list("user_id", flat=True))
 
 
-def get_all_contest_participants_detail(contest: Contest, privilege=False):
+def get_all_contest_participants_detail(contest: Contest, users=None, privilege=False):
     cache_template = PARTICIPANT_RANK_DETAIL_PRIVATE if privilege else PARTICIPANT_RANK_DETAIL
     timeout = 60 if privilege else FORTNIGHT
-    contest_users = get_contest_user_ids(contest)
+    contest_users = users if users else get_contest_user_ids(contest)
     cache_names = list(map(lambda x: cache_template.format(contest=contest.pk, user=x), contest_users))
     cache_res = cache.get_many(cache_names)
     ans = dict()

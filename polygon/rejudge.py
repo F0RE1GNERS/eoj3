@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.core.cache import cache
 from contest.models import Contest
 from problem.models import Problem
 from contest.tasks import judge_submission_on_contest
@@ -9,6 +10,7 @@ from threading import Thread
 
 
 REJUDGE_TASK_LIMIT = 24
+REJUDGE_COUNTER = 'rejudge_counter'
 
 
 def rejudge_submission(submission, callback=None):
@@ -19,11 +21,13 @@ def rejudge_submission(submission, callback=None):
 
 
 def rejudge_submission_set(submission_set):
-    counter = 0
+    cache.set(REJUDGE_COUNTER, 0)
 
     def decrease_counter():
-        nonlocal counter
-        counter -= 1
+        try:
+            cache.decr(REJUDGE_COUNTER, 1)
+        except ValueError:
+            cache.set(REJUDGE_COUNTER, 0)
 
     with transaction.atomic():
         for submission in submission_set:
@@ -31,9 +35,12 @@ def rejudge_submission_set(submission_set):
             submission.save(update_fields=["status_private", "status"])
 
     for submission in submission_set:
-        while counter >= REJUDGE_TASK_LIMIT:
+        while cache.get_or_set(REJUDGE_COUNTER, 0) >= REJUDGE_TASK_LIMIT:
             sleep(1)
-        counter += 1
+        try:
+            cache.incr(REJUDGE_COUNTER, 1)
+        except:
+            cache.set(REJUDGE_COUNTER, 0)
         rejudge_submission(submission, decrease_counter)
 
 
