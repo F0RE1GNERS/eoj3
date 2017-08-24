@@ -1,61 +1,75 @@
 {% extends 'base.jinja2' %}
-{% block title %}Standings of {{ contest.title }} - {% endblock %}
+
+{% block title %}Standings - {{ contest.title }} - {% endblock %}
+
+{% block page_header %}{{ contest.title }}{% endblock %}
+
 {% block content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>{{ contest.title }}</h1>
-    </div>
+  <div>
+    <h2 class="ui header">Standings</h2>
+    <p>
+      {% if contest.status == -1 %}
+        Before start <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>
+      {% elif contest.status == 0 %}
+        Before close <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>
+      {% else %}
+        Contest finished
+      {% endif %}
+    </p>
   </div>
+  <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
+  <p>Your standing: {{ my_rank }}</p>
 
-  <div class="container">
-    {% if update_time %}<span class="text-muted">Updated at {{ update_time | date('Y-m-d H:i:s') }}.
-      {% if is_frozen != 'a' %}Standings are frozen now.{% endif %}</span>{% endif %}
-    <div class="content-header" style="text-align: center">
-      <h2>Standings</h2>
-      <p>
-        {% if contest_status == 'pending' %}
-          Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span>
-        {% elif contest_status == 'running' %}
-          Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span>
-        {% else %}
-          Final standings
-        {% endif %}
-      </p>
-    </div>
-    <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
-    <p>Your standing: {{ my_rank }}</p>
-    <div class="scrollable-wrapper">
-      <div class="datatable-wrapper">
-        <table class="datatable">
-          <thead>
-            <tr>
-            <th class="col-width-4">#</th>
-            <th class="col-width-large" style="min-width: 4em; text-align: left;">Who</th>
-            {{ contest.contest_header | safe }}
-            </tr>
-          </thead>
-          <tbody>
-            {% for rank in rank_list %}
-              <tr>
-                <td scope="row">{% if rank.rank %}{{ rank.rank }}{% endif %}</td>
-                <td class="col-width-large" style="text-align: left;">{% if rank.star %}* {% endif %}{{ rank.user.get_username_display() | safe }}
-                  <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
-                {{ rank.html_cache | safe }}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <table class="ui table">
+    <thead>
+      <tr class="ui center aligned">
+      <th>#</th>
+      <th class="ui left aligned">Who</th>
+      <th class="collapsing">=</th>
+      {% if contest.penalty_counts %}<th class="collapsing">Penalty</th>{% endif %}
+      {% for problem in contest.contest_problem_list %}
+        <th class="collapsing">{{ problem.identifier }}</th>
+      {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for rank in rank_list %}
+        <tr class="ui center aligned">
+          <td scope="row">{% if rank.rank %}{{ rank.rank }}{% endif %}</td>
+          <td class="ui left aligned">{% if rank.user.star %}* {% endif %}{{ rank.user.user.get_username_display() | safe }}
+            <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
+          <td>{{ rank.score }}</td>
+          {% if contest.penalty_counts %}
+          <td>{{ (rank.penalty / 60) | int }}</td>
+          {% endif %}
+          {% for problem in contest.contest_problem_list %}
+            <td>
+              {% set d = rank.detail[problem.problem_id] %}
+              {% if d %}
+                {% if d.solved %}<h5 class="ui green header">+{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}</h5>
+                  {{ (d.time / 60) | int }}
+                  {% else %}-{{ d.attempt }}
+                {% endif %}
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    </div>
-    {% if is_privileged %}<p style="text-align: right"><br>
-      <a role="button" class="btn btn-default" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
-      <a role="button" class="btn btn-default" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
-    </p>{% endif %}
+  {% if is_privileged %}
+  <p>
+    <a class="ui button" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
+    <a class="ui button" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
+  </p>
+  {% endif %}
 
-    {{ my_paginator() }}
-  </div>
+  {{ my_paginator() }}
+
+{% endblock %}
+
+{% block script %}
   <script src="/static/js/countdown.js"></script>
-
 {% endblock %}

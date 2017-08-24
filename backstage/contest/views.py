@@ -16,7 +16,7 @@ from .forms import ContestEditForm
 from account.models import User, MAGIC_CHOICE
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from problem.models import Problem
-from contest.tasks import update_contest, add_participant_with_invitation
+from contest.tasks import add_participant_with_invitation
 from utils import xlsx_generator
 from utils.identicon import Identicon
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin

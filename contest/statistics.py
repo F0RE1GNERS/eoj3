@@ -83,7 +83,7 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
         d['attempt'] += 1
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
         if contest.submission_set.filter(problem_id=submission.problem_id,
-                                         status=SubmissionStatus.ACCEPTED).last():
+                                         status=SubmissionStatus.ACCEPTED).last().author_id == user_id:
             d.update(first_blood=True)
 
     return {
@@ -93,16 +93,14 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
     }
 
 
-def get_contest_rank(contest: Contest, start_from=0, length=-1, privilege=False):
-    if length == -1:
-        lst = get_contest_rank_list(contest, privilege=privilege)[start_from:]
-    else:
-        lst = get_contest_rank_list(contest, privilege=privilege)[start_from:start_from + length]
-    details = get_all_contest_participants_detail(contest, users=list(map(lambda x: x[0], lst)), privilege=privilege)
+def get_contest_rank(contest: Contest, privilege=False):
+    # TODO: support slice
+    lst = get_contest_rank_list(contest, privilege=privilege)
+    details = get_all_contest_participants_detail(contest, privilege=privilege)
     for idx, item in enumerate(lst):
         rank = item[1]
         lst[idx] = details[item[0]]
-        lst[idx].update(rank=rank)
+        lst[idx].update(rank=rank, user=item[0])
     return lst
 
 
@@ -156,8 +154,7 @@ def get_contest_rank_list(contest: Contest, privilege=False):
         if t is None:
             t = _calculate()
             cache.set(cache_name, t, FORTNIGHT * uniform(0.6, 1))
-            d = {PARTICIPANT_RANK.format(contest=contest.pk, user=user): t[user] for user in
-                 get_contest_user_ids(contest)}
+            d = {PARTICIPANT_RANK.format(contest=contest.pk, user=user): rank for user, rank in t}
             cache.set_many(d, FORTNIGHT * uniform(0.6, 1))
         return t
     else:

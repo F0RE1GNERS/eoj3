@@ -12,7 +12,6 @@ from django.db import transaction
 from .models import Server
 from django.conf import settings
 from problem.models import Problem
-from contest.tasks import update_problem_and_participant
 from submission.models import Submission, SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
