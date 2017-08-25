@@ -45,7 +45,7 @@ def run():
                     replace(path.join(tmp_directory, inf), input_path)
                     replace(path.join(tmp_directory, ouf), output_path)
                     case_list.append(ha)
-                rmtree(tmp_directory)
+                rmtree(tmp_directory, ignore_errors=True)
                 remove(case_zipfile)
                 problem.cases = ','.join(case_list)
                 problem.points = ','.join('10' for i in range(len(case_list)))
