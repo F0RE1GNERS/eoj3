@@ -3,11 +3,6 @@ from django.core.cache import cache
 
 
 class SiteSettings(models.Model):
-    open = models.BooleanField('site open', default=True)  # for migrations
-    migrate_open = models.BooleanField('Open for migrations', default=False)
-    broadcast_message = models.CharField('Broadcast', max_length=224, blank=True)
-    broadcast_link = models.CharField('Broadcast Link', max_length=224, blank=True)
-
     # We store key, value pair here
     key = models.CharField(max_length=254, primary_key=True)
     val = models.TextField(blank=True)
