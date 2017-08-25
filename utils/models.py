@@ -17,7 +17,7 @@ def site_settings_get(key, default=None, use_cache=False):
         value = SiteSettings.objects.get(key=key).val
         cache.set(cache_key, value, 300)
         return value
-    except models.Model.DoesNotExist:
+    except SiteSettings.DoesNotExist:
         return default
 
 
