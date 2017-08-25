@@ -175,7 +175,7 @@ class ContestClarification(models.Model):
     contest = models.ForeignKey(Contest)
     text = models.TextField(blank=True)
     time = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, choices=STATUS_CHOICE)
+    important = models.BooleanField(default=False)
     author = models.ForeignKey(User)
     answer = models.TextField(blank=True)
 

@@ -2,12 +2,11 @@
 
 {% block title %}Standings - {{ contest.title }} - {% endblock %}
 
-{% block page_header %}{{ contest.title }}{% endblock %}
+{% block page_header %}Standings: {{ contest.title }}{% endblock %}
 
 {% block content %}
 
   <div>
-    <h2 class="ui header">Standings</h2>
     <p>
       {% if contest.status == -1 %}
         Before start <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>
@@ -21,7 +20,7 @@
   <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
 
-  <table class="ui table">
+  <table class="ui celled table">
     <thead>
       <tr class="ui center aligned">
       <th>#</th>

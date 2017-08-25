@@ -23,23 +23,19 @@ class ContestClarificationView(BaseContestMixin, ListView):
         if self.privileged:
             set = self.contest.contestclarification_set.all()
         else:
-            q = Q(status='note')
+            q = Q(important=True)
             if self.user.is_authenticated:
                 q |= Q(author=self.user)
             set = self.contest.contestclarification_set.filter(q)
         return sorted(set, key=lambda x: cmp[x.status])
 
     def post(self, request, cid):
-        if self.contest.get_status() != 'running':
+        if self.contest.status != 0:
             messages.error(self.request, 'You are currently not in the period of the contest.')
             return HttpResponseRedirect(self.request.path)
 
-        if self.privileged:
-            status = 'note'
-        else:
-            status = 'open'
         ContestClarification.objects.create(contest_id=self.kwargs['cid'], author=request.user,
-                                            text=request.POST['message'], status=status)
+                                            text=request.POST['message'])
         return HttpResponseRedirect(request.POST['next'])
 
 
