@@ -11,5 +11,6 @@ def run():
                 problem.checker = SpecialProgram.objects.filter(filename__contains=problem.judge).first().fingerprint
             else:
                 problem.visible = False
+            problem.save(update_fields=['checker', 'visible'])
     except:
         traceback.print_exc()
