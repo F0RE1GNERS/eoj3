@@ -1,0 +1,23 @@
+{% macro profile_card(profile, solved) %}
+
+  <div class="ui fluid card">
+    <div class="image">
+      <img src="{{ profile.avatar_large.url }}">
+    </div>
+    <div class="content">
+      <span class="header">{{ profile.get_username_display() | safe }}{% if profile.pk == request.user.pk %}
+        <a href="{{ url('account:profile') }}"><i class="ui icon edit"></i></a>{% endif %}</span>
+      <div class="meta">
+        <span class="date">Joined in {{ profile.create_time | date('Y-m-d H:i') }}</span>
+      </div>
+      <div class="description">
+        Currently working/studying at {{ profile.school }}.
+        {% if profile.motto %}<br><b>{{ profile.motto }}</b>{% endif %}
+      </div>
+    </div>
+    <div class="extra content">
+      <a href="{{ url('problem:status') }}?author={{ profile.pk }}">{{ solved }} problems solved.</a>
+    </div>
+  </div>
+
+{% endmacro %}

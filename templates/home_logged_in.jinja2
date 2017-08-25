@@ -1,0 +1,32 @@
+{% extends 'base.jinja2' %}
+{% from 'components/profile_card.jinja2' import profile_card with context %}
+{% from 'components/blog_preview.jinja2' import blog_preview %}
+
+{% block page_header %}ECNU Online Judge{% endblock %}
+
+{% block content %}
+
+  <div class="ui grid">
+
+    <div class="eleven wide column">
+      <div class="ui feed">
+        {% for blog in blog_list %}
+          {{ blog_preview(blog) }}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="five wide column">
+      {{ profile_card(request.user, solved) }}
+      <form class="ui form" action="{{ url('blog:goto') }}" method="post">
+        {% csrf_token %}
+        <div class="ui action fluid input">
+          <input type="text" name="name" placeholder="Username here...">
+          <button type="submit" class="ui button">Go to</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+{% endblock %}

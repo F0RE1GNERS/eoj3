@@ -67,6 +67,7 @@ class Submission(models.Model):
 
     status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.SUBMITTED)
     status_private = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.SUBMITTED)
+    status_percent = models.IntegerField(default=0)
     # Private Status has to be accurate, because you yourself know more than others
     # add empty dict to detail list if there are still cases to judge
     status_detail = models.TextField(blank=True)
@@ -147,9 +148,3 @@ class Submission(models.Model):
             self._partial_score = sum(
                 map(lambda x: x.get('score', 10) if x.get('verdict', -1) == 0 else 0, self.status_detail_list))
         return self._partial_score
-
-    @property
-    def total_score(self):
-        if not hasattr(self, '_total_score'):
-            self._total_score = sum(map(lambda x: x.get('score', 10), self.status_detail_list))
-        return self._total_score

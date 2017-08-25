@@ -1,7 +1,8 @@
 {# has a weird name; it means personal profile... #}
 
 {% extends 'base.jinja2' %}
-{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+{% from 'components/profile_card.jinja2' import profile_card with context %}
+{% from 'components/blog_preview.jinja2' import blog_preview %}
 
 {% block css %}
   <link rel="stylesheet" href="/static/node_modules/cal-heatmap/cal-heatmap.css" />
@@ -18,52 +19,17 @@
 
       {% if is_author %}<a class="ui button" href="{{ url('blog:create') }}">Create a new blog</a>{% endif %}
       <div class="ui feed">
-      {% if blog_list %}
-        {% for blog in blog_list %}
-          <div class="event">
-            <div class="label">
-              <img src="{{ blog.author.avatar_small.url }}">
-            </div>
-            <div class="content">
-              <div class="summary">
-                {{ clickable_nickname(blog.author, tag_name='span', tiny=True) }} posted on his page
-                <div class="date">
-                  {{ blog.edit_time | date('Y-m-d H:i:s') }}
-                </div>
-                <p></p>
-              </div>
-              <div class="extra text">
-                {{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-        {{ my_paginator() }}
-      {% endif %}
+        {% if blog_list %}
+          {% for blog in blog_list %}
+            {{ blog_preview(blog) }}
+          {% endfor %}
+          {{ my_paginator() }}
+        {% endif %}
       </div>
     </div>
 
-
     <div class="five wide column">
-      <div class="ui card">
-        <div class="image">
-          <img src="{{ profile.avatar_large.url }}">
-        </div>
-        <div class="content">
-          <span class="header">{{ profile.get_username_display() | safe }}{% if is_author %}
-            <a href="{{ url('account:profile') }}"><i class="ui icon edit"></i></a>{% endif %}</span>
-          <div class="meta">
-            <span class="date">Joined in {{ profile.create_time | date('Y-m-d H:i') }}</span>
-          </div>
-          <div class="description">
-            Currently working/studying at {{ profile.school }}.
-            {% if profile.motto %}<br><b>{{ profile.motto }}</b>{% endif %}
-          </div>
-        </div>
-        <div class="extra content">
-          <a href="{{ url('problem:status') }}?author={{ profile.pk }}">{{ solved }} problems solved.</a>
-        </div>
-      </div>
+      {{ profile_card(profile, solved) }}
       <form class="ui form" action="{{ url('blog:goto') }}" method="post">
         {% csrf_token %}
         <div class="ui action fluid input">

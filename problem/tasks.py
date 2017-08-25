@@ -49,6 +49,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     if not case_list:  # case list is empty (e.g. something wrong with pretest list)
         case_list = problem.case_list
     point_query = dict(zip(problem.case_list, problem.point_list))
+    total_score = min(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
 
     def on_receive_data(data):
         judge_time = datetime.fromtimestamp(data['timestamp'])
@@ -65,12 +66,14 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
             details = data.get('detail', [])
             # Add points to details
+            score = 0
             for index, detail in enumerate(details):
-                detail['score'] = point_query.get(case_list[index], 10)  # 10 points by default
-            for index in range(len(details), len(case_list)):
-                details.append({'score': point_query.get(case_list[index], 10)})
+                if detail.get('verdict') == 0:
+                    score += point_query.get(case_list[index], 10)
+            submission.status_percent = int(score / total_score * 100)
             submission.status_detail_list = details
-            submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private'])
+            submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
+            submission.save(update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
                 submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))

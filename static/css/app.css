@@ -56849,6 +56849,15 @@ textarea[name="code"] {
 .ui.text.menu .active.item {
   font-weight: 600;
 }
+td .score {
+  font-weight: 700;
+}
+td .score.negative {
+  font-weight: 500;
+}
+td .penalty {
+  font-size: 0.9em;
+}
 .problem-header {
   margin-bottom: 1em;
 }

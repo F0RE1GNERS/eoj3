@@ -62,7 +62,7 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
         if not contest_problem:  # This problem has been probably deleted
             continue
         detail.setdefault(submission.problem_id,
-                          {'solved': False, 'attempt': 0, 'score': -1, 'first_blood': False, 'time': 0})
+                          {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0})
         d = detail[submission.problem_id]
         status = submission.status_private if privilege else submission.status
         if not SubmissionStatus.is_penalty(status):
@@ -70,7 +70,7 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
         time = get_penalty(contest.start_time, submission.create_time)
         score = 0
         if contest.scoring_method == 'oi':
-            score = int(submission.partial_score / submission.total_score * contest_problem.weight)
+            score = int(submission.status_percent / 100 * contest_problem.weight)
         elif contest.scoring_method == 'acm' and SubmissionStatus.is_accepted(status):
             score = 1
         elif contest.scoring_method == 'cf' and SubmissionStatus.is_accepted(status):
@@ -185,6 +185,6 @@ def invalidate_contest_participant(contest: Contest, user_id):
 
 def invalidate_contest(contest: Contest):
     contest_users = get_contest_user_ids(contest)
-    cache.delete(list(map(lambda x: PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=x), contest_users)))
-    cache.delete(list(map(lambda x: PARTICIPANT_RANK_DETAIL_PRIVATE.format(contest=contest.pk, user=x), contest_users)))
+    cache.delete_many(list(map(lambda x: PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=x), contest_users)))
+    cache.delete_many(list(map(lambda x: PARTICIPANT_RANK_DETAIL_PRIVATE.format(contest=contest.pk, user=x), contest_users)))
     cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))

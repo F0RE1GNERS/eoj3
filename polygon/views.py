@@ -194,8 +194,6 @@ class ProblemPreview(PolygonBaseMixin, TemplateView):
 
 class RejudgeSubmission(PolygonBaseMixin, View):
 
-    template_name = 'polygon/problem_preview.jinja2'
-
     def dispatch(self, request, *args, **kwargs):
         self.submission = get_object_or_404(Submission, pk=kwargs.get('sid'))
         return super(RejudgeSubmission, self).dispatch(request, *args, **kwargs)
@@ -213,8 +211,6 @@ class RejudgeSubmission(PolygonBaseMixin, View):
 
 
 class RejudgeProblem(PolygonBaseMixin, View):
-
-    template_name = 'polygon/problem_preview.jinja2'
 
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))

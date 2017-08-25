@@ -6,18 +6,18 @@
 
 {% block content %}
 
-  <div>
-    <p>
-      {% if contest.status == -1 %}
-        Before start <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>
-      {% elif contest.status == 0 %}
-        Before close <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>
-      {% else %}
-        Contest finished
-      {% endif %}
-    </p>
-  </div>
-  <a href="{{ url('contest:dashboard', contest.pk) }}" style="float:right">Back to dashboard</a>
+{#  <div>#}
+{#    <p>#}
+{#      {% if contest.status == -1 %}#}
+{#        Before start <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>#}
+{#      {% elif contest.status == 0 %}#}
+{#        Before close <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>#}
+{#      {% else %}#}
+{#        Contest finished#}
+{#      {% endif %}#}
+{#    </p>#}
+{#  </div>#}
+  <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
 
   <table class="ui celled table">
@@ -45,10 +45,26 @@
           {% for problem in contest.contest_problem_list %}
             <td>
               {% set d = rank.detail[problem.problem_id] %}
-              {% if d %}
-                {% if d.solved %}<h5 class="ui green header">+{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}</h5>
-                  {{ (d.time / 60) | int }}
-                  {% else %}-{{ d.attempt }}
+              {% if d and d.attempt %}
+                {% if d.solved %}
+                  <span class="score text green">
+                    {% if contest.scoring_method == 'acm' %}
+                      +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
+                    {% else %}
+                      {{ d.score }}
+                    {% endif %}
+                  </span><br>
+                  <span class="penalty">{{ (d.time / 60) | int }}</span>
+                {% else %}
+                  {% if d.scoring_method == 'oi' %}
+                    {% if d.score %}
+                      <span class="score text yellow">{{ d.score }}</span>
+                    {% else %}
+                      <span class="score text red">0</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="score negative text red">-{{ d.attempt }}</span>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             </td>

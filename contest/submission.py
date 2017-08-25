@@ -94,8 +94,6 @@ class ContestStatus(BaseContestMixin, StatusList):
     template_name = 'contest/status.jinja2'
 
     def get_selected_from(self):
-        if self.contest.is_frozen:
-            return self.contest.submission_set.filter(create_time__lt=self.contest.freeze_time)
         return self.contest.submission_set.all()
 
     def reinterpret_problem_identifier(self, value):

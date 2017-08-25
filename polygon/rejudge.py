@@ -48,6 +48,10 @@ def rejudge_all_submission_on_contest(contest: Contest):
     Thread(target=rejudge_submission_set, args=(contest.submission_set.order_by("create_time"),)).start()
 
 
+def rejudge_all_submission_on_contest_problem(contest: Contest, problem: Problem):
+    Thread(target=rejudge_submission_set, args=(contest.submission_set.order_by("create_time").filter(problem=problem),)).start()
+
+
 def rejudge_all_submission_on_problem(problem: Problem):
     Thread(target=rejudge_submission_set,
            args=(problem.submission_set.order_by("create_time").filter(contest__isnull=True),)) \

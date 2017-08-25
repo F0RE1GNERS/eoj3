@@ -25,6 +25,8 @@ from django.views.generic.list import ListView
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 
+from contest.submission import ContestStatus
+from submission.models import Submission
 from django.conf import settings
 from .forms import ContestEditForm
 from account.models import User, MAGIC_CHOICE
@@ -32,6 +34,7 @@ from contest.models import Contest, ContestProblem, ContestInvitation, ContestPa
 from problem.models import Problem
 from contest.tasks import add_participant_with_invitation
 from contest.statistics import invalidate_contest
+from .rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, rejudge_submission
 from utils import xlsx_generator
 from utils.identicon import Identicon
 
@@ -343,8 +346,35 @@ class ContestParticipantCreate(PolygonContestMixin, View):
 
 class ContestClarificationAnswer(PolygonContestMixin, View):
 
-    def post(self, request, cid, clarification_id):
+    def post(self, request, pk, clarification_id):
         clarification = ContestClarification.objects.get(pk=clarification_id)
         clarification.answer = request.POST['answer']
         clarification.save(update_fields=["status", "answer"])
-        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
+        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': pk}))
+
+
+class RejudgeContestSubmission(PolygonContestMixin, View):
+
+    def post(self, request, pk, sid):
+        submission = get_object_or_404(Submission, pk=sid)
+        rejudge_submission(submission)
+        return HttpResponse()
+
+
+class RejudgeContest(PolygonContestMixin, View):
+
+    def post(self, request, pk):
+        rejudge_all_submission_on_contest(self.contest)
+        return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
+
+
+class RejudgeContestProblemSubmission(PolygonContestMixin, View):
+
+    def post(self, request, pk, pid):
+        rejudge_all_submission_on_contest_problem(self.contest, get_object_or_404(Problem, pk=pid))
+        return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
+
+
+class ContestStatusBackend(PolygonContestMixin, ContestStatus):
+
+    template_name = 'polygon/contest_status.jinja2'
