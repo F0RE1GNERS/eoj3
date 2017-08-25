@@ -8,7 +8,7 @@ class SiteSettings(models.Model):
     val = models.TextField(blank=True)
 
 
-def site_settings_get(key, use_cache=False):
+def site_settings_get(key, default=None, use_cache=False):
     try:
         cache_key = 'site_settings_' + key
         get_from_cache = cache.get(cache_key)
@@ -18,7 +18,7 @@ def site_settings_get(key, use_cache=False):
         cache.set(cache_key, value, 300)
         return value
     except models.Model.DoesNotExist:
-        return None
+        return default
 
 
 def site_settings_set(key, val):

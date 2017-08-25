@@ -1,9 +1,9 @@
-from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse
+from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse, redirect
 from django.db.models import Q
-from utils.models import SiteSettings
+from utils.models import site_settings_set, SiteSettings
 from migrate.models import OldSubmission
 from submission.models import SubmissionStatus
-from django.views.generic import ListView, View
+from django.views.generic import ListView, View, TemplateView
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
@@ -14,17 +14,22 @@ import json
 from ..base_views import BaseUpdateView, BaseBackstageMixin
 
 
-class SiteSettingsUpdate(BaseUpdateView):
-    form_class = SiteSettingsForm
+class SiteSettingsUpdate(BaseBackstageMixin, TemplateView):
+
     template_name = 'backstage/site/site.jinja2'
 
-    def get_object(self, queryset=None):
-        if not SiteSettings.objects.exists():
-            SiteSettings.objects.create()
-        return SiteSettings.objects.first()
+    def get_context_data(self, **kwargs):
+        context = super(SiteSettingsUpdate, self).get_context_data(**kwargs)
+        context['site_settings'] = SiteSettings.objects.all()
+        return context
 
-    def get_redirect_url(self, instance):
-        return reverse('backstage:site')
+    def post(self, request):
+        key, value = request.POST['key'], request.POST['value']
+        if value == '':
+            SiteSettings.objects.filter(key=key).delete()
+        else:
+            site_settings_set(key, value)
+        return redirect(request.POST['next'])
 
 
 class MigrateList(BaseBackstageMixin, ListView):
