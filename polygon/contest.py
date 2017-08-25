@@ -1,4 +1,7 @@
 import json
+import shortuuid
+import names
+import random
 
 from .forms import ContestEditForm
 from contest.models import Contest, ContestProblem
@@ -14,6 +17,23 @@ from problem.statistics import (
 )
 from django.shortcuts import get_object_or_404, reverse, redirect, HttpResponse
 from django.db import transaction
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
+from django.views import static, View
+from django.views.generic import TemplateView
+from django.contrib import messages
+from django.views.generic.list import ListView
+from django.utils import timezone
+from django.db import IntegrityError, transaction
+
+from django.conf import settings
+from .forms import ContestEditForm
+from account.models import User, MAGIC_CHOICE
+from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant, ContestClarification
+from problem.models import Problem
+from contest.tasks import add_participant_with_invitation
+from contest.statistics import invalidate_contest
+from utils import xlsx_generator
+from utils.identicon import Identicon
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
@@ -179,3 +199,152 @@ class ContestProblemDelete(PolygonContestMixin, View):
         self.contest.contestproblem_set.filter(id=request.POST['pid']).delete()
         reorder_contest_problem_identifiers(self.contest)
         return response_ok()
+
+
+class ContestProblemChangeWeight(PolygonContestMixin, View):
+
+    def post(self, request, pk):
+        problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
+        problem.weight = request.POST['weight']
+        assert 0 < problem.weight <= 10000
+        return response_ok()
+
+
+class ContestInvitationList(PolygonContestMixin, ListView):
+    template_name = 'polygon/contest_invitation.jinja2'
+    paginate_by = 100
+    context_object_name = 'invitation_list'
+
+    def get_queryset(self):
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestinvitation_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestInvitationList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data
+
+
+class ContestInvitationCreate(PolygonContestMixin, View):
+    @staticmethod
+    def _create(contest, comment):
+        while True:
+            try:
+                ContestInvitation.objects.create(contest=contest, comment=comment,
+                                                 code=shortuuid.ShortUUID().random(12))
+                break
+            except IntegrityError:
+                import sys
+                print('Invitation code collision just happened', file=sys.stderr)
+
+    def post(self, request, pk):
+        try:
+            comments = [''] * int(request.POST['number'])
+        except KeyError:
+            comments = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
+        contest = Contest.objects.get(pk=pk)
+        for comment in comments:
+            self._create(contest, comment)
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestInvitationDelete(PolygonContestMixin, View):
+    def post(self, request, pk, invitation_pk):
+        contest = Contest.objects.get(pk=pk)
+        contest.contestinvitation_set.get(pk=invitation_pk).delete()
+        return HttpResponseRedirect(request.url)
+
+
+class ContestInvitationAssign(PolygonContestMixin, View):
+    def post(self, request, pk, invitation_pk):
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            add_participant_with_invitation(pk, invitation_pk, user)
+            messages.success(request,
+                             'The user <strong>%s</strong> has been successfully added to the contest.' % username)
+        except User.DoesNotExist:
+            messages.error(request, 'The user <strong>%s</strong> does not exist. Please check again.' % username)
+        except IntegrityError:
+            messages.error(request, 'You cannot add one user twice.')
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantList(PolygonContestMixin, ListView):
+    template_name = 'polygon/contest_participant.jinja2'
+    paginate_by = 100
+    context_object_name = 'participant_list'
+
+    def get_queryset(self):
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.all()
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestParticipantList, self).get_context_data(**kwargs)
+        data['contest'] = Contest.objects.get(pk=self.kwargs.get('pk'))
+        return data
+
+
+class ContestParticipantCommentUpdate(PolygonContestMixin, View):
+    def post(self, request, pk, participant_pk):
+        comment = request.POST.get('comment')
+        with transaction.atomic():
+            participant = ContestParticipant.objects.select_for_update().get(pk=participant_pk)
+            participant.comment = comment
+            participant.save(update_fields=["comment"])
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestParticipantStarToggle(PolygonContestMixin, View):
+    def post(self, request, pk, participant_pk):
+        with transaction.atomic():
+            participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
+            participant.star = True if not participant.star else False
+            participant.save(update_fields=["star"])
+        return response_ok()
+
+
+class ContestParticipantCreate(PolygonContestMixin, View):
+
+    @staticmethod
+    def _get_username(contest_id, user_id):
+        return "c%s#%04d" % (str(contest_id), int(user_id))
+
+    def post(self, request, pk):
+        namelist = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
+        user_id = 1
+        contest = Contest.objects.get(pk=pk)
+        for name in namelist:
+            if name.startswith('*'):
+                comment = name[1:].strip()
+                star = True
+            else:
+                comment = name
+                star = False
+            password_gen = shortuuid.ShortUUID("23456789ABCDEF")
+            password = password_gen.random(8)
+            nickname = names.get_full_name()
+            while True:
+                try:
+                    username = self._get_username(pk, user_id)
+                    email = '%s@fake.ecnu.edu.cn' % username
+                    user = User.objects.create(username=username, email=email, nickname=nickname,
+                                               magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
+                    user.set_password(password)
+                    user.save()
+                    user.avatar.save('generated.png', Identicon(user.email).get_bytes())
+                    ContestParticipant.objects.create(user=user, comment=comment, hidden_comment=password,
+                                                      star=star, contest=contest)
+                    break
+                except IntegrityError:
+                    pass
+                user_id += 1
+        invalidate_contest(contest)
+        return HttpResponseRedirect(request.POST['next'])
+
+
+class ContestClarificationAnswer(PolygonContestMixin, View):
+
+    def post(self, request, cid, clarification_id):
+        clarification = ContestClarification.objects.get(pk=clarification_id)
+        clarification.answer = request.POST['answer']
+        clarification.save(update_fields=["status", "answer"])
+        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))

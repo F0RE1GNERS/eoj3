@@ -165,16 +165,10 @@ class ContestProblem(models.Model):
 
 
 class ContestClarification(models.Model):
-    STATUS_CHOICE = (
-        ('open', 'Question'),
-        ('solve', 'Solved'),
-        ('close', 'No Response'),
-        ('note', 'Clarification')
-    )
 
     contest = models.ForeignKey(Contest)
     text = models.TextField(blank=True)
-    time = models.DateTimeField(auto_now_add=True)
+    time = models.DateTimeField(auto_now=True)
     important = models.BooleanField(default=False)
     author = models.ForeignKey(User)
     answer = models.TextField(blank=True)

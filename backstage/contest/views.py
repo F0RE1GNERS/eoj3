@@ -243,7 +243,7 @@ class ContestParticipantCreate(BaseBackstageMixin, View):
                 except IntegrityError:
                     pass
                 user_id += 1
-        update_contest(contest)
+        invalidate_contest(contest)
         return HttpResponseRedirect(request.POST['next'])
 
 

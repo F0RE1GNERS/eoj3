@@ -2,7 +2,9 @@ from django.conf.urls import url
 
 from .contest import (
     ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage,
-    ContestProblemCreate, ContestProblemReorder, ContestProblemDelete
+    ContestProblemCreate, ContestProblemReorder, ContestProblemDelete, ContestInvitationAssign,
+    ContestInvitationCreate, ContestInvitationList, ContestParticipantList, ContestParticipantCreate,
+    ContestParticipantCommentUpdate, ContestParticipantStarToggle, ContestInvitationDelete
 )
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
@@ -83,6 +85,13 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/problems/create/$', ContestProblemCreate.as_view(), name='contest_problem_create'),
     url(r'^contest/(?P<pk>\d+)/problems/reorder/$', ContestProblemReorder.as_view(), name='contest_problem_reorder'),
     url(r'^contest/(?P<pk>\d+)/problems/delete/', ContestProblemDelete.as_view(), name='contest_problem_delete'),
-
+    url(r'^contest/(?P<pk>\d+)/invitation/$', ContestInvitationList.as_view(), name='contest_invitation'),
+    url(r'^contest/(?P<pk>\d+)/invitation/create/$', ContestInvitationCreate.as_view(), name='contest_invitation_create'),
+    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/delete/$', ContestInvitationDelete.as_view(), name='contest_invitation_delete'),
+    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', ContestInvitationAssign.as_view(), name='contest_invitation_assign'),
+    url(r'^contest/(?P<pk>\d+)/participants/$', ContestParticipantList.as_view(), name='contest_participant'),
+    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$', ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
+    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', ContestParticipantStarToggle.as_view(), name='contest_participant_star_toggle'),
+    url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(), name='contest_participant_create'),
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

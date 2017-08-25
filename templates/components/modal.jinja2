@@ -2,7 +2,13 @@
   <div class="ui basic {{ size }} modal" id="{{ id }}">
     <div class="ui header">{{ title }}</div>
     <div class="content">
-      {{ caller() }}
+      {% if action %}
+        <form class="ui form" action="{{ action }}" method="POST">
+          {{ caller() }}
+        </form>
+      {% else %}
+        {{ caller() }}
+      {% endif %}
     </div>
     <div class="actions">
       <div class="ui basic cancel inverted button">

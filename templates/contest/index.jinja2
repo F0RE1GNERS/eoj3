@@ -38,18 +38,18 @@
     </table>
   {% endif %}
   {% if not registered %}
-    <div class="content-section">
-      <h4>Register</h4>
+    <div>
       <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
-      <form class="form-inline" action="{{ url('contest:invitation', contest.pk) }}" method="post">
+      <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
         {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.path }}">
-        <input type="text" class="form-control" id="code" name="code" placeholder="Invitation code" required>
-        <button type="submit" class="btn btn-primary">OK</button>
+        <div class="ui action input">
+          <input type="text" name="code" placeholder="Invitation code...">
+          <button type="submit" class="ui button">OK</button>
+        </div>
       </form>
     </div>
   {% endif %}
-  <div class="content-section">
+  <div>
     {% if contest.description %}
       <h4>Announcement</h4>
       <div>{{ contest.description | markdown | safe }}</div>

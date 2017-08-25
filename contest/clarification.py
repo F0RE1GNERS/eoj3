@@ -39,29 +39,6 @@ class ContestClarificationView(BaseContestMixin, ListView):
         return HttpResponseRedirect(request.POST['next'])
 
 
-class ContestClarificationAnswer(BaseContestMixin, View):
-    def post(self, request, cid, clarification_id):
-        if not self.privileged:
-            raise PermissionDenied("You don't have the access.")
-        clarification = ContestClarification.objects.get(pk=clarification_id)
-        clarification.status = 'solve'
-        clarification.answer = request.POST['answer']
-        clarification.save(update_fields=["status", "answer"])
-        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
-
-
-class ContestClarificationToggle(BaseContestMixin, View):
-    def get(self, request, cid, clarification_id, operation):
-        if not self.privileged:
-            raise PermissionDenied("You don't have the access.")
-        if operation != 'close' and operation != 'solve':
-            raise PermissionDenied("Bad operation code.")
-        clarification = ContestClarification.objects.get(pk=clarification_id)
-        clarification.status = operation
-        clarification.save(update_fields=["status"])
-        return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': cid}))
-
-
 class ContestClarificationQuery(BaseContestMixin, View):
     def get(self, request, cid):
         contest = Contest.objects.get(pk=cid)
@@ -69,10 +46,14 @@ class ContestClarificationQuery(BaseContestMixin, View):
         try:
             time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
             if self.privileged:
-                response = contest.contestclarification_set.filter(status='open', time__gt=time).all()
+                response = contest.contestclarification_set.filter(important=False, time__gt=time).all()
                 data['type'] = 'New Question:<br><br>'
             else:
-                response = contest.contestclarification_set.filter(status='note', time__gt=time).all()
+                q = Q(important=True)
+                if self.user.is_authenticated:
+                    q |= Q(author=self.user)
+                q &= Q(time__gt=time)
+                response = contest.contestclarification_set.filter(q).all()
                 data['type'] = 'New Clarification:<br><br>'
             data['response'] = '<br><br>----------<br><br>'.join(map(lambda x: str(x).strip().replace('\n', '<br>'), response))
             if contest.get_status() != 'running':
