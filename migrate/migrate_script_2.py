@@ -1,4 +1,5 @@
 import zipfile
+from contest.models import Contest
 from os import path, replace, remove, environ
 from shutil import rmtree
 from django.conf import settings
@@ -64,5 +65,10 @@ def run():
                     sample_list.append(ha)
                 problem.sample = ','.join(sample_list)
                 problem.save(update_fields=['cases', 'points', 'sample'])
+
+        for contest in Contest.objects.all():
+            contest.allowed_lang = ','.join(contest.allowed_lang.split(', '))
+            contest.save(update_fields=['allowed_lang'])
+
     except:
         traceback.print_exc()

@@ -25,7 +25,7 @@ class OldSubmission(models.Model):
         ordering = ["-pk"]
 
     def get_verdict_color(self):
-        return get_color_from_status(self.status)
+        return ''
 
 
 class OldUser(models.Model):

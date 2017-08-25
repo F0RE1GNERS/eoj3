@@ -33,7 +33,9 @@ from .rejudge import rejudge_submission, rejudge_all_submission_on_problem
 
 
 def authorization(user):
-    return get_accept_problem_count(user.id) >= 100
+    return False
+    # TODO: open polygon
+    # return get_accept_problem_count(user.id) >= 100
 
 
 def home_view(request):

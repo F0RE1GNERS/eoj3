@@ -4,88 +4,83 @@
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
 
 {% block css %}
-  <link rel="stylesheet" href="/static/cdn/cal-heatmap/cal-heatmap.css" />
+  <link rel="stylesheet" href="/static/node_modules/cal-heatmap/cal-heatmap.css" />
 {% endblock %}
-{% block title %}View Profile - {% endblock %}
+{% block title %}Profile - {% endblock %}
 
+{% block page_header %}{{ profile.username }}{% endblock %}
 
 {% block content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Blog</h1>
-    </div>
-  </div>
+  <div class="ui grid">
 
-  <div class="container">
-    <div class="row">
+    <div class="eleven wide column">
 
-      <div id="cal-heatmap"></div>
-
-      <div class="col-12 col-sm-4 col-sm-push-8">
-        <div style="margin-top:0" class="text-center id-card">
-          <div>
-            <img width=80%" src="{{ profile.avatar_large.url }}">
-            <h3>{{ profile.get_username_display() | safe }}{% if is_author %}
-              <a href="{{ url('account:profile') }}" style="text-decoration: none; color: #000;" class="material-icons">mode_edit</a>{% endif %}</h3>
-          </div>
-          <br>
-          <p>Email: {{ profile.email }}<br>
-            {% if profile.school %}From {{ profile.school }}<br>{% endif %}
-          Register: {{ profile.create_time | date('Y-m-d H:i:s') }}<br>
-          Last seen: {% if profile.last_login %}{{ profile.last_login | date('Y-m-d H:i:s') }}{% else %}N/A{% endif %}
-          </p>
-          {% if profile.motto %}<p><strong>{{ profile.motto }}</strong></p>{% endif %}
-          <p><a href="{{ url('status') }}?author={{ profile.pk }}">See all submissions</a></p>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Go to</h3>
-          </div>
-          <div class="panel-body">
-            <form action="{{ url('blog:goto') }}" method="post">
-              {% csrf_token %}
-              <div class="input-group">
-                <input type="text" class="form-control" name="name" placeholder="Username please">
-                <span class="input-group-btn">
-                  <button class="btn btn-default" type="submit">Go</button>
-                </span>
+      {% if is_author %}<a class="ui button" href="{{ url('blog:create') }}">Create a new blog</a>{% endif %}
+      <div class="ui feed">
+      {% if blog_list %}
+        {% for blog in blog_list %}
+          <div class="event">
+            <div class="label">
+              <img src="{{ blog.author.avatar_small.url }}">
+            </div>
+            <div class="content">
+              <div class="summary">
+                {{ clickable_nickname(blog.author, tag_name='span', i_am_not_header=True) }} posted on his page
+                <div class="date">
+                  {{ blog.edit_time | date('Y-m-d H:i:s') }}
+                </div>
+                <p></p>
               </div>
-            </form>
+              <div class="extra text">
+                {{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-8 col-sm-pull-4 bd-content">
-
-
-
-        {% if is_author %}<p><a href="{{ url('blog:create') }}">Create a new blog</a></p>{% endif %}
-        {% if blog_list %}
-          <ul class="media-list content-section">
-          {% for blog in blog_list %}
-
-            <li class="media content-mini-section">
-              <h3 class="media-heading"><a style="color: #333;" href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></h3>
-              <p>{{ clickable_nickname(blog.author) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
-                {% if is_privileged and not blog.visible %}<span class="text-muted">invisible</span>{% endif %}</p>
-              <p>{{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a></p>
-            </li>
-          {% endfor %}
-          </ul>
-          {{ my_paginator() }}
-        {% else %}
-          <p>This guy is too lazy to write a blog.</p>
-        {% endif %}
+        {% endfor %}
+        {{ my_paginator() }}
+      {% endif %}
       </div>
     </div>
+
+
+    <div class="five wide column">
+      <div class="ui card">
+        <div class="image">
+          <img src="{{ profile.avatar_large.url }}">
+        </div>
+        <div class="content">
+          <span class="header">{{ profile.get_username_display() | safe }}{% if is_author %}
+            <a href="{{ url('account:profile') }}"><i class="ui icon edit"></i></a>{% endif %}</span>
+          <div class="meta">
+            <span class="date">Joined in {{ profile.create_time | date('Y-m-d H:i') }}</span>
+          </div>
+          <div class="description">
+            Currently working/studying at {{ profile.school }}.
+            {% if profile.motto %}<br><b>{{ profile.motto }}</b>{% endif %}
+          </div>
+        </div>
+        <div class="extra content">
+          <a href="{{ url('problem:status') }}?author={{ profile.pk }}">{{ solved }} problems solved.</a>
+        </div>
+      </div>
+      <form class="ui form" action="{{ url('blog:goto') }}" method="post">
+        {% csrf_token %}
+        <div class="ui action fluid input">
+          <input type="text" name="name" placeholder="Username here...">
+          <button type="submit" class="ui button">Go to</button>
+        </div>
+      </form>
+    </div>
+
+
   </div>
 
 {% endblock %}
 
 {% block script %}
-  <script type="text/javascript" src="/static/node_modules/d3/d3.min.js"></script>
-  <script type="text/javascript" src="/static/node_modules/cal-heatmap/cal-heatmap.min.js"></script>
+  <script src="/static/node_modules/d3/d3.min.js"></script>
+  <script src="/static/node_modules/cal-heatmap/cal-heatmap.min.js"></script>
   <script>
     var cal = new CalHeatMap();
     var date = new Date();

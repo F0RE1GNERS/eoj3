@@ -61,7 +61,11 @@
         </div>
       {% elif field.field.widget.__class__.__name__ == 'ClearableFileInput' %}
         {{ field.label_tag() }}
-        <input type="file" id="{{ field.id_for_label }}" name="{{ field.name }}">
+        <div class="ui fluid file input action">
+          <input type="text" readonly>
+          <input type="file" name="{{ field.name }}" autocomplete="off">
+          <div class="ui button">Select...</div>
+        </div>
       {% elif field.field.widget.__class__.__name__ == 'CaptchaTextInput' %}
         {{ field.label_tag() }}
         {{ field }}

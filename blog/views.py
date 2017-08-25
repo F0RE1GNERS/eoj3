@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
+from submission.statistics import get_accept_problem_count
 from account.models import User
 from account.permissions import is_admin_or_root
 from .forms import BlogEditForm
@@ -33,6 +34,7 @@ class GenericView(UserPassesTestMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('name'))
         res = super(GenericView, self).get_context_data(**kwargs)
         res['profile'] = user
+        res['solved'] = get_accept_problem_count(user.pk)
         if is_admin_or_root(self.request.user):
             res['is_privileged'] = True
         if self.request.user == user:
