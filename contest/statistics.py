@@ -82,8 +82,9 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
 
         d['attempt'] += 1
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
-        if contest.submission_set.filter(problem_id=submission.problem_id,
-                                         status=SubmissionStatus.ACCEPTED).last().author_id == user_id:
+        first_accepted = contest.submission_set.filter(problem_id=submission.problem_id,
+                                                       status=SubmissionStatus.ACCEPTED).last()
+        if first_accepted and first_accepted.author_id == user_id:
             d.update(first_blood=True)
 
     return {
