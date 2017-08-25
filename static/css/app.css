@@ -56640,38 +56640,211 @@ textarea[name="code"] {
 .capitalize {
   text-transform: capitalize;
 }
-.text.white {
-  color: #FFFFFF;
-}
-.text.grey {
-  color: #CCCCCC;
-}
-.text.black {
-  color: #1B1C1D;
-}
-.text.yellow {
-  color: #F2C61F;
-}
-.text.teal {
-  color: #00B5AD;
+.text {
+  /*--- Red ---*/
+  /* Inverted */
+  /*--- Orange ---*/
+  /* Inverted */
+  /*--- Olive ---*/
+  /* Inverted */
+  /*--- Yellow ---*/
+  /* Inverted */
+  /*--- Green ---*/
+  /* Inverted */
+  /*--- Teal ---*/
+  /* Inverted */
+  /*--- Blue ---*/
+  /* Inverted */
+  /*--- Violet ---*/
+  /* Inverted */
+  /*--- Purple ---*/
+  /* Inverted */
+  /*--- Pink ---*/
+  /* Inverted */
+  /*--- Brown ---*/
+  /* Inverted */
+  /*--- Grey ---*/
+  /* Inverted */
 }
 .text.red {
-  color: #D95C5C;
+  color: #DB2828 !important;
 }
-.text.purple {
-  color: #564F8A;
+.texta.red:hover {
+  color: #d01919 !important;
 }
-.text.pink {
-  color: #D9499A;
+.text.red.dividing {
+  border-bottom: 2px solid #DB2828;
+}
+.text.inverted.red {
+  color: #FF695E !important;
+}
+.texta.inverted.red:hover {
+  color: #ff5144 !important;
 }
 .text.orange {
-  color: #E07B53;
+  color: #F2711C !important;
+}
+.texta.orange:hover {
+  color: #f26202 !important;
+}
+.text.orange.dividing {
+  border-bottom: 2px solid #F2711C;
+}
+.text.inverted.orange {
+  color: #FF851B !important;
+}
+.texta.inverted.orange:hover {
+  color: #ff7701 !important;
+}
+.text.olive {
+  color: #B5CC18 !important;
+}
+.texta.olive:hover {
+  color: #a7bd0d !important;
+}
+.text.olive.dividing {
+  border-bottom: 2px solid #B5CC18;
+}
+.text.inverted.olive {
+  color: #D9E778 !important;
+}
+.texta.inverted.olive:hover {
+  color: #d8ea5c !important;
+}
+.text.yellow {
+  color: #FBBD08 !important;
+}
+.texta.yellow:hover {
+  color: #eaae00 !important;
+}
+.text.yellow.dividing {
+  border-bottom: 2px solid #FBBD08;
+}
+.text.inverted.yellow {
+  color: #FFE21F !important;
+}
+.texta.inverted.yellow:hover {
+  color: #ffdf05 !important;
 }
 .text.green {
-  color: #5BBD72;
+  color: #21BA45 !important;
+}
+.texta.green:hover {
+  color: #16ab39 !important;
+}
+.text.green.dividing {
+  border-bottom: 2px solid #21BA45;
+}
+.text.inverted.green {
+  color: #2ECC40 !important;
+}
+.texta.inverted.green:hover {
+  color: #22be34 !important;
+}
+.text.teal {
+  color: #00B5AD !important;
+}
+.texta.teal:hover {
+  color: #009c95 !important;
+}
+.text.teal.dividing {
+  border-bottom: 2px solid #00B5AD;
+}
+.text.inverted.teal {
+  color: #6DFFFF !important;
+}
+.texta.inverted.teal:hover {
+  color: #54ffff !important;
 }
 .text.blue {
-  color: #3B83C0;
+  color: #2185D0 !important;
+}
+.texta.blue:hover {
+  color: #1678c2 !important;
+}
+.text.blue.dividing {
+  border-bottom: 2px solid #2185D0;
+}
+.text.inverted.blue {
+  color: #54C8FF !important;
+}
+.texta.inverted.blue:hover {
+  color: #3ac0ff !important;
+}
+.text.violet {
+  color: #6435C9 !important;
+}
+.texta.violet:hover {
+  color: #5829bb !important;
+}
+.text.violet.dividing {
+  border-bottom: 2px solid #6435C9;
+}
+.text.inverted.violet {
+  color: #A291FB !important;
+}
+.texta.inverted.violet:hover {
+  color: #8a73ff !important;
+}
+.text.purple {
+  color: #A333C8 !important;
+}
+.texta.purple:hover {
+  color: #9627ba !important;
+}
+.text.purple.dividing {
+  border-bottom: 2px solid #A333C8;
+}
+.text.inverted.purple {
+  color: #DC73FF !important;
+}
+.texta.inverted.purple:hover {
+  color: #d65aff !important;
+}
+.text.pink {
+  color: #E03997 !important;
+}
+.texta.pink:hover {
+  color: #e61a8d !important;
+}
+.text.pink.dividing {
+  border-bottom: 2px solid #E03997;
+}
+.text.inverted.pink {
+  color: #FF8EDF !important;
+}
+.texta.inverted.pink:hover {
+  color: #ff74d8 !important;
+}
+.text.brown {
+  color: #A5673F !important;
+}
+.texta.brown:hover {
+  color: #975b33 !important;
+}
+.text.brown.dividing {
+  border-bottom: 2px solid #A5673F;
+}
+.text.inverted.brown {
+  color: #D67C1C !important;
+}
+.texta.inverted.brown:hover {
+  color: #c86f11 !important;
+}
+.text.grey {
+  color: #767676 !important;
+}
+.texta.grey:hover {
+  color: #838383 !important;
+}
+.text.grey.dividing {
+  border-bottom: 2px solid #767676;
+}
+.text.inverted.grey {
+  color: #DCDDDE !important;
+}
+.texta.inverted.grey:hover {
+  color: #cfd0d2 !important;
 }
 .ui.text.menu .active.item {
   font-weight: 600;

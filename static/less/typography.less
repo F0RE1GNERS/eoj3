@@ -39,38 +39,211 @@ textarea[name="code"] {
   text-transform: capitalize;
 }
 
-.text.white {
-  color: #FFFFFF;
-}
-.text.grey {
-  color: #CCCCCC;
-}
-.text.black {
-  color: #1B1C1D;
-}
-.text.yellow {
-  color: #F2C61F;
-}
-.text.teal {
-  color: #00B5AD;
-}
-.text.red {
-  color: #D95C5C;
-}
-.text.purple {
-  color: #564F8A;
-}
-.text.pink {
-  color: #D9499A;
-}
-.text.orange {
-  color: #E07B53;
-}
-.text.green {
-  color: #5BBD72;
-}
-.text.blue {
-  color: #3B83C0;
+.text {
+  /*--- Red ---*/
+  &.red {
+    color: #DB2828 !important;
+  }
+  &a.red:hover {
+    color: #d01919 !important;
+  }
+  &.red.dividing {
+    border-bottom: 2px solid #DB2828;
+  }
+  /* Inverted */
+  &.inverted.red {
+    color: #FF695E !important;
+  }
+  &a.inverted.red:hover {
+    color: #ff5144 !important;
+  }
+  /*--- Orange ---*/
+  &.orange {
+    color: #F2711C !important;
+  }
+  &a.orange:hover {
+    color: #f26202 !important;
+  }
+  &.orange.dividing {
+    border-bottom: 2px solid #F2711C;
+  }
+  /* Inverted */
+  &.inverted.orange {
+    color: #FF851B !important;
+  }
+  &a.inverted.orange:hover {
+    color: #ff7701 !important;
+  }
+  /*--- Olive ---*/
+  &.olive {
+    color: #B5CC18 !important;
+  }
+  &a.olive:hover {
+    color: #a7bd0d !important;
+  }
+  &.olive.dividing {
+    border-bottom: 2px solid #B5CC18;
+  }
+  /* Inverted */
+  &.inverted.olive {
+    color: #D9E778 !important;
+  }
+  &a.inverted.olive:hover {
+    color: #d8ea5c !important;
+  }
+  /*--- Yellow ---*/
+  &.yellow {
+    color: #FBBD08 !important;
+  }
+  &a.yellow:hover {
+    color: #eaae00 !important;
+  }
+  &.yellow.dividing {
+    border-bottom: 2px solid #FBBD08;
+  }
+  /* Inverted */
+  &.inverted.yellow {
+    color: #FFE21F !important;
+  }
+  &a.inverted.yellow:hover {
+    color: #ffdf05 !important;
+  }
+  /*--- Green ---*/
+  &.green {
+    color: #21BA45 !important;
+  }
+  &a.green:hover {
+    color: #16ab39 !important;
+  }
+  &.green.dividing {
+    border-bottom: 2px solid #21BA45;
+  }
+  /* Inverted */
+  &.inverted.green {
+    color: #2ECC40 !important;
+  }
+  &a.inverted.green:hover {
+    color: #22be34 !important;
+  }
+  /*--- Teal ---*/
+  &.teal {
+    color: #00B5AD !important;
+  }
+  &a.teal:hover {
+    color: #009c95 !important;
+  }
+  &.teal.dividing {
+    border-bottom: 2px solid #00B5AD;
+  }
+  /* Inverted */
+  &.inverted.teal {
+    color: #6DFFFF !important;
+  }
+  &a.inverted.teal:hover {
+    color: #54ffff !important;
+  }
+  /*--- Blue ---*/
+  &.blue {
+    color: #2185D0 !important;
+  }
+  &a.blue:hover {
+    color: #1678c2 !important;
+  }
+  &.blue.dividing {
+    border-bottom: 2px solid #2185D0;
+  }
+  /* Inverted */
+  &.inverted.blue {
+    color: #54C8FF !important;
+  }
+  &a.inverted.blue:hover {
+    color: #3ac0ff !important;
+  }
+  /*--- Violet ---*/
+  &.violet {
+    color: #6435C9 !important;
+  }
+  &a.violet:hover {
+    color: #5829bb !important;
+  }
+  &.violet.dividing {
+    border-bottom: 2px solid #6435C9;
+  }
+  /* Inverted */
+  &.inverted.violet {
+    color: #A291FB !important;
+  }
+  &a.inverted.violet:hover {
+    color: #8a73ff !important;
+  }
+  /*--- Purple ---*/
+  &.purple {
+    color: #A333C8 !important;
+  }
+  &a.purple:hover {
+    color: #9627ba !important;
+  }
+  &.purple.dividing {
+    border-bottom: 2px solid #A333C8;
+  }
+  /* Inverted */
+  &.inverted.purple {
+    color: #DC73FF !important;
+  }
+  &a.inverted.purple:hover {
+    color: #d65aff !important;
+  }
+  /*--- Pink ---*/
+  &.pink {
+    color: #E03997 !important;
+  }
+  &a.pink:hover {
+    color: #e61a8d !important;
+  }
+  &.pink.dividing {
+    border-bottom: 2px solid #E03997;
+  }
+  /* Inverted */
+  &.inverted.pink {
+    color: #FF8EDF !important;
+  }
+  &a.inverted.pink:hover {
+    color: #ff74d8 !important;
+  }
+  /*--- Brown ---*/
+  &.brown {
+    color: #A5673F !important;
+  }
+  &a.brown:hover {
+    color: #975b33 !important;
+  }
+  &.brown.dividing {
+    border-bottom: 2px solid #A5673F;
+  }
+  /* Inverted */
+  &.inverted.brown {
+    color: #D67C1C !important;
+  }
+  &a.inverted.brown:hover {
+    color: #c86f11 !important;
+  }
+  /*--- Grey ---*/
+  &.grey {
+    color: #767676 !important;
+  }
+  &a.grey:hover {
+    color: #838383 !important;
+  }
+  &.grey.dividing {
+    border-bottom: 2px solid #767676;
+  }
+  /* Inverted */
+  &.inverted.grey {
+    color: #DCDDDE !important;
+  }
+  &a.inverted.grey:hover {
+    color: #cfd0d2 !important;
+  }
 }
 
 .ui.text.menu .active.item {

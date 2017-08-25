@@ -25,22 +25,13 @@ class MigrationThread(threading.Thread):
                                               code=submission.code,
                                               problem_id=str(submission.problem),
                                               author_id=self.new_user,
-                                              # create_time=submission.create_time,
-                                              judge_start_time=submission.judge_start_time,
                                               judge_end_time=submission.judge_start_time,
                                               status=submission.status,
-                                              status_percent=submission.status_percent,
+                                              status_private=submission.status,
                                               status_detail=submission.status_detail,
-                                              status_time=submission.status_time,
-                                              status_memory=submission.status_memory,
-                                              code_length=len(submission.code))
+                                              status_time=submission.status_time / 1000)
                 s.create_time = submission.create_time
                 s.save(update_fields=["create_time"])
-                problem = Problem.objects.select_for_update().get(pk=str(submission.problem))
-                problem.add_submit()
-                if submission.status == SubmissionStatus.ACCEPTED:
-                    problem.add_accept()
-                problem.save(update_fields=["total_submit_number", "total_accept_number"])
             OldSubmission.objects.filter(author=self.username).all().delete()
 
             for comment in OldDiscussion.objects.filter(author=self.username).order_by("create_time").all():
@@ -51,4 +42,3 @@ class MigrationThread(threading.Thread):
                 c.create_time = comment.create_time
                 c.save(update_fields=["create_time"])
             OldDiscussion.objects.filter(author=self.username).all().delete()
-

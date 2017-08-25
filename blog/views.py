@@ -1,5 +1,5 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
@@ -48,10 +48,8 @@ class BlogGoto(View):
         return HttpResponseRedirect(reverse('generic', kwargs={'name': request.POST.get('name')}))
 
 
-class BlogView(UserPassesTestMixin, ListView):
+class BlogView(UserPassesTestMixin, TemplateView):
     template_name = 'blog/blog_detail.jinja2'
-    paginate_by = 100
-    context_object_name = 'comment_list'
 
     def dispatch(self, request, *args, **kwargs):
         self.blog = get_object_or_404(Blog, pk=kwargs.get('pk'))
@@ -66,12 +64,10 @@ class BlogView(UserPassesTestMixin, ListView):
             return True
         return False
 
-    def get_queryset(self):
-        return self.blog.comment_set.all()
-
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
+        context['comment_list'] = self.blog.comment_set.all()
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
         for comment in context['comment_list']:
@@ -125,7 +121,7 @@ class BlogDeleteComment(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated
 
-    def get(self, request, pk, comment_id):
+    def post(self, request, pk, comment_id):
         instance = get_object_or_404(Comment, pk=comment_id)
         if is_admin_or_root(request.user) or request.user == instance.author:
             instance.delete()

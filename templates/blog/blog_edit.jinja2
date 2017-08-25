@@ -2,15 +2,10 @@
 
 {% block title %}Edit my blog - {% endblock %}
 
+{% block page_header %}Edit my blog{% endblock %}
+
 {% block content %}
 
-  <div class="bd-pageheader">
-    <div class="container">
-      <h1>Edit my blog</h1>
-    </div>
-  </div>
+  {% include 'components/form.jinja2' %}
 
-  <div class="container">
-    {% include 'components/form.jinja2' %}
-  </div>
 {% endblock %}
