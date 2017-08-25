@@ -54,6 +54,8 @@ class ProblemList(ListView):
         data = super(ProblemList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
         current_problem_set = [problem.pk for problem in data['problem_list']]
+        for problem in data['problem_list']:
+            problem.personal_label = 0
         if self.request.user.is_authenticated:
             # Get AC / Wrong
             attempt_list = set(get_attempted_problem_list(self.request.user.id))
@@ -63,8 +65,6 @@ class ProblemList(ListView):
                     problem.personal_label = 1
                 elif problem.id in attempt_list:
                     problem.personal_label = -1
-                else:
-                    problem.personal_label = 0
 
         # Get Accepted of all users
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.id, data['problem_list'])))

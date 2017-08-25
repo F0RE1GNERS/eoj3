@@ -89,6 +89,8 @@ class DashboardView(BaseContestMixin, TemplateView):
             data['registered'] = True
 
         data['has_permission'] = super(DashboardView, self).test_func()
+        for problem in data['contest_problem_list']:
+            problem.personal_label = 0
         if data['has_permission']:
             if self.user.is_authenticated:
                 attempt_list = set(get_attempted_problem_list(self.request.user.id, self.contest.id))
@@ -98,8 +100,6 @@ class DashboardView(BaseContestMixin, TemplateView):
                         problem.personal_label = 1
                     elif problem.problem_id in attempt_list:
                         problem.personal_label = -1
-                    else:
-                        problem.personal_label = 0
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
                                                      self.contest.id)
         for problem in data['contest_problem_list']:
