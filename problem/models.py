@@ -21,7 +21,7 @@ class Problem(models.Model):
     sample = models.TextField(blank=True)
     hint = models.TextField(blank=True)
     source = models.CharField(max_length=128, blank=True)
-    difficulty = models.FloatField(default=1500.0)
+    judge = models.CharField('Judge indicator', max_length=128, blank=True)  # to delete
 
     visible = models.BooleanField(default=False)
     maintaining = models.BooleanField(default=False)

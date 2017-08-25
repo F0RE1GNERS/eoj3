@@ -8,7 +8,7 @@ urlpatterns = [
     url('^entry/(?P<pk>\d+)/$', views.BlogView.as_view(), name='detail'),
     url('^entry/(?P<pk>\d+)/comment/$', views.BlogAddComment.as_view(), name='add_comment'),
     url('^entry/(?P<pk>\d+)/comment/(?P<comment_id>\d+)/delete/$', views.BlogDeleteComment.as_view(), name='delete_comment'),
-    url('^discuss/(?P<pk>\d+)/$', views.ProblemDiscuss.as_view(), name='discuss'),
-    url('^discuss/(?P<pk>\d+)/comment/$', views.ProblemAddComment.as_view(), name='problem_add_comment'),
-    url('^discuss/(?P<pk>\d+)/comment/(?P<comment_id>\d+)/delete/$', views.ProblemDeleteComment.as_view(), name='problem_delete_comment'),
+    # url('^discuss/(?P<pk>\d+)/$', views.ProblemDiscuss.as_view(), name='discuss'),
+    # url('^discuss/(?P<pk>\d+)/comment/$', views.ProblemAddComment.as_view(), name='problem_add_comment'),
+    # url('^discuss/(?P<pk>\d+)/comment/(?P<comment_id>\d+)/delete/$', views.ProblemDeleteComment.as_view(), name='problem_delete_comment'),
 ]
