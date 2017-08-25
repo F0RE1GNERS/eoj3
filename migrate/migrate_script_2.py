@@ -4,6 +4,7 @@ from os import path, replace, remove, environ
 from shutil import rmtree
 from django.conf import settings
 from problem.models import Problem, get_input_path, get_output_path
+from submission.models import Submission, SubmissionStatus
 from polygon.case import well_form_text
 from utils import random_string
 from utils.file_preview import sort_data_list_from_directory
@@ -69,6 +70,19 @@ def run():
         for contest in Contest.objects.all():
             contest.allowed_lang = ','.join(contest.allowed_lang.split(', '))
             contest.save(update_fields=['allowed_lang'])
+
+        for submission in Submission.objects.all():
+            submission.status_time /= 1000
+            submission.status_private = submission.status
+            if submission.status == SubmissionStatus.COMPILE_ERROR:
+                submission.status_message = submission.status_detail
+            A = []
+            for detail in submission.status_detail_list:
+                if 'time' in detail:
+                    detail['time'] /= 1000
+                A.append(detail)
+            submission.status_detail_list = A
+            submission.save(update_fields=['status_detail', 'status_time', 'status_message', 'status_private'])
 
     except:
         traceback.print_exc()
