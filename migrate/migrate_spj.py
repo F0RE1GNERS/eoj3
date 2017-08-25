@@ -1,4 +1,4 @@
-from problem.models import Problem, SpecialProgram
+from problem.models import Problem, SpecialProgram, FCMP_FINGERPRINT
 import traceback
 
 
@@ -17,6 +17,7 @@ def run():
     try:
         for problem in Problem.objects.all():
             if not SpecialProgram.objects.filter(fingerprint=problem.checker).exists():
-                print(problem.checker)
+                problem.checker = FCMP_FINGERPRINT
+                problem.save(update_fields=['checker'])
     except:
         traceback.print_exc()
