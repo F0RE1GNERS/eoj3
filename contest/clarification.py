@@ -19,7 +19,6 @@ class ContestClarificationView(BaseContestMixin, ListView):
     context_object_name = 'clarification_list'
 
     def get_queryset(self):
-        cmp = dict(note=-1, open=0, close=1, solve=1)
         if self.privileged:
             set = self.contest.contestclarification_set.all()
         else:
@@ -27,7 +26,7 @@ class ContestClarificationView(BaseContestMixin, ListView):
             if self.user.is_authenticated:
                 q |= Q(author=self.user)
             set = self.contest.contestclarification_set.filter(q)
-        return sorted(set, key=lambda x: cmp[x.status])
+        return set
 
     def post(self, request, cid):
         if self.contest.status != 0:

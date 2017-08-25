@@ -56851,12 +56851,14 @@ textarea[name="code"] {
 }
 td .score {
   font-weight: 700;
+  text-align: center;
 }
 td .score.negative {
   font-weight: 500;
 }
 td .penalty {
   font-size: 0.9em;
+  text-align: center;
 }
 .problem-header {
   margin-bottom: 1em;
