@@ -3,6 +3,7 @@ from django.core.cache import cache
 
 
 class SiteSettings(models.Model):
+    open = models.BooleanField('site open', default=True)  # for migrations
     # We store key, value pair here
     key = models.CharField(max_length=254, primary_key=True)
     val = models.TextField(blank=True)
