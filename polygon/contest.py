@@ -73,6 +73,8 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
         return super(PolygonContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
+        if not self.request.user.is_authenticated:
+            return False
         if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(id=self.request.user.id).exists():
             return False
         return super(PolygonContestMixin, self).test_func()
