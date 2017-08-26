@@ -56849,19 +56849,31 @@ textarea[name="code"] {
 .ui.text.menu .active.item {
   font-weight: 600;
 }
-td .score {
+.ui.table tbody tr td .score {
   font-weight: 700;
   text-align: center;
 }
-td .score.negative {
+.ui.table tbody tr td .score.negative {
   font-weight: 500;
 }
-td .penalty {
+.ui.table tbody tr td .penalty {
   font-size: 0.9em;
   text-align: center;
 }
+.ui.table tbody tr td.selectable.accepted {
+  background-color: #f2faef !important;
+}
+.ui.table tbody tr td.selectable.accepted:hover {
+  background-color: #daf0d1 !important;
+}
+a.user {
+  color: black;
+}
 .problem-header {
   margin-bottom: 1em;
+}
+.problem-body {
+  line-height: 1.5;
 }
 .problem-body .header,
 .problem-body .passage {

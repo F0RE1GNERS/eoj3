@@ -12,6 +12,7 @@ from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter
 from .tasks import judge_submission_on_contest
+from .permission import has_permission_for_contest_management
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
 from submission.forms import ContestSubmitForm
@@ -22,7 +23,6 @@ import json
 
 
 class ContestSubmit(BaseContestMixin, TemplateView):
-
     template_name = 'contest/submit.jinja2'
 
     def test_func(self):
@@ -47,7 +47,6 @@ class ContestSubmit(BaseContestMixin, TemplateView):
 
 
 class ContestSubmissionAPI(BaseContestMixin, TemplateView):
-
     template_name = 'components/single_submission.jinja2'
 
     def get_context_data(self, **kwargs):
@@ -60,7 +59,6 @@ class ContestSubmissionAPI(BaseContestMixin, TemplateView):
 
 
 class ContestSubmissionView(BaseContestMixin, TemplateView):
-
     template_name = 'submission.jinja2'
 
     def get_context_data(self, **kwargs):
@@ -68,14 +66,27 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         data['submission'] = submission = Submission.objects.get(contest_id=self.kwargs.get('cid'),
                                                                  pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
-        submission_block = render_submission(submission)
-        data['submission_block'] = submission_block
+        authorized = False
+        if self.request.user.is_authenticated:  # Check author or manager (no share)
+            if has_permission_for_contest_management(self.request.user,
+                                                     self.contest) or self.request.user == submission.author:
+                authorized = True
+        if not authorized and self.contest.allow_code_share > 0:  # start to share
+            if self.contest.status > 0 and self.contest.allow_code_share >= 2:
+                authorized = True
+            if self.request.user.submission_set.filter(problem_id=submission.problem_id,
+                                                       status=SubmissionStatus.ACCEPTED).exists() and (
+                            self.contest.status > 0 or self.contest.allow_code_share >= 3):
+                authorized = True
+        if authorized:
+            data['submission_block'] = render_submission(submission)
+        else:
+            data['submission_block'] = 'You are not authorized to view this submission.'
+
         return data
 
 
-
 class ContestMySubmission(BaseContestMixin, TemplateView):
-
     template_name = 'components/past_submissions.jinja2'
 
     def get_context_data(self, **kwargs):
@@ -90,7 +101,6 @@ class ContestMySubmission(BaseContestMixin, TemplateView):
 
 
 class ContestStatus(BaseContestMixin, StatusList):
-
     template_name = 'contest/status.jinja2'
 
     def get_selected_from(self):
@@ -116,15 +126,16 @@ class ContestBalloon(BaseContestMixin, ListView):
         return True
 
     def get_queryset(self):
-        queryset = self.contest.submission_set.select_related('author').\
+        queryset = self.contest.submission_set.select_related('author'). \
             only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'status', 'addon_info').filter(status=SubmissionStatus.ACCEPTED, addon_info=False)
+                 'author__magic', 'problem_id', 'status', 'addon_info').filter(status=SubmissionStatus.ACCEPTED,
+                                                                               addon_info=False)
         return queryset.all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestBalloon, self).get_context_data(**kwargs)
         author_list = set(x.author_id for x in data['submission_list'])
-        contest_participants = self.contest.contestparticipant_set.filter(user_id__in=author_list).\
+        contest_participants = self.contest.contestparticipant_set.filter(user_id__in=author_list). \
             only("user_id", "comment", "contest_id").all()
         contest_participant_set = dict()
         for participant in contest_participants:

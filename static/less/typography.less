@@ -250,7 +250,7 @@ textarea[name="code"] {
   font-weight: 600;
 }
 
-td {
+.ui.table tbody tr td {
   .score {
     font-weight: 700;
     text-align: center;
@@ -262,4 +262,14 @@ td {
     font-size: 0.9em;
     text-align: center;
   }
+  &.selectable.accepted {
+    background-color: lighten(rgb(212, 237, 201), 10%) !important;
+    &:hover {
+      background-color: lighten(rgb(212, 237, 201), 2%) !important;
+    }
+  }
+}
+
+a.user {
+  color: black;
 }

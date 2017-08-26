@@ -240,13 +240,18 @@ class ProblemSubmissionView(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
-        data['submission'] = submission = Submission.objects.get(problem_id=self.kwargs.get('pk'),
-                                                                 pk=self.kwargs.get('sid'))
-        if submission.author == self.request.user or \
-            has_permission_for_problem_management(self.request.user, submission.problem):
+        data['submission'] = submission = Submission.objects.get(pk=self.kwargs.get('sid'),
+                                                                 problem_id=self.kwargs.get('pk'))
+        if self.request.user.is_authenticated and (
+                            submission.author == self.request.user or
+                        has_permission_for_problem_management(self.request.user,
+                                                              submission.problem) or
+                    self.request.user.submission_set.filter(
+                        problem_id=self.kwargs.get('pk'),
+                        status=SubmissionStatus.ACCEPTED).exists()):
             submission_block = render_submission(submission)
         else:
-            submission_block = ''
+            submission_block = 'You are not authorized to view this submission.'
         data['submission_block'] = submission_block
         data['problem'] = submission.problem
         return data

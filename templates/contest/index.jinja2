@@ -25,7 +25,7 @@
           <td class="semi-bold">{{ contest_problem.identifier }}</td>
           <td class="left aligned"><a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
             {{ contest_problem.problem.title }}</a></td>
-          <td class="{% if contest_problem.personal_label > 0 %}positive{% elif contest_problem.personal_label < 0 %}negative{% endif %}">
+          <td class="{% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}negative{% endif %}">
           {% if not contest.is_frozen %}
             <i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.accept_count }}
           {% else %}
