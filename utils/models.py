@@ -22,5 +22,10 @@ def site_settings_get(key, default=None, use_cache=False):
 
 
 def site_settings_set(key, val):
-    SiteSettings.objects.update_or_create(key=key, val=val)
+    if not SiteSettings.objects.filter(key=key).exists():
+        SiteSettings.objects.create(key=key, val=val)
+    else:
+        settings = SiteSettings.objects.get(key=key)
+        settings.val = val
+        settings.save(update_fields=['val'])
     cache.set('site_settings_' + key, val, 300)
