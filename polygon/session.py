@@ -215,14 +215,13 @@ def push_session(session):
     case_order = {}
     case_list, sample_list, pretest_list = [], [], []
     for k, v in config['case'].items():
-        if not v['order']:
-            continue
         session_case_input, session_case_output = get_test_file_path(session, k)
         problem_case_input, problem_case_output = get_input_path(k), get_output_path(k)
         if not path.exists(problem_case_input):
             copyfile(session_case_input, problem_case_input)
             copyfile(session_case_output, problem_case_output)
-        case_list.append((k, v['point']))
+        if v['order']:
+            case_list.append((k, v['point']))
         if v.get('pretest'):
             pretest_list.append(k)
         if v.get('sample'):
