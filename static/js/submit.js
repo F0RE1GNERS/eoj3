@@ -31,6 +31,9 @@ if (window.hasOwnProperty("ace")) {
   var editor = ace.edit("editor");
   var lang = $("#id_lang");
   var code = $("#id_code");
+  if (window.localStorage) {
+    $('.ui.search.dropdown.language').dropdown('set selected', localStorage.getItem('lang') || 'cpp');
+  }
   editor.getSession().setValue(code.val());
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/" + map[lang.val()]);
@@ -40,6 +43,9 @@ if (window.hasOwnProperty("ace")) {
   });
   lang.on("change", function (event) {
     editor.getSession().setMode("ace/mode/" + map[event.target.value]);
+    if (window.localStorage) {
+      localStorage.setItem("lang", event.target.value)
+    }
   });
   editor.getSession().on("change", function () {
     code.val(editor.getSession().getValue());
