@@ -3,17 +3,20 @@ import traceback
 
 
 def run():
-    # try:
-    #     for problem in Problem.objects.all():
-    #         if problem.judge == '' or problem.judge == 'fcmp':
-    #             continue
-    #         if SpecialProgram.objects.filter(filename__contains=problem.judge).exists():
-    #             problem.checker = SpecialProgram.objects.filter(filename__contains=problem.judge).first().fingerprint
-    #         else:
-    #             problem.visible = False
-    #         problem.save(update_fields=['checker', 'visible'])
-    # except:
-    #     traceback.print_exc()
+    try:
+        for problem in Problem.objects.all():
+            if problem.judge == 'fcmp' or problem.judge == '':
+                continue
+            if SpecialProgram.objects.filter(filename=problem.judge + '.cpp', category='checker').exists():
+                if SpecialProgram.objects.filter(filename=problem.judge + '.cpp', category='checker').count() > 1:
+                    print(problem.judge)
+                problem.checker = SpecialProgram.objects.get(filename=problem.judge + '.cpp', category='checker').fingerprint
+                problem.save(update_fields=['checker'])
+            else:
+                problem.visible = False
+
+    except:
+        traceback.print_exc()
     try:
         for problem in Problem.objects.all():
             if not SpecialProgram.objects.filter(fingerprint=problem.checker).exists():

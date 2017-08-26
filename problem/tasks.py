@@ -49,7 +49,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     if not case_list:  # case list is empty (e.g. something wrong with pretest list)
         case_list = problem.case_list
     point_query = dict(zip(problem.case_list, problem.point_list))
-    total_score = min(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
+    total_score = max(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
 
     def on_receive_data(data):
         judge_time = datetime.fromtimestamp(data['timestamp'])

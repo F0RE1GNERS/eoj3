@@ -32,7 +32,9 @@ def rejudge_submission_set(submission_set):
     with transaction.atomic():
         for submission in submission_set:
             submission.status_private = submission.status = SubmissionStatus.WAITING
-            submission.save(update_fields=["status_private", "status"])
+            submission.status_detail = ""
+            submission.status_message = ""
+            submission.save(update_fields=["status_private", "status", "status_detail", "status_message"])
 
     for submission in submission_set:
         while cache.get_or_set(REJUDGE_COUNTER, 0) >= REJUDGE_TASK_LIMIT:
