@@ -129,6 +129,12 @@ def pull_session(session):
         case_dict[key]["pretest"] = False
         case_dict[key]["sample"] = False
     makedirs(tests_dir, exist_ok=True)
+    for case in problem.sample_list:
+        if case not in case_dict.keys():
+            case_dict[case] = dict(order=0, point=10, sample=True)
+            now_input_path, now_output_path = get_test_file_path(session, case)
+            copyfile(get_input_path(case), now_input_path)
+            copyfile(get_output_path(case), now_output_path)
     for ind, case in enumerate(problem.case_list, start=1):
         if case not in case_dict.keys():
             case_dict[case] = dict()
