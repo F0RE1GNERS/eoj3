@@ -247,11 +247,4 @@ DEBUG_TOOLBAR_PANELS = [
 # captcha
 CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "eoj3.routing.channel_routing",
-    },
-}
+CAPTCHA_CHALLENGE_FUNCT = 'eoj3.captcha.random_math_challenge'
