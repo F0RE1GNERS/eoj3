@@ -44,7 +44,7 @@ if (window.hasOwnProperty("ace")) {
   lang.on("change", function (event) {
     editor.getSession().setMode("ace/mode/" + map[event.target.value]);
     if (window.localStorage) {
-      localStorage.setItem("lang", event.target.value)
+      localStorage.setItem("lang", event.target.value);
     }
   });
   editor.getSession().on("change", function () {
