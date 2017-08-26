@@ -89,7 +89,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
 
         d['attempt'] += 1
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
-        if first_yes[submission.problem_id]['author'] == submission.author_id:
+        if first_yes[submission.problem_id] and first_yes[submission.problem_id]['author'] == submission.author_id:
             d['first_blood'] = True
 
     for v in ans.values():
@@ -188,13 +188,13 @@ def get_first_yes(contest: Contest):
     if t is None:
         t = dict()
         for contest_problem in contest.contest_problem_list:
-            try:
-                first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
-                                                                   status=SubmissionStatus.ACCEPTED).only(
-                    'contest_id', 'problem_id', 'status', 'create_time').last()
+            first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
+                                                               status=SubmissionStatus.ACCEPTED).only(
+                'contest_id', 'problem_id', 'status', 'create_time').last()
+            if first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
                                       author=first_accepted_sub.author_id)
-            except Submission.DoesNotExist:
+            else:
                 first_accepted = None
             t[contest_problem.problem_id] = first_accepted
         cache.set(cache_name, t)  # by default 300 seconds
