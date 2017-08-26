@@ -24,7 +24,7 @@
           </div>
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
-        <td class="selectable {% if problem.personal_label > 0 %}positive{% elif problem.personal_label < 0 %}negative{% endif %}">
+        <td class="collapsing selectable {% if problem.personal_label > 0 %}positive{% elif problem.personal_label < 0 %}negative{% endif %}">
           <a href="#"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
         </td>
       </tr>
