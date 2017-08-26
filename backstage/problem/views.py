@@ -75,5 +75,6 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
 class ProblemAccessAdd(BaseBackstageMixin, View):
     def post(self, request, pk):
         problem = get_object_or_404(Problem, pk=pk)
-        problem.problemmanagement_set.create(user_id=request.user.pk, permission='a')
+        if not problem.problemmanagement_set.filter(user_id=request.user.pk).exists():
+            problem.problemmanagement_set.create(user_id=request.user.pk, permission='a')
         return HttpResponse(json.dumps({'result': 'success'}))
