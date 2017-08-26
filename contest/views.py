@@ -28,7 +28,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
         self.user = request.user
         self.privileged = is_admin_or_root(self.user) or (
-            self.user.is_authenticated and self.contest.manager.filter(user=self.user).exists())
+            self.user.is_authenticated and self.contest.manager.filter(pk=self.user.pk).exists())
         self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
