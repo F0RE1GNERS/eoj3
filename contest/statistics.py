@@ -12,21 +12,23 @@ PARTICIPANT_RANK_LIST = 'c{contest}_rank_list'
 FORTNIGHT = 86400 * 14
 
 
-def recalculate_for_participant(contest: Contest, user_id: int, privilege=False):
+def recalculate_for_participants(contest: Contest, user_ids: list, privilege=False):
     """
     :param contest
-    :param user
+    :param user_ids
     :param privilege: privilege will cause the calculation works for all submissions even after board frozen
     :return {
-        penalty: int (seconds),
-        score: int,
-        detail: {
-            <problem_id>: {
-                solved: boolean
-                attempt: int (submission count including the first accepted one),
-                score: int (individual score for each problem),
-                time: int (first accept solution time, in seconds),
-                first_blood: boolean
+        <user_id>: {
+            penalty: int (seconds),
+            score: int,
+            detail: {
+                <problem_id>: {
+                    solved: boolean
+                    attempt: int (submission count including the first accepted one),
+                    score: int (individual score for each problem),
+                    time: int (first accept solution time, in seconds),
+                    first_blood: boolean
+                }
             }
         }
     }
@@ -53,14 +55,17 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
         """
         return max(int((submit_time - start_time).total_seconds()), 0)
 
-    detail = {}
+    ans = {author_id: dict(detail=dict()) for author_id in user_ids}
     contest_length = get_penalty(contest.start_time, contest.end_time)
-    for submission in contest.submission_set.filter(author=user_id).only("status", "status_private", "contest_id",
-                                                                         "problem_id", "author_id",
-                                                                         "create_time").order_by("create_time"):
+
+    for submission in contest.submission_set.filter(author_id__in=user_ids).only("status", "status_private",
+                                                                                 "contest_id",
+                                                                                 "problem_id", "author_id",
+                                                                                 "create_time").order_by("create_time"):
         contest_problem = contest.get_contest_problem(submission.problem_id)
         if not contest_problem:  # This problem has been probably deleted
             continue
+        detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0})
         d = detail[submission.problem_id]
@@ -84,14 +89,13 @@ def recalculate_for_participant(contest: Contest, user_id: int, privilege=False)
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
         first_accepted = contest.submission_set.filter(problem_id=submission.problem_id,
                                                        status=SubmissionStatus.ACCEPTED).last()
-        if first_accepted and first_accepted.author_id == user_id:
+        if first_accepted and first_accepted.author_id == submission.author_id:
             d.update(first_blood=True)
 
-    return {
-        'penalty': sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'], detail.values())),
-        'score': sum(map(lambda x: x['score'], detail.values())),
-        'detail': detail
-    }
+    for v in ans.values():
+        v.update(penalty=sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'], v['detail'].values())),
+                 score=sum(map(lambda x: x['score'], v['detail'].values())))
+    return ans
 
 
 def get_contest_rank(contest: Contest, privilege=False):
@@ -117,13 +121,16 @@ def get_all_contest_participants_detail(contest: Contest, users=None, privilege=
     cache_names = list(map(lambda x: cache_template.format(contest=contest.pk, user=x), contest_users))
     cache_res = cache.get_many(cache_names)
     ans = dict()
+    second_attempt = []
     for user in contest_users:
         cache_name = cache_template.format(contest=contest.pk, user=user)
         if cache_name not in cache_res.keys():
-            cache.set(cache_name, recalculate_for_participant(contest, user, privilege), timeout * uniform(0.6, 1))
-            ans[user] = cache.get(cache_name)
+            second_attempt.append(user)
         else:
             ans[user] = cache_res[cache_name]
+    ans2 = recalculate_for_participants(contest, second_attempt, privilege)
+    cache.set_many(ans2, timeout * uniform(0.8, 1))
+    ans.update(ans2)
     return ans
 
 
