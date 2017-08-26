@@ -4,12 +4,21 @@ from account.models import User
 from django.core.cache import cache
 from random import uniform
 
-
 PARTICIPANT_RANK_DETAIL = 'c{contest}_u{user}_rank_detail'
 PARTICIPANT_RANK_DETAIL_PRIVATE = 'c{contest}_u{user}_rank_detail_private'
 PARTICIPANT_RANK = 'c{contest}_u{user}_rank'
 PARTICIPANT_RANK_LIST = 'c{contest}_rank_list'
+CONTEST_FIRST_YES = 'c{contest}_first_yes'
 FORTNIGHT = 86400 * 14
+
+
+def get_penalty(start_time, submit_time):
+    """
+    :param start_time: time in DateTimeField
+    :param submit_time: time in DateTimeField
+    :return: penalty in seconds
+    """
+    return max(int((submit_time - start_time).total_seconds()), 0)
 
 
 def recalculate_for_participants(contest: Contest, user_ids: list, privilege=False):
@@ -47,16 +56,9 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
     3) The final score, once accepted will not be lower than 30% of the total score.
     """
 
-    def get_penalty(start_time, submit_time):
-        """
-        :param start_time: time in DateTimeField
-        :param submit_time: time in DateTimeField
-        :return: penalty in seconds
-        """
-        return max(int((submit_time - start_time).total_seconds()), 0)
-
     ans = {author_id: dict(detail=dict()) for author_id in user_ids}
     contest_length = get_penalty(contest.start_time, contest.end_time)
+    first_yes = get_first_yes(contest)
 
     for submission in contest.submission_set.filter(author_id__in=user_ids).only("status", "status_private",
                                                                                  "contest_id",
@@ -87,10 +89,8 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
 
         d['attempt'] += 1
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
-        first_accepted = contest.submission_set.filter(problem_id=submission.problem_id,
-                                                       status=SubmissionStatus.ACCEPTED).last()
-        if first_accepted and first_accepted.author_id == submission.author_id:
-            d.update(first_blood=True)
+        if first_yes[submission.problem_id]['author'] == submission.author_id:
+            d['first_blood'] = True
 
     for v in ans.values():
         v.update(penalty=sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'], v['detail'].values())),
@@ -109,15 +109,10 @@ def get_contest_rank(contest: Contest, privilege=False):
     return lst
 
 
-def get_contest_user_ids(contest: Contest):
-    return list(ContestParticipant.objects.filter(contest=contest).order_by().
-                values_list("user_id", flat=True))
-
-
 def get_all_contest_participants_detail(contest: Contest, users=None, privilege=False):
     cache_template = PARTICIPANT_RANK_DETAIL_PRIVATE if privilege else PARTICIPANT_RANK_DETAIL
     timeout = 60 if privilege else FORTNIGHT
-    contest_users = users if users else get_contest_user_ids(contest)
+    contest_users = users if users else contest.participants_ids
     cache_names = list(map(lambda x: cache_template.format(contest=contest.pk, user=x), contest_users))
     cache_res = cache.get_many(cache_names)
     ans = dict()
@@ -128,9 +123,10 @@ def get_all_contest_participants_detail(contest: Contest, users=None, privilege=
             second_attempt.append(user)
         else:
             ans[user] = cache_res[cache_name]
-    ans2 = recalculate_for_participants(contest, second_attempt, privilege)
-    cache.set_many(ans2, timeout * uniform(0.8, 1))
-    ans.update(ans2)
+    if second_attempt:
+        ans2 = recalculate_for_participants(contest, second_attempt, privilege)
+        cache.set_many({cache_template.format(contest=contest.pk, user=user_id): val for user_id, val in ans2.items()}, timeout * uniform(0.8, 1))
+        ans.update(ans2)
     return ans
 
 
@@ -186,13 +182,34 @@ def get_participant_rank(contest: Contest, user_id):
     return rank
 
 
+def get_first_yes(contest: Contest):
+    cache_name = CONTEST_FIRST_YES.format(contest=contest.pk)
+    t = cache.get(cache_name)
+    if t is None:
+        t = dict()
+        for contest_problem in contest.contest_problem_list:
+            try:
+                first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
+                                                                   status=SubmissionStatus.ACCEPTED).only(
+                    'contest_id', 'problem_id', 'status', 'create_time').last()
+                first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
+                                      author=first_accepted_sub.author_id)
+            except Submission.DoesNotExist:
+                first_accepted = None
+            t[contest_problem.problem_id] = first_accepted
+        cache.set(cache_name, t)  # by default 300 seconds
+    return t
+
+
 def invalidate_contest_participant(contest: Contest, user_id):
     cache.delete(PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=user_id))
     cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
 
 
 def invalidate_contest(contest: Contest):
-    contest_users = get_contest_user_ids(contest)
+    contest_users = contest.participants_ids
     cache.delete_many(list(map(lambda x: PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=x), contest_users)))
-    cache.delete_many(list(map(lambda x: PARTICIPANT_RANK_DETAIL_PRIVATE.format(contest=contest.pk, user=x), contest_users)))
+    cache.delete_many(
+        list(map(lambda x: PARTICIPANT_RANK_DETAIL_PRIVATE.format(contest=contest.pk, user=x), contest_users)))
     cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
+    cache.delete(CONTEST_FIRST_YES.format(contest=contest.pk))

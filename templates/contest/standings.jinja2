@@ -23,12 +23,12 @@
   <table class="ui compact celled table">
     <thead>
       <tr class="ui center aligned">
-      <th>#</th>
+      <th class="one wide">#</th>
       <th class="ui left aligned">Who</th>
       <th class="collapsing">=</th>
-      {% if contest.penalty_counts %}<th class="collapsing">Penalty</th>{% endif %}
+      {% if contest.penalty_counts %}<th class="one wide">Penalty</th>{% endif %}
       {% for problem in contest.contest_problem_list %}
-        <th class="collapsing">{{ problem.identifier }}</th>
+        <th class="one wide">{{ problem.identifier }}</th>
       {% endfor %}
       </tr>
     </thead>

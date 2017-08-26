@@ -149,6 +149,12 @@ class Contest(models.Model):
         for submission in submissions:
             submission.contest_problem = find_contest_problem[submission.problem_id]
 
+    @property
+    def participants_ids(self):
+        if not hasattr(self, '_contest_user_ids'):
+            self._contest_user_ids = list(self.contestparticipant_set.order_by().values_list("user_id", flat=True))
+        return self._contest_user_ids
+
 
 class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
