@@ -14,7 +14,7 @@
         <th>Alias</th>
         <th>Created</th>
         <th>Update</th>
-        <th>Access</th>
+        <th colspan="2">Access</th>
       </tr>
     </thead>
     <tbody>
@@ -29,6 +29,7 @@
           <td>{{ problem.alias }}</td>
           <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
+          <td><a class="post-link" data-link="{{ url('backstage:problem_access_add', problem.pk) }}">Add Me</a></td>
           <td><a href="{{ url('backstage:problem_meta', problem.pk) }}">Edit</a></td>
         </tr>
       {% endfor %}

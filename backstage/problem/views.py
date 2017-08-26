@@ -8,7 +8,6 @@ from django.views.generic import View
 from django.views.generic.list import ListView
 
 from dispatcher.tasks import ProblemRejudgeThread
-from polygon.views import ProblemMeta
 from problem.models import Problem
 from submission.models import Submission
 from ..base_views import BaseBackstageMixin
@@ -70,4 +69,11 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
             problem = Problem.objects.select_for_update().get(pk=pk)
             problem.visible = True if not problem.visible else False
             problem.save(update_fields=["visible"])
+        return HttpResponse(json.dumps({'result': 'success'}))
+
+
+class ProblemAccessAdd(BaseBackstageMixin, View):
+    def post(self, request, pk):
+        problem = get_object_or_404(Problem, pk=pk)
+        problem.problemmanagement_set.create(user_id=request.user.pk, permission='a')
         return HttpResponse(json.dumps({'result': 'success'}))
