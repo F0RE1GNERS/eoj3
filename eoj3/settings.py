@@ -244,10 +244,10 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
 
-
 # captcha
 CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 
 CHANNEL_LAYERS = {
     "default": {

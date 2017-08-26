@@ -20,15 +20,21 @@
   <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
 
+  {% if (contest.contest_problem_list | length) > 9 %}
+    {% set column_style = 'collapsing' %}
+  {% else %}
+    {% set column_style = 'one wide' %}
+  {% endif %}
+
   <table class="ui compact celled table">
     <thead>
       <tr class="ui center aligned">
-      <th class="one wide">#</th>
+      <th class="{{ column_style }}">#</th>
       <th class="ui left aligned">Who</th>
       <th class="collapsing">=</th>
       {% if contest.penalty_counts %}<th class="one wide">Penalty</th>{% endif %}
       {% for problem in contest.contest_problem_list %}
-        <th class="one wide">{{ problem.identifier }}</th>
+        <th class="{{ column_style }}">{{ problem.identifier }}</th>
       {% endfor %}
       </tr>
     </thead>
@@ -54,7 +60,9 @@
                       {{ d.score }}
                     {% endif %}
                   </span><br>
-                  <span class="penalty">{{ (d.time / 60) | int }}</span>
+                  {% if contest.penalty_counts %}
+                    <span class="penalty">{{ (d.time / 60) | int }}</span>
+                  {% endif %}
                 {% else %}
                   {% if contest.scoring_method == 'oi' %}
                     {% if d.score %}
