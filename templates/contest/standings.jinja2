@@ -56,7 +56,7 @@
                   </span><br>
                   <span class="penalty">{{ (d.time / 60) | int }}</span>
                 {% else %}
-                  {% if d.scoring_method == 'oi' %}
+                  {% if contest.scoring_method == 'oi' %}
                     {% if d.score %}
                       <span class="score text yellow">{{ d.score }}</span>
                     {% else %}
