@@ -56855,22 +56855,41 @@ samp {
 .ui.text.menu .active.item {
   font-weight: 600;
 }
-.ui.table tbody tr td .score {
+.ui.table tbody tr td .score,
+.ui.table tbody tr .score {
   font-weight: 700;
   text-align: center;
 }
-.ui.table tbody tr td .score.negative {
+.ui.table tbody tr td .score.negative,
+.ui.table tbody tr .score.negative {
   font-weight: 500;
 }
-.ui.table tbody tr td .penalty {
+.ui.table tbody tr td .penalty,
+.ui.table tbody tr .penalty {
   font-size: 0.9em;
   text-align: center;
 }
-.ui.table tbody tr td.selectable.accepted {
-  background-color: #f2faef !important;
+.ui.table tbody tr td.accepted,
+.ui.table tbody tr.accepted {
+  background-color: #e0ffe4 !important;
+  color: #0f4d18 !important;
 }
-.ui.table tbody tr td.selectable.accepted:hover {
-  background-color: #daf0d1 !important;
+.ui.table tbody tr td.accepted .selectable:hover,
+.ui.table tbody tr.accepted .selectable:hover,
+.ui.table tbody tr td.accepted.selectable:hover,
+.ui.table tbody tr.accepted.selectable:hover {
+  background-color: #c6ffce !important;
+}
+.ui.table tbody tr td.attempted,
+.ui.table tbody tr.attempted {
+  background-color: #FFE3E3 !important;
+  color: #671313 !important;
+}
+.ui.table tbody tr td.attempted .selectable:hover,
+.ui.table tbody tr.attempted .selectable:hover,
+.ui.table tbody tr td.attempted.selectable:hover,
+.ui.table tbody tr.attempted.selectable:hover {
+  background-color: #ffc9c9 !important;
 }
 a.user {
   color: black;

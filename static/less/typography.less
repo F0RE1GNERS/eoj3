@@ -254,7 +254,7 @@ code, kbd, pre, samp {
   font-weight: 600;
 }
 
-.ui.table tbody tr td {
+.ui.table tbody tr td, .ui.table tbody tr {
   .score {
     font-weight: 700;
     text-align: center;
@@ -266,10 +266,18 @@ code, kbd, pre, samp {
     font-size: 0.9em;
     text-align: center;
   }
-  &.selectable.accepted {
-    background-color: lighten(rgb(212, 237, 201), 10%) !important;
-    &:hover {
-      background-color: lighten(rgb(212, 237, 201), 2%) !important;
+  &.accepted {
+    background-color: #e0ffe4 !important;
+    color: #0f4d18 !important;
+    .selectable:hover, &.selectable:hover {
+      background-color: darken(#e0ffe4, 5%) !important;
+    }
+  }
+  &.attempted {
+    background-color: #FFE3E3 !important;
+    color: #671313 !important;
+    .selectable:hover, &.selectable:hover {
+      background-color: darken(#FFE3E3, 5%) !important;
     }
   }
 }

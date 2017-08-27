@@ -26,8 +26,8 @@
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
         <td>{{ problem.difficulty | round(1) }}</td>
-        <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}negative{% endif %}">
-          <a href="#"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
+        <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
+          <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
         </td>
       </tr>
     {% endfor %}
