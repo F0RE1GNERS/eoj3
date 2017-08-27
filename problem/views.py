@@ -273,5 +273,8 @@ class Millionaires(ListView):
 
     def get_context_data(self, **kwargs):
         data = super(Millionaires, self).get_context_data(**kwargs)
-        data['my_rank'] = User.objects.filter(score__gte=self.request.user.score).count()
+        if not self.request.user.is_authenticated:
+            data['my_rank'] = 'N/A'
+        else:
+            data['my_rank'] = User.objects.filter(score__gte=self.request.user.score).count()
         return data
