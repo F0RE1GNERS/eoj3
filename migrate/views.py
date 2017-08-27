@@ -1,6 +1,8 @@
 from django.db import transaction
+from account.models import User
 from .models import OldUser, OldSubmission, OldDiscussion
 from submission.models import Submission, SubmissionStatus
+from problem.statistics import get_problem_difficulty
 from problem.models import Problem
 from blog.models import Comment
 import threading
@@ -33,6 +35,12 @@ class MigrationThread(threading.Thread):
                                               status_time=submission.status_time / 1000)
                 s.create_time = submission.create_time
                 s.save(update_fields=["create_time"])
+                if Submission.objects.filter(author_id=s.author_id, problem_id=s.problem_id, contest__isnull=True,
+                                             status=SubmissionStatus.ACCEPTED).last() == s:
+                    with transaction.atomic():
+                        author = User.objects.select_for_update().get(pk=submission.author_id)
+                        author.score += get_problem_difficulty(submission.problem_id)
+                        author.save(update_fields=['score'])
             OldSubmission.objects.filter(author=self.username).all().delete()
 
             for comment in OldDiscussion.objects.filter(author=self.username).order_by("create_time").all():
