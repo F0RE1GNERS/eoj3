@@ -8,7 +8,7 @@ from utils.models import site_settings_get
 def home_view(request):
     if request.user.is_authenticated:
         return render(request, 'home_logged_in.jinja2', context={'solved': get_accept_problem_count(request.user.pk),
-                                                                 'blog_list': Blog.objects.all()[:15],
+                                                                 'blog_list': Blog.objects.filter(visible=True)[:15],
                                                                  'bulletin': site_settings_get('BULLETIN', '')})
     else:
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14),})

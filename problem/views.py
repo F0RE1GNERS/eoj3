@@ -18,7 +18,8 @@ from .models import Problem
 from .permission import has_permission_for_problem_management
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
-    get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count
+    get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
+    get_problem_difficulty
 )
 from .tasks import create_submission, judge_submission_on_problem
 
@@ -67,9 +68,12 @@ class ProblemList(ListView):
                     problem.personal_label = -1
 
         # Get Accepted of all users
-        accept_count = get_many_problem_accept_count(list(map(lambda x: x.id, data['problem_list'])))
+        problem_ids = list(map(lambda x: x.id, data['problem_list']))
+        accept_count = get_many_problem_accept_count(problem_ids)
+        difficulties = get_many_problem_difficulty(problem_ids)
         for problem in data['problem_list']:
             problem.accept_count = accept_count[problem.id]
+            problem.difficulty = difficulties[problem.id]
 
         # Get tags
         tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
@@ -151,6 +155,7 @@ class ProblemStatisticsView(ProblemDetailMixin, TemplateView):
         data['ac_count'] = get_problem_accept_count(self.problem.id)
         data['all_count'] = get_problem_all_count(self.problem.id)
         data['ratio'] = get_problem_accept_ratio(self.problem.id)
+        data['difficulty'] = get_problem_difficulty(self.problem.id)
         return data
 
 

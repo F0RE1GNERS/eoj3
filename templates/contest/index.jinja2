@@ -7,7 +7,7 @@
   {% else %}
     <p>{{ contest.start_time | date('Y-m-d H:i:s') }} <strong>to</strong> {{ contest.end_time | date('Y-m-d H:i:s') }}</p>
   {% endif %}
-  {% if contest.is_frozen != 'a' %}<p>Standings are frozen now.</p>{% endif %}
+  {% if contest.is_frozen %}<p>Standings are frozen now.</p>{% endif %}
 
   {% include 'components/message.jinja2' %}
   {% if has_permission %}

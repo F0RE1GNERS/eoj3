@@ -2,20 +2,23 @@
 
 {% block problem_content %}
 
-  <table class="ui very padded two column celled table">
+  <table class="ui very padded celled table">
     <thead>
       <tr class="center aligned">
-        <th>
+        <th class="seven wide">
           <h4 class="ui header">
             <i class="user icon"></i>
             BY AUTHORS
           </h4>
         </th>
-        <th>
+        <th class="seven wide">
           <h4 class="ui header">
             <i class="tag icon"></i>
             TOTAL
           </h4>
+        </th>
+        <th class="two wide">
+          <h4 class="ui header">REWARD</h4>
         </th>
       </tr>
     </thead>
@@ -74,6 +77,16 @@
               <div class="label">
                 Percent
               </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="ui statistic">
+            <div class="value">
+              {{ difficulty | round(1) }}
+            </div>
+            <div class="label">
+              Points
             </div>
           </div>
         </td>

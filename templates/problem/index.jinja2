@@ -9,7 +9,8 @@
     <tr>
       <th class="center aligned one wide">#</th>
       <th>Name</th>
-      <th class="center aligned three wide">Solved</th>
+      <th class="center aligned collapsing">Reward</th>
+      <th class="center aligned two wide">Solved</th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +25,7 @@
           </div>
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
         </td>
+        <td>{{ problem.difficulty | round(1) }}</td>
         <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}negative{% endif %}">
           <a href="#"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
         </td>
