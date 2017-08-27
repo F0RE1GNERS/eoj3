@@ -59,6 +59,7 @@ class User(AbstractUser):
                                   format='JPEG',
                                   options={'quality': 60})
     polygon_enabled = models.BooleanField(default=False)
+    score = models.FloatField(default=0)
 
     def __str__(self):
         return self.username
@@ -74,3 +75,5 @@ class User(AbstractUser):
         else:
             return '<span class="no-magic">%s</span>' % name
 
+    class Meta:
+        ordering = ["-score"]

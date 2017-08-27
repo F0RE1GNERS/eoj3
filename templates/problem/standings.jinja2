@@ -1,0 +1,31 @@
+{% extends 'problem/base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname %}
+
+{% block title %}Millionaires - {% endblock %}
+
+{% block problem_content %}
+
+  <p>Your standing: {{ my_rank }}</p>
+
+  <table class="ui compact celled table">
+    <thead>
+      <tr class="ui center aligned">
+        <th class="one wide">#</th>
+        <th>Who</th>
+        <th class="two wide">EMB</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rank in rank_list %}
+        <tr class="ui center aligned">
+          <td scope="row">{{ page_obj.start_index() + loop.index0 }}</td>
+          <td>{{ clickable_nickname(rank, tiny=True) }}</td>
+          <td>{{ rank.score | round(1) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+{% endblock %}

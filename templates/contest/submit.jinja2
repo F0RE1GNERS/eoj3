@@ -5,7 +5,11 @@
 
 {% block contest_content %}
 
-  {{ submit_view() }}
+  {% if contest.status != 0 %}
+    {{ submit_view(hide_submit=True) }}
+  {% else %}
+    {{ submit_view() }}
+  {% endif %}
 
 {% endblock %}
 

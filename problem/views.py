@@ -9,6 +9,7 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
 from tagging.models import Tag, TaggedItem, ContentType
 
+from account.models import User
 from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission
@@ -259,4 +260,18 @@ class ProblemSubmissionView(TemplateView):
             submission_block = 'You are not authorized to view this submission.'
         data['submission_block'] = submission_block
         data['problem'] = submission.problem
+        return data
+
+
+class Millionaires(ListView):
+    template_name = 'problem/standings.jinja2'
+    paginate_by = 100
+    context_object_name = 'rank_list'
+
+    def get_queryset(self):
+        return User.objects.only("username", "magic", "score").filter(score__gt=0)
+
+    def get_context_data(self, **kwargs):
+        data = super(Millionaires, self).get_context_data(**kwargs)
+        data['my_rank'] = User.objects.filter(score__gte=self.request.user.score).count()
         return data
