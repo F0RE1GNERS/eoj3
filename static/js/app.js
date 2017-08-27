@@ -14,6 +14,7 @@ $('.message .close')
   })
 ;
 $(".ui.file.input").inputFile();
+$('.ui.tabular.menu .item').tab();
 
 // captcha
 $('.captcha-refresh, img.captcha').click(function(){

@@ -4,5 +4,4 @@
 {% block contest_content %}
   <h2 class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</h2>
   {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
-  {% include 'components/math_support.jinja2' %}
 {% endblock %}

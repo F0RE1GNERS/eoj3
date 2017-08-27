@@ -155,8 +155,7 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
-    if problem.interactor:
-        config["interactive"] = True
+    config["interactive"] = bool(problem.interactor)
     config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",

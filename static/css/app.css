@@ -57274,6 +57274,12 @@ a.user {
 .codehilite .il {
   color: #009999;
 }
+.CodeMirror-fullscreen {
+  z-index: 109 !important;
+}
+.editor-toolbar.fullscreen {
+  z-index: 109 !important;
+}
 .typed-cursor {
   opacity: 1;
   -webkit-animation: blink 0.7s infinite;
