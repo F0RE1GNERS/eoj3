@@ -1,5 +1,5 @@
 {% load i18n %}
 {% spaceless %}
   {% if audio %}<a title="{% trans "Play CAPTCHA as audio file" %}" href="{{audio}}">{% endif %}
-  <img src="{{image}}" style="cursor:pointer;" href="#" alt="captcha" class="captcha captcha-refresh" height="34px" width="75px"/>{% if audio %}</a>{% endif %}
+  <img src="{{image}}" style="cursor:pointer;" href="#" alt="captcha" class="captcha captcha-refresh" height="34px"/>{% if audio %}</a>{% endif %}
 {% endspaceless %}
