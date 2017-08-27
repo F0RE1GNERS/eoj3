@@ -22,10 +22,14 @@
   cursor: pointer;
 }
 
-@monospace-font-family: "Courier New", "Courier", monospace;
+@monospace-font-family: "Consolas", "Courier New", "Courier", monospace;
 
 textarea[name="code"] {
   font-family: @monospace-font-family;
+}
+
+code, kbd, pre, samp {
+  font-family: @monospace-font-family !important;
 }
 
 .click-able.label.icon {

@@ -56629,7 +56629,13 @@ body.pushable > .pusher {
   cursor: pointer;
 }
 textarea[name="code"] {
-  font-family: "Courier New", "Courier", monospace;
+  font-family: "Consolas", "Courier New", "Courier", monospace;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: "Consolas", "Courier New", "Courier", monospace !important;
 }
 .click-able.label.icon {
   margin: 0 .25rem 0 0;

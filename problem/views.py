@@ -77,7 +77,7 @@ class ProblemList(ListView):
 
         # Get tags
         tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
-                            .filter(object_id__in=current_problem_set))
+                            .filter(object_id__in=current_problem_set).select_related("tag"))
         for problem in data['problem_list']:
             items = list(filter(lambda x: x.object_id == problem.pk, tagged_items))
             if items:
