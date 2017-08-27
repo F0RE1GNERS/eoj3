@@ -6,7 +6,7 @@ from django.shortcuts import HttpResponse
 
 def convert(text):
     md = markdown.Markdown(
-        extensions=[mdx_downheader.makeExtension(levels=3),
+        extensions=[mdx_downheader.makeExtension(levels=2),
                     mdx_math.makeExtension(enable_dollar_delimiter=True, add_preview=False),
                     'fenced_code',
                     'codehilite',

@@ -7,8 +7,8 @@
 
 {% block content %}
 
-  {{ clickable_nickname(blog.author, tiny=True) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
-  {% if is_privileged %}, <a href="{{ url('blog:update', blog.pk) }}">edit</a>{% endif %}
+  <p>{{ clickable_nickname(blog.author, tiny=True) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
+  {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
   {{ blog.text | markdown | safer | safe }}
 
 

@@ -4,6 +4,7 @@ if (textareaMarkdown.length > 0) {
   textareaMarkdown.each(function () {
     new SimpleMDE({
       element: $(this)[0],
+      forceSync: true,
       previewRender: _.debounce(function (plainText, preview) {
         $.post("/api/markdown/", {
           csrfmiddlewaretoken: Cookies.get('csrftoken'),
