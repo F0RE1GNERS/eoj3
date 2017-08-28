@@ -67,7 +67,7 @@ class BlogView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
-        context['comment_list'] = self.blog.comment_set.all()
+        context['comment_list'] = self.blog.comment_set.select_related('author').all()
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
         for comment in context['comment_list']:

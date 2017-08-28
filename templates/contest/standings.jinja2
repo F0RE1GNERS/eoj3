@@ -1,4 +1,5 @@
 {% extends 'base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname %}
 
 {% block title %}Standings - {{ contest.title }} - {% endblock %}
 
@@ -42,7 +43,7 @@
       {% for rank in rank_list %}
         <tr class="ui center aligned">
           <td scope="row">{% if rank.rank %}{{ rank.rank }}{% endif %}</td>
-          <td class="ui left aligned">{% if rank.user.star %}* {% endif %}{{ rank.user.user.get_username_display() | safe }}
+          <td class="ui left aligned">{% if rank.user.star %}* {% endif %}{{ clickable_nickname(rank.user.user) }}
             <br>{% if rank.comment %}<span class="text-muted text-small">{{ rank.comment }}</span>{% endif %}</td>
           <td>{{ rank.score }}</td>
           {% if contest.penalty_counts %}

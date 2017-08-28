@@ -175,8 +175,8 @@ class StatusList(ListView):
 
     def get_queryset(self):
         queryset = self.get_selected_from().select_related('problem', 'author').\
-            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__magic', 'problem_id',
-                 'problem__title', 'lang', 'status', 'status_time')
+            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
+                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time')
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
