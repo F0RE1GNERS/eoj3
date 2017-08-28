@@ -75,7 +75,8 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
     def test_func(self):
         if not self.request.user.is_authenticated:
             return False
-        if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(id=self.request.user.id).exists():
+        if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(
+                id=self.request.user.id).exists():
             return False
         return super(PolygonContestMixin, self).test_func()
 
@@ -86,7 +87,6 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
 
 
 class ContestEdit(PolygonContestMixin, UpdateView):
-
     form_class = ContestEditForm
     template_name = 'polygon/contest_edit.jinja2'
     queryset = Contest.objects.all()
@@ -104,7 +104,6 @@ class ContestEdit(PolygonContestMixin, UpdateView):
 
 
 class ContestCreate(PolygonBaseMixin, View):
-
     def post(self, request):
         """
         It is actually "repository create"
@@ -118,7 +117,6 @@ class ContestCreate(PolygonBaseMixin, View):
 
 
 class ContestToggleVisible(PolygonContestMixin, View):
-
     def post(self, request, pk):
         self.contest.visible = request.POST.get('checked') == 'true'
         self.contest.save(update_fields=['visible'])
@@ -126,7 +124,6 @@ class ContestToggleVisible(PolygonContestMixin, View):
 
 
 class ContestAccessManage(PolygonContestMixin, View):
-
     def post(self, request, pk):
         upload_permission_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
         for record in self.contest.manager.all():
@@ -140,7 +137,6 @@ class ContestAccessManage(PolygonContestMixin, View):
 
 
 class ContestProblemManage(PolygonContestMixin, TemplateView):
-
     template_name = 'polygon/contest_problem.jinja2'
 
     def get(self, request, *args, **kwargs):
@@ -167,7 +163,6 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
 
 
 class ContestProblemReorder(PolygonContestMixin, TemplateView):
-
     def post(self, request, *args, **kwargs):
         data = {k['pid']: index for (index, k) in enumerate(json.loads(request.POST['orders']))}
         reorder_contest_problem_identifiers(self.contest, data)
@@ -175,7 +170,6 @@ class ContestProblemReorder(PolygonContestMixin, TemplateView):
 
 
 class ContestProblemCreate(PolygonContestMixin, View):
-
     def post(self, request, pk):
         def get_next_identifier(identifiers):
             from collections import deque
@@ -199,7 +193,6 @@ class ContestProblemCreate(PolygonContestMixin, View):
 
 
 class ContestProblemDelete(PolygonContestMixin, View):
-
     def post(self, request, pk):
         self.contest.contestproblem_set.filter(id=request.POST['pid']).delete()
         reorder_contest_problem_identifiers(self.contest)
@@ -207,7 +200,6 @@ class ContestProblemDelete(PolygonContestMixin, View):
 
 
 class ContestProblemChangeWeight(PolygonContestMixin, View):
-
     def post(self, request, pk):
         problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
         problem.weight = request.POST['weight']
@@ -231,15 +223,9 @@ class ContestInvitationList(PolygonContestMixin, ListView):
 
 class ContestInvitationCreate(PolygonContestMixin, View):
     @staticmethod
-    def _create(contest, comment):
-        while True:
-            try:
-                ContestInvitation.objects.create(contest=contest, comment=comment,
-                                                 code=shortuuid.ShortUUID().random(12))
-                break
-            except IntegrityError:
-                import sys
-                print('Invitation code collision just happened', file=sys.stderr)
+    def _create(contest, comments):
+        ContestInvitation.objects.bulk_create(
+            [ContestInvitation(contest, shortuuid.ShortUUID().random(12), comment) for comment in comments])
 
     def post(self, request, pk):
         try:
@@ -247,8 +233,7 @@ class ContestInvitationCreate(PolygonContestMixin, View):
         except KeyError:
             comments = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['list'].split('\n'))))
         contest = Contest.objects.get(pk=pk)
-        for comment in comments:
-            self._create(contest, comment)
+        self._create(contest, comments)
         return HttpResponseRedirect(request.POST['next'])
 
 
@@ -308,7 +293,6 @@ class ContestParticipantStarToggle(PolygonContestMixin, View):
 
 
 class ContestParticipantCreate(PolygonContestMixin, View):
-
     @staticmethod
     def _get_username(contest_id, user_id):
         return "c%s#%04d" % (str(contest_id), int(user_id))
@@ -347,7 +331,6 @@ class ContestParticipantCreate(PolygonContestMixin, View):
 
 
 class ContestClarificationAnswer(PolygonContestMixin, View):
-
     def post(self, request, pk, clarification_id):
         clarification = ContestClarification.objects.get(pk=clarification_id)
         clarification.answer = request.POST['answer']
@@ -356,7 +339,6 @@ class ContestClarificationAnswer(PolygonContestMixin, View):
 
 
 class RejudgeContestSubmission(PolygonContestMixin, View):
-
     def post(self, request, pk, sid):
         submission = get_object_or_404(Submission, pk=sid)
         rejudge_submission(submission)
@@ -364,19 +346,16 @@ class RejudgeContestSubmission(PolygonContestMixin, View):
 
 
 class RejudgeContest(PolygonContestMixin, View):
-
     def post(self, request, pk):
         rejudge_all_submission_on_contest(self.contest)
         return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
 
 
 class RejudgeContestProblemSubmission(PolygonContestMixin, View):
-
     def post(self, request, pk, pid):
         rejudge_all_submission_on_contest_problem(self.contest, get_object_or_404(Problem, pk=pid))
         return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
 
 
 class ContestStatusBackend(PolygonContestMixin, ContestStatus):
-
     template_name = 'polygon/contest_status.jinja2'

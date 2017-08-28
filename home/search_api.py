@@ -14,25 +14,26 @@ from operator import or_
 
 def query_user(kw):
     results = list()
-    if len(kw) >= 3:
+    if kw and len(kw) >= 3:
         for user in User.objects.filter(username__icontains=kw).all().only('username')[:5]:
             results.append(dict(title=user.username, url=reverse('generic', kwargs=dict(name=user.username))))
     return dict(name='User', results=results)
 
 
 def get_problem_q_object(kw, all=False, managing=None):
-    q_list = list()
-    if len(kw) >= 3:
-        q_list.append(Q(title__icontains=kw))
-    if kw.isdigit():
-        q_list.append(Q(pk__exact=kw))
-    if q_list:
-        q = reduce(or_, q_list)
-        if not all:
-            q &= Q(visible=True)
-        if managing:
-            q |= Q(problemmanagement__user=managing)
-        return q
+    if kw:
+        q_list = list()
+        if len(kw) >= 2:
+            q_list.append(Q(title__icontains=kw))
+        if kw.isdigit():
+            q_list.append(Q(pk__exact=kw))
+        if q_list:
+            q = reduce(or_, q_list)
+            if not all:
+                q &= Q(visible=True)
+            if managing:
+                q |= Q(problemmanagement__user=managing)
+            return q
     return None
 
 

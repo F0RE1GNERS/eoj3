@@ -1,9 +1,7 @@
-var textareaMarkdown = $("textarea.markdown");
-
-if (textareaMarkdown.length > 0) {
-  textareaMarkdown.each(function () {
+$.fn.simpleMDE = function () {
+  $(this).each(function () {
     new SimpleMDE({
-      element: $(this)[0],
+      element: this,
       forceSync: true,
       previewRender: _.debounce(function (plainText, preview) {
         $.post("/api/markdown/", {
@@ -16,6 +14,8 @@ if (textareaMarkdown.length > 0) {
         return "Loading...";
       }, 1000),
       spellChecker: false
-    })
+    });
   });
-}
+};
+
+$("textarea.markdown").simpleMDE();

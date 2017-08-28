@@ -101,9 +101,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 return True
             return False
         else:
-            submission.status = SubmissionStatus.SYSTEM_ERROR
+            submission.status = submission.status_private = SubmissionStatus.SYSTEM_ERROR
             submission.status_message = data['message']
-            submission.save(update_fields=['status', 'status_message'])
+            submission.save(update_fields=['status', 'status_message', 'status_private'])
             return True
 
     try:

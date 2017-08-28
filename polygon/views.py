@@ -69,7 +69,6 @@ class PolygonBaseMixin(UserPassesTestMixin):
 
 class SessionList(PolygonBaseMixin, ListView):
     template_name = 'polygon/session_list.jinja2'
-    paginate_by = 20
     context_object_name = 'problem_manage_list'
 
     def get_queryset(self):

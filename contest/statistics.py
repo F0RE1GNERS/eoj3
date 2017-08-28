@@ -93,7 +93,8 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
             d['first_blood'] = True
 
     for v in ans.values():
-        v.update(penalty=sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'], v['detail'].values())),
+        v.update(penalty=sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'],
+                                 filter(lambda x: x['solved'], v['detail'].values()))),
                  score=sum(map(lambda x: x['score'], v['detail'].values())))
     return ans
 
@@ -125,7 +126,8 @@ def get_all_contest_participants_detail(contest: Contest, users=None, privilege=
             ans[user] = cache_res[cache_name]
     if second_attempt:
         ans2 = recalculate_for_participants(contest, second_attempt, privilege)
-        cache.set_many({cache_template.format(contest=contest.pk, user=user_id): val for user_id, val in ans2.items()}, timeout * uniform(0.8, 1))
+        cache.set_many({cache_template.format(contest=contest.pk, user=user_id): val for user_id, val in ans2.items()},
+                       timeout * uniform(0.8, 1))
         ans.update(ans2)
     return ans
 
