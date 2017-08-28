@@ -1,20 +1,8 @@
 from django import forms
+
 from contest.models import Contest
-from django.utils import timezone
 from utils.language import LANG_CHOICE
-
-
-class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
-
-    def _split_comma(self, value):
-        return list(filter(lambda u: u, map(lambda t: t.strip(), value.split(','))))
-
-    def to_python(self, value):
-        if ',' in value:
-            return self._split_comma(value)
-        if isinstance(value, (tuple, list)):
-            return self._split_comma(value[0])
-        return super(CommaSeparatedMultipleChoiceField, self).to_python(value)
+from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 
 
 class ContestEditForm(forms.ModelForm):

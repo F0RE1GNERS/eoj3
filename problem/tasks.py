@@ -7,6 +7,7 @@ from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
 from submission.models import Submission, SubmissionStatus
+from submission.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
 from .models import Problem, SpecialProgram
 from .statistics import get_problem_difficulty
@@ -85,6 +86,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
+                invalidate_user(submission.author_id, submission.contest_id)
 
                 if not submission.contest_id and submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward

@@ -46,6 +46,14 @@ def get_attempted_problem_list(user_id, contest_id=0):
 
 
 def invalidate_user(user_id, contest_id=0):
+    cache.delete_many([USER_TOTAL_COUNT.format(user=user_id, contest=contest_id),
+                       USER_TOTAL_LIST.format(user=user_id, contest=contest_id),
+                       USER_AC_COUNT.format(user=user_id, contest=contest_id),
+                       USER_AC_DIFF_COUNT.format(user=user_id, contest=contest_id),
+                       USER_AC_LIST.format(user=user_id, contest=contest_id)])
+
+
+def update_user(user_id, contest_id=0):
     cache_time = 300 * uniform(0.6, 1)
     if contest_id > 0:
         cache_time = 60 * uniform(0.6, 1)

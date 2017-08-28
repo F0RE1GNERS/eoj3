@@ -57280,6 +57280,10 @@ a.user {
 .editor-toolbar.fullscreen {
   z-index: 109 !important;
 }
+.CodeMirror:not(.CodeMirror-fullscreen) {
+  min-height: 200px !important;
+  height: 300px !important;
+}
 .typed-cursor {
   opacity: 1;
   -webkit-animation: blink 0.7s infinite;
