@@ -14,7 +14,7 @@ USER_AC_LIST = 'u{user}_c{contest}_ac_list'
 def _get_or_invalidate(user_id, contest_id, cache_name):
     t = cache.get(cache_name)
     if t is None:
-        invalidate_user(user_id, contest_id)
+        update_user(user_id, contest_id)
         return cache.get(cache_name)
     else:
         return t
