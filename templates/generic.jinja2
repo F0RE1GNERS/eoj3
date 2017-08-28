@@ -9,7 +9,7 @@
 {% endblock %}
 {% block title %}Profile - {% endblock %}
 
-{% block page_header %}{{ profile.username }}{% endblock %}
+{% block page_header %}{{ profile.get_username_display() }}{% endblock %}
 
 {% block content %}
 
