@@ -8,8 +8,7 @@ from .contest import (
 )
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
-    ProblemMeta, ProblemPreview, ProblemStatus, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
-    SessionCreateStatement, SessionDeleteStatement, SessionGetStatementRaw, SessionUpdateStatement,
+    ProblemMeta, ProblemPreview, ProblemAccess, ProblemStatus, SessionEdit, SessionSaveMeta, SessionEditUpdateAPI,
     SessionUploadRegularFile, SessionDeleteRegularFile, SessionUpdateProgram, SessionReadProgram,
     SessionCreateProgram, SessionDeleteProgram, SessionCreateCaseManually, SessionUpdateOrders,
     SessionPreviewCase, SessionImportProgram, SessionUploadCase, SessionReformCase, SessionUpdateCasePoint,
@@ -20,7 +19,6 @@ from .views import (
     RejudgeProblem
 )
 
-
 urlpatterns = [
     url(r'^$', home_view, name='home'),
     url(r'^register/$', register_view, name='register'),
@@ -28,7 +26,8 @@ urlpatterns = [
     url(r'^session/create/$', SessionCreate.as_view(), name='session_create'),
     url(r'^session/pull/$', SessionPull.as_view(), name='session_pull'),
     url(r'^problem/(?P<pk>\d+)/preview/$', ProblemPreview.as_view(), name='problem_preview'),
-    url(r'^problem/(?P<pk>\d+)/meta/$', ProblemMeta.as_view(), name='problem_meta'),
+    url(r'^problem/(?P<pk>\d+)/edit/$', ProblemMeta.as_view(), name='problem_edit'),
+    url(r'^problem/(?P<pk>\d+)/access/$', ProblemAccess.as_view(), name='problem_access'),
     url(r'^problem/(?P<pk>\d+)/status/$', ProblemStatus.as_view(), name='problem_status'),
 
     url(r'^problem/(?P<pk>\d+)/rejudge/$', RejudgeProblem.as_view(), name='rejudge_problem'),
@@ -41,13 +40,9 @@ urlpatterns = [
 
     url(r'^session/(?P<sid>\d+)/meta/save/$', SessionSaveMeta.as_view(), name='session_save_meta'),
 
-    url(r'^session/(?P<sid>\d+)/statement/add/$', SessionCreateStatement.as_view(), name='session_create_statement'),
-    url(r'^session/(?P<sid>\d+)/statement/delete/$', SessionDeleteStatement.as_view(), name='session_delete_statement'),
-    url(r'^session/(?P<sid>\d+)/statement/get/$', SessionGetStatementRaw.as_view(), name='session_get_statement_raw'),
-    url(r'^session/(?P<sid>\d+)/statement/update/$', SessionUpdateStatement.as_view(), name='session_update_statement'),
-
     url(r'^session/(?P<sid>\d+)/files/add/$', SessionUploadRegularFile.as_view(), name='session_upload_regular_file'),
-    url(r'^session/(?P<sid>\d+)/files/delete/$', SessionDeleteRegularFile.as_view(), name='session_delete_regular_file'),
+    url(r'^session/(?P<sid>\d+)/files/delete/$', SessionDeleteRegularFile.as_view(),
+        name='session_delete_regular_file'),
 
     url(r'^session/(?P<sid>\d+)/program/add/$', SessionCreateProgram.as_view(), name='session_create_program_file'),
     url(r'^session/(?P<sid>\d+)/program/update/$', SessionUpdateProgram.as_view(), name='session_update_program_file'),
@@ -65,15 +60,22 @@ urlpatterns = [
     url(r'^session/(?P<sid>\d+)/case/output/$', SessionRunCaseOutput.as_view(), name='session_run_case_with_model'),
     url(r'^session/(?P<sid>\d+)/case/check/$', SessionCheckCaseOutput.as_view(), name='session_check_case_output'),
     url(r'^session/(?P<sid>\d+)/case/reform/all/$', SessionReformAllCase.as_view(), name='session_reform_all_case'),
-    url(r'^session/(?P<sid>\d+)/case/validate/all/$', SessionValidateAllCase.as_view(), name='session_validate_all_case'),
-    url(r'^session/(?P<sid>\d+)/case/output/all/$', SessionRunAllCaseOutput.as_view(), name='session_run_all_case_with_model'),
-    url(r'^session/(?P<sid>\d+)/case/check/all/$', SessionCheckAllCaseOutput.as_view(), name='session_check_all_case_output'),
+    url(r'^session/(?P<sid>\d+)/case/validate/all/$', SessionValidateAllCase.as_view(),
+        name='session_validate_all_case'),
+    url(r'^session/(?P<sid>\d+)/case/output/all/$', SessionRunAllCaseOutput.as_view(),
+        name='session_run_all_case_with_model'),
+    url(r'^session/(?P<sid>\d+)/case/check/all/$', SessionCheckAllCaseOutput.as_view(),
+        name='session_check_all_case_output'),
     url(r'^session/(?P<sid>\d+)/case/delete/$', SessionDeleteCase.as_view(), name='session_delete_case'),
-    url(r'^session/(?P<sid>\d+)/case/download/input/$', SessionDownloadInput.as_view(), name='session_download_case_input'),
-    url(r'^session/(?P<sid>\d+)/case/download/output/$', SessionDownloadOutput.as_view(), name='session_download_case_output'),
+    url(r'^session/(?P<sid>\d+)/case/download/input/$', SessionDownloadInput.as_view(),
+        name='session_download_case_input'),
+    url(r'^session/(?P<sid>\d+)/case/download/output/$', SessionDownloadOutput.as_view(),
+        name='session_download_case_output'),
     url(r'^session/(?P<sid>\d+)/case/generate/$', SessionGenerateInput.as_view(), name='session_generate_input'),
-    url(r'^session/(?P<sid>\d+)/case/stress/$', SessionAddCaseFromStress.as_view(), name='session_create_case_from_stress'),
-    url(r'^session/(?P<sid>\d+)/case/pretest/$', SessionTogglePretestCase.as_view(), name='session_toggle_pretest_case'),
+    url(r'^session/(?P<sid>\d+)/case/stress/$', SessionAddCaseFromStress.as_view(),
+        name='session_create_case_from_stress'),
+    url(r'^session/(?P<sid>\d+)/case/pretest/$', SessionTogglePretestCase.as_view(),
+        name='session_toggle_pretest_case'),
     url(r'^session/(?P<sid>\d+)/case/sample/$', SessionToggleSampleCase.as_view(), name='session_toggle_sample_case'),
 
     url(r'^contest/list/$', ContestList.as_view(), name='contest_list'),
@@ -86,12 +88,18 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/problems/reorder/$', ContestProblemReorder.as_view(), name='contest_problem_reorder'),
     url(r'^contest/(?P<pk>\d+)/problems/delete/', ContestProblemDelete.as_view(), name='contest_problem_delete'),
     url(r'^contest/(?P<pk>\d+)/invitation/$', ContestInvitationList.as_view(), name='contest_invitation'),
-    url(r'^contest/(?P<pk>\d+)/invitation/create/$', ContestInvitationCreate.as_view(), name='contest_invitation_create'),
-    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/delete/$', ContestInvitationDelete.as_view(), name='contest_invitation_delete'),
-    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', ContestInvitationAssign.as_view(), name='contest_invitation_assign'),
+    url(r'^contest/(?P<pk>\d+)/invitation/create/$', ContestInvitationCreate.as_view(),
+        name='contest_invitation_create'),
+    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/delete/$', ContestInvitationDelete.as_view(),
+        name='contest_invitation_delete'),
+    url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', ContestInvitationAssign.as_view(),
+        name='contest_invitation_assign'),
     url(r'^contest/(?P<pk>\d+)/participants/$', ContestParticipantList.as_view(), name='contest_participant'),
-    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$', ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
-    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', ContestParticipantStarToggle.as_view(), name='contest_participant_star_toggle'),
-    url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(), name='contest_participant_create'),
+    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$',
+        ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
+    url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', ContestParticipantStarToggle.as_view(),
+        name='contest_participant_star_toggle'),
+    url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(),
+        name='contest_participant_create'),
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

@@ -1,30 +1,11 @@
 {% extends 'polygon/base.jinja2' %}
 {% from 'components/search_user.jinja2' import user_search_multiple %}
 
-{% block title %}Problem Meta - {% endblock %}
+{% block title %}Problem Edit - {% endblock %}
 
 {% block content %}
   {% include 'polygon/components/problem_header.jinja2' %}
 
-  <form class="ui form" method="POST">
-    {% csrf_token %}
-
-    <h3 class="ui header">Access</h3>
-    <div class="field">
-      <label>They have admin clearance:</label>
-      {{ user_search_multiple(name='admin', extra_class='disabled', exist=admin_list) }}
-    </div>
-    <div class="field">
-      <label>They have write access:</label>
-      {{ user_search_multiple(name='write', exist=write_list) }}
-    </div>
-    <div class="field">
-      <label>They have read access:</label>
-      {{ user_search_multiple(name='read', exist=read_list) }}
-    </div>
-    <div class="field">
-      <button type="submit" class="ui button positive">Save</button>
-    </div>
-  </form>
+  {% include 'components/form.jinja2' %}
 
 {% endblock %}
