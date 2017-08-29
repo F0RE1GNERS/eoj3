@@ -9,5 +9,8 @@ class BlogEditForm(forms.ModelForm):
         error_messages = {
         }
         help_texts = {
-            'text': 'Markdown and MathJax are supported. Use \\( and \\) for formulas.'
+            'text': 'Markdown and MathJax are supported. Use $e^x$ for formulas.'
+        }
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'markdown'})
         }

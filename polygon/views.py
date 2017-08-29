@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import PermissionDenied
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import render, redirect, reverse, get_object_or_404, HttpResponse
-from django.views.generic import ListView, View, TemplateView
+from django.views.generic import ListView, View, TemplateView, UpdateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
 from account.permissions import is_admin_or_root
@@ -21,13 +21,14 @@ from utils.language import LANG_CHOICE
 from utils.upload import save_uploaded_file_to
 from .case import well_form_text
 from .models import EditSession, Run
+from .forms import ProblemEditForm
 from .session import (
     init_session, pull_session, load_config, normal_regex_check, update_config, dump_config, load_volume,
     load_statement_file_list, create_statement_file, delete_statement_file, read_statement_file, write_statement_file,
     statement_file_exists, load_regular_file_list, load_program_file_list, program_file_exists, get_config_update_time,
     read_program_file, save_program_file, delete_program_file, save_case, get_case_metadata, reorder_case, preview_case,
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case,
-    get_test_file_path, generate_input, stress, push_session
+    get_test_file_path, generate_input, stress, push_session, STATEMENT_TYPE_LIST
 )
 from .rejudge import rejudge_submission, rejudge_all_submission_on_problem
 
@@ -69,7 +70,6 @@ class PolygonBaseMixin(UserPassesTestMixin):
 
 class SessionList(PolygonBaseMixin, ListView):
     template_name = 'polygon/session_list.jinja2'
-    paginate_by = 20
     context_object_name = 'problem_manage_list'
 
     def get_queryset(self):
@@ -130,13 +130,18 @@ class SessionPull(PolygonBaseMixin, View):
         return redirect(request.POST['next'])
 
 
-class ProblemMeta(PolygonBaseMixin, TemplateView):
+class ProblemMeta(PolygonBaseMixin, UpdateView):
 
     template_name = 'polygon/problem_meta.jinja2'
+    form_class = ProblemEditForm
+    queryset = Problem.objects.all()
 
     def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, **kwargs)
+        self.problem = Problem.objects.get(pk=self.kwargs.get('pk'))
         return super(ProblemMeta, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.problem
 
     def test_func(self):
         if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
@@ -146,6 +151,25 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemMeta, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        return data
+
+
+class ProblemAccess(PolygonBaseMixin, TemplateView):
+    template_name = 'polygon/problem_access.jinja2'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, **kwargs)
+        return super(ProblemAccess, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
+                self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
+            return super(ProblemAccess, self).test_func()
+        return False
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemAccess, self).get_context_data(**kwargs)
         data['problem'] = self.problem
         data['admin_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='a').select_related("user")))
         data['write_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='w').select_related("user")))
@@ -169,7 +193,7 @@ class ProblemMeta(PolygonBaseMixin, TemplateView):
                 record.save(update_fields=['permission'])
         for key, val in upload_permission_dict.items():
             self.problem.problemmanagement_set.create(user_id=key, permission=val)
-        return redirect(reverse('polygon:problem_meta', kwargs={'pk': pk}))
+        return redirect(reverse('polygon:problem_access', kwargs={'pk': pk}))
 
 
 class ProblemPreview(PolygonBaseMixin, TemplateView):
@@ -321,12 +345,6 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
         app_data['case_count'] = len(list(filter(lambda x: x.get('order'), app_data['case'].values())))
         app_data['pretest_count'] = len(list(filter(lambda x: x.get('pretest'), app_data['case'].values())))
         app_data['sample_count'] = len(list(filter(lambda x: x.get('sample'), app_data['case'].values())))
-        app_data['statement_file_list'] = load_statement_file_list(self.session)
-        app_data['statement_identifier'] = ['description', 'input', 'output', 'hint']
-        for dat in app_data['statement_file_list']:
-            for identifier in app_data['statement_identifier']:
-                if dat['filename'] == app_data[identifier]:
-                    dat['used'] = identifier
         app_data['volume_used'], app_data['volume_all'] = load_volume(self.session)
         app_data['regular_file_list'] = load_regular_file_list(self.session)
         for dat in app_data['regular_file_list']:
@@ -371,15 +389,13 @@ class SessionSaveMeta(BaseSessionPostMixin, View):
 
     def post(self, request, sid):
         param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator', 'model',
-                      'description', 'input', 'output', 'hint', 'title']
+
+                      'title']
         kw = {x: request.POST[x] for x in param_list}
         kw.update(interactive=request.POST.get('interactive') == 'on')
         for param in ['checker', 'interactor', 'validator', 'model']:
             if kw[param] and not program_file_exists(self.session, kw[param]):
                 raise ValueError("Program file does not exist")
-        for param in ['description', 'input', 'output', 'hint']:
-            if kw[param] and not statement_file_exists(self.session, kw[param]):
-                raise ValueError("Statement file does not exist")
         self.config = update_config(self.config, **kw)
         dump_config(self.session, self.config)
         return response_ok()

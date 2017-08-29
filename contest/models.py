@@ -203,6 +203,13 @@ class ContestParticipant(models.Model):
 
 
 class ContestInvitation(models.Model):
+
+    def __init__(self, contest, code, comment):
+        super(ContestInvitation, self).__init__()
+        self.contest = contest
+        self.code = code
+        self.comment = comment
+
     contest = models.ForeignKey(Contest)
     star = models.BooleanField(default=False)
     code = models.CharField(max_length=24)

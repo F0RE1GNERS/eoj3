@@ -7,8 +7,8 @@
 
 {% block content %}
 
-  {{ clickable_nickname(blog.author, tiny=True) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
-  {% if is_privileged %}, <a href="{{ url('blog:update', blog.pk) }}">edit</a>{% endif %}
+  <p>{{ clickable_nickname(blog.author, tiny=True) }} last edited at {{ blog.edit_time | date('Y-m-d H:i:s') }}
+  {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
   {{ blog.text | markdown | safer | safe }}
 
 
@@ -41,12 +41,11 @@
         <div class="field">
           <textarea id="comment-text" name="text" placeholder="Put down your comment here."></textarea>
         </div>
-        <div class="ui primary submit labeled icon button">
+        <button class="ui primary submit labeled icon button" type="submit">
           <i class="icon edit"></i> Add Comment
-        </div>
+        </button>
       </form>
     {% endif %}
   </div>
 
-  {% include 'components/math_support.jinja2' %}
 {% endblock %}

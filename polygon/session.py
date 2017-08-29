@@ -155,8 +155,7 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
-    if problem.interactor:
-        config["interactive"] = True
+    config["interactive"] = bool(problem.interactor)
     config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",
@@ -201,10 +200,6 @@ def push_session(session):
     problem.time_limit = config['time_limit']
     problem.memory_limit = config['memory_limit']
     problem.source = config['source']
-    problem.description = read_statement_file(session, config['description'])
-    problem.input = read_statement_file(session, config['input'])
-    problem.output = read_statement_file(session, config['output'])
-    problem.hint = read_statement_file(session, config['hint'])
     for type in ['checker', 'validator', 'interactor']:
         file = config[type]
         if type == 'interactor' and not config['interactive']:
@@ -292,6 +287,15 @@ def write_statement_file(session, filename, text):
     filepath = _get_statement_file_path(session, filename)
     with open(filepath, 'w') as fs:
         fs.write(text)
+
+
+def update_statement(session, description, input, output, hint):
+    config = load_config(session)
+    description_file, input_file, output_file, hint_file = map(lambda x: config.get, STATEMENT_TYPE_LIST)
+    write_statement_file(session, description_file, description)
+    write_statement_file(session, input_file, input)
+    write_statement_file(session, output_file, output)
+    write_statement_file(session, hint_file, hint)
 
 
 def statement_file_exists(session, filename):

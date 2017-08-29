@@ -10,7 +10,6 @@
 
     {% include 'polygon/components/problem_header.jinja2' %}
     {{ problem_view(problem.title, False) }}
-    {% include 'components/math_support.jinja2' %}
 
     <h3 class="ui header" style="margin-top: 4em;">Submit your code here</h3>
     {{ submit_view(submit_action=url('problem:submit', problem.id)) }}

@@ -65,15 +65,7 @@ class User(AbstractUser):
         return self.username
 
     def get_username_display(self):
-        if self.nickname:
-            name = self.nickname
-        else:
-            name = self.username
-        name = html.escape(name)
-        if self.magic:
-            return '<span class="magic %s">%s</span>' % (self.magic, name)
-        else:
-            return '<span class="no-magic">%s</span>' % name
+        return html.escape(self.nickname or self.username)
 
     class Meta:
         ordering = ["-score"]

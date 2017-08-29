@@ -11,7 +11,7 @@ PROBLEM_AC_USER_RATIO = 'p{problem}_c{contest}_ac_ratio_user'
 PROBLEM_AC_COUNT = 'p{problem}_c{contest}_ac_count'
 PROBLEM_ALL_COUNT = 'p{problem}_c{contest}_all_count'
 PROBLEM_AC_RATIO = 'p{problem}_c{contest}_ac_ratio'
-PROBLEM_DIFFICULTY = 'p{problem}_difficulty'
+PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
 
 
 def _get_or_invalidate(problem_id, contest_id, cache_name):
@@ -81,17 +81,17 @@ def get_problem_accept_ratio(problem_id, contest_id=0):
     return _get_or_invalidate(problem_id, contest_id, cache_name)
 
 
-def get_problem_difficulty(problem_id, contest_id=0):
-    cache_name = PROBLEM_DIFFICULTY.format(problem=problem_id, contest=contest_id)
-    return _get_or_invalidate(problem_id, contest_id, cache_name)
+def get_problem_difficulty(problem_id):
+    cache_name = PROBLEM_DIFFICULTY.format(problem=problem_id, contest=0)
+    return _get_or_invalidate(problem_id, 0, cache_name)
 
 
 def get_many_problem_accept_count(problem_ids, contest_id=0):
     return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_AC_USER_COUNT)
 
 
-def get_many_problem_difficulty(problem_ids, contest_id=0):
-    return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_DIFFICULTY)
+def get_many_problem_difficulty(problem_ids):
+    return _get_many_or_invalidate(problem_ids, 0, PROBLEM_DIFFICULTY)
 
 
 def invalidate_problems(problem_ids, contest_id=0):

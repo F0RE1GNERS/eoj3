@@ -36,6 +36,7 @@
     "npm-font-open-sans": "^1.0.3",
     "semantic-ui-calendar": "0.0.8",
     "semantic-ui-less": "github:ultmaster/Semantic-UI-LESS",
+    "simplemde": "^1.11.2",
     "sortablejs": "^1.6.0",
     "spectre.css": "^0.2.14",
     "typed.js": "^2.0.2",

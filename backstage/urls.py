@@ -5,7 +5,7 @@ from .base_views import Index
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
 from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
 from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
-from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemMeta, ProblemAccessAdd
+from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemMeta, ProblemAccessAdd, ProblemUpdate
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 
@@ -19,6 +19,7 @@ urlpatterns = [
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
     url(r'^problem/(?P<pk>\d+)/visible/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),
+    url(r'^problem/(?P<pk>\d+)/edit/$', ProblemUpdate.as_view(), name='problem_edit'),
     url(r'^problem/(?P<pk>\d+)/meta/$', ProblemMeta.as_view(), name='problem_meta'),
     url(r'^problem/(?P<pk>\d+)/access/add/$', ProblemAccessAdd.as_view(), name='problem_access_add'),
 

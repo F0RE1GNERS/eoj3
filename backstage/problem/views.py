@@ -7,10 +7,11 @@ from django.views.generic import TemplateView
 from django.views.generic import View
 from django.views.generic.list import ListView
 
+from .forms import ProblemEditForm
 from dispatcher.tasks import ProblemRejudgeThread
 from problem.models import Problem
 from submission.models import Submission
-from ..base_views import BaseBackstageMixin
+from ..base_views import BaseBackstageMixin, BaseUpdateView
 
 
 class ProblemMeta(BaseBackstageMixin, TemplateView):
@@ -41,6 +42,14 @@ class ProblemMeta(BaseBackstageMixin, TemplateView):
             self.problem.problemmanagement_set.create(user_id=key, permission='a')
         return redirect(reverse('backstage:problem_meta', kwargs={'pk': pk}))
 
+
+class ProblemUpdate(BaseUpdateView):
+    form_class = ProblemEditForm
+    queryset = Problem.objects.all()
+    template_name = 'backstage/problem/problem_edit.jinja2'
+
+    def post_update(self, instance, form):
+        instance.tags = form.cleaned_data['tags']
 
 
 class ProblemList(BaseBackstageMixin, ListView):

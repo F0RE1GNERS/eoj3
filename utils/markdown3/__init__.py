@@ -1,19 +1,21 @@
 import markdown
 from . import mdx_downheader
 from . import mdx_math
+from . import semantic
 from django.shortcuts import HttpResponse
 
 
 def convert(text):
     md = markdown.Markdown(
-        extensions=[mdx_downheader.makeExtension(levels=3),
+        extensions=[mdx_downheader.makeExtension(levels=2),
                     mdx_math.makeExtension(enable_dollar_delimiter=True, add_preview=False),
                     'fenced_code',
                     'codehilite',
                     'nl2br',
+                    'tables',
                     ]
     )
-    return md.convert(text)
+    return semantic.semantic_processor(md.convert(text))
 
 
 def markdown_convert_api(request):

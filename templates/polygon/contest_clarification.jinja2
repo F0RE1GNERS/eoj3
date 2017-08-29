@@ -1,0 +1,58 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}Contest Participants - {% endblock %}
+{% block content %}
+
+  {% include 'polygon/components/contest_header.jinja2' %}
+
+  {% include 'components/message.jinja2' %}
+
+  <div class="ui buttons">
+    <button class="ui button primary modal-link" data-target="#importNamelistModal">Import from namelist</button>
+    <a class="ui button" href="#">Download as Excel</a>
+  </div>
+
+  <table class="ui table center aligned">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Comment</th>
+        <th>Hidden</th>
+        <th>Star</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in participant_list %}
+        <tr>
+          <td>{{ participant.user.username }}</td>
+          <td>{{ participant.comment }}</td>
+          <td>{{ participant.hidden_comment }}</td>
+          <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
+          <td><a class="modal-link" data-url="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+  {% call modal(title="Comment a user", id="commentUser") %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>Comment</label>
+      <input id="comment" name="comment">
+    </div>
+  {% endcall %}
+
+  {% call modal(title="Paste your namelist", id="importNamelistModal", action=url('polygon:contest_participant_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>Namelist</label>
+      <textarea name="list" id="list" rows="7" placeholder="One record per line"></textarea>
+    </div>
+  {% endcall %}
+
+{% endblock %}

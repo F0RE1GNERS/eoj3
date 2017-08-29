@@ -28,7 +28,7 @@ class Problem(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
-    time_limit = models.IntegerField(default=1000)
+    time_limit = models.IntegerField(default=2000)
     memory_limit = models.IntegerField(default=256)
     checker = models.CharField(max_length=64, default=FCMP_FINGERPRINT)
     interactor = models.CharField(blank=True, max_length=64)

@@ -87,25 +87,11 @@ if ($("#session-edit-app").length > 0) {
       appData: {},
       apiRoute: "",
       errorMessage: "",
-      statementEditorData: {
-        fileName: "",
-        text: "",
-        converted: "",
-        contentUrl: ""
-      },
       caseList: [],
       unusedCaseList: [],
       previewCaseInput: "",
       previewCaseOutput: "",
       generateParam: ""
-    },
-    watch: {
-      statementEditorData: {
-        handler: function (newStatement) {
-          this.getStatementConverted();
-        },
-        deep: true
-      }
     },
     computed: {
       generateParamLength: function () {
@@ -186,31 +172,6 @@ if ($("#session-edit-app").length > 0) {
           })
           .modal('show');
       },
-      showStatementEditor: function (event) {
-        var button = $(event.currentTarget);
-        this.statementEditorData.fileName = button.data("filename");
-        var modal = $("#statement-editor");
-        var form = modal.find("form");
-        bindFormAndButtonData(form, button);
-        form.addClass("loading");
-        this.statementEditorData.contentUrl = button.data("get-content");
-        modal
-          .modal({
-            onApprove: function () {
-              form.submit();
-            },
-            closable: false
-          })
-          .modal('show');
-        // init editor data
-        $.get(this.statementEditorData.contentUrl,
-          {"filename": this.statementEditorData.fileName},
-          function (data) {
-            this.statementEditorData.text = data;
-            form.removeClass("loading");
-          }.bind(this)
-        );
-      },
       showUpdateCodeEditor: function (event) {
         var button = $(event.currentTarget);
         $.get(button.data("get-content"), {"filename": button.data("filename")},
@@ -220,17 +181,6 @@ if ($("#session-edit-app").length > 0) {
           }.bind(this));
         this.showDialogWithOneForm(event);
       },
-      getStatementConverted: _.debounce(
-        function () {
-          $.post("/api/markdown/", {
-            csrfmiddlewaretoken: Cookies.get('csrftoken'),
-            text: this.statementEditorData.text
-          }, function (data) {
-            this.statementEditorData.converted = data;
-          }.bind(this))
-        },
-        1000
-      ),
       postLink: function (event) {
         var data = { csrfmiddlewaretoken: Cookies.get('csrftoken') };
         var buttonData = $(event.currentTarget).data();

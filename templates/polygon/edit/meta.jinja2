@@ -41,53 +41,6 @@
 
       <div class="four fields">
         <div class="field">
-          <label>Description file</label>
-          <div class="ui selection fluid dropdown">
-            <input type="hidden" name="description" v-model="appData.description">
-            <i class="dropdown icon"></i>
-            <div class="text">[[ appData.description ]]</div>
-            <div class="menu">
-              <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Input file</label>
-          <div class="ui selection fluid dropdown">
-            <input type="hidden" name="input" v-model="appData.input">
-            <i class="dropdown icon"></i>
-            <div class="text">[[ appData.input ]]</div>
-            <div class="menu">
-              <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Output file</label>
-          <div class="ui selection fluid dropdown">
-            <input type="hidden" name="output" v-model="appData.output">
-            <i class="dropdown icon"></i>
-            <div class="text">[[ appData.output ]]</div>
-            <div class="menu">
-              <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Hint file</label>
-          <div class="ui selection fluid dropdown">
-            <input type="hidden" name="hint" v-model="appData.hint">
-            <i class="dropdown icon"></i>
-            <div class="text">[[ appData.hint ]]</div>
-            <div class="menu">
-              <div class="item" v-for="file in appData.statement_file_list" :key="file.filename">[[ file.filename ]]</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="four fields">
-        <div class="field">
           <label>Checker</label>
           <div class="ui selection fluid dropdown">
             <input type="hidden" name="checker" v-model="appData.checker">

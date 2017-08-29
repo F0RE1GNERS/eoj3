@@ -3,7 +3,7 @@
 {% macro blog_preview(blog) %}
   <div class="event">
     <div class="label">
-      <img src="{{ blog.author.avatar_small.url }}">
+      <a href="{{ url('generic', blog.author.username) }}"><img src="{{ blog.author.avatar_small.url }}"></a>
     </div>
     <div class="content">
       <div class="summary">

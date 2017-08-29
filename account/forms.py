@@ -101,6 +101,12 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError("Image size should not be larger than 2M.")
         return avatar
 
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+        if len(nickname) > 18:
+            raise forms.ValidationError("should be no longer than 18.")
+        return nickname
+
 
 class PreferenceForm(forms.ModelForm):
     class Meta:
