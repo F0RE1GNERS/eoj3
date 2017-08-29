@@ -1,18 +1,19 @@
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import View, TemplateView
-from django.views.generic.list import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
-from submission.statistics import get_accept_problem_count
+from django.views.generic import View, TemplateView
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import FormMixin
+from django.views.generic.list import ListView
+
 from account.models import User
 from account.permissions import is_admin_or_root
+from problem.models import Problem
+from submission.statistics import get_accept_problem_count
+from utils.authentication import test_site_open
+from utils.comment import CommentForm
 from .forms import BlogEditForm
 from .models import Blog, Comment
-from problem.models import Problem
-from utils.authentication import test_site_open
 
 
 class GenericView(UserPassesTestMixin, ListView):
@@ -48,8 +49,14 @@ class BlogGoto(View):
         return HttpResponseRedirect(reverse('generic', kwargs={'name': request.POST.get('name')}))
 
 
-class BlogView(UserPassesTestMixin, TemplateView):
+class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
+    form_class = CommentForm
     template_name = 'blog/blog_detail.jinja2'
+
+    def get_form_kwargs(self):
+        kw = super(BlogView, self).get_form_kwargs()
+        kw['target_object'] = self.blog
+        return kw
 
     def dispatch(self, request, *args, **kwargs):
         self.blog = get_object_or_404(Blog, pk=kwargs.get('pk'))
@@ -67,12 +74,7 @@ class BlogView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
-        context['comment_list'] = self.blog.comment_set.select_related('author').all()
-        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
-            context['is_privileged'] = True
-        for comment in context['comment_list']:
-            if context.get('is_privileged') or self.request.user == comment.author:
-                comment.is_privileged = True
+        context['action_path'] = reverse('comments-post-comment')
         return context
 
 

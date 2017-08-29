@@ -265,3 +265,5 @@ COMMENTS_XTD_APP_MODEL_OPTIONS = {
         'show_feedback': False,
     }
 }
+
+COMMENT_MAX_LENGTH = 3000
