@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^$', home_view, name='home'),
     url(r'^faq/$', faq_view, name='faq'),
     url(r'^problem/', include('problem.urls', namespace='problem')),
-    url(r'^submission/(?P<pk>\d+)/$', SubmissionView.as_view(), name='submission'),
+    # url(r'^submission/(?P<pk>\d+)/$', SubmissionView.as_view(), name='submission'),
     url(r'^submission/rendered/(?P<pk>\d+)/$', pure_submission_api),
     url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
     url(r'^contest/', include('contest.urls', namespace='contest')),

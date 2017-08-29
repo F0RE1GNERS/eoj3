@@ -1,20 +1,25 @@
-from django.db import transaction
-from account.models import User
-from .models import OldUser, OldSubmission, OldDiscussion
-from submission.models import Submission, SubmissionStatus
-from problem.statistics import get_problem_difficulty
-from problem.models import Problem
-from blog.models import Comment
 import threading
 from hashlib import sha1
 
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django_comments_xtd.models import XtdComment
+
+from account.models import User
+from problem.models import Problem
+from problem.statistics import get_problem_difficulty
+from submission.models import Submission, SubmissionStatus
+from .models import OldUser, OldSubmission, OldDiscussion
+
+problem_content_type = ContentType.objects.get_for_model(Problem)
+
 
 def verify_old_user(user, pwd):
-    return OldUser.objects.filter(username=user, password='*' + sha1(sha1(pwd.encode()).digest()).hexdigest().upper()).exists()
+    return OldUser.objects.filter(username=user,
+                                  password='*' + sha1(sha1(pwd.encode()).digest()).hexdigest().upper()).exists()
 
 
 class MigrationThread(threading.Thread):
-
     def __init__(self, username, request_user):
         super().__init__()
         self.username = username
@@ -43,11 +48,13 @@ class MigrationThread(threading.Thread):
                         author.save(update_fields=['score'])
             OldSubmission.objects.filter(author=self.username).all().delete()
 
-            for comment in OldDiscussion.objects.filter(author=self.username).order_by("create_time").all():
-                c = Comment.objects.create(text=comment.text,
-                                           author_id=self.new_user,
-                                           # create_time=comment.create_time,
-                                           problem_id=str(comment.problem))
-                c.create_time = comment.create_time
-                c.save(update_fields=["create_time"])
+            for c in OldDiscussion.objects.filter(author=self.username).order_by("create_time"):
+                XtdComment.objects.create(
+                    user=self.new_user,
+                    submit_date=c.create_time,
+                    object_pk=c.problem,
+                    comment=c.text,
+                    content_type=problem_content_type,
+                    site_id=1
+                )
             OldDiscussion.objects.filter(author=self.username).all().delete()
