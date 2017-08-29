@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls')),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
     url(r'^message/', include('message.urls', namespace='message')),
+    url(r'^comments/', include('django_comments_xtd.urls')),
 ]
 
 

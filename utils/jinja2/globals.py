@@ -1,10 +1,13 @@
-from django_jinja import library
+import os
+from datetime import datetime
+
 import jinja2
 import markupsafe
-import os
 from bs4 import BeautifulSoup
-
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django_comments_xtd.templatetags.comments_xtd import XtdComment
+from django_jinja import library
 
 
 @library.global_function(name='active')
@@ -65,6 +68,38 @@ def paginator(context, adjacent_pages=3):
         'page_numbers': page_numbers,
         'request': context['request'],
     }
+
+
+@library.global_function(name='render_comment_tree')
+@jinja2.contextfunction
+@library.render_with("comments/comment_tree.jinja2")
+def render_comment_tree(context, obj):
+    def sort(c, depth):
+        def key(x):
+            day = (datetime.now() - x['comment'].submit_date).seconds / 86400
+            vote = len(x['likedit_users']) - len(x['dislikedit_users']) * 3
+            return vote - day
+        c = sorted(c, key=key, reverse=True)
+        if depth:
+            for i in range(len(c)):
+                if c[i]['children']:
+                    c[i]['children'] = sort(c[i]['children'], depth - 1)
+        return c
+
+    ctype = ContentType.objects.get_for_model(obj)
+    queryset = XtdComment.objects.filter(content_type=ctype,
+                                         object_pk=obj.pk,
+                                         site__pk=settings.SITE_ID,
+                                         is_public=True)
+    comments = XtdComment.tree_from_queryset(
+        queryset,
+        with_flagging=True,
+        with_feedback=True,
+        user=context['user']
+    )
+    comments = sort(comments, depth=1)
+    return dict(comments=comments,
+                user=context['user'])
 
 
 @library.global_function(name='render_field')

@@ -117,6 +117,46 @@ $(".post-link")
   })
   .attr('href', 'javascript:void(0)');
 
+$(".like-link")
+  .on('click', function(e) {
+    function add (selector, value) {
+      selector.text(parseInt(selector.text()) + value);
+    }
+
+    var button = $(e.currentTarget);
+    var link = button.data('link');
+    $.post(link, {
+      'csrfmiddlewaretoken': Cookies.get('csrftoken'),
+      'comment': button.data('comment'),
+      'flag': button.data('flag')
+    }, function (data) {
+      var span = button.find('span');
+      if (span.length) {
+        if (data) {
+          button.find('i.thumbs').removeClass("outline");
+          add(span, 1);
+          var siblingSpan = button.siblings('.like-link');
+          if (!siblingSpan.find('i.thumbs').hasClass("outline")) {
+            siblingSpan.find('i.thumbs').addClass("outline");
+            add(siblingSpan.find('span'), -1);
+          }
+        } else {
+          button.find('i.thumbs').addClass("outline");
+          add(span, -1);
+        }
+      } else { location.reload(); }
+    });
+  });
+
+$(".comment .actions .reply").each(function () {
+  $(this).on('click', function () {
+    $(".ui.form input[name='reply_to']").val($(this).data("pk"));
+    $('html, body').animate({
+      scrollTop: $(".ui.form").offset().top - $("#navbar").height() - 15
+    }, 500);
+  }.bind(this));
+});
+
 $(".delete-link")
   .on('click', function (e) {
     var link = $(e.currentTarget).data('link');

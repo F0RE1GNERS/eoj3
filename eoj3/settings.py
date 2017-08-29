@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sites',
 
     'home',
     'account',
@@ -69,11 +70,14 @@ INSTALLED_APPS = [
     # third-party packages
     'widget_tweaks',
     'django_jinja',
+    'django_jinja.contrib._humanize',
     'tagging',
     'debug_toolbar',
     'captcha',
     'rest_framework',
-    'django_extensions'
+    'django_extensions',
+    'django_comments_xtd',
+    'django_comments',
 ]
 
 MIDDLEWARE = [
@@ -110,7 +114,8 @@ TEMPLATES = [
                 "myGlobal2": "utils.jinja2.globals.paginator",
                 "myGlobal3": "utils.jinja2.globals.render_field",
                 "myGlobal4": "utils.jinja2.globals.url_replace",
-                "myGloabl5": "utils.jinja2.globals.static_file_modify",
+                "myGlobal5": "utils.jinja2.globals.static_file_modify",
+                "myGlobal6": "utils.jinja2.globals.render_comment_tree",
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",
@@ -248,3 +253,15 @@ DEBUG_TOOLBAR_PANELS = [
 CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
 CAPTCHA_CHALLENGE_FUNCT = 'eoj3.captcha.random_math_challenge'
+
+COMMENTS_APP = 'django_comments_xtd'
+COMMENTS_XTD_MAX_THREAD_LEVEL = 2
+COMMENTS_XTD_CONFIRM_EMAIL = False
+
+COMMENTS_XTD_APP_MODEL_OPTIONS = {
+    'default': {
+        'allow_flagging': True,
+        'allow_feedback': True,
+        'show_feedback': False,
+    }
+}

@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
 from tagging.models import Tag, TaggedItem, ContentType
@@ -14,6 +14,7 @@ from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
 from .models import Problem
 from .permission import has_permission_for_problem_management
@@ -104,6 +105,25 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
         data['problem'] = self.problem
         return data
+
+
+class DiscussionView(ProblemDetailMixin, FormView):
+
+    template_name = 'problem/detail/discussion.jinja2'
+    form_class = CommentForm
+
+    def get_context_data(self, **kwargs):
+        data = super(DiscussionView, self).get_context_data(**kwargs)
+        data['action_path'] = reverse('comments-post-comment')
+        return data
+
+    def get_form_kwargs(self):
+        kw = super(DiscussionView, self).get_form_kwargs()
+        kw['target_object'] = self.problem
+        return kw
+
+    def get_success_url(self):
+        return self.request.path
 
 
 class ProblemView(ProblemDetailMixin, TemplateView):

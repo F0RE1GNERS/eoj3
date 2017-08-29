@@ -8,9 +8,9 @@
   {% do error_exists.append(1) %}
 {% endif %}
 
-<form class="ui form {% if error_exists %}error{% endif %}" action="{{ request.get_full_path() }}" method="post" enctype="multipart/form-data">
+<form class="ui form {% if error_exists %}error{% endif %}" action="{{ action_path or request.get_full_path() }}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-
+  <input type="hidden" name="next" value="{{ request.get_full_path() }}">
   <div class="ui error message">
     <div class="header">Should check something!</div>
     <ul class="list">
@@ -70,13 +70,18 @@
         {{ field.label_tag() }}
         {{ field }}
       {% else %}
-        {{ field.label_tag() }}
+        {% if field.field.widget.__class__.__name__ != 'HiddenInput' %}
+          {{ field.label_tag() }}
+        {% endif %}
         {{ render_field(field, {'placeholder': field.help_text}) }}
       {% endif %}
     </div>
   {% endfor %}
-
-  <button type="submit" class="ui positive button">Submit</button>
+  {% if submit_button %}
+    {{ submit_button }}
+  {% else %}
+    <button type="submit" class="ui positive button">Submit</button>
+  {% endif %}
 </form>
 
 <script>

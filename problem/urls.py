@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^$', v.ProblemList.as_view(), name='list'),
     url(r'^(?P<pk>\d+)/$', v.ProblemView.as_view(), name='detail'),
     url(r'^(?P<pk>\d+)/submit/$', v.ProblemSubmitView.as_view(), name='submit'),
+    url(r'^(?P<pk>\d+)/discussion/$', v.DiscussionView.as_view(), name='discussion'),
     url(r'^(?P<pk>\d+)/submission/(?P<sid>\d+)/api/$', v.ProblemPersonalSubmissionAPI.as_view(), name='submission_api'),
     url(r'^(?P<pk>\d+)/submission/(?P<sid>\d+)/$', v.ProblemSubmissionView.as_view(), name='submission'),
     url(r'^(?P<pk>\d+)/submission/(?P<sid>\d+)/$', v.ProblemSubmissionView.as_view(), name='rejudge_submission'),
