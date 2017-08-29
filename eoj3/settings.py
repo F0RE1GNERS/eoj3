@@ -36,6 +36,7 @@ except ImportError:
             }
         }
     }
+    SITE_ID = 1
 
 
 ALLOWED_HOSTS = ['*']

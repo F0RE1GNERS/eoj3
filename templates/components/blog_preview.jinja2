@@ -9,7 +9,7 @@
       <div class="summary">
         {{ clickable_nickname(blog.author, tiny=True) }} posted {{ blog.title }}
         <div class="date">
-          {{ blog.edit_time | date('Y-m-d H:i:s') }}
+          {{ blog.edit_time | naturaltime }}
         </div>
         <p></p>
       </div>

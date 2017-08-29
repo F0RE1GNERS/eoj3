@@ -1,3 +1,5 @@
+{% from 'components/nickname.jinja2' import clickable_nickname %}
+
 {% macro render_comments(comments) %}
   {% for item in comments %}
     {% if not item.comment.is_removed or item.children %}
@@ -9,13 +11,13 @@
          <img src="{{ item.comment.user.avatar_small.url }}">
         </a>
         <div class="content">
-          <a class="author" href="{{ url('generic', item.comment.user_name) }}">{{ item.comment.user.get_username_display() | safe }}</a>
+          {{ clickable_nickname(item.comment.user, tiny=True, additional_class="author") }}
           <div class="metadata">
             <span class="date">{{ item.comment.submit_date | naturaltime }}</span>
           </div>
           <div class="text">
             {% if item.comment.is_removed %}
-              This comment has been removed.
+              [Deleted]
             {% else %}
               {{ item.comment.comment | markdown | safer | safe }}
             {% endif %}
