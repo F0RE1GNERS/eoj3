@@ -75,6 +75,8 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
         context['action_path'] = reverse('comments-post-comment')
+        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
+            context['is_privileged'] = True
         return context
 
 
