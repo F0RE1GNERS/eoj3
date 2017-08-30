@@ -30,7 +30,7 @@
                   </div>
                   <div class="scrolling menu">
                     <div class="item" data-value="all">(All)</div>
-                    {% for contest_problem in contest_problem_list %}
+                    {% for contest_problem in contest.contest_problem_list %}
                     <div class="item" data-value="{{ contest_problem.identifier }}">{{ contest_problem }}</div>
                     {% endfor %}
                   </div>
@@ -116,10 +116,29 @@
 
   {% if rejudge %}
     {% call modal(title="Rejudge confirmation", id="rejudge-confirmation") %}
-      <p>Are you sure you want to rejudge all submissions?</p>
-      <form action="{{ url('polygon:rejudge_problem', problem.id) }}" method="POST">
+      {% if not contest %}
+        <p>Are you sure you want to rejudge all submissions?</p>
+        <form action="{{ url('polygon:rejudge_problem', problem.id) }}" method="POST">
+          {% csrf_token %}
+        </form>
+      {% else %}
+      <form class="ui form" action="{{ url('polygon:contest_rejudge', contest.id) }}" method="POST">
         {% csrf_token %}
+        <div class="field">
+          <div class="ui dropdown selection">
+            <input type="hidden" name="problem">
+            <div class="default text">Select Problem</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="item" data-value="all">(All)</div>
+              {% for contest_problem in contest.contest_problem_list %}
+              <div class="item" data-value="{{ contest_problem.problem_id }}">{{ contest_problem }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
       </form>
+      {% endif %}
     {% endcall %}
   {% endif %}
 

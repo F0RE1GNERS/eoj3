@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from .contest import (
     ContestList, ContestEdit, ContestToggleVisible, ContestCreate, ContestAccessManage, ContestProblemManage,
+    ContestProblemChangeWeight, ContestStatusBackend, RejudgeContestProblemSubmission,
     ContestProblemCreate, ContestProblemReorder, ContestProblemDelete, ContestInvitationAssign,
     ContestInvitationCreate, ContestInvitationList, ContestParticipantList, ContestParticipantCreate,
     ContestParticipantCommentUpdate, ContestParticipantStarToggle, ContestInvitationDelete
@@ -86,6 +87,7 @@ urlpatterns = [
     url(r'^contest/(?P<pk>\d+)/problems/$', ContestProblemManage.as_view(), name='contest_problem_manage'),
     url(r'^contest/(?P<pk>\d+)/problems/create/$', ContestProblemCreate.as_view(), name='contest_problem_create'),
     url(r'^contest/(?P<pk>\d+)/problems/reorder/$', ContestProblemReorder.as_view(), name='contest_problem_reorder'),
+    url(r'^contest/(?P<pk>\d+)/problems/readjust/$', ContestProblemChangeWeight.as_view(), name='contest_problem_readjust_point'),
     url(r'^contest/(?P<pk>\d+)/problems/delete/', ContestProblemDelete.as_view(), name='contest_problem_delete'),
     url(r'^contest/(?P<pk>\d+)/invitation/$', ContestInvitationList.as_view(), name='contest_invitation'),
     url(r'^contest/(?P<pk>\d+)/invitation/create/$', ContestInvitationCreate.as_view(),
@@ -101,5 +103,7 @@ urlpatterns = [
         name='contest_participant_star_toggle'),
     url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(),
         name='contest_participant_create'),
+    url(r'^contest/(?P<pk>\d+)/status/$', ContestStatusBackend.as_view(), name='contest_status'),
+    url(r'^contest/(?P<pk>\d+)/rejudge/$', RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),
 ]

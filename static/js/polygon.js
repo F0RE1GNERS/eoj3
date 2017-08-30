@@ -356,6 +356,21 @@ if ($("#contest-problem-app").length > 0) {
           this.updateConfig();
         }.bind(this), "json");
       },
+      readjustProblemPoint: function (e) {
+        var modal = $("#problem-point-modal");
+        var form = modal.find("form");
+        var problem = $(e.currentTarget).data("id");
+        modal.modal({
+          onApprove: function () {
+            $.post(form.attr("action"), this.addCsrfToken({
+              'pid': problem,
+              'weight': form.find("input[name='weight']").val()
+            }), function (data) {
+              this.updateConfig();
+            }.bind(this), "json");
+          }.bind(this)
+        }).modal('show');
+      },
       deleteConfirmation: function (e) {
         var button = $(e.currentTarget);
         $("#delete-confirmation")

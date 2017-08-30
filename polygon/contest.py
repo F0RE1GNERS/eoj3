@@ -5,6 +5,7 @@ import random
 
 from .forms import ContestEditForm
 from contest.models import Contest, ContestProblem
+from problem.views import StatusList
 from .views import PolygonBaseMixin, response_ok
 from django.views.generic.edit import UpdateView
 from django.views.generic import ListView, View, TemplateView
@@ -154,7 +155,7 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
             ]
             for problem in problems:
                 d = {k: getattr(problem.problem, k) for k in SUB_FIELDS}
-                d.update(pid=problem.id, identifier=problem.identifier)
+                d.update(pid=problem.id, identifier=problem.identifier, weight=problem.weight)
                 d.update({k: v(problem.problem_id, self.contest.id) for k, v in STATISTIC_FIELDS})
                 data.append(d)
             data.sort(key=lambda x: x['identifier'])
@@ -202,8 +203,9 @@ class ContestProblemDelete(PolygonContestMixin, View):
 class ContestProblemChangeWeight(PolygonContestMixin, View):
     def post(self, request, pk):
         problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
-        problem.weight = request.POST['weight']
+        problem.weight = int(request.POST['weight'])
         assert 0 < problem.weight <= 10000
+        problem.save(update_fields=['weight'])
         return response_ok()
 
 
@@ -338,24 +340,29 @@ class ContestClarificationAnswer(PolygonContestMixin, View):
         return HttpResponseRedirect(reverse('contest:clarification', kwargs={'cid': pk}))
 
 
-class RejudgeContestSubmission(PolygonContestMixin, View):
-    def post(self, request, pk, sid):
-        submission = get_object_or_404(Submission, pk=sid)
-        rejudge_submission(submission)
-        return HttpResponse()
-
-
-class RejudgeContest(PolygonContestMixin, View):
-    def post(self, request, pk):
-        rejudge_all_submission_on_contest(self.contest)
-        return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
-
-
 class RejudgeContestProblemSubmission(PolygonContestMixin, View):
-    def post(self, request, pk, pid):
-        rejudge_all_submission_on_contest_problem(self.contest, get_object_or_404(Problem, pk=pid))
+    def post(self, request, pk):
+        my_problem = request.POST['problem']
+        if my_problem == 'all':
+            rejudge_all_submission_on_contest(self.contest)
+        else:
+            rejudge_all_submission_on_contest_problem(self.contest, get_object_or_404(Problem, pk=my_problem))
         return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
 
 
-class ContestStatusBackend(PolygonContestMixin, ContestStatus):
+class ContestStatusBackend(PolygonContestMixin, StatusList):
+
     template_name = 'polygon/contest_status.jinja2'
+
+    def get_selected_from(self):
+        return self.contest.submission_set.all()
+
+    def reinterpret_problem_identifier(self, value):
+        return self.contest.contestproblem_set.get(identifier=value).problem_id
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestStatusBackend, self).get_context_data(**kwargs)
+        self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        return data
+
+

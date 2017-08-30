@@ -7,10 +7,10 @@
   {% include 'polygon/components/contest_header.jinja2' %}
 
   <div id="contest-problem-app" data-api-route="{{ url('polygon:contest_problem_manage', contest.id) }}?data=true">
-    <table class="ui celled table">
+    <table class="ui celled center aligned table">
       <thead>
         <tr>
-          <th colspan="7" class="right aligned">
+          <th colspan="8" class="right aligned">
             <div class="ui action input">
               <div class="ui multiple search selection dropdown problem-search"
                  data-query="{{ url('api:problem_search') }}?kw={query}&managing=true">
@@ -24,13 +24,14 @@
           </th>
         </tr>
         <tr>
-          <th class="collapsing center aligned">#</th>
-          <th class="collapsing center aligned">ID</th>
+          <th class="collapsing">#</th>
+          <th class="collapsing">ID</th>
           <th>Alias</th>
           <th>Title</th>
-          <th class="center aligned">Accepted</th>
-          <th class="center aligned">Solved</th>
-          <th class="collapsing center aligned">Edit</th>
+          <th>Weight</th>
+          <th>Accepted</th>
+          <th>Solved</th>
+          <th class="collapsing">Edit</th>
         </tr>
       </thead>
       <tbody is="draggable" v-model="appData" element="tbody">
@@ -39,18 +40,30 @@
           <td class="collapsing center aligned">[[ ele.id ]]</td>
           <td>[[ ele.alias ]]</td>
           <td>[[ ele.title ]]</td>
+          <td><a href="javascript:void(0)" @click="readjustProblemPoint" :data-id="ele.pid">[[ ele.weight ]]</a></td>
           <td class="center aligned">[[ ele.ac1 + ' / ' + ele.tot1 + ' (' + ele.ratio1 + '%)' ]]</td>
           <td class="center aligned">[[ ele.ac2 + ' / ' + ele.tot2 + ' (' + ele.ratio2 + '%)' ]]</td>
           <td class="center aligned"><a href="javascript:void(0)" @click="deleteConfirmation" data-url="{{ url('polygon:contest_problem_delete', contest.id) }}" :data-pid="ele.pid">Delete</a></td>
         </tr>
       </tbody>
       <tfoot>
-        <tr><th colspan="7" class="right aligned">
+        <tr><th colspan="8" class="right aligned">
           <button class="ui teal button" @click="reorderProblem" data-url="{{ url('polygon:contest_problem_reorder', contest.id) }}">Save orders</button>
         </th></tr>
       </tfoot>
     </table>
   </div>
+
+  {% call modal(title="Readjust problem point", id="problem-point-modal") %}
+    <form class="ui form" action="{{ url('polygon:contest_problem_readjust_point', contest.id) }}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="problem">
+      <div class="ui field">
+        <label>Worth points</label>
+        <input type="number" name="weight">
+      </div>
+    </form>
+  {% endcall %}
 
   {% include 'components/delete_confirmation.jinja2' %}
 
