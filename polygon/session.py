@@ -361,7 +361,7 @@ def save_program_file(session, filename, type, lang, code, raw_filename=None):
     with open(new_filepath, 'w') as new_fs:
         new_fs.write(code)
     config['program'].setdefault(filename, dict())
-    config['program'][filename].update(fingerprint=file_hash(new_filepath),
+    config['program'][filename].update(fingerprint=file_hash(new_filepath, lang),
                                        type=type, lang=lang)
     dump_config(session, config)
 

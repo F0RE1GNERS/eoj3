@@ -140,9 +140,13 @@
           </div>
           <i class="genderless icon"></i>
           <div class="content">
-            <span class="click-able header" data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
-                  @click="previewCase" :data-fingerprint="element.fingerprint">Case NaN</span>
-            {{ span_pretest_and_sample() }}
+            <div class="click-able header">
+              <span data-get-action="{{ url('polygon:session_preview_case', session.id) }}"
+                    @click="previewCase" :data-fingerprint="element.fingerprint">
+                Case NaN
+              </span>
+              {{ span_pretest_and_sample() }}
+            </div>
             <div class="description">{{ span_icon_status() }}</div>
           </div>
         </div>

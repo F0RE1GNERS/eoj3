@@ -5,6 +5,7 @@ if (window.hasOwnProperty("ace")) {
     'cpp98': 'c_cpp',
     'cpp': 'c_cpp',
     'cpp14': 'c_cpp',
+    'cc14': 'c_cpp',
     'csharp': 'csharp',
     'python2': 'python',
     'python': 'python',
@@ -28,12 +29,12 @@ if (window.hasOwnProperty("ace")) {
     'rust': 'rust',
     'r': 'r'
   };
-  var editor = ace.edit("editor");
-  var lang = $("#id_lang");
-  var code = $("#id_code");
   if (window.localStorage) {
     $('.ui.search.dropdown.language').dropdown('set selected', localStorage.getItem('lang') || 'cpp');
   }
+  var editor = ace.edit("editor");
+  var lang = $("#id_lang");
+  var code = $("#id_code");
   editor.getSession().setValue(code.val());
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/" + map[lang.val()]);
@@ -87,13 +88,56 @@ function updatePastSubmissions () {
 $("#problem-submit").click(function (event) {
   var button = $(event.currentTarget);
   var form = button.closest("form");
-  form.addClass("loading");
-  $.post(form.attr("action"), form.serialize(), function (data) {
-    updateSubmission(data.url);
-    form.removeClass("loading");
-    scrollToCurrentSubmission();
-  }, "json");
-  return false;
+  var fields_rule = {
+    code: {
+      identifier: 'code',
+      rules: [
+        {
+          type: 'minLength[6]',
+          prompt: 'Your code must have a length greater than 6.'
+        },
+        {
+          type: 'maxLength[65536]',
+          prompt: 'Your code must have a length less than 65536.'
+        }
+      ]
+    },
+    lang: {
+      identifier: 'lang',
+      rules: [
+        {
+          type: 'empty',
+          prompt: 'Please select a language.'
+        }
+      ]
+    }
+  };
+  if (form.find('input[name="problem"]').length > 0) {
+    fields_rule.problem = {
+      identifier: 'problem',
+      rules: [
+        {
+          type: 'empty',
+          prompt: 'Please select a problem.'
+        }
+      ]
+    }
+  }
+  form.form({
+    fields: fields_rule
+  });
+  if (form.form("is valid")) {
+    form.removeClass("error");
+    form.addClass("loading");
+    $.post(form.attr("action"), form.serialize(), function (data) {
+      updateSubmission(data.url);
+      form.removeClass("loading");
+      scrollToCurrentSubmission();
+    }, "json");
+    return false;
+  } else {
+    return true;
+  }
 });
 
 updatePastSubmissions();

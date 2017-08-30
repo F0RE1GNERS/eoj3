@@ -295,4 +295,3 @@ $.parseStatusDisplay = function () {
 };
 
 $.parseStatusDisplay();
-
