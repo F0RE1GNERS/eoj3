@@ -16,8 +16,7 @@ class ContestStandings(BaseContestMixin, ListView):
     context_object_name = 'rank_list'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.GET.get('privilege'):
-            self.view_hidden = True
+        self.view_hidden = bool(request.GET.get('privilege'))
         return super(ContestStandings, self).dispatch(request, *args, **kwargs)
 
     def get_paginate_by(self, queryset):
