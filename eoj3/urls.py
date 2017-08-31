@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.static import serve
+from django_comments.views.comments import post_comment
+import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
@@ -51,9 +53,17 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls')),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
     url(r'^message/', include('message.urls', namespace='message')),
-    url(r'^comments/', include('django_comments_xtd.urls')),
+    # url(r'^comments/', include('django_comments_xtd.urls')),
 ]
 
+
+urlpatterns += [
+    url(r'^post/$', post_comment, name='comments-post-comment'),
+    url(r'^api/feedback/$', comment_xtd_api.ToggleFeedbackFlag.as_view(),
+        name='comments-xtd-api-feedback'),
+    url(r'^api/flag/$', comment_xtd_api.CreateReportFlag.as_view(),
+        name='comments-xtd-api-flag'),
+]
 
 if DEBUG:
     import debug_toolbar

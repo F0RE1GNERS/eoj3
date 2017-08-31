@@ -125,31 +125,31 @@
 
 {% block script %}
   <script src="/static/js/countdown.js?v=20170825"></script>
-  <script>
-    var last_update_time = "";
-    function get_clarification() {
-      $.ajax({
-        url: "{{ url('contest:clarification_update', contest.pk) }}",
-        data: { 'time': last_update_time },
-        type: "GET",
-        complete: function(data, status) {
-          new_data = JSON.parse(data.responseText);
-          last_update_time = new_data['time'];
-          if (new_data['response'] != 'reject') {
-            if (new_data['response']) {
-              $("#stayNotificationBody").html(new_data['type'] + new_data['response']);
-              $("#stayNotification").modal('show');
-              $("#clarification-badge").show();
-            }
-            setTimeout(function () {
-              get_clarification();
-            }, 30000);
-          }
-        }
-      });
-    }
-    get_clarification();
-
-  </script>
+{#  <script>#}
+{#    var last_update_time = "";#}
+{#    function get_clarification() {#}
+{#      $.ajax({#}
+{#        url: "{{ url('contest:clarification_update', contest.pk) }}",#}
+{#        data: { 'time': last_update_time },#}
+{#        type: "GET",#}
+{#        complete: function(data, status) {#}
+{#          new_data = JSON.parse(data.responseText);#}
+{#          last_update_time = new_data['time'];#}
+{#          if (new_data['response'] != 'reject') {#}
+{#            if (new_data['response']) {#}
+{#              $("#stayNotificationBody").html(new_data['type'] + new_data['response']);#}
+{#              $("#stayNotification").modal('show');#}
+{#              $("#clarification-badge").show();#}
+{#            }#}
+{#            setTimeout(function () {#}
+{#              get_clarification();#}
+{#            }, 30000);#}
+{#          }#}
+{#        }#}
+{#      });#}
+{#    }#}
+{#    get_clarification();#}
+{##}
+{#  </script>#}
   {% block local_script %}{% endblock %}
 {% endblock %}

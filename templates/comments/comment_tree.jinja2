@@ -1,8 +1,9 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
 
-{% macro render_comments(comments) %}
+{% macro render_comments(comments, flag) %}
   {% for item in comments %}
-    {% if not item.comment.is_removed or item.children %}
+    {% if (not item.comment.is_removed or item.children) and
+    (flag or item.comment.content_type.name != 'contest' or user is admin or item.comment.user == user) %}
       {% if item.comment.level != 0 %}
         <div class="comments">
       {% endif %}
@@ -44,7 +45,7 @@
           {% endif %}
         </div>
         {% if item.children %}
-          {{ render_comments(item.children) }}
+          {{ render_comments(item.children, True) }}
         {% endif %}
       </div>
       {% if item.comment.level != 0 %}
@@ -55,7 +56,7 @@
 {% endmacro %}
 
 <div class="ui comments">
-  {{ render_comments(comments) }}
+  {{ render_comments(comments, False) }}
 </div>
 
 

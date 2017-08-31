@@ -2,15 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 
 from account.permissions import is_admin_or_root, is_volunteer
-from problem.models import Problem
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
-from submission.models import SubmissionStatus
+from utils.comment import CommentForm
 from .models import Contest, ContestProblem, ContestInvitation
 from .tasks import add_participant_with_invitation
 
@@ -73,6 +72,21 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['is_volunteer'] = self.volunteer
 
         return data
+
+
+class ClarificationView(BaseContestMixin, FormView):
+    template_name = 'contest/clarification.jinja2'
+    form_class = CommentForm
+
+    def get_context_data(self, **kwargs):
+        data = super(ClarificationView, self).get_context_data(**kwargs)
+        data['action_path'] = reverse('comments-post-comment')
+        return data
+
+    def get_form_kwargs(self):
+        kw = super(ClarificationView, self).get_form_kwargs()
+        kw['target_object'] = self.contest
+        return kw
 
 
 class DashboardView(BaseContestMixin, TemplateView):
