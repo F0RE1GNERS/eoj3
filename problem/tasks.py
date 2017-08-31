@@ -90,12 +90,16 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
                 if not submission.contest_id and submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
-                    if Submission.objects.filter(author_id=submission.author_id, problem_id=submission.problem_id,
-                                                 status=SubmissionStatus.ACCEPTED).last() == submission:
+                    if not submission.rewarded and \
+                                    Submission.objects.filter(author_id=submission.author_id,
+                                                              problem_id=submission.problem_id,
+                                                              status=SubmissionStatus.ACCEPTED).last() == submission:
                         with transaction.atomic():
                             author = User.objects.select_for_update().get(pk=submission.author_id)
                             author.score += get_problem_difficulty(submission.problem_id)
                             author.save(update_fields=['score'])
+                            submission.rewarded = True
+                            submission.save(update_fields=['rewarded'])
                 if callback:
                     Thread(target=callback).start()
                 return True

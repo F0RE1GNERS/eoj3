@@ -73,6 +73,7 @@ class Submission(models.Model):
     status_detail = models.TextField(blank=True)
     status_time = models.FloatField(default=0)
     status_message = models.TextField(blank=True)
+    rewarded = models.BooleanField(default=False)
 
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
