@@ -41,5 +41,9 @@
       <h3 class="title">Note</h3>
       {{ problem.hint | markdown | safer | safe }}
     {% endif %}
+    {% if not contest and problem.source %}
+      <h3 class="title">Source</h3>
+      <p>{{ problem.source }}</p>
+    {% endif %}
   </div>
 {% endmacro %}
