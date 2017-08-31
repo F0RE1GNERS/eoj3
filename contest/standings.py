@@ -13,8 +13,18 @@ from django.conf import settings
 
 class ContestStandings(BaseContestMixin, ListView):
     template_name = 'contest/standings.jinja2'
-    paginate_by = 100
     context_object_name = 'rank_list'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.GET.get('privilege'):
+            self.view_hidden = True
+        return super(ContestStandings, self).dispatch(request, *args, **kwargs)
+
+    def get_paginate_by(self, queryset):
+        if self.privileged and self.view_hidden:
+            return None
+        else:
+            return 100
 
     def test_func(self):
         if self.privileged:
@@ -26,7 +36,7 @@ class ContestStandings(BaseContestMixin, ListView):
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
-        return get_contest_rank(self.contest)
+        return get_contest_rank(self.contest, self.privileged and self.view_hidden)
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
@@ -37,6 +47,7 @@ class ContestStandings(BaseContestMixin, ListView):
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
         data['my_rank'] = get_participant_rank(self.contest, self.request.user.pk)
+        print(data)
         return data
 
 

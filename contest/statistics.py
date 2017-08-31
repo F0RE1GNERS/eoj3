@@ -141,7 +141,7 @@ def get_contest_rank_list(contest: Contest, privilege=False):
             else:
                 return tup[1]['score']
 
-        items = sorted(get_all_contest_participants_detail(contest, privilege).items(),
+        items = sorted(get_all_contest_participants_detail(contest, privilege=privilege).items(),
                        key=find_key, reverse=True)
         ans = []  # ans = [(user_id, rank), ...]
         last_item = None

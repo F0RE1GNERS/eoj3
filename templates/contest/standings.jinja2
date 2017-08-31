@@ -98,7 +98,9 @@
   </p>
   {% endif %}
 
-  {{ my_paginator() }}
+  {% if paginator %}
+    {{ my_paginator() }}
+  {% endif %}
 
 {% endblock %}
 
