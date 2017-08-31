@@ -154,6 +154,9 @@ class ProblemMeta(PolygonBaseMixin, UpdateView):
         data['problem'] = self.problem
         return data
 
+    def get_redirect_url(self, instance):
+        return self.request.path
+
 
 class ProblemAccess(PolygonBaseMixin, TemplateView):
     template_name = 'polygon/problem_access.jinja2'

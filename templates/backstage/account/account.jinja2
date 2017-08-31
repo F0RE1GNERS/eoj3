@@ -24,6 +24,7 @@
         <th>Who</th>
         <th>Privilege</th>
         <th>Active</th>
+        <th>Polygon</th>
         <th>Password</th>
       </tr>
     </thead>
@@ -42,6 +43,7 @@
             {% endif %}
           </td>
           <td>{{ user.is_active }}</td>
+          <td>{{ user.polygon_enabled }}</td>
           <td><a class="modal-link" data-action="{{ url('backstage:account_password_change', user.pk) }}" data-target="#changePassword">Reset</a></td>
         </tr>
       {% endfor %}

@@ -46,7 +46,6 @@ class ContestStandings(BaseContestMixin, ListView):
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
         data['my_rank'] = get_participant_rank(self.contest, self.request.user.pk)
-        print(data)
         return data
 
 

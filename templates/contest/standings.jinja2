@@ -58,11 +58,11 @@
           <td>{{ (rank.penalty / 60) | int }}</td>
           {% endif %}
           {% for problem in contest.contest_problem_list %}
-            <td>
-              {% set d = rank.detail[problem.problem_id] %}
-              {% if d and d.attempt %}
+            {% set d = rank.detail[problem.problem_id] %}
+            {% if d and d.attempt %}
+              <td class="{% if d.first_blood %}accepted{% endif %}">
                 {% if d.solved %}
-                  <span class="score text {% if d.first_blood %}blue{% else %}green{% endif %}">
+                  <span class="score text green">
                     {% if contest.scoring_method == 'acm' %}
                       +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
                     {% else %}
@@ -83,8 +83,10 @@
                     <span class="score negative text red">-{{ d.attempt }}</span>
                   {% endif %}
                 {% endif %}
-              {% endif %}
-            </td>
+              </td>
+            {% else %}
+              <td></td>
+            {% endif %}
           {% endfor %}
         </tr>
       {% endfor %}

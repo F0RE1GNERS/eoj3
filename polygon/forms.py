@@ -10,7 +10,7 @@ class ProblemEditForm(forms.ModelForm):
     class Meta:
         model = Problem
         fields = ['title', 'alias', 'time_limit', 'memory_limit', 'description', 'input', 'output',
-                  'hint', 'source', 'visible']
+                  'hint', 'source']
         error_messages = {
         }
         widgets = {
@@ -25,7 +25,7 @@ class ProblemEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
         new_order = ['title', 'alias', 'time_limit', 'memory_limit', 'description',
-                     'input', 'output', 'hint', 'tags', 'source', 'visible']
+                     'input', 'output', 'hint', 'tags', 'source']
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
             self.fields['tags'].initial = ','.join(map(str, self.instance.tags))
