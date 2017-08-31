@@ -7,60 +7,70 @@
 
   {% include 'components/message.jinja2' %}
 
-  <form class="form-inline" role="search">
-    <div class="form-group">
-      <input type="text" class="form-control" name="keyword" value="{% if keyword %}{{ keyword }}{% endif %}" placeholder="Search">
-    </div>
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" name="admin" {% if admin %}checked{% endif %}> Non-regulars only
-      </label>
-    </div>
-    <button type="submit" class="btn btn-default">Submit</button>
-  </form>
-
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th width="20%">Register</th>
-          <th width="30%">Email</th>
-          <th width="25%">Who</th>
-          <th width="15%">Privilege</th>
-          <th width="10%">Password</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in user_list %}
-          <tr>
-            <td scope="row"> {{ user.create_time | date('Y-m-d H:i:s') }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.username }}</td>
-            <td>{% if user.privilege == 'root' %}<span class="text-warning">{{ user.get_privilege_display() }}</span>
-            {% else %}
-              <a href="javascript:void(0);" class="privilege-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">
-              {{ user.get_privilege_display() }}</a>
-            {% endif %}</td>
-            <td><a data-toggle="modal" data-url="{{ url('backstage:account_password_change', user.pk) }}" href="#changePassword" class="text-danger">Reset</a></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="ui action input">
+    <input type="text" name="keyword" value="{% if keyword %}{{ keyword }}{% endif %}" placeholder="Search...">
+    <select class="ui compact selection dropdown">
+      <option value="all">All</option>
+      <option value="admin">Admins</option>
+    </select>
+    <div class="ui button" id="search-button">Search</div>
   </div>
+
+  <table class="ui celled center aligned table">
+    <thead>
+      <tr>
+        <th>Register</th>
+        <th>Email</th>
+        <th>Who</th>
+        <th>Privilege</th>
+        <th>Active</th>
+        <th>Password</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in user_list %}
+        <tr>
+          <td scope="row"> {{ user.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.username }}</td>
+          <td>
+            {% if user.privilege == 'root' %}
+              {{ user.get_privilege_display() }}
+            {% else %}
+              <a class="post-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">
+              {{ user.get_privilege_display() }}</a>
+            {% endif %}
+          </td>
+          <td>{{ user.is_active }}</td>
+          <td><a class="modal-link" data-action="{{ url('backstage:account_password_change', user.pk) }}" data-target="#changePassword">Reset</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
   {{ my_paginator() }}
 
   {% call modal(title="Reset password", id="changePassword") %}
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.path }}">
-    <div class="form-group">
-      <label for="password" class="col-sm-2 control-label">Password</label>
-      <div class="col-sm-10">
-        <input class="form-control" id="password" name="password">
+    <form class="ui form" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <div class="field">
+        <label>Password</label>
+        <input id="password" name="password">
       </div>
-    </div>
+    </form>
   {% endcall %}
 
-  {{ post_link(".privilege-link") }}
+{% endblock %}
 
+{% block script %}
+  <script>
+    $("#search-button").click(function (e) {
+      var button = $(e.currentTarget);
+      var location = '?keyword=' + button.siblings("input[name='keyword']").val();
+      if (button.siblings(".ui.dropdown").find("select").val() == 'admin')
+        location = location + '&admin=true';
+      window.location = location;
+    });
+  </script>
 {% endblock %}

@@ -2,7 +2,7 @@
 $('.ui.checkbox')
   .checkbox()
 ;
-$('.ui.selection.dropdown')
+$('.ui.selection.dropdown, select.selection')
   .dropdown()
 ;
 $('.message .close')
@@ -176,8 +176,10 @@ $(".delete-link")
 
 $(".modal-link")
   .on('click', function (e) {
-    var modal = $(e.currentTarget).data('target');
-    $(modal)
+    var modal = $($(e.currentTarget).data('target'));
+    if ($(e.currentTarget).data('action'))
+      modal.find("form").attr("action", $(e.currentTarget).data('action'));
+    modal
       .modal({
         onApprove: function () {
           $(this).find("form").submit();

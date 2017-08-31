@@ -1,7 +1,8 @@
 {% from 'components/nickname.jinja2' import clickable_nickname with context %}
 
 {% macro blog_preview(blog) %}
-  <div class="event">
+  {# overflow hidden (temporary) #}
+  <div class="event" style="overflow-x: hidden;">
     <div class="label">
       <a href="{{ url('generic', blog.author.username) }}"><img src="{{ blog.author.avatar_small.url }}"></a>
     </div>

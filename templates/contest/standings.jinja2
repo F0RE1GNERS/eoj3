@@ -62,7 +62,7 @@
               {% set d = rank.detail[problem.problem_id] %}
               {% if d and d.attempt %}
                 {% if d.solved %}
-                  <span class="score text green">
+                  <span class="score text {% if d.first_blood %}blue{% else %}green{% endif %}">
                     {% if contest.scoring_method == 'acm' %}
                       +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
                     {% else %}
