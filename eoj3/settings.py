@@ -256,13 +256,18 @@ CAPTCHA_FILTER_FUNCTIONS = []
 CAPTCHA_CHALLENGE_FUNCT = 'eoj3.captcha.random_math_challenge'
 
 COMMENTS_APP = 'django_comments_xtd'
-COMMENTS_XTD_MAX_THREAD_LEVEL = 2
+COMMENTS_XTD_MAX_THREAD_LEVEL = 1
 COMMENTS_XTD_CONFIRM_EMAIL = False
 
 COMMENTS_XTD_APP_MODEL_OPTIONS = {
     'default': {
         'allow_flagging': True,
         'allow_feedback': True,
+        'show_feedback': False,
+    },
+    'contest.contest': {
+        'allow_flagging': False,
+        'allow_feedback': False,
         'show_feedback': False,
     }
 }
