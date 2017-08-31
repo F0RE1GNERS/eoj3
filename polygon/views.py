@@ -154,7 +154,7 @@ class ProblemMeta(PolygonBaseMixin, UpdateView):
         data['problem'] = self.problem
         return data
 
-    def get_redirect_url(self, instance):
+    def get_success_url(self):
         return self.request.path
 
 
