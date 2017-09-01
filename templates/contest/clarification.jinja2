@@ -4,41 +4,7 @@
 
 {% block contest_content %}
 
-  <div class="ui message">
-    <ul class="ui list">
-    <li>A contestant may submit a claim of ambiguity or error in a problem statement by submitting a clarification request to judges.</li>
-    <li>Please keep an eye on the status displayed on the header.</li>
-    <li><strong>No response</strong> means that you are instructed to read the problem statement carefully again.</li>
-    <li>If your status becomes <strong>solved</strong>, it means that the judges agree that an ambiguity or error exists, and then a clarification will be issued to all contestants.</li>
-    </ul>
-  </div>
-  {% include 'components/message.jinja2' %}
-  <form class="ui form" action="{{ url('contest:clarification', contest.pk) }}" method="post">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.path }}">
-    <div class="field">
-      <textarea name="message" id="message" rows="3" placeholder="Ask a question" required></textarea>
-    </div>
-    <button type="submit" class="ui button positive">Submit</button>
-  </form>
-
-  <table class="ui celled table">
-    <thead>
-      <tr class="center aligned">
-        <th class="collapsing">Time</th>
-        <th>Questions</th>
-        <th>Answers</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for clarification in clarification_list %}
-      <tr>
-        <td class="center aligned">{{ clarification.time | date('Y-m-d H:i:s') }}</td>
-        <td>{{ clarification.text }}</td>
-        <td>{{ clarification.answer }}</td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+  {{ render_comment_tree(contest) }}
+  {% include 'components/form.jinja2' %}
 
 {% endblock %}

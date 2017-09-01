@@ -1,8 +1,9 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
 
-{% macro render_comments(comments) %}
+{% macro render_comments(comments, flag) %}
   {% for item in comments %}
-    {% if not item.comment.is_removed or item.children %}
+    {% if (not item.comment.is_removed or item.children) and
+    (flag or item.comment.content_type.name != 'contest' or user is admin or item.comment.user == user) %}
       {% if item.comment.level != 0 %}
         <div class="comments">
       {% endif %}
@@ -24,18 +25,20 @@
           </div>
           {% if not item.comment.is_removed %}
             <div class="actions">
-              {% if item.comment.level < 2 %}
+              {% if item.comment.level < 1 %}
                 <a class="reply" data-pk="{{ item.comment.pk }}">Reply</a>
               {% endif %}
-              <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="like">
-                <i class="thumbs {% if not item.likedit %}outline{% endif %} up icon"></i>
-                <span>{{ item.likedit_users | length }}</span>
-              </a>
-              <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="dislike">
-                <i class="thumbs {% if not item.dislikedit %}outline{% endif %} down icon"></i>
-                <span>{{ item.dislikedit_users | length }}</span>
-              </a>
-              {% if user == item.comment.user or user is admin %}
+              {% if allow_feedback %}
+                <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="like">
+                  <i class="thumbs {% if not item.likedit %}outline{% endif %} up icon"></i>
+                  <span>{{ item.likedit_users | length }}</span>
+                </a>
+                <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="dislike">
+                  <i class="thumbs {% if not item.dislikedit %}outline{% endif %} down icon"></i>
+                  <span>{{ item.dislikedit_users | length }}</span>
+                </a>
+              {% endif %}
+              {% if allow_flagging and (user == item.comment.user or user is admin) %}
                 <a class="like-link" data-link="{{ url('comments-xtd-api-flag') }}" data-comment="{{ item.comment.pk }}" data-flag="report">
                   <i class="trash outline icon"></i>
                 </a>
@@ -44,7 +47,7 @@
           {% endif %}
         </div>
         {% if item.children %}
-          {{ render_comments(item.children) }}
+          {{ render_comments(item.children, True) }}
         {% endif %}
       </div>
       {% if item.comment.level != 0 %}
@@ -55,7 +58,7 @@
 {% endmacro %}
 
 <div class="ui comments">
-  {{ render_comments(comments) }}
+  {{ render_comments(comments, False) }}
 </div>
 
 

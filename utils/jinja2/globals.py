@@ -86,20 +86,38 @@ def render_comment_tree(context, obj):
                     c[i]['children'] = sort(c[i]['children'], depth - 1)
         return c
 
+    def get_config(content_type):  # from django_comments_xtd.utils
+        _default = {
+            'allow_flagging': False,
+            'allow_feedback': False,
+            'show_feedback': False
+        }
+        key = "%s.%s" % (content_type.app_label, content_type.model)
+        try:
+            return settings.COMMENTS_XTD_APP_MODEL_OPTIONS[key]
+        except KeyError:
+            return settings.COMMENTS_XTD_APP_MODEL_OPTIONS.setdefault(
+                'default', _default)
+
     ctype = ContentType.objects.get_for_model(obj)
+    config = get_config(ctype)
     queryset = XtdComment.objects.filter(content_type=ctype,
                                          object_pk=obj.pk,
                                          site__pk=settings.SITE_ID,
                                          is_public=True)
     comments = XtdComment.tree_from_queryset(
         queryset,
-        with_flagging=True,
-        with_feedback=True,
+        with_flagging=config['allow_flagging'],
+        with_feedback=config['allow_feedback'],
         user=context['user']
     )
-    comments = sort(comments, depth=1)
-    return dict(comments=comments,
-                user=context['user'])
+    if config['allow_feedback']:
+        comments = sort(comments, depth=1)
+    ctx = dict(comments=comments, user=context['user'])
+    ctx.update(config)
+    print(ctx)
+    print(config)
+    return ctx
 
 
 @library.global_function(name='render_field')
