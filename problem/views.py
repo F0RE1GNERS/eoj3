@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.shortcuts import HttpResponse, get_object_or_404, reverse, render
+from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
@@ -194,27 +194,30 @@ class StatusList(ListView):
         return value
 
     def get_queryset(self):
-        queryset = self.get_selected_from().select_related('problem', 'author').\
-            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time')
-        if not is_admin_or_root(self.request.user):
-            queryset = queryset.filter(contest__isnull=True, problem__visible=True)
+        try:
+            queryset = self.get_selected_from().select_related('problem', 'author').\
+                only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
+                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time')
+            if not is_admin_or_root(self.request.user):
+                queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
-        if 'user' in self.request.GET:
-            queryset = queryset.filter(author_id=self.request.GET['user'])
-        if self.allow_problem_query and 'problem' in self.request.GET:
-            queryset = queryset.filter(problem_id=self.reinterpret_problem_identifier(self.request.GET['problem']))
-        if 'lang' in self.request.GET:
-            queryset = queryset.filter(lang=self.request.GET['lang'])
-        if 'verdict' in self.request.GET:
-            queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
-        #
-        # if kw:
-        #     q = Q(author__username__iexact=kw)
-        #     if kw.isdigit():
-        #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
-        #     queryset = queryset.filter(q)
-        return queryset.all()[:10000]
+            if 'user' in self.request.GET:
+                queryset = queryset.filter(author_id=self.request.GET['user'])
+            if self.allow_problem_query and 'problem' in self.request.GET:
+                queryset = queryset.filter(problem_id=self.reinterpret_problem_identifier(self.request.GET['problem']))
+            if 'lang' in self.request.GET:
+                queryset = queryset.filter(lang=self.request.GET['lang'])
+            if 'verdict' in self.request.GET:
+                queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
+            #
+            # if kw:
+            #     q = Q(author__username__iexact=kw)
+            #     if kw.isdigit():
+            #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
+            #     queryset = queryset.filter(q)
+            return queryset.all()[:10000]
+        except:
+            raise Http404
 
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)
