@@ -274,7 +274,8 @@ class ProblemSubmissionView(TemplateView):
                                                               submission.problem) or
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
-                        status=SubmissionStatus.ACCEPTED).exists()):
+                        status=SubmissionStatus.ACCEPTED,
+                        contest__isnull=True).exists()):
             submission_block = render_submission(submission)
         else:
             submission_block = 'You are not authorized to view this submission.'

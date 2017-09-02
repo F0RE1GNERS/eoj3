@@ -41,6 +41,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
         problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
         submission = create_submission(problem, self.user, request.POST['code'], request.POST['lang'],
                                        contest=self.contest)
+        self.contest.contestparticipant_set.get_or_create(user=self.user)
         judge_submission_on_contest(submission)
         return HttpResponse(json.dumps({"url": reverse('contest:submission_api',
                                                        kwargs={'cid': self.contest.id, 'sid': submission.id})}))

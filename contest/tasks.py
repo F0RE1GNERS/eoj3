@@ -23,7 +23,7 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
     else:
         submission.status = submission.status_private = SubmissionStatus.SUBMITTED
         submission.save(update_fields=['status', 'status_private'])
-        Thread(_callback).start()
+        Thread(target=_callback).start()
 
 
 def add_participant_with_invitation(contest_pk, invitation_pk, user):
