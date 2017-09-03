@@ -65,15 +65,20 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
                                                                                  "problem_id", "author_id",
                                                                                  "create_time").order_by("create_time"):
         status = submission.status_private if privilege else submission.status
+        detail = ans[submission.author_id]['detail']
+        detail.setdefault(submission.problem_id,
+                          {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
+                           'waiting': False})
+        d = detail[submission.problem_id]
+        if not SubmissionStatus.is_judged(submission.status):
+            d['waiting'] = True
+            continue
         if not SubmissionStatus.is_penalty(status):
             continue  # This is probably CE or SE ...
         contest_problem = contest.get_contest_problem(submission.problem_id)
         if not contest_problem:  # This problem has been probably deleted
             continue
-        detail = ans[submission.author_id]['detail']
-        detail.setdefault(submission.problem_id,
-                          {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0})
-        d = detail[submission.problem_id]
+
         time = get_penalty(contest.start_time, submission.create_time)
         score = 0
         if contest.scoring_method == 'oi':

@@ -32,11 +32,13 @@
       <tr class="ui center aligned">
       <th class="{{ column_style }}">#</th>
       <th class="ui left aligned">Who</th>
-      <th class="collapsing">=</th>
+      <th class="{{ column_style }}">=</th>
       {% if contest.penalty_counts %}<th class="one wide">Penalty</th>{% endif %}
-      {% for problem in contest.contest_problem_list %}
-        <th class="{{ column_style }}">{{ problem.identifier }}</th>
-      {% endfor %}
+      {% if not contest.standings_without_problem %}
+        {% for problem in contest.contest_problem_list %}
+          <th class="{{ column_style }}">{{ problem.identifier }}</th>
+        {% endfor %}
+      {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -57,37 +59,43 @@
           {% if contest.penalty_counts %}
           <td>{{ (rank.penalty / 60) | int }}</td>
           {% endif %}
+        {% if not contest.standings_without_problem %}
           {% for problem in contest.contest_problem_list %}
             {% set d = rank.detail[problem.problem_id] %}
-            {% if d and d.attempt %}
-              <td class="{% if d.first_blood %}accepted{% endif %}">
-                {% if d.solved %}
-                  <span class="score text green">
-                    {% if contest.scoring_method == 'acm' %}
-                      +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
-                    {% else %}
-                      {{ d.score }}
-                    {% endif %}
-                  </span><br>
-                  {% if contest.penalty_counts %}
-                    <span class="penalty">{{ (d.time / 60) | int }}</span>
-                  {% endif %}
-                {% else %}
-                  {% if contest.scoring_method == 'oi' %}
-                    {% if d.score %}
-                      <span class="score text yellow">{{ d.score }}</span>
-                    {% else %}
-                      <span class="score text red">0</span>
+            {% if d %}
+              {% if d.waiting %}
+                <td><span class="score text blue"><i class="help icon"></i></td>
+              {% elif d.attempt %}
+                <td class="{% if d.first_blood %}accepted{% endif %}">
+                  {% if d.solved %}
+                    <span class="score text green">
+                      {% if contest.scoring_method == 'acm' %}
+                        +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
+                      {% else %}
+                        {{ d.score }}
+                      {% endif %}
+                    </span><br>
+                    {% if contest.penalty_counts %}
+                      <span class="penalty">{{ (d.time / 60) | int }}</span>
                     {% endif %}
                   {% else %}
-                    <span class="score negative text red">-{{ d.attempt }}</span>
+                    {% if contest.scoring_method == 'oi' %}
+                      {% if d.score %}
+                        <span class="score text yellow">{{ d.score }}</span>
+                      {% else %}
+                        <span class="score text red">0</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="score negative text red">-{{ d.attempt }}</span>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
-              </td>
+                </td>
+              {% endif %}
             {% else %}
               <td></td>
             {% endif %}
           {% endfor %}
+        {% endif %}
         </tr>
       {% endfor %}
     </tbody>
