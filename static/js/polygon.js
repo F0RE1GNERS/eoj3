@@ -320,6 +320,8 @@ if ($("#session-edit-app").length > 0) {
     updated: function () {
       $(".ui.icon.pointing.dropdown.button")
         .dropdown();
+      $('.ui.checkbox').checkbox();
+      $('.ui.selection.dropdown').dropdown();
     }
   });
 }

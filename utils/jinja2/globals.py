@@ -115,8 +115,8 @@ def render_comment_tree(context, obj):
         comments = sort(comments, depth=1)
     ctx = dict(comments=comments, user=context['user'])
     ctx.update(config)
-    print(ctx)
-    print(config)
+    # print(ctx)
+    # print(config)
     return ctx
 
 

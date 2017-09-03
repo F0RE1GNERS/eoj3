@@ -79,6 +79,9 @@
             </div>
           </div>
         </th>
+      {% if show_percent %}
+        <th>Percent</th>
+      {% endif %}
         <th>Time</th>
       {% if rejudge %}
         <th><a class="modal-link" data-target="#rejudge-confirmation">Rejudge</a></th>
@@ -104,6 +107,9 @@
           {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
           <td><h5 class="ui header status-span" data-status="{{ submission.status }}"></h5></td>
+        {% if show_percent %}
+          <td>{{ submission.status_percent | round(1) }} %</td>
+        {% endif %}
           <td>{{ submission.get_time_display() }}</td>
         {% if rejudge %}
           <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>

@@ -80,7 +80,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                             self.contest.status > 0 or self.contest.allow_code_share >= 3):
                 authorized = True
         if authorized:
-            data['submission_block'] = render_submission(submission)
+            data['submission_block'] = render_submission(submission, show_percent=(self.contest.scoring_method == 'oi'))
         else:
             data['submission_block'] = 'You are not authorized to view this submission.'
 
@@ -92,8 +92,8 @@ class ContestMySubmission(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestMySubmission, self).get_context_data(**kwargs)
-        data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status",
-                                                                   "create_time", "contest_id",
+        data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status", "status_private",
+                                                                   "status_private", "create_time", "contest_id",
                                                                    "author_id", "author__username",
                                                                    "author__nickname", "author__magic"). \
             filter(author_id=self.request.user.pk)

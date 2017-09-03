@@ -1,43 +1,33 @@
 import json
-import shortuuid
-import names
 import random
 
-from .forms import ContestEditForm
-from contest.models import Contest, ContestProblem
-from problem.views import StatusList
-from .views import PolygonBaseMixin, response_ok
-from django.views.generic.edit import UpdateView
-from django.views.generic import ListView, View, TemplateView
+import names
+import shortuuid
+from django.contrib import messages
+from django.db import IntegrityError, transaction
+from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
+from django.views.generic.edit import UpdateView
+from django.views.generic.list import ListView
+
+from account.models import User, MAGIC_CHOICE
 from account.permissions import is_admin_or_root
-from account.models import User
+from contest.models import Contest, ContestInvitation, ContestParticipant, ContestClarification
+from contest.statistics import invalidate_contest
+from contest.tasks import add_participant_with_invitation
+from problem.models import Problem
 from problem.statistics import (
     get_problem_accept_count, get_problem_accept_ratio, get_problem_all_count, get_problem_all_user_count,
     get_problem_accept_user_count, get_problem_accept_user_ratio
 )
-from django.shortcuts import get_object_or_404, reverse, redirect, HttpResponse
-from django.db import transaction
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
-from django.views import static, View
-from django.views.generic import TemplateView
-from django.contrib import messages
-from django.views.generic.list import ListView
-from django.utils import timezone
-from django.db import IntegrityError, transaction
-
-from contest.submission import ContestStatus
-from submission.models import Submission
-from django.conf import settings
-from .forms import ContestEditForm
-from account.models import User, MAGIC_CHOICE
-from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant, ContestClarification
-from problem.models import Problem
-from contest.tasks import add_participant_with_invitation
-from contest.statistics import invalidate_contest
-from .rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, rejudge_submission
-from utils import xlsx_generator
+from problem.views import StatusList
 from utils.identicon import Identicon
+from .forms import ContestEditForm
+from .rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
+from .views import PolygonBaseMixin, response_ok
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):

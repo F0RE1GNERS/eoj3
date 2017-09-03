@@ -16,6 +16,9 @@
         {% endif %}
         <th>Lang</th>
         <th>Verdict</th>
+      {% if show_percent %}
+        <th>Percent</th>
+      {% endif %}
         <th>Time</th>
       </tr>
     </thead>
@@ -33,7 +36,10 @@
           <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
         {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
-          <td><h5 class="ui header status-span" data-status="{{ submission.status }}"></h5></td>
+          <td><h5 class="ui header status-span" data-status="{{ submission.status_private }}"></h5></td>
+          {% if show_percent %}
+          <td>{{ submission.status_percent | round(1) }} %</td>
+          {% endif %}
           <td>{{ submission.get_time_display() }}</td>
         </tr>
       {% endfor %}

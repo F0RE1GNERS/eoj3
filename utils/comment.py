@@ -16,6 +16,7 @@ class CommentForm(XtdCommentForm):
         self.fields['honeypot'] = forms.CharField(widget=forms.HiddenInput)
         self.fields['followup'] = forms.BooleanField(widget=forms.HiddenInput)
         self.fields['comment'].widget = forms.Textarea(attrs={'class': 'markdown'})
+        self.fields['comment'].label = ''
 
 
 @receiver(comment_was_flagged)

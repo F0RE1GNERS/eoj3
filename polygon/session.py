@@ -135,6 +135,7 @@ def pull_session(session):
             now_input_path, now_output_path = get_test_file_path(session, case)
             copyfile(get_input_path(case), now_input_path)
             copyfile(get_output_path(case), now_output_path)
+        case_dict[case]['sample'] = True
     for ind, case in enumerate(problem.case_list, start=1):
         if case not in case_dict.keys():
             case_dict[case] = dict()

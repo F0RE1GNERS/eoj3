@@ -97,7 +97,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if is_admin_or_root(self.user) and self.problem.problemmanagement_set.filter(user=self.user).exists():
+        if is_admin_or_root(self.user) or self.problem.problemmanagement_set.filter(user=self.user).exists():
             return True
         return self.problem.visible
 
@@ -194,7 +194,7 @@ class StatusList(ListView):
         try:
             queryset = self.get_selected_from().select_related('problem', 'author').\
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time')
+                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent')
             if not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 

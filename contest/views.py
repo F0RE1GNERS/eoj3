@@ -70,6 +70,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['has_permission'] = self.test_func()
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer
+        data['show_percent'] = self.contest.scoring_method == 'oi'
 
         return data
 

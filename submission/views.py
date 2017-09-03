@@ -18,9 +18,9 @@ from utils.authentication import test_site_open
 from .models import Submission, SubmissionStatus
 
 
-def render_submission(submission: Submission, hide_problem=False) -> str:
+def render_submission(submission: Submission, hide_problem=False, show_percent=False) -> str:
     t = loader.get_template('components/single_submission.jinja2')
-    c = Context({'submission': submission, 'hide_problem': hide_problem})
+    c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent})
     return t.render(c)
 
 

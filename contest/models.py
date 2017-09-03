@@ -47,10 +47,10 @@ class Contest(models.Model):
     )
 
     TEST_DURING_CONTEST_CHOICE = (
-        ('none', 'None'),
-        ('sample', 'Samples'),
+        ('all', 'All'),
         ('pretest', 'Pretests'),
-        ('all', 'All')
+        ('sample', 'Samples'),
+        ('none', 'None')
     )
 
     CODE_SHARE_CHOICE = (
@@ -78,7 +78,7 @@ class Contest(models.Model):
     freeze = models.BooleanField('The standings will be frozen', default=False)
     freeze_time = models.DateTimeField(blank=True, null=True)
     scoring_method = models.CharField(default='acm', max_length=5, choices=SCORING_METHOD_CHOICE)
-    run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default='all')
+    run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default=TEST_DURING_CONTEST_CHOICE[0][0])
     allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
 
     last_counts = models.BooleanField('The last submission (instead of the best) will be scored', default=False)  # Treat last submission as valid submission
