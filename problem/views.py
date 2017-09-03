@@ -97,7 +97,8 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if is_admin_or_root(self.user) or self.problem.problemmanagement_set.filter(user=self.user).exists():
+        if self.user.is_authenticated and (
+                    is_admin_or_root(self.user) or self.problem.problemmanagement_set.filter(user=self.user).exists()):
             return True
         return self.problem.visible
 
