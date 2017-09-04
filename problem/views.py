@@ -171,6 +171,7 @@ class StatusList(ListView):
     allow_verdict_query = True
     query_number = 10000
     distinct_by_author = False  # query number should not be too large when this is true
+    contest_submission_visible = False
 
     def get_selected_from(self):
         return Submission.objects.all()
@@ -184,7 +185,7 @@ class StatusList(ListView):
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
                      'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
                      'code_length')
-            if not is_admin_or_root(self.request.user):
+            if not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
             if 'user' in self.request.GET:
@@ -243,6 +244,7 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
     allow_verdict_query = False
     query_number = 10
     distinct_by_author = True
+    contest_submission_visible = True
 
     def get_selected_from(self):
         if self.request.GET.get('type') == 'shortest':

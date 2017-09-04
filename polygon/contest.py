@@ -343,6 +343,7 @@ class RejudgeContestProblemSubmission(PolygonContestMixin, View):
 class ContestStatusBackend(PolygonContestMixin, StatusList):
 
     template_name = 'polygon/contest_status.jinja2'
+    contest_submission_visible = True
 
     def get_selected_from(self):
         return self.contest.submission_set.all()

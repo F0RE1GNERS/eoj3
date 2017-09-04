@@ -103,6 +103,7 @@ class ContestMySubmission(BaseContestMixin, TemplateView):
 
 class ContestStatus(BaseContestMixin, StatusList):
     template_name = 'contest/status.jinja2'
+    contest_submission_visible = True
 
     def get_selected_from(self):
         return self.contest.submission_set.all()
