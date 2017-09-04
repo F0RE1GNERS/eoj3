@@ -74,11 +74,16 @@ class Submission(models.Model):
     status_time = models.FloatField(default=0)
     status_message = models.TextField(blank=True)
     rewarded = models.BooleanField(default=False)
+    code_length = models.PositiveIntegerField(default=0)
 
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
 
     addon_info = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.code_length = len(self.code.encode())
+        return super(Submission, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['-pk']

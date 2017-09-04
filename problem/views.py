@@ -21,7 +21,7 @@ from .permission import has_permission_for_problem_management
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
-    get_problem_difficulty
+    get_problem_difficulty, get_problem_stats
 )
 from .tasks import create_submission, judge_submission_on_problem
 
@@ -162,28 +162,15 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
                                                        kwargs={'pk': self.problem.id, 'sid': submission.id})}))
 
 
-class ProblemStatisticsView(ProblemDetailMixin, TemplateView):
-
-    template_name = 'problem/detail/statistics.jinja2'
-
-    def get_context_data(self, **kwargs):
-        data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
-        data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
-        data['user_all_count'] = get_problem_all_user_count(self.problem.id)
-        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id)
-        data['ac_count'] = get_problem_accept_count(self.problem.id)
-        data['all_count'] = get_problem_all_count(self.problem.id)
-        data['ratio'] = get_problem_accept_ratio(self.problem.id)
-        data['difficulty'] = get_problem_difficulty(self.problem.id)
-        return data
-
-
 class StatusList(ListView):
 
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
     allow_problem_query = True
+    allow_verdict_query = True
+    query_number = 10000
+    distinct_by_author = False  # query number should not be too large when this is true
 
     def get_selected_from(self):
         return Submission.objects.all()
@@ -195,7 +182,8 @@ class StatusList(ListView):
         try:
             queryset = self.get_selected_from().select_related('problem', 'author').\
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent')
+                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
+                     'code_length')
             if not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
@@ -205,7 +193,7 @@ class StatusList(ListView):
                 queryset = queryset.filter(problem_id=self.reinterpret_problem_identifier(self.request.GET['problem']))
             if 'lang' in self.request.GET:
                 queryset = queryset.filter(lang=self.request.GET['lang'])
-            if 'verdict' in self.request.GET:
+            if self.allow_verdict_query and 'verdict' in self.request.GET:
                 queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
             #
             # if kw:
@@ -213,7 +201,19 @@ class StatusList(ListView):
             #     if kw.isdigit():
             #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
             #     queryset = queryset.filter(q)
-            return queryset.all()[:10000]
+
+            if self.distinct_by_author:
+                author_set = set()
+                res = []
+                for submission in queryset.all():
+                    if submission.author_id not in author_set:
+                        author_set.add(submission.author_id)
+                        res.append(submission)
+                        if len(res) >= self.query_number:
+                            break
+                return res
+            else:
+                return queryset.all()[:self.query_number]
         except:
             raise Http404
 
@@ -224,6 +224,7 @@ class StatusList(ListView):
         data['param_verdict'], data['param_lang'], data['param_user'], data['param_problem'] = \
             self.request.GET.get('verdict', ''), self.request.GET.get('lang', ''),\
             self.request.GET.get('user', ''), self.request.GET.get('problem', '')
+        data['allow_verdict_query'] = self.allow_verdict_query
         data['lang_choices'] = LANG_CHOICE
         data['verdict_choices'] = STATUS_CHOICE
 
@@ -231,6 +232,37 @@ class StatusList(ListView):
             for submission in data['submission_list']:
                 if is_admin_or_root(user) or submission.author == user:
                     submission.is_privileged = True
+        return data
+
+
+class ProblemStatisticsView(ProblemDetailMixin, StatusList):
+
+    template_name = 'problem/detail/statistics.jinja2'
+    paginate_by = None
+    allow_problem_query = False
+    allow_verdict_query = False
+    query_number = 10
+    distinct_by_author = True
+
+    def get_selected_from(self):
+        if self.request.GET.get('type') == 'shortest':
+            return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("code_length")
+        elif self.request.GET.get('type') == 'fastest':
+            return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("status_time")
+        else:
+            return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED)
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
+        data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
+        data['user_all_count'] = get_problem_all_user_count(self.problem.id)
+        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id)
+        data['ac_count'] = get_problem_accept_count(self.problem.id)
+        data['all_count'] = get_problem_all_count(self.problem.id)
+        data['ratio'] = get_problem_accept_ratio(self.problem.id)
+        data['difficulty'] = get_problem_difficulty(self.problem.id)
+        data['stats'] = get_problem_stats(self.problem.id)
+        data['param_type'] = self.request.GET.get('type', 'latest')
         return data
 
 

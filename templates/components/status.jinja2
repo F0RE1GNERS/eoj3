@@ -1,7 +1,7 @@
 {% from 'components/nickname.jinja2' import clickable_nickname %}
 {% from 'components/modal.jinja2' import modal %}
 
-{% macro status(in_contest=False, hide_problems=False, rejudge=False) %}
+{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False) %}
 
   <table class="ui celled table center aligned compact">
     <thead>
@@ -68,19 +68,26 @@
           </div>
         </th>
         <th>
-          <div class="ui scrolling dropdown status-filter" data-filter-type="verdict" data-value="{{ param_verdict }}">
-            <div class="text">Verdict</div>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-              <div class="item" data-value="all">(All)</div>
-              {% for identifier, display in verdict_choices %}
-              <div class="item" data-value="v{{ identifier }}">{{ display }}</div>
-              {% endfor %}
+          {% if allow_verdict_query %}
+            <div class="ui scrolling dropdown status-filter" data-filter-type="verdict" data-value="{{ param_verdict }}">
+              <div class="text">Verdict</div>
+              <i class="dropdown icon"></i>
+              <div class="menu">
+                <div class="item" data-value="all">(All)</div>
+                {% for identifier, display in verdict_choices %}
+                <div class="item" data-value="v{{ identifier }}">{{ display }}</div>
+                {% endfor %}
+              </div>
             </div>
-          </div>
+          {% else %}
+            Verdict
+          {% endif %}
         </th>
       {% if show_percent %}
         <th>Percent</th>
+      {% endif %}
+      {% if code_length %}
+        <th>Length</th>
       {% endif %}
         <th>Time</th>
       {% if rejudge %}
@@ -91,10 +98,10 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-        {% if not contest %}
+        {% if not submission.contest_id %}
           <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a></td>
         {% else %}
-          <td><a href="{{ url('contest:submission', contest.id, submission.id) }}">{{ submission.id }}</a></td>
+          <td><a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}</a></td>
         {% endif %}
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ clickable_nickname(submission.author, tiny=True) }}</td>
@@ -110,6 +117,9 @@
         {% if show_percent %}
           <td>{{ submission.status_percent | round(1) }} %</td>
         {% endif %}
+        {% if code_length %}
+          <td>{{ submission.code_length }} B</td>
+        {% endif %}
           <td>{{ submission.get_time_display() }}</td>
         {% if rejudge %}
           <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>
@@ -118,7 +128,9 @@
       {% endfor %}
     </tbody>
   </table>
-  {{ my_paginator() }}
+  {% if paginator %}
+    {{ my_paginator() }}
+  {% endif %}
 
   {% if rejudge %}
     {% call modal(title="Rejudge confirmation", id="rejudge-confirmation") %}

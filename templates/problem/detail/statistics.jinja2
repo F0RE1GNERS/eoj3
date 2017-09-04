@@ -1,4 +1,10 @@
 {% extends 'problem/detail/base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block css %}
+  <link href="/static/node_modules/morris.js/morris.css" rel="stylesheet">
+{% endblock %}
 
 {% block problem_content %}
 
@@ -91,8 +97,55 @@
           </div>
         </td>
       </tr>
+      <tr>
+        <td colspan="3">
+          <div id="distribution"></div>
+        </td>
+      </tr>
     </tbody>
   </table>
 
+  <div class="ui hidden divider"></div>
 
+  <div style="float: right">
+    <div class="ui selection dropdown status-filter" data-filter-type="type" data-value="{{ param_type }}">
+      <div class="text">Latest</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <div class="item">Latest</div>
+        <div class="item">Fastest</div>
+        <div class="item">Shortest</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui header">Submissions (contest included)</div>
+
+  {{ status(hide_problems=True, code_length=True) }}
+
+  <div class="ui right floated buttons">
+    <a class="ui green button" href="{{ url('problem:status') }}?problem={{ problem.pk }}&verdict=v0">Accepted</a>
+    <div class="or"></div>
+    <a class="ui button" href="{{ url('problem:status') }}?problem={{ problem.pk }}">All submissions
+      <i class="right chevron icon"></i>
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/raphael/raphael.min.js"></script>
+  <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  <script type="text/javascript">
+    Morris.Donut({
+      element: 'distribution',
+      data: [
+        {label: "Accepted", value: {{ stats.ac }}, color: '#21BA45' },
+        {label: "Wrong Answer", value: {{ stats.wa }}, color: '#DB2828' },
+        {label: "Time Limit Exceeded", value: {{ stats.tle }}, color: '#F2711C' },
+        {label: "Runtime Error", value: {{ stats.re }}, color: '#FBBD08' },
+        {label: "Others", value: {{ stats.others }}, color: '#2185D0' }
+      ]
+    });
+  </script>
 {% endblock %}
