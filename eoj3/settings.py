@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_comments_xtd',
     'django_comments',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -255,6 +256,7 @@ CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
 CAPTCHA_CHALLENGE_FUNCT = 'eoj3.captcha.random_math_challenge'
 
+# comment
 COMMENTS_APP = 'django_comments_xtd'
 COMMENTS_XTD_MAX_THREAD_LEVEL = 1
 COMMENTS_XTD_CONFIRM_EMAIL = False
@@ -273,3 +275,6 @@ COMMENTS_XTD_APP_MODEL_OPTIONS = {
 }
 
 COMMENT_MAX_LENGTH = 3000
+
+# notification
+NOTIFICATIONS_SOFT_DELETE = True

@@ -1,0 +1,3 @@
+{% for item in notifications %}
+  {{ item.description | markdown | safer | safe }}
+{% endfor %}
