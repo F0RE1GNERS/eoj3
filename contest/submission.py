@@ -72,13 +72,13 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
             if has_permission_for_contest_management(self.request.user,
                                                      self.contest) or self.request.user == submission.author:
                 authorized = True
-        if not authorized and self.contest.allow_code_share > 0:  # start to share
-            if self.contest.status > 0 and self.contest.allow_code_share >= 2:
-                authorized = True
-            if self.request.user.submission_set.filter(problem_id=submission.problem_id,
-                                                       status=SubmissionStatus.ACCEPTED).exists() and (
-                            self.contest.status > 0 or self.contest.allow_code_share >= 3):
-                authorized = True
+            if not authorized and self.contest.allow_code_share > 0:  # start to share
+                if self.contest.status > 0 and self.contest.allow_code_share >= 2:
+                    authorized = True
+                if self.request.user.submission_set.filter(problem_id=submission.problem_id,
+                                                           status=SubmissionStatus.ACCEPTED).exists() and (
+                                self.contest.status > 0 or self.contest.allow_code_share >= 3):
+                    authorized = True
         if authorized:
             data['submission_block'] = render_submission(submission, show_percent=(self.contest.scoring_method == 'oi'))
         else:
