@@ -31,6 +31,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ContestSubmit, self).get_context_data(**kwargs)
         data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
+        data['default_problem'] = self.request.GET.get('problem', None)
         return data
 
     def post(self, request, cid):

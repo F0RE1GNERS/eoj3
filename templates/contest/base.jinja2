@@ -8,7 +8,8 @@
 
   <div class="ui text menu">
     <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
-    <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}">Submit</a>
+    <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}
+      {%- if contest_problem %}?problem={{ contest_problem.identifier | urlencode }}{% endif %}">Submit</a>
     <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
     <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
     <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">Clarification</a>
