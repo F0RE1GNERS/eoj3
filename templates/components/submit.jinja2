@@ -18,15 +18,15 @@
           </div>
         </div>
         {% if contest %}
-        <div class="ui selection search language dropdown" style="float:left;">
-          <input name="problem" type="hidden">
-          <i class="dropdown icon"></i>
-          <div class="text">Select Problem</div>
-          <div class="menu">
+        <div style="float:left;">
+          <select class="ui search language dropdown" name="problem">
+            <option value="">Select Problem</option>
             {% for contest_problem in contest_problem_list %}
-            <div class="item" data-value="{{ contest_problem.identifier }}">{{ contest_problem }}</div>
+              <option value="{{ contest_problem.identifier }}"
+                  {% if default_problem == contest_problem.identifier %}selected{% endif %}
+              >{{ contest_problem }}</option>
             {% endfor %}
-          </div>
+          </select>
         </div>
         {% endif %}
       </div>
