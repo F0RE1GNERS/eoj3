@@ -19,7 +19,8 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
     run_until_complete = contest.scoring_method == 'oi'
     if cases != 'none':
         judge_submission_on_problem(submission, callback=_callback, case=cases,
-                                    status_private=contest.is_frozen, run_until_complete=run_until_complete)
+                                    status_private=contest.is_frozen, run_until_complete=run_until_complete,
+                                    status_for_pretest=cases != 'all')
     else:
         submission.status = submission.status_private = SubmissionStatus.SUBMITTED
         submission.save(update_fields=['status', 'status_private'])

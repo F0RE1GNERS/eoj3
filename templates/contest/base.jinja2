@@ -1,4 +1,5 @@
 {% extends 'base.jinja2' %}
+{% from 'contest/contest_rule.jinja2' import contest_rule %}
 
 {% block title %}{% block contest_title %}{% endblock %}{{ contest.title }} - {% endblock %}
 
@@ -10,7 +11,9 @@
     <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
     <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}">Submit</a>
     <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
-    <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
+    {% if not contest.standings_disabled %}
+      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
+    {% endif %}
     <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">Clarification</a>
     {% if is_volunteer or is_privileged %}
       <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>
@@ -63,7 +66,7 @@
             <h3 class="ui center aligned header">Problems</h3>
           </div>
           <div class="ui segment">
-            <div class="ui link list">
+            <div class="ui relaxed link list">
               {% for contest_problem in contest_problem_list %}
                 <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
                    href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
@@ -74,6 +77,16 @@
           </div>
         </div>
       {% endif %}
+
+      <div class="ui segments">
+        <div class="ui segment">
+          <h3 class="ui center aligned header">Rules</h3>
+        </div>
+        <div class="ui segment">
+          {{ contest_rule(contest) }}
+        </div>
+      </div>
+
     </div>
   </div>
 

@@ -17,7 +17,7 @@ from submission.statistics import get_accept_problem_list, get_attempted_problem
 from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
 from .models import Problem
-from .permission import has_permission_for_problem_management
+from utils.permission import has_permission_for_problem_management, get_permission_for_submission
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
@@ -268,19 +268,6 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         return data
 
 
-class ProblemPersonalSubmissionAPI(UserPassesTestMixin, TemplateView):
-
-    template_name = 'components/single_submission.jinja2'
-
-    def test_func(self):
-        return self.request.user.is_authenticated
-
-    def get_context_data(self, **kwargs):
-        submission = Submission.objects.get(problem_id=self.kwargs.get('pk'), author=self.request.user,
-                                            pk=self.kwargs.get('sid'))
-        return {'submission': submission, 'hide_problem': True}
-
-
 class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
 
     template_name = 'components/past_submissions.jinja2'
@@ -293,6 +280,15 @@ class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
                                                  "author_id", "author__username", "author__magic"). \
             filter(author_id=self.request.user.pk, problem_id=kwargs.get('pk'))
         return {'submission_list': submission_set}
+
+
+class ProblemSubmissionAPI(UserPassesTestMixin, View):
+
+    def get(self, request, pk, sid):
+        submission = Submission.objects.get(problem_id=pk, author=self.request.user, pk=sid)
+        return HttpResponse(render_submission(submission,
+                                              permission=get_permission_for_submission(request.user, submission),
+                                              hide_problem=True))
 
 
 class ProblemSubmissionView(TemplateView):
@@ -311,10 +307,9 @@ class ProblemSubmissionView(TemplateView):
                         problem_id=self.kwargs.get('pk'),
                         status=SubmissionStatus.ACCEPTED,
                         contest__isnull=True).exists()):
-            submission_block = render_submission(submission)
-        else:
-            submission_block = 'You are not authorized to view this submission.'
-        data['submission_block'] = submission_block
+            data['submission_block'] = render_submission(submission, permission=get_permission_for_submission(self.request.user,
+                                                                                                      submission,
+                                                                                                      special_permission=True))
         data['problem'] = submission.problem
         return data
 

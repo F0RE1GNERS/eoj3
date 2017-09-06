@@ -2,6 +2,6 @@
 {% from 'components/problem.jinja2' import problem_view with context %}
 {% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
 {% block contest_content %}
-  <h2 class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</h2>
+  <div class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</div>
   {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
 {% endblock %}

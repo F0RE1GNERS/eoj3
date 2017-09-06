@@ -55,7 +55,7 @@ class Contest(models.Model):
 
     CODE_SHARE_CHOICE = (
         (0, 'Forbidden'),
-        (1, 'Share code after contest for AC Users'),
+        (1, 'Share code after contest for AC users'),
         (2, 'Share code after contest for all'),
         (3, 'Share code after AC during contest'),
     )
@@ -127,7 +127,15 @@ class Contest(models.Model):
 
     @property
     def supported_language_list(self):
-        return list(filter(lambda x: x, self.allowed_lang.split(',')))
+        return list(filter(lambda x: x, map(lambda x: x.strip(), self.allowed_lang.split(','))))
+
+    @property
+    def verbose_supported_language_list(self):
+        def rreplace(s, old, new, count):
+            return (s[::-1].replace(old[::-1], new[::-1], count))[::-1]
+
+        lang_choices = dict(LANG_CHOICE)
+        return rreplace(', '.join(list(map(lambda x: lang_choices[x], self.supported_language_list))), ', ', ' and ', 1)
 
     @property
     def contest_problem_list(self):

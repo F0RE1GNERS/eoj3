@@ -56,6 +56,13 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         case_list = problem.case_list
     point_query = dict(zip(problem.case_list, problem.point_list))
     total_score = max(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
+    status_for_pretest = kwargs.get('status_for_pretest', False)
+
+    def process_accepted(status):
+        if status == SubmissionStatus.ACCEPTED and status_for_pretest:
+            return SubmissionStatus.PRETEST_PASSED
+        else:
+            return status
 
     def on_receive_data(data):
         judge_time = datetime.fromtimestamp(data['timestamp'])
@@ -64,9 +71,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         if data.get('status') == 'received':
             if 'message' in data:
                 submission.status_message = data['message']
-            submission.status_private = data.get('verdict', SubmissionStatus.JUDGING)
+            submission.status_private = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
             if not kwargs.get('status_private'):
-                submission.status = data.get('verdict', SubmissionStatus.JUDGING)
+                submission.status = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
             else:
                 submission.status = SubmissionStatus.SUBMITTED
 

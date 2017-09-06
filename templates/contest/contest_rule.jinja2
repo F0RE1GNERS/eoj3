@@ -1,0 +1,57 @@
+{% from 'components/timeanddate_link.jinja2' import timeanddate_link %}
+
+{% macro contest_rule(contest) %}
+  <ul class="ui list">
+    <li class="item">
+      {% if contest.public %}
+        This contest is a <b>public</b> contest.
+      {% else %}
+        This contest is a <b>private</b> contest.
+      {% endif %}
+      {% if contest.always_running %}
+        It is an <b>always running</b> contest.
+      {% else %}
+        It starts at {{ timeanddate_link(contest.start_time) }}, and ends at {{ timeanddate_link(contest.end_time) }}.
+      {% endif %}
+    </li>
+    {% if contest.freeze %}
+      <li class="item">
+        The standings will be frozen at {{ contest.freeze_time | date('Y-m-d H:i:s') }}.
+      </li>
+    {% endif %}
+    {% if contest.is_frozen %}
+      <li class="item">
+        Standings are frozen now.
+      </li>
+    {% endif %}
+    <li class="item">
+      The supported languages are: {{ contest.verbose_supported_language_list }}.
+    </li>
+    <li class="item">
+      Based on <b>{{ contest.get_scoring_method_display() }}</b> scoring method.
+    </li>
+    <li class="item">
+      During contest, the following tests will be run: <b>{{ contest.get_run_tests_during_contest_display() }}</b>.
+    </li>
+    <li class="item">
+      Code share policy: {{ contest.get_allow_code_share_display() }}.
+    </li>
+    <li class="item">
+      {% if contest.last_counts %}
+        Your <b>last</b> submission will be treated as the final one.
+      {% else %}
+        Your <b>best</b> submission will be treated as the final one.
+      {% endif %}
+    </li>
+    <li class="item">
+      {% if contest.penalty_counts %}
+        Penalty will determine the rank among participants with the same score.
+      {% else %}
+        Penalty will not be calculated.
+      {% endif %}
+    </li>
+    {% if contest.standings_disabled %}
+      <li class="item">Standings are not visible to participants.</li>
+    {% endif %}
+  </ul>
+{% endmacro %}

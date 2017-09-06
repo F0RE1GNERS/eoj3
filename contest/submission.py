@@ -6,15 +6,16 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 
-from problem.views import StatusList, ProblemPersonalSubmissionAPI
+from problem.views import StatusList, ProblemSubmissionAPI
 from problem.tasks import create_submission, judge_submission_on_problem
 from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter
 from .tasks import judge_submission_on_contest
-from .permission import has_permission_for_contest_management
+from utils.permission import has_permission_for_contest_management
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
+from utils.permission import get_permission_for_submission
 from submission.forms import ContestSubmitForm
 from dispatcher.tasks import submit_code_for_contest
 from utils.language import LANG_CHOICE
@@ -47,16 +48,13 @@ class ContestSubmit(BaseContestMixin, TemplateView):
                                                        kwargs={'cid': self.contest.id, 'sid': submission.id})}))
 
 
-class ContestSubmissionAPI(BaseContestMixin, TemplateView):
-    template_name = 'components/single_submission.jinja2'
+class ContestSubmissionAPI(BaseContestMixin, View):
 
-    def get_context_data(self, **kwargs):
-        data = super(ContestSubmissionAPI, self).get_context_data(**kwargs)
-        data['submission'] = Submission.objects.get(contest_id=self.kwargs.get('cid'),
-                                                    author=self.request.user,
-                                                    pk=self.kwargs.get('sid'))
-        data['hide_problem'] = True
-        return data
+    def get(self, request, cid, sid):
+        submission = Submission.objects.get(contest_id=cid, author=request.user, pk=sid)
+        return HttpResponse(
+            render_submission(submission, permission=get_permission_for_submission(request.user, submission),
+                              hide_problem=True))
 
 
 class ContestSubmissionView(BaseContestMixin, TemplateView):
@@ -80,9 +78,9 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                 self.contest.status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
         if authorized:
-            data['submission_block'] = render_submission(submission, show_percent=(self.contest.scoring_method == 'oi'))
-        else:
-            data['submission_block'] = 'You are not authorized to view this submission.'
+            data['submission_block'] = render_submission(submission,
+                                                         permission=get_permission_for_submission(self.request.user, submission),
+                                                         show_percent=(self.contest.scoring_method == 'oi'))
 
         return data
 

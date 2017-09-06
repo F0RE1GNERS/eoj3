@@ -15,25 +15,18 @@ from account.models import User
 from account.permissions import is_admin_or_root
 from dispatcher.tasks import send_rejudge
 from utils.authentication import test_site_open
+from utils.permission import get_permission_for_submission
 from .models import Submission, SubmissionStatus
 
 
-def render_submission(submission: Submission, hide_problem=False, show_percent=False) -> str:
+def render_submission(submission: Submission, permission=1, hide_problem=False, show_percent=False) -> str:
+    if permission == 0:
+        raise PermissionDenied
+    if permission == 1 and submission.status_private == SubmissionStatus.SYSTEM_ERROR and submission.status_message:
+        submission.status_message = 'This message is only available to admins. Send feedback for details.'
     t = loader.get_template('components/single_submission.jinja2')
     c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent})
     return t.render(c)
-
-
-def pure_submission_api(request, pk):
-    submission = Submission.objects.get(pk=pk)
-    if not is_admin_or_root(request.user) and submission.status_message:
-        if submission.status == SubmissionStatus.SYSTEM_ERROR:
-            submission.status_message = 'This message is only available to admins. Send feedback for details.'
-        if request.user != submission.author:
-            submission.status_message = 'This message is only available to the author.'
-    if is_admin_or_root(request.user) or submission.user == request.user:
-        return HttpResponse(render_submission(submission))
-    raise PermissionDenied
 
 
 class SubmissionView(UserPassesTestMixin, View):

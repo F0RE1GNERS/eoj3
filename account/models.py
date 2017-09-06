@@ -25,7 +25,7 @@ PRIVILEGE_CHOICE = (
 MAGIC_CHOICE = (
     ('red', 'Red'),
     ('green', 'Green'),
-    ('cyan', 'Cyan'),
+    ('teal', 'Teal'),
     ('blue', 'Blue'),
     ('purple', 'Purple'),
     ('orange', 'Orange'),

@@ -1,0 +1,13 @@
+{% autoescape off %}
+
+Hello，{{ user.get_username_display() }}！
+
+We are glad to invite you to take part in <a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a>.
+
+{{ contest_rule(contest) }}
+
+If you have any questions, feel free to ask us. If you no longer wish to receive these emails, unfortunately you cannot unsubscribe these emails yet, but you will be able to in the near future.
+
+Have fun in coding.
+
+The EOJ Team
