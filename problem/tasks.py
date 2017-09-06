@@ -28,7 +28,7 @@ def upload_problem_to_judge_server(problem, server):
 
 
 def create_submission(problem, author, code, lang, contest=None, status=SubmissionStatus.WAITING):
-    assert len(code) > 0 and len(code) <= 65536
+    assert 0 < len(code) <= 65536
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
                                          status=status, status_private=status)

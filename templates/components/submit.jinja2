@@ -31,7 +31,7 @@
         {% endif %}
       </div>
       <div class="ui compact segment">
-        <input type="hidden" name="code" id="id_code">
+        <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
         <div id="editor" style="height: 400px; position: relative"></div>
       </div>
       <div class="ui compact right aligned segment">

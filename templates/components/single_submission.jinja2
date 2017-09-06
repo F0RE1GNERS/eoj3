@@ -4,6 +4,12 @@
   <a class="ui top right attached label clipboard" data-clipboard-text="{{ submission.code }}">
     <i class="copy icon"></i> {{ submission.get_lang_display() }}
   </a>
+  {% if not submission.contest %}
+    <a class="ui top left attached label" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">
+      open in editor
+      <i class="external icon"></i>
+    </a>
+  {% endif %}
   <div>{{ submission.code_as_html | safe }}</div>
 </div>
 <table class="ui celled table structured">

@@ -152,6 +152,11 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmitView, self).get_context_data(**kwargs)
+        submission_pk = self.request.GET.get('submission', None)
+        if submission_pk:
+            submission = Submission.objects.get(pk=submission_pk)
+            if get_permission_for_submission(self.request.user, submission):
+                data['code'] = submission.code
         data['lang_choices'] = LANG_CHOICE
         return data
 
