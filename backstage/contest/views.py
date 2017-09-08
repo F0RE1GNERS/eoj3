@@ -3,6 +3,7 @@ import json
 import names
 import random
 
+from threading import Thread
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse, get_object_or_404
 from django.template import loader
 from django.views import static, View
@@ -30,14 +31,16 @@ def get_formatted_time():
 
 
 class ContestSendInvitationMail(BaseBackstageMixin, View):
+
     def post(self, request, pk):
         recipient_list = list(filter(lambda x: x, [u.email for u in User.objects.filter(is_active=True).all()]))
         contest = get_object_or_404(Contest, pk=pk)
-        send_mail_with_bcc(contest.title,
-                           loader.render_to_string('notification/email_invitation.jinja2',
-                                                   context=dict(contest=contest, user=request.user)),
-                           recipient_list=recipient_list,
-                           fail_silently=True)
+        host = ('https' if request.is_secure() else 'http') + '://' + request.get_host()
+        Thread(target=send_mail_with_bcc, args=(contest.title,
+                                                loader.render_to_string('notification/email_invitation.jinja2',
+                                                                        context=dict(host=host, contest=contest)),),
+               kwargs=(dict(recipient_list=recipient_list,
+                            fail_silently=True))).start()
         return HttpResponse()
 
 

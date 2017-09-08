@@ -2,13 +2,13 @@
 
 <p>Hello! Welcome to {{ contest.title }}!</p>
 
-<p>We are glad to invite you to take part in <a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a>.</p>
+<p>We are glad to invite you to take part in <a href="{{ host }}{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a>.</p>
 
 <p>Here are the contest rules:</p>
 
 {{ contest_rule(contest) }}
 
-<p>If you interested in this contest, you can read the <a href="{{ url('contest:dashboard', contest.pk) }}">announcement</a> here.</p>
+<p>If you interested in this contest, you can read the <a href="{{ host }}{{ url('contest:dashboard', contest.pk) }}">announcement</a> here.</p>
 
 <p>Have fun in coding.</p>
 
