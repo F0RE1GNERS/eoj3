@@ -21,4 +21,4 @@ def send_mail_with_bcc(subject, html_message, recipient_list, fail_silently=Fals
             mail.send()
         except:
             traceback.print_exc()
-        time.sleep(3)
+        time.sleep(30)
