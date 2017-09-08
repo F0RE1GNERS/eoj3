@@ -56,7 +56,7 @@
       } else {
         alarmIcon.removeClass("orange");
         if (alarmShaker)
-          cancelInterval(alarmShaker);
+          clearInterval(alarmShaker);
       }
     }, 60000);
   }

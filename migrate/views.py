@@ -43,7 +43,7 @@ class MigrationThread(threading.Thread):
                 if Submission.objects.filter(author_id=s.author_id, problem_id=s.problem_id, contest__isnull=True,
                                              status=SubmissionStatus.ACCEPTED).last() == s:
                     with transaction.atomic():
-                        author = User.objects.select_for_update().get(pk=submission.author_id)
+                        author = User.objects.select_for_update().get(pk=self.new_user)
                         author.score += get_problem_difficulty(submission.problem_id)
                         author.save(update_fields=['score'])
             OldSubmission.objects.filter(author=self.username).all().delete()
