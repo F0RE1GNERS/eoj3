@@ -3,9 +3,6 @@
 {% macro render_comments(comments, flag) %}
   {% for item in comments %}
     {% if (not item.comment.is_removed or item.children) %}
-      {% if item.comment.level != 0 %}
-        <div class="comments">
-      {% endif %}
       <div class="comment">
         <a class="avatar" href="{{ url('generic', item.comment.user.username) }}">
          <img src="{{ item.comment.user.avatar_small.url }}">
@@ -46,12 +43,11 @@
           {% endif %}
         </div>
         {% if item.children %}
-          {{ render_comments(item.children, True) }}
+          <div class="comments">
+            {{ render_comments(item.children, True) }}
+          </div>
         {% endif %}
       </div>
-      {% if item.comment.level != 0 %}
-        </div>
-      {% endif %}
     {% endif %}
   {% endfor %}
 {% endmacro %}
