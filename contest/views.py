@@ -43,7 +43,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         if not self.contest.visible:
             self.permission_denied_message = 'Contest is not visible.'
             return False
-        if self.contest.status == 'pending':
+        if self.contest.status < 0:
             self.permission_denied_message = "Contest hasn't started."
             return False
         if self.registered:

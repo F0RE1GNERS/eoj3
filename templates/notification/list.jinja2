@@ -1,3 +1,37 @@
+{% extends 'base.jinja2' %}
+{% from 'components/nickname.jinja2' import clickable_nickname %}
+
+{% block title %}Notifications - {% endblock %}
+
+{% block page_header %}Notifications{% endblock %}
+
+{% block content %}
+
 {% for item in notifications %}
-  {{ item.description | markdown | safer | safe }}
+
+  <div class="ui feed">
+    <div class="event">
+      <div class="label">
+        <a href="{{ url('generic', item.actor.username) }}"><img src="{{ item.actor.avatar_small.url }}"></a>
+      </div>
+      <div class="content">
+        <div class="date">
+          {{ item.timestamp | naturaltime }}
+        </div>
+        <div class="summary">
+          {{ clickable_nickname(item.actor, tiny=True) }} {{ item.verb }}
+          {% if item.target.__class__.__name__ == 'Contest' %}
+            <a href="{{ url('contest:clarification', item.target.pk) }}">{{ item.target.title }}</a>
+          {% elif item.target.__class__.__name__ == 'Problem' %}
+            <a href="{{ url('problem:discussion', item.target.pk) }}">{{ item.target.title }}</a>
+          {% elif item.target.__class__.__name__ == 'Blog' %}
+            <a href="{{ url('blog:detail', item.target.pk) }}">{{ item.target.title }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endfor %}
+
+{% endblock %}

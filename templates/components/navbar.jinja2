@@ -11,6 +11,9 @@
         </div>
         <div class="results"></div>
       </div>
+      <a class="item" href="{{ url('notification:list') }}">
+        <i class="alarm icon"></i>
+      </a>
       {% if user.is_authenticated %}
         <div class="ui dropdown simple item">
           <div class="text">{{ request.user.username }}</div>
