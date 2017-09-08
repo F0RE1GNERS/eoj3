@@ -31,14 +31,14 @@ def get_formatted_time():
 
 class ContestSendInvitationMail(BaseBackstageMixin, View):
     def post(self, request, pk):
-        recipient_list = [u.email for u in User.objects.filter(is_active=True).all()]
+        recipient_list = list(filter(lambda x: x, [u.email for u in User.objects.filter(is_active=True).all()]))
         contest = get_object_or_404(Contest, pk=pk)
         send_mail_with_bcc(contest.title,
                            loader.render_to_string('notification/email_invitation.jinja2',
                                                    context=dict(contest=contest, user=request.user)),
                            recipient_list=recipient_list,
                            fail_silently=True)
-        return HttpResponseRedirect(request.POST['next'])
+        return HttpResponse()
 
 
 class ContestManage(BaseBackstageMixin, TemplateView):
