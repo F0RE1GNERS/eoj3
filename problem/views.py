@@ -291,7 +291,7 @@ class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
 class ProblemSubmissionAPI(LoginRequiredMixin, View):
 
     def get(self, request, pk, sid):
-        submission = Submission.objects.get(problem_id=pk, author=self.request.user, pk=sid)
+        submission = get_object_or_404(Submission, problem_id=pk, author=self.request.user, pk=sid)
         return HttpResponse(render_submission(submission,
                                               permission=get_permission_for_submission(request.user, submission),
                                               hide_problem=True))
@@ -303,8 +303,8 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
-        data['submission'] = submission = Submission.objects.get(pk=self.kwargs.get('sid'),
-                                                                 problem_id=self.kwargs.get('pk'))
+        data['submission'] = submission = get_object_or_404(Submission, pk=self.kwargs.get('sid'),
+                                                                        problem_id=self.kwargs.get('pk'))
         if self.request.user.is_authenticated and (
                             submission.author == self.request.user or
                         has_permission_for_problem_management(self.request.user,

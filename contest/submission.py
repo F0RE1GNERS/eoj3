@@ -52,7 +52,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
 class ContestSubmissionAPI(BaseContestMixin, View):
 
     def get(self, request, cid, sid):
-        submission = Submission.objects.get(contest_id=cid, author=request.user, pk=sid)
+        submission = get_object_or_404(Submission, contest_id=cid, author=request.user, pk=sid)
         return HttpResponse(
             render_submission(submission, permission=get_permission_for_submission(request.user, submission),
                               hide_problem=True))
@@ -63,8 +63,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestSubmissionView, self).get_context_data(**kwargs)
-        data['submission'] = submission = Submission.objects.get(contest_id=self.kwargs.get('cid'),
-                                                                 pk=self.kwargs.get('sid'))
+        data['submission'] = submission = get_object_or_404(Submission, contest_id=self.kwargs.get('cid'),
+                                                                        pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
         authorized = False
         if self.request.user.is_authenticated:  # Check author or manager (no share)
