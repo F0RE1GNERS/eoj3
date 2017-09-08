@@ -1,4 +1,5 @@
 {% autoescape off %}
+{% from 'contest/contest_rule.jinja2' import contest_rule %}
 
 Hello，{{ user.get_username_display() }}！
 
@@ -11,3 +12,5 @@ If you have any questions, feel free to ask us. If you no longer wish to receive
 Have fun in coding.
 
 The EOJ Team
+
+{% endautoescape %}

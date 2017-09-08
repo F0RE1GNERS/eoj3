@@ -3,7 +3,8 @@ import json
 import names
 import random
 
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, reverse, get_object_or_404
+from django.template import loader
 from django.views import static, View
 from django.views.generic import TemplateView
 from django.contrib import messages
@@ -12,6 +13,8 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 
 from django.conf import settings
+
+from utils.email import send_mail_with_bcc
 from .forms import ContestEditForm
 from account.models import User, MAGIC_CHOICE
 from contest.models import Contest, ContestProblem, ContestInvitation, ContestParticipant
@@ -24,6 +27,18 @@ from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
 def get_formatted_time():
     return timezone.now().strftime("%Y-%m-%d 00:00")
+
+
+class ContestSendInvitationMail(BaseBackstageMixin, View):
+    def post(self, request, pk):
+        recipient_list = [u.email for u in User.objects.filter(is_active=True).all()]
+        contest = get_object_or_404(Contest, pk=pk)
+        send_mail_with_bcc(contest.title,
+                           loader.render_to_string('notification/email_invitation.jinja2',
+                                                   context=dict(contest=contest, user=request.user)),
+                           recipient_list=recipient_list,
+                           fail_silently=True)
+        return HttpResponseRedirect(request.POST['next'])
 
 
 class ContestManage(BaseBackstageMixin, TemplateView):

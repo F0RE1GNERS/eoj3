@@ -39,7 +39,7 @@ if (window.hasOwnProperty("ace")) {
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/" + map[lang.val()]);
   editor.setOptions({
-    fontFamily: "Courier",
+    fontFamily: ["Consolas", "Courier", "Courier New", "monospace"],
     fontSize: "11pt"
   });
   lang.on("change", function (event) {

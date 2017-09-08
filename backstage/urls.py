@@ -2,13 +2,16 @@ from django.conf.urls import url
 
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
 from .base_views import Index
-from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, ContestInvitationAssign, ContestParticipantCreate
-from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, ContestInvitationDownload
-from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, ContestParticipantCommentUpdate, ContestParticipantStarToggle
+from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, \
+    ContestInvitationAssign, ContestParticipantCreate, ContestSendInvitationMail
+from .contest.views import ContestList, ContestCreate, ContestProfileUpdate, ContestManage, ContestParticipantDownload, \
+    ContestInvitationDownload
+from .contest.views import ContestProblemDelete, ContestProblemCreate, ContestParticipantList, \
+    ContestParticipantCommentUpdate, ContestParticipantStarToggle
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemMeta, ProblemAccessAdd, ProblemUpdate
-from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, ServerUpdateToken, ServerSynchronize
+from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
+    ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
-
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
@@ -24,6 +27,8 @@ urlpatterns = [
     url(r'^problem/(?P<pk>\d+)/access/add/$', ProblemAccessAdd.as_view(), name='problem_access_add'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
+    url(r'^contest/(?P<pk>\d+)/send-invitation$', ContestSendInvitationMail.as_view(), name='contest_send_invitation'),
+
     url(r'^contest/create/$', ContestCreate.as_view(), name='contest_create'),
     url(r'^contest/(?P<pk>\d+)/edit/$', ContestProfileUpdate.as_view(), name='contest_edit'),
     url(r'^contest/(?P<pk>\d+)/manage/$', ContestManage.as_view(), name='contest_manage'),
