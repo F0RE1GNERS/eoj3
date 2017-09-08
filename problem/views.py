@@ -7,6 +7,7 @@ from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, H
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from tagging.models import Tag, TaggedItem, ContentType
 
 from account.models import User
@@ -287,7 +288,7 @@ class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
         return {'submission_list': submission_set}
 
 
-class ProblemSubmissionAPI(UserPassesTestMixin, View):
+class ProblemSubmissionAPI(LoginRequiredMixin, View):
 
     def get(self, request, pk, sid):
         submission = Submission.objects.get(problem_id=pk, author=self.request.user, pk=sid)
@@ -296,7 +297,7 @@ class ProblemSubmissionAPI(UserPassesTestMixin, View):
                                               hide_problem=True))
 
 
-class ProblemSubmissionView(TemplateView):
+class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
 
     template_name = 'submission.jinja2'
 
