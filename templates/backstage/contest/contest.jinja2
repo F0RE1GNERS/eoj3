@@ -11,35 +11,32 @@
   <p>
     <a role="button" class="btn btn-default" href="{{ url('backstage:contest_create') }}">Add a contest</a>
   </p>
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th width="8%">#</th>
-          <th>Title</th>
-          <th width="20%">Start time</th>
-          <th width="20%">End time</th>
-          <th width="8%">Public</th>
-          <th width="10%">Edit</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for contest in contest_list %}
-          <tr>
-            <td scope="row">{{ contest.pk }}</td>
-            <td>{{ contest.title }}</td>
-            <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
-            <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
-            <td>{{ contest.public }}</td>
-            <td><a href="#" class="send-mail" data-link="{{ url('backstage:contest_send_invitation', contest.pk) }}">send mail</a></td>
-            {# NOTE: Contest cannot be deleted once created #}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 
-  {{ post_link('.send-mail') }}
+  <table class="ui table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Start time</th>
+        <th>End time</th>
+        <th>Public</th>
+        <th>Send Invitation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contest in contest_list %}
+        <tr>
+          <td scope="row">{{ contest.pk }}</td>
+          <td>{{ contest.title }}</td>
+          <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
+          <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
+          <td>{{ contest.public }}</td>
+          <td><a class="send-mail post-link" data-link="{{ url('backstage:contest_send_invitation', contest.pk) }}">Send Email</a></td>
+          {# NOTE: Contest cannot be deleted once created #}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
   {{ my_paginator() }}
 

@@ -1,16 +1,15 @@
-{% autoescape off %}
 {% from 'contest/contest_rule.jinja2' import contest_rule %}
 
-Hello，{{ user.get_username_display() }}！
+<p>Hello! Welcome to {{ contest.title }}!</p>
 
-We are glad to invite you to take part in <a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a>.
+<p>We are glad to invite you to take part in <a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a>.</p>
+
+<p>Here are the contest rules:</p>
 
 {{ contest_rule(contest) }}
 
-If you have any questions, feel free to ask us. If you no longer wish to receive these emails, unfortunately you cannot unsubscribe these emails yet, but you will be able to in the near future.
+<p>If you interested in this contest, you can read the <a href="{{ url('contest:dashboard', contest.pk) }}">announcement</a> here.</p>
 
-Have fun in coding.
+<p>Have fun in coding.</p>
 
-The EOJ Team
-
-{% endautoescape %}
+<p>The EOJ Team</p>
