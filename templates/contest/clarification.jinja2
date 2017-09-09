@@ -5,6 +5,8 @@
 {% block contest_content %}
 
   {{ render_comment_tree(contest) }}
-  {% include 'components/form.jinja2' %}
+  {% if contest.status == 0 and has_permission %}
+    {% include 'components/form.jinja2' %}
+  {% endif %}
 
 {% endblock %}

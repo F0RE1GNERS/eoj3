@@ -1,6 +1,8 @@
 from django import forms
 from django.dispatch import receiver
 from django.template import loader
+from django.contrib.auth.decorators import login_required
+from django_comments.views.comments import post_comment
 from django_comments.models import CommentFlag
 from django_comments.signals import comment_was_flagged, comment_was_posted
 from django_comments_xtd.forms import XtdCommentForm
@@ -24,6 +26,11 @@ class CommentForm(XtdCommentForm):
         self.fields['followup'] = forms.BooleanField(widget=forms.HiddenInput)
         self.fields['comment'].widget = forms.Textarea(attrs={'class': 'markdown'})
         self.fields['comment'].label = ''
+
+
+@login_required
+def login_required_post_comment(*args, **kwargs):
+    return post_comment(*args, **kwargs)
 
 
 @receiver(comment_was_flagged)
@@ -58,10 +65,10 @@ def send_notification(request, **kwargs):
                 verb = 'replied in'
             elif has_permission_for_contest_management(comment.user, contest):
                 recipient = list(map(lambda x: x.user, contest.contestparticipant_set.all()))
-                verb = 'ask a question in'
+                verb = 'posted a notification in'
             else:
                 recipient = contest.manager.all()
-                verb = 'post a notification in'
+                verb = 'asked a question in'
         elif comment['content_type'].name == 'problem':
             if comment['parent_id']:
                 target = Problem.objects.get(pk=comment['object_pk'])

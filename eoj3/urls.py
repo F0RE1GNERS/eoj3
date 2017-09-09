@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.static import serve
-from django_comments.views.comments import post_comment
+from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
@@ -56,7 +56,7 @@ urlpatterns = [
 
 
 urlpatterns += [
-    url(r'^post/$', post_comment, name='comments-post-comment'),
+    url(r'^post/$', login_required_post_comment, name='comments-post-comment'),
     url(r'^api/feedback/$', comment_xtd_api.ToggleFeedbackFlag.as_view(),
         name='comments-xtd-api-feedback'),
     url(r'^api/flag/$', comment_xtd_api.CreateReportFlag.as_view(),
