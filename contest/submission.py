@@ -40,7 +40,10 @@ class ContestSubmit(BaseContestMixin, TemplateView):
             raise PermissionDenied
         if request.POST['lang'] not in self.contest.supported_language_list:
             raise PermissionDenied
-        problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
+        try:
+            problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
+        except ContestProblem.DoesNotExist:
+            raise PermissionDenied
         submission = create_submission(problem, self.user, request.POST['code'], request.POST['lang'],
                                        contest=self.contest)
         self.contest.contestparticipant_set.get_or_create(user=self.user)
@@ -52,6 +55,8 @@ class ContestSubmit(BaseContestMixin, TemplateView):
 class ContestSubmissionAPI(BaseContestMixin, View):
 
     def get(self, request, cid, sid):
+        if not request.user.is_authenticated:
+            raise PermissionDenied
         submission = get_object_or_404(Submission, contest_id=cid, author=request.user, pk=sid)
         return HttpResponse(
             render_submission(submission, permission=get_permission_for_submission(request.user, submission),
