@@ -82,7 +82,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
             data['submission_block'] = render_submission(submission,
                                                          permission=get_permission_for_submission(self.request.user, submission),
                                                          show_percent=(self.contest.scoring_method == 'oi'))
-
+        else:
+            raise PermissionDenied
         return data
 
 

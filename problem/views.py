@@ -316,6 +316,8 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
             data['submission_block'] = render_submission(submission, permission=get_permission_for_submission(self.request.user,
                                                                                                       submission,
                                                                                                       special_permission=True))
+        else:
+            raise PermissionDenied
         data['problem'] = submission.problem
         return data
 
