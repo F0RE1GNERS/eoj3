@@ -74,16 +74,19 @@ def paginator(context, adjacent_pages=3):
 @jinja2.contextfunction
 @library.render_with("comments/comment_tree.jinja2")
 def render_comment_tree(context, obj):
-    def sort(c, depth):
+    def sort(c, sort_with_like, depth):
         def key(x):
             day = (datetime.now() - x['comment'].submit_date).seconds / 86400
-            vote = len(x['likedit_users']) - len(x['dislikedit_users']) * 3
+            if sort_with_like:
+                vote = len(x['likedit_users']) - len(x['dislikedit_users']) * 3
+            else:
+                vote = 0
             return vote - day
         c = sorted(c, key=key, reverse=True)
         if depth:
             for i in range(len(c)):
                 if c[i]['children']:
-                    c[i]['children'] = sort(c[i]['children'], depth - 1)
+                    c[i]['children'] = sort(c[i]['children'], sort_with_like, depth - 1)
         return c
 
     def get_config(content_type):  # from django_comments_xtd.utils
@@ -111,8 +114,7 @@ def render_comment_tree(context, obj):
         with_feedback=config['allow_feedback'],
         user=context['user']
     )
-    if config['allow_feedback']:
-        comments = sort(comments, depth=1)
+    comments = sort(comments, sort_with_like=config['allow_feedback'], depth=2)
     ctx = dict(comments=comments, user=context['user'])
     ctx.update(config)
     return ctx
