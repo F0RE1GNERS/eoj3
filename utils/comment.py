@@ -53,13 +53,12 @@ def send_notification(request, **kwargs):
         target = None
         verb = 'replied on'
         if comment['content_type'].name == 'blog':
-            target = Blog.objects.get(pk=comment['object_pk'])
+            target = comment['content_object']
             recipient = target.author
             if comment['parent_id']:
                 recipient = get_parent_user(comment)
         elif comment['content_type'].name == 'contest':
-            target = Contest.objects.get(pk=comment['object_pk'])
-            contest = comment['content_object']
+            target = contest = comment['content_object']
             if comment['parent_id']:
                 recipient = get_parent_user(comment)
                 verb = 'replied in'
@@ -71,7 +70,7 @@ def send_notification(request, **kwargs):
                 verb = 'asked a question in'
         elif comment['content_type'].name == 'problem':
             if comment['parent_id']:
-                target = Problem.objects.get(pk=comment['object_pk'])
+                target = comment['content_object']
                 recipient = get_parent_user(comment)
             else:
                 return
@@ -84,6 +83,5 @@ def send_notification(request, **kwargs):
             notify.send(sender=comment['user'],
                         recipient=recipient,
                         verb=verb,
-                        action_object=comment['xtd_comment'],
                         level=level,
                         target=target)
