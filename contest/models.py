@@ -207,7 +207,6 @@ class ContestParticipant(models.Model):
 
     class Meta:
         unique_together = ["user", "contest"]
-        ordering = ["-score", "penalty"]
 
 
 class ContestInvitation(models.Model):

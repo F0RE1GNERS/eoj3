@@ -62,7 +62,7 @@
         {% if submission.status_private == -2 or submission.status_private == -3 %}
           <div class="ui active large centered inline loader" style="margin-bottom:1em;"></div>
         {% endif %}
-        <div class="testcases">
+        <div class="testcases" style="display: block;">
           {% for status_number, detail in submission.status_detail_display %}
             <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}"><i class="icon"></i></span>
           {% endfor %}
