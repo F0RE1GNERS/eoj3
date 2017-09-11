@@ -1,8 +1,23 @@
 {% extends 'contest/base.jinja2' %}
+{% from 'components/modal.jinja2' import modal %}
 
 {% block contest_content %}
 
   {% include 'components/message.jinja2' %}
+
+  {% if not registered %}
+    <div>
+      <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
+      <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
+        {% csrf_token %}
+        <div class="ui action input">
+          <input type="text" name="code" placeholder="Invitation code...">
+          <button type="submit" class="ui button">OK</button>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
   {% if has_permission %}
     <table class="ui celled table">
       <thead>
@@ -25,24 +40,61 @@
       {% endfor %}
       </tbody>
     </table>
+
+    <div class="ui hidden divider"></div>
+
+    <table class="ui celled table">
+      <thead>
+        <tr class="center aligned">
+          <th class="collapsing">Time</th>
+          <th>Questions</th>
+          <th>Answers</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for clarification in clarifications %}
+        <tr>
+          <td class="center aligned collapsing">{{ clarification.time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ clarification.text }}</td>
+          <td>
+            {{ clarification.answer }}
+            {% if is_privileged %}
+              <i class="icon link edit modal-link" data-target="#clarificationAnswerModal"
+                 data-action="{{ url('contest:clarification_answer', contest.pk, clarification.pk) }}"></i>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">
+            <button class="ui primary labeled icon right floated button modal-link" data-target="#clarificationModal">
+              <i class="icon add"></i>
+              Ask a question
+            </button>
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+
+    {% call modal("Ask a question", action=url('contest:clarification', contest.pk), id="clarificationModal") %}
+      {% csrf_token %}
+      <div class="field">
+        <label>Enter your question here:</label>
+        <textarea name="text"></textarea>
+      </div>
+    {% endcall %}
+
+    {% call modal("Answer a question", action=url('contest:clarification', contest.pk), id="clarificationAnswerModal") %}
+      {% csrf_token %}
+      <div class="field">
+        <label>Edit your answer here:</label>
+        <textarea name="text"></textarea>
+      </div>
+    {% endcall %}
+
   {% endif %}
-  {% if not registered %}
-    <div>
-      <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
-      <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
-        {% csrf_token %}
-        <div class="ui action input">
-          <input type="text" name="code" placeholder="Invitation code...">
-          <button type="submit" class="ui button">OK</button>
-        </div>
-      </form>
-    </div>
-  {% endif %}
-  <div>
-    {% if contest.description %}
-      <h4>Announcement</h4>
-      <div>{{ contest.description | markdown | safe }}</div>
-    {% endif %}
-  </div>
+
 
 {% endblock %}

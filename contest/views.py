@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View, FormView
@@ -35,6 +36,7 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
             self.registered = True
         else:
             self.registered = False
+        self.important_clarifications = self.contest.contestclarification_set.filter(important=True)
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
@@ -71,23 +73,9 @@ class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin)
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
+        data['base_notifications'] = self.important_clarifications
 
         return data
-
-
-class ClarificationView(BaseContestMixin, FormView):
-    template_name = 'contest/clarification.jinja2'
-    form_class = CommentForm
-
-    def get_context_data(self, **kwargs):
-        data = super(ClarificationView, self).get_context_data(**kwargs)
-        data['action_path'] = reverse('comments-post-comment')
-        return data
-
-    def get_form_kwargs(self):
-        kw = super(ClarificationView, self).get_form_kwargs()
-        kw['target_object'] = self.contest
-        return kw
 
 
 class DashboardView(BaseContestMixin, TemplateView):
@@ -116,6 +104,15 @@ class DashboardView(BaseContestMixin, TemplateView):
                         problem.personal_label = 1
                     elif problem.problem_id in attempt_list:
                         problem.personal_label = -1
+                if self.privileged:
+                    clarifications = self.contest.contestclarification_set.all()
+                else:
+                    q = Q(important=True)
+                    if self.user.is_authenticated:
+                        q |= Q(author=self.user)
+                    clarifications = self.contest.contestclarification_set.filter(q)
+                data["clarifications"] = clarifications
+
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
                                                      self.contest.id)
         for problem in data['contest_problem_list']:

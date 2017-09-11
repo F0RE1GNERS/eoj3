@@ -15,7 +15,6 @@
     {% if not contest.standings_disabled %}
       <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
     {% endif %}
-    <a class="{{ active('contest:clarification') }} item" href="{{ url('contest:clarification', contest.pk) }}">Clarification</a>
     {% if is_volunteer or is_privileged %}
       <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>
     {% endif %}
@@ -79,6 +78,32 @@
         </div>
       {% endif %}
 
+      {% if base_notifications %}
+        <div class="ui segments">
+          <div class="ui segment">
+            <h3 class="ui center aligned header">Notifications</h3>
+          </div>
+          <div class="ui segment">
+            <ul class="ui list">
+              {% for i in base_notifications %}
+                <li>{{ i.answer }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if contest.description %}
+        <div class="ui segments">
+          <div class="ui segment">
+            <h3 class="ui center aligned header">Description</h3>
+          </div>
+          <div class="ui segment">
+            {{ contest.description | markdown | safe }}
+          </div>
+        </div>
+      {% endif %}
+
       <div class="ui segments">
         <div class="ui segment">
           <h3 class="ui center aligned header">Rules</h3>
@@ -105,7 +130,7 @@
 {#          {% endif %}#}
 {#        </div>#}
 
-  <div class="ui basic modal" id="refreshNotification">
+  <div class="ui basic tiny modal" id="refreshNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
       Announcement
@@ -121,7 +146,7 @@
     </div>
   </div>
 
-  <div class="ui basic modal" id="stayNotification">
+  <div class="ui basic tiny modal" id="stayNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
       Announcement

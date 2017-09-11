@@ -21,7 +21,7 @@
         <div class="summary">
           {{ clickable_nickname(item.actor, tiny=True) }} {{ item.verb }}
           {% if item.target.__class__.__name__ == 'Contest' %}
-            <a href="{{ url('contest:clarification', item.target.pk) }}">{{ item.target.title }}</a>
+            <a href="{{ url('contest:dashboard', item.target.pk) }}">{{ item.target.title }}</a>
           {% elif item.target.__class__.__name__ == 'Problem' %}
             <a href="{{ url('problem:discussion', item.target.pk) }}">{{ item.target.title }}</a>
           {% elif item.target.__class__.__name__ == 'Blog' %}

@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponseRedirect, reverse
+from django.shortcuts import HttpResponseRedirect, reverse, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.utils import timezone
@@ -9,55 +9,33 @@ from django.db.models import Q
 import json
 import datetime
 
+from utils.permission import has_permission_for_contest_management
 from .models import Contest, ContestClarification
 from .views import BaseContestMixin
 from account.permissions import is_admin_or_root
 
 
-class ContestClarificationView(BaseContestMixin, ListView):
-    template_name = 'contest/clarification.jinja2'
-    context_object_name = 'clarification_list'
-
-    def get_queryset(self):
-        if self.privileged:
-            set = self.contest.contestclarification_set.all()
-        else:
-            q = Q(important=True)
-            if self.user.is_authenticated:
-                q |= Q(author=self.user)
-            set = self.contest.contestclarification_set.filter(q)
-        return set
+class ContestClarificationView(BaseContestMixin, View):
 
     def post(self, request, cid):
         if self.contest.status != 0:
-            messages.error(self.request, 'You are currently not in the period of the contest.')
-            return HttpResponseRedirect(self.request.path)
+            raise PermissionDenied
+        text = request.POST["text"]
+        if not text:
+            raise PermissionDenied
+        if has_permission_for_contest_management(request.user, self.contest):
+            ContestClarification.objects.create(contest=self.contest, important=True, author=request.user, answer=text)
+        else:
+            ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
+        return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
 
-        ContestClarification.objects.create(contest_id=self.kwargs['cid'], author=request.user,
-                                            text=request.POST['message'])
-        return HttpResponseRedirect(request.POST['next'])
 
+class ContestClarificationAnswer(BaseContestMixin, View):
 
-class ContestClarificationQuery(BaseContestMixin, View):
-    def get(self, request, cid):
-        contest = Contest.objects.get(pk=cid)
-        data = {"time": timezone.now().timestamp()}
-        try:
-            time = datetime.datetime.fromtimestamp(float(request.GET["time"]))
-            if self.privileged:
-                response = contest.contestclarification_set.filter(important=False, time__gt=time).all()
-                data['type'] = 'New Question:<br><br>'
-            else:
-                q = Q(important=True)
-                if self.user.is_authenticated:
-                    q |= Q(author=self.user)
-                q &= Q(time__gt=time)
-                response = contest.contestclarification_set.filter(q).all()
-                data['type'] = 'New Clarification:<br><br>'
-            data['response'] = '<br><br>----------<br><br>'.join(map(lambda x: str(x).strip().replace('\n', '<br>'), response))
-            if contest.get_status() != 'running':
-                data['response'] = 'reject'
-        except Exception as e:
-            # print(repr(e))
-            pass
-        return HttpResponse(json.dumps(data))
+    def post(self, request, cid, pk):
+        if has_permission_for_contest_management(request.user, self.contest):
+            clarification = get_object_or_404(ContestClarification, contest_id=cid, pk=pk)
+            clarification.answer = request.POST["text"]
+            clarification.save(update_fields=["answer"])
+            return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
+        raise PermissionDenied
