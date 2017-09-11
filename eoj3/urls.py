@@ -1,18 +1,3 @@
-"""eoj3 URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.10/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
 import re
 
 from django.conf.urls import url, include
@@ -33,22 +18,23 @@ from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 UPLOAD_ROOT = '/upload/'
 STATIC_ROOT = '/static/'
 urlpatterns = [
+    url(r'^login/$', my_login, name='login', kwargs={"force_open": True}),
+    url(r'^contest/', include('contest.urls', namespace='contest'), kwargs={"force_open": True}),
+    url(r'^backstage/', include('backstage.urls', namespace='backstage'), kwargs={"force_open": True}),
+    url(r'^captcha/', include('captcha.urls'), kwargs={"force_open": True}),
+    url(r'^logout/$', logout, name='logout', kwargs={"force_open": True}),
+
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('eoj3.api_urls', namespace='api')),
     url(r'^$', home_view, name='home'),
     url(r'^faq/$', faq_view, name='faq'),
     url(r'^problem/', include('problem.urls', namespace='problem')),
     url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
-    url(r'^contest/', include('contest.urls', namespace='contest')),
-    url(r'^login/$', my_login, name='login'),
     url(r'^register/$', RegisterView.as_view(), name='register'),
-    url(r'^logout/$', logout, name='logout'),
-    url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic'),
     url(r'^blog/', include('blog.urls', namespace='blog')),
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
-    url(r'^captcha/', include('captcha.urls')),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
     url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
