@@ -16,7 +16,7 @@ class CloseSiteMiddleware(object):
     @staticmethod
     def process_view(request, view_func, view_args, view_kwargs):
         force_closed = view_kwargs.pop('force_closed', False)
-        if is_site_closed() and force_closed and not is_admin_or_root(request.user):
+        if force_closed and is_site_closed() and not is_admin_or_root(request.user):
             return render(request, 'error/closed.jinja2')
         else:
             return view_func(request, *view_args, **view_kwargs)
