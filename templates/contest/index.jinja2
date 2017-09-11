@@ -43,6 +43,12 @@
 
     <div class="ui hidden divider"></div>
 
+    {% if is_privileged %}
+      {% set clarification_modal_name = "Post a notification" %}
+    {% else %}
+      {% set clarification_modal_name = "Ask a question" %}
+    {% endif %}
+
     <table class="ui celled table">
       <thead>
         <tr class="center aligned">
@@ -70,18 +76,16 @@
         <tr>
           <th colspan="3">
             <button class="ui primary labeled icon right floated button modal-link" data-target="#clarificationModal">
-              <i class="icon add"></i>
-              Ask a question
+              <i class="icon add"></i> {{ clarification_modal_name }}
             </button>
           </th>
         </tr>
       </tfoot>
     </table>
 
-    {% call modal("Ask a question", action=url('contest:clarification', contest.pk), id="clarificationModal") %}
+    {% call modal(clarification_modal_name, action=url('contest:clarification', contest.pk), id="clarificationModal") %}
       {% csrf_token %}
       <div class="field">
-        <label>Enter your question here:</label>
         <textarea name="text"></textarea>
       </div>
     {% endcall %}
