@@ -17,23 +17,29 @@ from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
 UPLOAD_ROOT = '/upload/'
 STATIC_ROOT = '/static/'
+
+
+def force_closed():
+    return {"force_closed": True}
+
+
 urlpatterns = [
-    url(r'^login/$', my_login, name='login', kwargs={"force_open": True}),
-    url(r'^contest/', include('contest.urls', namespace='contest'), kwargs={"force_open": True}),
-    url(r'^backstage/', include('backstage.urls', namespace='backstage'), kwargs={"force_open": True}),
-    url(r'^captcha/', include('captcha.urls'), kwargs={"force_open": True}),
-    url(r'^logout/$', logout, name='logout', kwargs={"force_open": True}),
+    url(r'^login/$', my_login, name='login'),
+    url(r'^contest/', include('contest.urls', namespace='contest')),
+    url(r'^backstage/', include('backstage.urls', namespace='backstage')),
+    url(r'^captcha/', include('captcha.urls')),
+    url(r'^logout/$', logout, name='logout'),
 
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('eoj3.api_urls', namespace='api')),
     url(r'^$', home_view, name='home'),
     url(r'^faq/$', faq_view, name='faq'),
-    url(r'^problem/', include('problem.urls', namespace='problem')),
+    url(r'^problem/', include('problem.urls', namespace='problem'), kwargs=force_closed()),
     url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
     url(r'^register/$', RegisterView.as_view(), name='register'),
     url(r'^account/', include('account.urls', namespace='account')),
-    url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic'),
-    url(r'^blog/', include('blog.urls', namespace='blog')),
+    url(r'^generic/(?P<name>.*)', GenericView.as_view(), name='generic', kwargs=force_closed()),
+    url(r'^blog/', include('blog.urls', namespace='blog'), kwargs=force_closed()),
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
     url(r'^message/', include('message.urls', namespace='message')),
@@ -42,11 +48,11 @@ urlpatterns = [
 
 
 urlpatterns += [
-    url(r'^post/$', login_required_post_comment, name='comments-post-comment'),
-    url(r'^api/feedback/$', comment_xtd_api.ToggleFeedbackFlag.as_view(),
-        name='comments-xtd-api-feedback'),
-    url(r'^api/flag/$', comment_xtd_api.CreateReportFlag.as_view(),
-        name='comments-xtd-api-flag'),
+    url(r'^comment/post/$', login_required_post_comment, name='comments-post-comment', kwargs=force_closed()),
+    url(r'^comment/api/feedback/$', comment_xtd_api.ToggleFeedbackFlag.as_view(),
+        name='comments-xtd-api-feedback', kwargs=force_closed()),
+    url(r'^comment/api/flag/$', comment_xtd_api.CreateReportFlag.as_view(),
+        name='comments-xtd-api-flag', kwargs=force_closed()),
 ]
 
 if DEBUG:

@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse, redirect
 from django.db.models import Q
-from utils.models import site_settings_set, SiteSettings
+from utils.site_settings import site_settings_set, SiteSettings
 from migrate.models import OldSubmission
 from submission.models import SubmissionStatus
 from django.views.generic import ListView, View, TemplateView

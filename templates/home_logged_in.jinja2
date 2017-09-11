@@ -8,6 +8,7 @@
 
   <div class="ui grid">
 
+    {% if blog_list %}
     <div class="eleven wide column">
       <div class="ui feed">
         {% for blog in blog_list %}
@@ -15,6 +16,11 @@
         {% endfor %}
       </div>
     </div>
+    {% else %}
+    <div class="eleven wide column">
+      <p>News feed is currently unavailable.</p>
+    </div>
+    {% endif %}
 
     <div class="five wide column">
 

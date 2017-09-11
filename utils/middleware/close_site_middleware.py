@@ -1,5 +1,7 @@
-from utils.models import SiteSettings
-from django.shortcuts import HttpResponseRedirect, reverse
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render
+
+from utils.site_settings import is_site_closed
 from utils.permission import is_admin_or_root
 
 
@@ -13,9 +15,9 @@ class CloseSiteMiddleware(object):
 
     @staticmethod
     def process_view(request, view_func, view_args, view_kwargs):
-        force_open = view_kwargs.pop('force_open', False)
-        if SiteSettings.objects.filter(key='SITE_CLOSE').exists() and not force_open and not is_admin_or_root(request.user):
-            return HttpResponseRedirect(reverse('contest:list'))
+        force_closed = view_kwargs.pop('force_closed', False)
+        if is_site_closed() and force_closed and not is_admin_or_root(request.user):
+            return render(request, 'error/closed.jinja2')
         else:
             return view_func(request, *view_args, **view_kwargs)
 

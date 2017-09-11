@@ -29,3 +29,7 @@ def site_settings_set(key, val):
         settings.val = val
         settings.save(update_fields=['val'])
     cache.set('site_settings_' + key, val, 300)
+
+
+def is_site_closed():
+    return bool(site_settings_get("SITE_CLOSE"))

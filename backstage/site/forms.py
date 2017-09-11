@@ -1,5 +1,5 @@
 from django import forms
-from utils.models import SiteSettings
+from utils.site_settings import SiteSettings
 
 
 class SiteSettingsForm(forms.ModelForm):
