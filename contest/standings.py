@@ -7,7 +7,8 @@ from django.views import static
 from .models import ContestParticipant
 from .views import BaseContestMixin
 from .statistics import get_contest_rank, get_participant_rank, invalidate_contest
-from utils import xlsx_generator
+from utils.csv_writer import write_csv
+from utils.download import respond_generate_file
 from django.conf import settings
 
 
@@ -52,7 +53,7 @@ class ContestStandings(BaseContestMixin, ListView):
 class ContestUpdateStandings(BaseContestMixin, View):
     def get(self, request, cid):
         if not self.privileged:
-            raise PermissionDenied('You cannot update the standings.')
+            raise PermissionDenied
         invalidate_contest(self.contest)
         return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
 
@@ -60,6 +61,41 @@ class ContestUpdateStandings(BaseContestMixin, View):
 class ContestDownloadStandings(BaseContestMixin, View):
     def get(self, request, cid):
         if not self.privileged:
-            raise PermissionDenied('You cannot download the standings.')
-        file_name = xlsx_generator.generate(cid)
-        return static.serve(request, file_name, document_root=settings.GENERATE_DIR)
+            raise PermissionDenied
+        rank_list = get_contest_rank(self.contest)
+        contest_participants = {user.user_id: user for user in
+                                ContestParticipant.objects.filter(contest=self.contest).select_related('user',
+                                                                                                       'contest').
+                                    all()}
+
+        header = ["Rank", "Username", "Info", "Score"]
+        if self.contest.penalty_counts:
+            header.append("Penalty")
+        for problem in self.contest.contest_problem_list:
+            header.append(problem.identifier)
+        data = [header]
+        for rank in rank_list:
+            d = []
+            d.append(str(rank["rank"]) if "rank" in rank else "*")
+            participant = contest_participants[rank['user']]
+            d.append(participant.user.username)
+            d.append(participant.comment)
+            d.append(str(rank["score"]))
+            if self.contest.penalty_counts:
+                d.append(str(rank["penalty"] // 60))
+            for problem in self.contest.contest_problem_list:
+                detail = rank["detail"].get(problem.problem_id)
+                text = ''
+                if detail and not detail.get("waiting", False) and detail.get("attempt"):
+                    if self.contest.scoring_method != "acm":
+                        text = str(detail["score"])
+                    elif detail["solved"]:
+                        text = "+" + str(detail["attempt"] - 1)
+                        if self.contest.penalty_counts:
+                            text += "(%d)" % (detail["time"] // 60)
+                    else:
+                        text = "-" + str(detail["attempt"])
+                d.append(text)
+            data.append(d)
+        file_name = write_csv(data)
+        return respond_generate_file(request, file_name, file_name_serve_as="ContestStandings - %s.csv" % self.contest.title)

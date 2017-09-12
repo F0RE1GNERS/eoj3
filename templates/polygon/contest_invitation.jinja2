@@ -9,7 +9,7 @@
   <div class="ui buttons">
     <button class="ui primary button modal-link" data-target="#addInvitationModal">Add invitations</button>
     <button class="ui button modal-link" data-toggle="modal" data-target="#importInvitationModal">Import from namelist</button>
-    <a role="button" class="ui button" href="{{ url('backstage:contest_invitation_download', contest.pk) }}">Download as Excel</a>
+    <a role="button" class="ui button" href="{{ url('polygon:contest_invitation_download', contest.pk) }}">Download as csv</a>
   </div>
 
   <table class="ui table center aligned">

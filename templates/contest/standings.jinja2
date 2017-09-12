@@ -18,6 +18,8 @@
 {#      {% endif %}#}
 {#    </p>#}
 {#  </div>#}
+
+
   <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
 
@@ -103,15 +105,15 @@
     </tbody>
   </table>
 
-  {% if is_privileged %}
-  <p>
-    <a class="ui button" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
-    <a class="ui button" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
-  </p>
-  {% endif %}
-
   {% if paginator %}
     {{ my_paginator() }}
+  {% endif %}
+
+  {% if is_privileged %}
+  <div class="ui right floated buttons">
+    <a class="ui button primary" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
+    <a class="ui button" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
+  </div>
   {% endif %}
 
 {% endblock %}

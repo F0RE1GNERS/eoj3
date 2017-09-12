@@ -4,9 +4,6 @@
 {% from 'components/profile_card.jinja2' import profile_card with context %}
 {% from 'components/blog_preview.jinja2' import blog_preview %}
 
-{% block css %}
-  <link rel="stylesheet" href="/static/node_modules/cal-heatmap/cal-heatmap.css" />
-{% endblock %}
 {% block title %}Profile - {% endblock %}
 
 {% block page_header %}{{ profile.get_username_display() }}{% endblock %}
@@ -39,8 +36,12 @@
       </form>
     </div>
 
-
   </div>
+
+  <div class="ui hidden divider"></div>
+
+  <div class="ui header">Submission Heatmap</div>
+  <div id="cal-heatmap"></div>
 
 {% endblock %}
 
@@ -48,18 +49,27 @@
   <script src="/static/node_modules/d3/d3.min.js"></script>
   <script src="/static/node_modules/cal-heatmap/cal-heatmap.min.js"></script>
   <script>
+    var yearsAgo = function (year) {
+      now = new Date();
+      now.setYear(now.getFullYear() - year);
+      now.setMonth(now.getMonth() + 1);
+      return now;
+    };
+
     var cal = new CalHeatMap();
     var date = new Date();
     cal.init({
+      start: yearsAgo(1),
       itemSelector: "#cal-heatmap",
       itemName: ["submission", "submissions"],
-      start: new Date(date.setFullYear(date.getFullYear() - 1)).setMonth(date.getMonth() + 1),
       domain: "month",
       subDomain: "day",
       data: "/api/submission/user/{{ profile.username }}",
       dataType: "json",
-      domainMargin: 5,
-      legend: [1, 2, 3, 4]
+{#      domainMargin: 5,#}
+      legend: [1, 2, 3, 4],
+      cellSize: 12,
+      legendColors: ["#ecf5e2", "#232181"]
     });
   </script>
 {% endblock %}

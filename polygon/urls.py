@@ -5,7 +5,8 @@ from .contest import (
     ContestProblemChangeWeight, ContestStatusBackend, RejudgeContestProblemSubmission,
     ContestProblemCreate, ContestProblemReorder, ContestProblemDelete, ContestInvitationAssign,
     ContestInvitationCreate, ContestInvitationList, ContestParticipantList, ContestParticipantCreate,
-    ContestParticipantCommentUpdate, ContestParticipantStarToggle, ContestInvitationDelete
+    ContestParticipantCommentUpdate, ContestParticipantStarToggle, ContestInvitationDelete,
+    ContestInvitationCodeDownload, ContestParticipantsNoteDownload
 )
 from .views import (
     home_view, register_view, SessionList, SessionCreate, SessionPull, SessionPush, SessionPullHotReload,
@@ -96,6 +97,7 @@ urlpatterns = [
         name='contest_invitation_delete'),
     url(r'^contest/(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', ContestInvitationAssign.as_view(),
         name='contest_invitation_assign'),
+    url(r'^contest/(?P<pk>\d+)/invitation/download/$', ContestInvitationCodeDownload.as_view(), name='contest_invitation_download'),
     url(r'^contest/(?P<pk>\d+)/participants/$', ContestParticipantList.as_view(), name='contest_participant'),
     url(r'^contest/(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$',
         ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
@@ -103,6 +105,7 @@ urlpatterns = [
         name='contest_participant_star_toggle'),
     url(r'^contest/(?P<pk>\d+)/participants/create/$', ContestParticipantCreate.as_view(),
         name='contest_participant_create'),
+    url(r'^contest/(?P<pk>\d+)/participants/download/$', ContestParticipantsNoteDownload.as_view(), name='contest_participant_download'),
     url(r'^contest/(?P<pk>\d+)/status/$', ContestStatusBackend.as_view(), name='contest_status'),
     url(r'^contest/(?P<pk>\d+)/rejudge/$', RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
     url(r'^session/(?P<sid>\d+)/api/$', SessionEditUpdateAPI.as_view(), name='session_update_api'),

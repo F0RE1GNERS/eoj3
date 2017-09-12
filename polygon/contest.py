@@ -25,6 +25,8 @@ from problem.statistics import (
 )
 from problem.views import StatusList
 from utils.identicon import Identicon
+from utils.download import respond_generate_file
+from utils.csv_writer import write_csv
 from .forms import ContestEditForm
 from .rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
 from .views import PolygonBaseMixin, response_ok
@@ -216,8 +218,9 @@ class ContestInvitationList(PolygonContestMixin, ListView):
 class ContestInvitationCreate(PolygonContestMixin, View):
     @staticmethod
     def _create(contest, comments):
+        random_gen = shortuuid.ShortUUID()
         ContestInvitation.objects.bulk_create(
-            [ContestInvitation(contest, shortuuid.ShortUUID().random(12), comment) for comment in comments])
+            [ContestInvitation(contest=contest, code=random_gen.random(12), comment=comment) for comment in comments])
 
     def post(self, request, pk):
         try:
@@ -357,3 +360,18 @@ class ContestStatusBackend(PolygonContestMixin, StatusList):
         return data
 
 
+class ContestInvitationCodeDownload(PolygonContestMixin, View):
+
+    def get(self, request, pk):
+        data = [[user.comment, user.code] for user in self.contest.contestinvitation_set.all()]
+        filename = write_csv(data)
+        return respond_generate_file(request, filename, file_name_serve_as="InvitationCode - %s.csv" % self.contest.title)
+
+
+class ContestParticipantsNoteDownload(PolygonContestMixin, View):
+
+    def get(self, request, pk):
+        data = [[user.comment, user.user.username, user.hidden_comment] for user in
+                self.contest.contestparticipant_set.select_related("user").all()]
+        filename = write_csv(data)
+        return respond_generate_file(request, filename, file_name_serve_as="ContestParticipant - %s.csv" % self.contest.title)
