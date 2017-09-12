@@ -258,7 +258,7 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         elif self.request.GET.get('type') == 'fastest':
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("status_time")
         else:
-            return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED)
+            return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
     def get_context_data(self, **kwargs):
         data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
