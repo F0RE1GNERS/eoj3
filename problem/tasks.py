@@ -74,6 +74,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         if data.get('status') == 'received':
             if 'message' in data:
                 submission.status_message = data['message']
+            else:
+                submission.status_message = ''
             submission.status_private = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
             if not kwargs.get('status_private'):
                 submission.status = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))

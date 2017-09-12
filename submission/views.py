@@ -22,8 +22,8 @@ from .models import Submission, SubmissionStatus
 def render_submission(submission: Submission, permission=1, hide_problem=False, show_percent=False) -> str:
     if permission == 0:
         raise PermissionDenied
-    if permission == 1 and submission.status_private == SubmissionStatus.SYSTEM_ERROR and submission.status_message:
-        submission.status_message = 'This message is only available to admins. Send feedback for details.'
+    if permission == 1 and submission.status_private != SubmissionStatus.COMPILE_ERROR and submission.status_message:
+        submission.status_message = ''
     t = loader.get_template('components/single_submission.jinja2')
     c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent})
     return t.render(c)
