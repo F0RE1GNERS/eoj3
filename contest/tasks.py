@@ -12,7 +12,8 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
 
     def _callback():
         invalidate_contest_participant(contest, submission.author_id)
-        callback()
+        if callback:
+            callback()
 
     contest = submission.contest
     cases = 'all' if contest.status > 0 else contest.run_tests_during_contest

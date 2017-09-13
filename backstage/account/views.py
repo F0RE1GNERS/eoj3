@@ -63,3 +63,10 @@ class AccountPasswordChange(BaseBackstageMixin, View):
         return HttpResponseRedirect(reverse('backstage:account'))
 
 
+class AccountPolygonSwitch(BaseBackstageMixin, View):
+    def post(self, request, pk):
+        with transaction.atomic():
+            instance = User.objects.select_for_update().get(pk=pk)
+            instance.polygon_enabled = not instance.polygon_enabled
+            instance.save(update_fields=["polygon_enabled"])
+        return HttpResponse()

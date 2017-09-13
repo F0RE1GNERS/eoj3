@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange
+from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch
 from .base_views import Index
 from .contest.views import ContestInvitationList, ContestInvitationCreate, ContestInvitationDelete, \
     ContestInvitationAssign, ContestParticipantCreate, ContestSendInvitationMail
@@ -18,6 +18,7 @@ urlpatterns = [
 
     url(r'^account/$', AccountList.as_view(), name='account'),
     url(r'^account/privilege/(?P<pk>\d+)/$', AccountPrivilegeSwitch.as_view(), name='account_privilege_switch'),
+    url(r'^account/polygon/(?P<pk>\d+)/$', AccountPolygonSwitch.as_view(), name='account_polygon_switch'),
     url(r'^account/password/(?P<pk>\d+)/$', AccountPasswordChange.as_view(), name='account_password_change'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
