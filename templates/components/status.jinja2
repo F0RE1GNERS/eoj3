@@ -109,7 +109,11 @@
             {% if not contest %}
               <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
             {% else %}
-              <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
+              {% if submission.contest_problem %}
+                <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
+              {% else %}
+                <td></td>
+              {% endif %}
             {% endif %}
           {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
