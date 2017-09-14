@@ -21,19 +21,7 @@ def respond_as_attachment(request, file_path, original_filename, document_root=N
     response['Content-Length'] = str(os.stat(file_path).st_size)
     if encoding is not None:
         response['Content-Encoding'] = encoding
-
-    # To inspect details for the below code, see http://greenbytes.de/tech/tc2231/
-    if 'WebKit' in request.META['HTTP_USER_AGENT']:
-        # Safari 3.0 and Chrome 2.0 accepts UTF-8 encoded string directly.
-        filename_header = 'filename=%s' % original_filename
-    elif 'MSIE' in request.META['HTTP_USER_AGENT']:
-        # IE does not support internationalized filename at all.
-        # It can only recognize internationalized URL, so we do the trick via routing rules.
-        filename_header = ''
-    else:
-        # For others like Firefox, we follow RFC2231 (encoding extension in HTTP headers).
-        filename_header = 'filename*=UTF-8\'\'%s' % parse.quote(original_filename)
-    response['Content-Disposition'] = 'attachment; ' + filename_header
+    response['Content-Disposition'] = 'attachment; filename=%s' % original_filename
     return response
 
 
