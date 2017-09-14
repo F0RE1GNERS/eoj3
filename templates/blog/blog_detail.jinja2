@@ -1,5 +1,5 @@
 {% extends 'base.jinja2' %}
-{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+{% from 'components/username_display.jinja2' import username_display with context %}
 
 {% block title %}{{ blog.title }} - Blog - {% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block content %}
 
-  <p>{{ clickable_nickname(blog.author, tiny=True) }} edited {{ blog.edit_time | naturaltime }}
+  <p>{{ username_display(blog.author, tiny=True) }} edited {{ blog.edit_time | naturaltime }}
   {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
   {{ blog.text | markdown | safer | safe }}
 

@@ -6,7 +6,7 @@ import traceback
 RULES = {
     # tag: (class list, [default, optional])
     'table': (['ui', 'table', 'center', 'aligned', 'celled'], []),
-    'img': (['ui', 'image', 'centered'], ['medium', 'fluid', 'mini', 'tiny', 'small', 'large', 'big', 'huge', 'massive'])
+    'img': (['ui', 'image', 'centered'], ['large', 'medium', 'fluid', 'mini', 'tiny', 'small', 'big', 'huge', 'massive'])
 }
 
 

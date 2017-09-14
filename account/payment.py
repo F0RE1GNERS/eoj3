@@ -1,6 +1,8 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.db import transaction
+from django.views.generic import ListView
 
 from .models import Payment, User
 
@@ -28,6 +30,11 @@ def reward_problem_ac(user, amount, problem_id):
         create_payment(user, amount, Payment.REWARD, {"type": "problem", "id": problem_id})
 
 
+def reward_contest_ac(user, amount, contest_id):
+    with transaction.atomic():
+        create_payment(user, amount, Payment.REWARD, {"type": "contest", "id": contest_id})
+
+
 def change_username(user, amount, new_username):
     with transaction.atomic():
         try:
@@ -43,3 +50,12 @@ def change_username(user, amount, new_username):
 def download_case(user, amount, memo):
     with transaction.atomic():
         create_payment(user, amount, Payment.DOWNLOAD_CASE, memo)
+
+
+class PaymentList(LoginRequiredMixin, ListView):
+    paginate_by = 20
+    template_name = 'account/payment_list.jinja2'
+    context_object_name = 'payment_list'
+
+    def get_queryset(self):
+        return self.request.user.payment_set.all()

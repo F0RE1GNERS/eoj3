@@ -1,5 +1,5 @@
 {% extends 'contest/base.jinja2' %}
-{% from 'components/nickname.jinja2' import clickable_nickname with context %}
+{% from 'components/username_display.jinja2' import username_display with context %}
 {% block contest_title %}Status - {% endblock %}
 {% block contest_content %}
 
@@ -21,7 +21,7 @@
       <tbody>
         {% for submission in submission_list %}
           <tr>
-            <td>{{ clickable_nickname(submission.author) }}</td>
+            <td>{{ username_display(submission.author) }}</td>
             <td>{{ submission.comment }}</td>
             <td>{{ submission.contest_problem }}</td>
             <td>{{ submission.create_time }}</td>

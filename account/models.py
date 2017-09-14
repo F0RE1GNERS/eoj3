@@ -67,7 +67,7 @@ class User(AbstractUser):
         return self.username
 
     def get_username_display(self):
-        return html.escape(self.nickname or self.username)
+        return html.escape(self.username)
 
     class Meta:
         ordering = ["-score"]
@@ -104,3 +104,6 @@ class Payment(models.Model):
     @detail.setter
     def detail(self, message):
         self.detail_message = json.dumps(message)
+
+    class Meta:
+        ordering = ["-create_time"]

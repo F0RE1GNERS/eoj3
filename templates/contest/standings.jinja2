@@ -1,5 +1,5 @@
 {% extends 'base.jinja2' %}
-{% from 'components/nickname.jinja2' import clickable_nickname %}
+{% from 'components/username_display.jinja2' import username_display %}
 
 {% block title %}Standings - {{ contest.title }} - {% endblock %}
 
@@ -51,7 +51,7 @@
           <td class="ui left aligned">
             <h5 class="ui header">
               <div class="content">
-                {% if rank.user.star %}* {% endif %}{{ clickable_nickname(rank.user.user, tiny=True) }}
+                {% if rank.user.star %}* {% endif %}{{ username_display(rank.user.user, tiny=True) }}
                 {% if rank.user.comment %}
                   <div class="sub header">{{ rank.user.comment }}</div>
                 {% endif %}

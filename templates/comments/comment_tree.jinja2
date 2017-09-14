@@ -1,4 +1,4 @@
-{% from 'components/nickname.jinja2' import clickable_nickname %}
+{% from 'components/username_display.jinja2' import username_display %}
 
 {% macro render_comments(comments, flag) %}
   {% for item in comments %}
@@ -8,7 +8,7 @@
          <img src="{{ item.comment.user.avatar_small.url }}">
         </a>
         <div class="content">
-          {{ clickable_nickname(item.comment.user, tiny=True, additional_class="author") }}
+          {{ username_display(item.comment.user, tiny=True, additional_class="author") }}
           <div class="metadata">
             <span class="date">{{ item.comment.submit_date | naturaltime }}</span>
           </div>

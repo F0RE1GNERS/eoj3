@@ -1,0 +1,40 @@
+{% extends 'account/base.jinja2' %}
+
+{% block page_header %}Payment{% endblock %}
+
+{% block account_setting %}
+
+  <table class="ui center aligned celled table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Memo</th>
+        <th>Credit/Debit</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payment_list %}
+        <tr>
+          <td>{{ payment.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>
+            {% if payment.type == "reward" %}
+              {% if payment.detail.type == "problem" %}
+                Accepted in <a href="{{ url('problem:detail', payment.detail.id) }}">Problem #{{ payment.detail.id }}</a>
+              {% elif payment.detail.type == "contest" %}
+                Accepted in <a href="{{ url('contest:dashboard', payment.detail.id) }}">Contest #{{ payment.detail.id }}</a>
+              {% endif %}
+            {% elif payment.type == "change_username" %}
+              Change username to <b>{{ payment.detail.new }}</b>
+            {% endif %}
+          </td>
+          <td>{{ payment.credit | round(1) }}</td>
+          <td>{{ payment.balance | round(1) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+{% endblock %}
