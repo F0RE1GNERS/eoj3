@@ -1,4 +1,5 @@
 import random
+import json
 import html
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -60,6 +61,7 @@ class User(AbstractUser):
                                   options={'quality': 60})
     polygon_enabled = models.BooleanField(default=False)
     score = models.FloatField(default=0)
+    username_change_attempt = models.IntegerField(default=0)
 
     def __str__(self):
         return self.username
@@ -69,3 +71,36 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ["-score"]
+
+
+class Payment(models.Model):
+
+    CHANGE_USERNAME = 'change_username'
+    DOWNLOAD_CASE = 'download_case'
+    REWARD = 'reward'
+    TRANSFER = 'transfer'
+
+    TYPE_CHOICES = (
+        (CHANGE_USERNAME, 'Change Username'),
+        (DOWNLOAD_CASE, 'Download Case'),
+        (REWARD, 'Reward'),
+        (TRANSFER, 'Transfer'),
+    )
+
+    user = models.ForeignKey(User)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    detail_message = models.TextField(blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    credit = models.FloatField()  # or debit
+    balance = models.FloatField()
+
+    @property
+    def detail(self):
+        try:
+            return json.loads(self.detail_message)
+        except json.JSONDecodeError:
+            return {}
+
+    @detail.setter
+    def detail(self, message):
+        self.detail_message = json.dumps(message)

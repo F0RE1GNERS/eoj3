@@ -23,7 +23,8 @@
   <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
 
-  {% if (contest.contest_problem_list | length) > 9 %}
+  {% set contest_problem_length = (contest.contest_problem_list | length) %}
+  {% if (contest.contest_problem_list | length) > 9 and not contest.standings_without_problem %}
     {% set column_style = 'collapsing' %}
   {% else %}
     {% set column_style = 'one wide' %}

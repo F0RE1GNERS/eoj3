@@ -1,4 +1,31 @@
 {% extends 'account/base.jinja2' %}
+{% from 'components/modal.jinja2' import modal %}
+
+
 {% block account_setting %}
+
+  <div class="ui form">
+    <div class="field">
+      <label>Username:</label>
+      <div class="ui action input">
+        <input type="text" value="{{ user.username }}" readonly>
+        <button class="ui button modal-link" data-target="#modify-username-modal">Modify</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui hidden divider"></div>
+
+  {% call modal("Modify Username", id="modify-username-modal", action=url('account:change_username')) %}
+    <div class="ui form">
+      {% csrf_token %}
+      <div class="field">
+        <label>Enter your new username:</label>
+        <input type="text" name="username" placeholder="It should be longer than 6.">
+      </div>
+      <p>This is your {{ user.username_change_attempt + 1 }}(th) attempt to change your username. It will cost {{ (user.username_change_attempt ** 2) * 100 }} EMBs.</p>
+    </div>
+  {% endcall %}
+
   {% include 'components/form.jinja2' %}
 {% endblock %}

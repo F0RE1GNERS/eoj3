@@ -17,8 +17,8 @@ def home_view(request):
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14), })
 
 
-def forbidden_view(request):
-    return render(request, 'error/403.jinja2')
+def forbidden_view(request, exception):
+    return render(request, 'error/403.jinja2', context={"exception": exception})
 
 
 def not_found_view(request):

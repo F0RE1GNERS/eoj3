@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 
 from account.models import User
+from account.payment import reward_problem_ac
 from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
@@ -106,12 +107,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                                     Submission.objects.filter(author_id=submission.author_id,
                                                               problem_id=submission.problem_id,
                                                               status=SubmissionStatus.ACCEPTED).last() == submission:
-                        with transaction.atomic():
-                            author = User.objects.select_for_update().get(pk=submission.author_id)
-                            author.score += get_problem_difficulty(submission.problem_id)
-                            author.save(update_fields=['score'])
-                            submission.rewarded = True
-                            submission.save(update_fields=['rewarded'])
+                        reward_problem_ac(submission.author, get_problem_difficulty(submission.problem_id),
+                                          submission.problem_id)
+                        submission.rewarded = True
                 if callback:
                     Thread(target=callback).start()
                 return True

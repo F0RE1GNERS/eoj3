@@ -10,6 +10,7 @@ from problem.models import Problem
 from problem.statistics import get_problem_difficulty
 from submission.models import Submission, SubmissionStatus
 from .models import OldUser, OldSubmission, OldDiscussion
+from account.payment import reward_problem_ac
 
 problem_content_type = ContentType.objects.get_for_model(Problem)
 
@@ -27,6 +28,7 @@ class MigrationThread(threading.Thread):
 
     def run(self):
         with transaction.atomic():
+            new_author = User.objects.select_for_update().get(pk=self.new_user)
             for submission in OldSubmission.objects.filter(author=self.username).order_by("create_time").all():
                 s = Submission.objects.create(lang=submission.lang,
                                               code=submission.code,
@@ -42,15 +44,12 @@ class MigrationThread(threading.Thread):
                 s.save(update_fields=["create_time"])
                 if Submission.objects.filter(author_id=s.author_id, problem_id=s.problem_id, contest__isnull=True,
                                              status=SubmissionStatus.ACCEPTED).last() == s:
-                    with transaction.atomic():
-                        author = User.objects.select_for_update().get(pk=self.new_user)
-                        author.score += get_problem_difficulty(submission.problem)
-                        author.save(update_fields=['score'])
+                    reward_problem_ac(new_author, get_problem_difficulty(submission.problem), submission.problem)
             OldSubmission.objects.filter(author=self.username).all().delete()
 
             for c in OldDiscussion.objects.filter(author=self.username).order_by("create_time"):
                 XtdComment.objects.create(
-                    user=self.new_user,
+                    user=new_author,
                     submit_date=c.create_time,
                     object_pk=c.problem,
                     comment=c.text,

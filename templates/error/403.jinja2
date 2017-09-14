@@ -4,6 +4,14 @@
 
 {% block content %}
   <h4>Oops! Request forbidden...</h4>
-  <p>Sorry, it appears the page you were looking for is forbidden and not accessible. If the problem persists, please
+
+  {% if exception %}
+  <p>Exception message: {{ exception }}</p>
+  {% else %}
+  <p>Sorry, it appears that the page you were looking for is forbidden and not accessible. If the problem persists, please
       contact the web administrator.</p>
+  {% endif %}
+
+  <a href="{{ request.META.HTTP_REFERER }}">Go back</a>
+
 {% endblock %}

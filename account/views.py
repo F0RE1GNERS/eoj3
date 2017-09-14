@@ -8,6 +8,11 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth import login
 from django.core.mail import send_mail
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from account.payment import create_payment, change_username
 from utils import auth_view
 from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
                     MigrateForm, FeedbackForm, LoginForm)
@@ -55,6 +60,7 @@ class FeedbackView(FormView):
 class UpdatePreferencesView(UpdateView):
     template_name = 'account/preference.jinja2'
     form_class = PreferenceForm
+    context_object_name = "user"
 
     def get_object(self, queryset=None):
         return self.request.user
@@ -62,6 +68,18 @@ class UpdatePreferencesView(UpdateView):
     def get_success_url(self):
         messages.success(self.request, 'Your changes have been saved.')
         return self.request.path
+
+
+@login_required
+def change_username_view(request):
+    if request.method != "POST":
+        raise PermissionDenied
+    username = request.POST["username"]
+    if username != request.user.username:
+        change_username(request.user, -100 * (request.user.username_change_attempt ** 2), username)
+        request.user.username_change_attempt += 1
+        request.user.save(update_fields=["username_change_attempt"])
+    return redirect(reverse("account:profile"))
 
 
 @login_required
