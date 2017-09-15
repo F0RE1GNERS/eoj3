@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/submission/past/$', v.ProblemPersonalOlderSubmissionsAPI.as_view(), name='past_submission'),
     url(r'^status/$', v.StatusList.as_view(), name='status'),
     url(r'^millionaire/$', v.Millionaires.as_view(), name='millionaire'),
+    url(r'^source/$', v.SourceList.as_view(), name='source'),
     url(r'^(?P<pk>\d+)/statistics/$', v.ProblemStatisticsView.as_view(), name='statistics'),
 ]

@@ -6,6 +6,7 @@ import markupsafe
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 from django_comments_xtd.templatetags.comments_xtd import XtdComment
 from django_jinja import library
 
@@ -133,6 +134,14 @@ def url_replace(request, field, value):
     dict_ = request.GET.copy()
     dict_[field] = value
     return dict_.urlencode()
+
+
+@library.global_function(name='url_encode')
+def url_encode(d):
+    q = QueryDict(mutable=True)
+    for key, val in d.items():
+        q[key] = val
+    return q.urlencode()
 
 
 @library.global_function(name='static_file_modify')

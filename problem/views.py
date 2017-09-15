@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
@@ -33,12 +33,15 @@ class ProblemList(ListView):
     context_object_name = 'problem_list'
 
     def get_queryset(self):
+        source = self.request.GET.get('source')
         kw = self.request.GET.get('keyword')
         tg = self.request.GET.get('tag')
         if tg:
             queryset = TaggedItem.objects.get_by_model(Problem, get_object_or_404(Tag, name=tg))
         else:
             queryset = Problem.objects.all()
+        if source:
+            queryset = queryset.filter(source=source)
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(visible=True)
 
@@ -337,3 +340,15 @@ class Millionaires(ListView):
         else:
             data['my_rank'] = User.objects.filter(score__gte=self.request.user.score).count()
         return data
+
+
+class SourceList(ListView):
+    template_name = 'problem/source.jinja2'
+    context_object_name = 'source_list'
+
+    def get_queryset(self):
+        queryset = Problem.objects.all()
+        if not is_admin_or_root(self.request.user):
+            queryset = queryset.filter(visible=True)
+        return queryset.only('source').exclude(source='').\
+            order_by('source').values('source').annotate(count=Count('source'))
