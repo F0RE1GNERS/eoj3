@@ -1,15 +1,12 @@
-{% extends 'polygon/base.jinja2' %}
+{% extends 'polygon/contest/base.jinja2' %}
 
-{% block title %}Contest Participants - {% endblock %}
-{% block content %}
-
-  {% include 'polygon/components/contest_header.jinja2' %}
+{% block contest_content %}
 
   {% include 'components/message.jinja2' %}
 
   <div class="ui buttons">
     <button class="ui button primary modal-link" data-target="#importNamelistModal">Import from namelist</button>
-    <a class="ui button" href="#">Download as Excel</a>
+    <a class="ui button" href="{{ url('polygon:contest_participant_download', contest.pk) }}">Download as csv</a>
   </div>
 
   <table class="ui table center aligned">

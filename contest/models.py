@@ -97,7 +97,7 @@ class Contest(models.Model):
     public = models.BooleanField(default=False)
 
     objects = ContestManager()
-    manager = models.ManyToManyField(User, related_name='managing_contests')
+    managers = models.ManyToManyField(User, related_name='managing_contests')
 
     class Meta:
         ordering = ['-pk']

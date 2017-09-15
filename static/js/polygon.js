@@ -78,11 +78,11 @@ function bindFormAndButtonData(form, button) {
   clearAndAddExtraData(form, button.data());
 }
 
-if ($("#session-edit-app").length > 0) {
+if ($("#session-problem-app").length > 0) {
   // Vue.js needed
   Vue.options.delimiters = ["[[", "]]"];
   new Vue({
-    el: "#session-edit-app",
+    el: "#session-problem-app",
     data: {
       appData: {},
       apiRoute: "",
@@ -326,10 +326,10 @@ if ($("#session-edit-app").length > 0) {
   });
 }
 
-if ($("#contest-problem-app").length > 0) {
+if ($("#contest-edit-app").length > 0) {
   Vue.options.delimiters = ["[[", "]]"];
   new Vue({
-    el: "#contest-problem-app",
+    el: "#contest-edit-app",
     data: {
       appData: []
     },

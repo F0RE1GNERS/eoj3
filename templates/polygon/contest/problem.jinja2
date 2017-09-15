@@ -1,10 +1,6 @@
-{% extends 'polygon/base.jinja2' %}
+{% extends 'polygon/contest/base.jinja2' %}
 
-{% block title %}Contest Problems - {% endblock %}
-
-{% block content %}
-
-  {% include 'polygon/components/contest_header.jinja2' %}
+{% block contest_content %}
 
   <div id="contest-problem-app" data-api-route="{{ url('polygon:contest_problem_manage', contest.id) }}?data=true">
     <table class="ui celled center aligned table">

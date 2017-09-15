@@ -66,7 +66,7 @@ def send_notification(request, **kwargs):
                 recipient = list(map(lambda x: x.user, contest.contestparticipant_set.all()))
                 verb = 'posted a notification in'
             else:
-                recipient = contest.manager.all()
+                recipient = contest.managers.all()
                 verb = 'asked a question in'
         elif comment['content_type'].name == 'problem':
             if comment['parent_id']:

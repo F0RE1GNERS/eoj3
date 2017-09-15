@@ -97,18 +97,17 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
         self.user = request.user
+        self.privileged = has_permission_for_problem_management(self.user, self.problem)
         self.request = request
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if self.user.is_authenticated and (
-                    is_admin_or_root(self.user) or self.problem.problemmanagement_set.filter(user=self.user).exists()):
-            return True
-        return self.problem.visible
+        return self.privileged or self.problem.visible
 
     def get_context_data(self, **kwargs):
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
         data['problem'] = self.problem
+        data['is_privileged'] = self.privileged
         return data
 
 

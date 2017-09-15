@@ -37,7 +37,7 @@ class Problem(models.Model):
     cases = models.TextField(blank=True)
     points = models.TextField(blank=True)
 
-    manager = models.ManyToManyField(User, through='ProblemManagement')
+    managers = models.ManyToManyField(User)
 
     def __str__(self):
         return '%d. %s' % (self.pk, self.title)
@@ -70,21 +70,6 @@ class Problem(models.Model):
 
 
 register(Problem)
-
-
-class ProblemManagement(models.Model):
-    PERMISSION_CHOICES = (
-        ('a', 'ADMIN'),
-        ('r', 'READ'),
-        ('w', 'WRITE'),
-    )
-
-    problem = models.ForeignKey(Problem)
-    user = models.ForeignKey(User)
-    permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)
-
-    class Meta:
-        unique_together = ['problem', 'user']
 
 
 class SpecialProgram(models.Model):

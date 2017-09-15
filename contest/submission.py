@@ -72,7 +72,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                                         pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
         authorized = False
-        if self.request.user.is_authenticated:  # Check author or manager (no share)
+        if self.request.user.is_authenticated:  # Check author or managers (no share)
             if has_permission_for_contest_management(self.request.user,
                                                      self.contest) or self.request.user == submission.author:
                 authorized = True

@@ -26,7 +26,7 @@ class ContestClarificationView(BaseContestMixin, View):
         else:
             ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
             notify.send(sender=request.user,
-                        recipient=self.contest.manager.all(),
+                        recipient=self.contest.managers.all(),
                         verb="asked a question in",
                         level="warning",
                         target=self.contest)
