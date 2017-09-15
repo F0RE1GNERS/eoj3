@@ -112,7 +112,7 @@
               {% if submission.contest_problem %}
                 <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
               {% else %}
-                <td></td>
+                <td>N/A</td>
               {% endif %}
             {% endif %}
           {% endif %}

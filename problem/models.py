@@ -37,7 +37,7 @@ class Problem(models.Model):
     cases = models.TextField(blank=True)
     points = models.TextField(blank=True)
 
-    managers = models.ManyToManyField(User)
+    managers = models.ManyToManyField(User, related_name='managing_problems')
 
     def __str__(self):
         return '%d. %s' % (self.pk, self.title)

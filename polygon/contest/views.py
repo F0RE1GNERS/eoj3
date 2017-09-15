@@ -27,6 +27,7 @@ from problem.views import StatusList
 from utils.identicon import Identicon
 from utils.download import respond_generate_file
 from utils.csv_writer import write_csv
+from utils.permission import is_contest_manager
 from .forms import ContestEditForm
 from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
 from polygon.base_views import PolygonBaseMixin, response_ok
@@ -66,10 +67,7 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
         return super(PolygonContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if not self.request.user.is_authenticated:
-            return False
-        if not is_admin_or_root(self.request.user) and not self.contest.managers.filter(
-                id=self.request.user.id).exists():
+        if not is_contest_manager(self.request.user, self.contest):
             return False
         return super(PolygonContestMixin, self).test_func()
 

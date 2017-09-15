@@ -12,7 +12,7 @@ from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter
 from .tasks import judge_submission_on_contest
-from utils.permission import has_permission_for_contest_management
+from utils.permission import is_contest_manager
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
 from utils.permission import get_permission_for_submission
@@ -73,8 +73,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
         authorized = False
         if self.request.user.is_authenticated:  # Check author or managers (no share)
-            if has_permission_for_contest_management(self.request.user,
-                                                     self.contest) or self.request.user == submission.author:
+            if is_contest_manager(self.request.user,
+                                  self.contest) or self.request.user == submission.author:
                 authorized = True
             if not authorized and self.contest.allow_code_share > 0:  # start to share
                 if self.contest.status > 0 and self.contest.allow_code_share >= 2:

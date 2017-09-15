@@ -23,13 +23,13 @@ from utils.file_preview import sort_data_list_from_directory
 from utils.hash import file_hash, case_hash
 from utils.language import LANG_EXT
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
-from .case import (
+from polygon.case import (
     well_form_binary, validate_input, run_output, check_output_with_result,
     check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
     stress_test, generate_multiple
 )
-from .models import EditSession
-from .models import Run
+from polygon.models import EditSession
+from polygon.models import Run
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -80,7 +80,7 @@ def init_session(problem, user):
     Init a session
     :type problem: Problem
     :type user: User
-    :return: None
+    :return: session
     """
     fingerprint = random_string()
     session = EditSession.objects.create(problem=problem, user=user, fingerprint=fingerprint,
@@ -88,6 +88,7 @@ def init_session(problem, user):
     rmtree(path.join(settings.REPO_DIR, fingerprint), ignore_errors=True)
     makedirs(path.join(settings.REPO_DIR, fingerprint))
     pull_session(session)
+    return session
 
 
 def pull_session(session):

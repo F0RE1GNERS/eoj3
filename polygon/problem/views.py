@@ -12,45 +12,41 @@ from django.views import View
 from django.views.generic import ListView, UpdateView, TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 
+from account.models import User
 from account.permissions import is_admin_or_root
+from polygon.base_views import PolygonBaseMixin, response_ok
 from polygon.case import well_form_text
 from polygon.forms import ProblemEditForm
 from polygon.models import EditSession
-from polygon.session import normal_regex_check, init_session, pull_session, load_config, get_config_update_time, \
+from polygon.problem.session import normal_regex_check, init_session, pull_session, load_config, get_config_update_time, \
     load_volume, load_regular_file_list, load_program_file_list, get_case_metadata, program_file_exists, update_config, \
     dump_config, create_statement_file, delete_statement_file, read_statement_file, write_statement_file, \
     save_program_file, read_program_file, delete_program_file, save_case, reorder_case, preview_case, \
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case, \
     get_test_file_path, generate_input, stress, push_session
-from polygon.base_views import PolygonBaseMixin, response_ok
-from problem.models import Problem, ProblemManagement, SpecialProgram
+from polygon.rejudge import rejudge_all_submission_on_problem
+from problem.models import Problem, SpecialProgram
+from problem.views import StatusList
+from submission.models import Submission
 from utils import random_string
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
+from utils.permission import is_problem_manager
 from utils.upload import save_uploaded_file_to
 
 
-class SessionList(PolygonBaseMixin, ListView):
-    template_name = 'polygon/session_list.jinja2'
-    context_object_name = 'problem_manage_list'
+class ProblemList(PolygonBaseMixin, ListView):
+    template_name = 'polygon/problem/list.jinja2'
+    context_object_name = 'problem_list'
 
     def get_queryset(self):
-        return self.request.user.problemmanagement_set.select_related("problem").\
-            all().order_by("problem__update_time").reverse()
-
-    def get_context_data(self, **kwargs):
-        data = super(SessionList, self).get_context_data(**kwargs)
-        data['problems'] = problems = []
-        for problem_manage in data['problem_manage_list']:
-            prob = problem_manage.problem
-            prob.access_type = problem_manage.get_permission_display()
-            prob.sessions = prob.editsession_set.select_related("problem", "user").all()
-            problems.append(prob)
-        data['problemset_count'] = Problem.objects.count()
-        return data
+        if is_admin_or_root(self.request.user):
+            return Problem.objects.all()
+        else:
+            return self.request.user.managing_problems.all()
 
 
-class SessionCreate(PolygonBaseMixin, View):
+class ProblemCreate(PolygonBaseMixin, View):
 
     def post(self, request):
         """
@@ -64,153 +60,116 @@ class SessionCreate(PolygonBaseMixin, View):
             problem = Problem.objects.create(alias=alias)
             problem.title = 'Problem #%d' % problem.id
             problem.save(update_fields=['title'])
-            if is_admin_or_root(request.user):
-                permission = 'a'
-            else:
-                permission = 'w'
-            ProblemManagement.objects.create(problem=problem, user=request.user, permission=permission)
-            init_session(problem, request.user)
-            return redirect(request.POST['next'])
+            problem.manager.add(request.user)
+            return redirect(reverse('polygon:problem_edit', problem.pk))
 
 
-class SessionPull(PolygonBaseMixin, View):
-
-    def post(self, request):
-        problem = get_object_or_404(Problem, id=request.POST['problem'])
-        # verify permission
-        try:
-            if ProblemManagement.objects.get(problem=problem, user=request.user).permission == 'r':
-                raise PermissionDenied
-        except ProblemManagement.DoesNotExist:
-            raise PermissionDenied
-        try:
-            session = EditSession.objects.get(problem=problem, user=request.user)
-            pull_session(session)
-        except EditSession.DoesNotExist:
-            init_session(problem, request.user)
-        messages.add_message(request, messages.SUCCESS, "Synchronization succeeded!")
-        return redirect(request.POST['next'])
-
-
-class ProblemMeta(PolygonBaseMixin, UpdateView):
-
-    template_name = 'polygon/problem_meta.jinja2'
-    form_class = ProblemEditForm
-    queryset = Problem.objects.all()
+class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
+    raise_exception = True
 
     def dispatch(self, request, *args, **kwargs):
-        self.problem = Problem.objects.get(pk=self.kwargs.get('pk'))
-        return super(ProblemMeta, self).dispatch(request, *args, **kwargs)
+        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
+        return super(PolygonProblemMixin, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if not is_problem_manager(self.request.user, self.problem):
+            return False
+        return super(PolygonProblemMixin, self).test_func()
+
+    def get_context_data(self, **kwargs):
+        data = super(PolygonProblemMixin, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        return data
+
+
+class BaseSessionMixin(PolygonProblemMixin):
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        data = super(BaseSessionMixin, self).get_context_data(**kwargs)
+        try:
+            self.session = self.problem.editsession_set.get(user=self.request.user)
+        except EditSession.DoesNotExist:
+            self.session = init_session(self.problem, self.request.user)
+        self.config = load_config(self.session)
+        data['session'], data['config'] = self.session, self.config
+        return data
+
+
+class ProblemPreview(PolygonProblemMixin, TemplateView):
+    template_name = 'polygon/problem/preview.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemPreview, self).get_context_data(**kwargs)
+        data['lang_choices'] = LANG_CHOICE
+        return data
+
+
+class ProblemAccessManage(PolygonProblemMixin, View):
+    def post(self, request, pk):
+        upload_permission_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
+        for record in self.problem.managers.all():
+            if record.id in upload_permission_set:
+                upload_permission_set.remove(record.id)
+            else:
+                record.delete()
+        for key in upload_permission_set:
+            self.problem.managers.add(User.objects.get(pk=key))
+        return redirect(reverse('polygon:problem_edit', kwargs={'pk': str(pk)}))
+
+
+class ProblemEdit(PolygonProblemMixin, UpdateView):
+
+    template_name = 'polygon/problem/edit.jinja2'
+    form_class = ProblemEditForm
+    queryset = Problem.objects.all()
 
     def get_object(self, queryset=None):
         return self.problem
 
-    def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
-                self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
-            return super(ProblemMeta, self).test_func()
-        return False
-
     def get_context_data(self, **kwargs):
-        data = super(ProblemMeta, self).get_context_data(**kwargs)
-        data['problem'] = self.problem
+        data = super(ProblemEdit, self).get_context_data(**kwargs)
+        data['admin_list'] = self.problem.managers.all()
         return data
 
     def get_success_url(self):
         return self.request.path
 
 
-class ProblemAccess(PolygonBaseMixin, TemplateView):
-    template_name = 'polygon/problem_access.jinja2'
+class ProblemStatus(PolygonProblemMixin, StatusList):
+    template_name = 'polygon/problem/status.jinja2'
+
+    def get_selected_from(self):
+        return Submission.objects.filter(problem_id=self.problem.id)
+
+
+class ProblemRejudge(PolygonBaseMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, **kwargs)
-        return super(ProblemAccess, self).dispatch(request, *args, **kwargs)
-
-    def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user, permission='a').exists() or \
-                self.problem.problemmanagement_set.filter(user=self.request.user, permission='w').exists():
-            return super(ProblemAccess, self).test_func()
-        return False
-
-    def get_context_data(self, **kwargs):
-        data = super(ProblemAccess, self).get_context_data(**kwargs)
-        data['problem'] = self.problem
-        data['admin_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='a').select_related("user")))
-        data['write_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='w').select_related("user")))
-        data['read_list'] = list(map(lambda x: x.user, self.problem.problemmanagement_set.filter(permission='r').select_related("user")))
-        return data
-
-    def post(self, request, pk):
-        upload_permission_dict = dict()
-        for x in map(int, filter(lambda x: x, request.POST['read'].split(','))):
-            upload_permission_dict[x] = 'r'
-        for x in map(int, filter(lambda x: x, request.POST['write'].split(','))):
-            upload_permission_dict[x] = 'w'  # possible rewrite happens here
-        for record in self.problem.problemmanagement_set.all():
-            upload = upload_permission_dict.pop(record.user_id, None)
-            if record.permission == 'a':
-                continue
-            if upload is None:
-                record.delete()
-            else:
-                record.permission = upload
-                record.save(update_fields=['permission'])
-        for key, val in upload_permission_dict.items():
-            self.problem.problemmanagement_set.create(user_id=key, permission=val)
-        return redirect(reverse('polygon:problem_access', kwargs={'pk': pk}))
-
-
-class ProblemPreview(PolygonBaseMixin, TemplateView):
-
-    template_name = 'polygon/problem_preview.jinja2'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, **kwargs)
-        return super(ProblemPreview, self).dispatch(request, *args, **kwargs)
+        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
+        return super(ProblemRejudge, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
         if self.problem.problemmanagement_set.filter(user=self.request.user).exists():
-            return super(ProblemPreview, self).test_func()
+            return super(ProblemRejudge, self).test_func()
         return False
 
-    def get_context_data(self, **kwargs):
-        data = super(ProblemPreview, self).get_context_data(**kwargs)
-        data['problem'] = self.problem
-        data['lang_choices'] = LANG_CHOICE
-        return data
+    def post(self, request, pk):
+        rejudge_all_submission_on_problem(self.problem)
+        return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
 
 
-class BaseSessionMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
-    raise_exception = True
 
-    def dispatch(self, request, *args, **kwargs):
+class SessionPull(PolygonProblemMixin, View):
+
+    def post(self, request):
         try:
-            self.user = request.user
-            if not self.user.is_authenticated:
-                raise PermissionDenied
-            self.session = get_object_or_404(EditSession, pk=kwargs.get('sid'))
-            self.problem = self.session.problem
-            self.access = self.problem.problemmanagement_set.get(user=self.user).permission
-            self.config = load_config(self.session)
-        except ProblemManagement.DoesNotExist:
-            raise PermissionDenied
-        self.request = request
-        return super(BaseSessionMixin, self).dispatch(request, *args, **kwargs)
-
-    def test_func(self):
-        if self.request.method == 'POST':
-            if self.access == 'r':
-                return False
-            if self.session.user != self.user:
-                return False
-        return super(BaseSessionMixin, self).test_func()
-
-    def get_context_data(self, **kwargs):
-        data = super(BaseSessionMixin, self).get_context_data(**kwargs)
-        data['session'], data['problem'], data['access'], data['config'] = \
-            self.session, self.problem, self.access, self.config
-        return data
+            session = EditSession.objects.get(problem=self.problem, user=request.user)
+            pull_session(session)
+        except EditSession.DoesNotExist:
+            init_session(self.problem, request.user)
+        messages.add_message(request, messages.SUCCESS, "Synchronization succeeded!")
+        return redirect(request.POST['next'])
 
 
 class SessionEdit(BaseSessionMixin, TemplateView):
@@ -588,20 +547,3 @@ class SessionPush(BaseSessionPostMixin, View):
     def post(self, request, sid):
         push_session(self.session)
         return response_ok()
-
-
-class ProblemStatus(PolygonBaseMixin, StatusList):
-
-    template_name = 'polygon/problem_status.jinja2'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, **kwargs)
-        return super(ProblemStatus, self).dispatch(request, *args, **kwargs)
-
-    def get_selected_from(self):
-        return Submission.objects.filter(problem_id=self.problem.id)
-
-    def get_context_data(self, **kwargs):
-        data = super(ProblemStatus, self).get_context_data(**kwargs)
-        data['problem'] = self.problem
-        return data

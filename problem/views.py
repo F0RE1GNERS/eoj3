@@ -18,7 +18,7 @@ from submission.statistics import get_accept_problem_list, get_attempted_problem
 from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
 from .models import Problem
-from utils.permission import has_permission_for_problem_management, get_permission_for_submission
+from utils.permission import is_problem_manager, get_permission_for_submission
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
@@ -97,7 +97,7 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
         self.user = request.user
-        self.privileged = has_permission_for_problem_management(self.user, self.problem)
+        self.privileged = is_problem_manager(self.user, self.problem)
         self.request = request
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
@@ -309,8 +309,8 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                                                                         problem_id=self.kwargs.get('pk'))
         if self.request.user.is_authenticated and (
                             submission.author == self.request.user or
-                        has_permission_for_problem_management(self.request.user,
-                                                              submission.problem) or
+                        is_problem_manager(self.request.user,
+                                           submission.problem) or
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
                         status=SubmissionStatus.ACCEPTED,

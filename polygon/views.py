@@ -3,12 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from polygon.base_views import PolygonBaseMixin, response_ok
 from polygon.models import Run
 from polygon.rejudge import rejudge_submission, rejudge_all_submission_on_problem
 from problem.models import Problem
 from submission.models import Submission
+from utils.permission import is_problem_manager, is_contest_manager
 
 
 def authorization(user):
@@ -35,38 +39,21 @@ def register_view(request):
         return redirect(reverse('polygon:home'))
 
 
-class RejudgeSubmission(PolygonBaseMixin, View):
+class RejudgeSubmission(PolygonBaseMixin, APIView):
 
     def dispatch(self, request, *args, **kwargs):
         self.submission = get_object_or_404(Submission, pk=kwargs.get('sid'))
         return super(RejudgeSubmission, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if self.submission.problem.problemmanagement_set.filter(
-                user=self.request.user).exists() or self.submission.contest.managers.filter(
-                user=self.request.user).exists():
+        if is_problem_manager(self.request.user, self.submission.problem) or \
+                is_contest_manager(self.request.user, self.submission.contest):
             return super(RejudgeSubmission, self).test_func()
         return False
 
     def post(self, request, sid):
         rejudge_submission(self.submission)
-        return HttpResponse()
-
-
-class RejudgeProblem(PolygonBaseMixin, View):
-
-    def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
-        return super(RejudgeProblem, self).dispatch(request, *args, **kwargs)
-
-    def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user).exists():
-            return super(RejudgeProblem, self).test_func()
-        return False
-
-    def post(self, request, pk):
-        rejudge_all_submission_on_problem(self.problem)
-        return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
+        return Response()
 
 
 class RunsList(PolygonBaseMixin, ListView):
@@ -78,17 +65,17 @@ class RunsList(PolygonBaseMixin, ListView):
         return Run.objects.filter(user=self.request.user).order_by("-pk").all()
 
 
-class RunMessageView(PolygonBaseMixin, View):
+class RunMessageView(PolygonBaseMixin, APIView):
 
     def get(self, request, pk):
         try:
             run = Run.objects.get(pk=pk, user=request.user)
-            return HttpResponse(run.message)
+            return Response(run.message)
         except Run.DoesNotExist:
-            return HttpResponse("")
+            return Response()
 
 
-class RunStatus(PolygonBaseMixin, View):
+class RunStatus(PolygonBaseMixin, APIView):
 
     def get(self, request, pk):
-        return response_ok(run_status=Run.objects.get(pk=pk, user=request.user).status)
+        return Response(data=dict(run_status=Run.objects.get(pk=pk, user=request.user).status))
