@@ -25,20 +25,19 @@ class GenericView(UserPassesTestMixin, ListView):
         return test_site_open(self.request)
 
     def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get('name'))
-        if is_admin_or_root(self.request.user) or self.request.user == user:
-            return user.blog_set.all()
+        self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
+        if is_admin_or_root(self.request.user) or self.request.user == self.user:
+            return self.user.blog_set.all()
         else:
-            return user.blog_set.filter(visible=True).all()
+            return self.user.blog_set.filter(visible=True).all()
 
     def get_context_data(self, **kwargs):
-        user = get_object_or_404(User, username=self.kwargs.get('name'))
         res = super(GenericView, self).get_context_data(**kwargs)
-        res['profile'] = user
-        res['solved'] = get_accept_problem_count(user.pk)
+        res['profile'] = self.user
+        res['solved'] = get_accept_problem_count(self.user.pk)
         if is_admin_or_root(self.request.user):
             res['is_privileged'] = True
-        if self.request.user == user:
+        if self.request.user == self.user:
             res['is_author'] = res['is_privileged'] = True
         return res
 
@@ -46,7 +45,8 @@ class GenericView(UserPassesTestMixin, ListView):
 class BlogGoto(View):
 
     def post(self, request):
-        return HttpResponseRedirect(reverse('generic', kwargs={'name': request.POST.get('name')}))
+        user = get_object_or_404(User, username=request.POST['name'])
+        return HttpResponseRedirect(reverse('generic', kwargs={'pk': user.pk}))
 
 
 class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
@@ -91,7 +91,7 @@ class BlogCreate(UserPassesTestMixin, CreateView):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
-        return HttpResponseRedirect(reverse('generic', kwargs={'name': self.request.user.username}))
+        return HttpResponseRedirect(reverse('generic', kwargs={'pk': self.request.user.pk}))
 
 
 class BlogUpdate(UserPassesTestMixin, UpdateView):

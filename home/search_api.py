@@ -16,7 +16,7 @@ def query_user(kw):
     results = list()
     if kw and len(kw) >= 3:
         for user in User.objects.filter(username__icontains=kw, is_active=True).all().only('username')[:5]:
-            results.append(dict(title=user.username, url=reverse('generic', kwargs=dict(name=user.username))))
+            results.append(dict(title=user.username, url=reverse('generic', kwargs=dict(pk=user.pk))))
     return dict(name='User', results=results)
 
 

@@ -2,7 +2,7 @@
 
 {% macro comment_view(comment) %}
   <div class="comment">
-    <a href="{{ url('generic', comment.author.username) }}" class="avatar">
+    <a href="{{ url('generic', comment.author.pk) }}" class="avatar">
       <img src="{{ comment.author.avatar_small.url }}">
     </a>
     <div class="content">
