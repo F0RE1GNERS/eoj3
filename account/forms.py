@@ -8,6 +8,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 class LoginForm(AuthenticationForm):
     captcha = CaptchaField()
+    remember_me = forms.BooleanField(required=False)
 
 
 class RegisterForm(forms.ModelForm):

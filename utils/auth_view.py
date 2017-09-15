@@ -82,6 +82,7 @@ def login(request, template_name='registration/login.html',
         form = authentication_form(request, data=request.POST)
         if form.is_valid():
             auth_login(request, form.get_user())
+            request.session.set_expiry(None if form.cleaned_data['remember_me'] else 0)
             return HttpResponseRedirect(_get_login_redirect_url(request, redirect_to))
     else:
         form = authentication_form(request)
