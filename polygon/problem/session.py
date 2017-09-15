@@ -2,12 +2,12 @@ import base64
 import copy
 import logging
 import re
+import time
 import traceback
 import zipfile
-import time
 from datetime import datetime
 from functools import wraps
-from os import path, makedirs, listdir, remove, walk, replace
+from os import path, makedirs, remove, walk, replace
 from shutil import copyfile, rmtree
 from threading import Thread
 
@@ -16,13 +16,6 @@ from django.conf import settings
 
 from account.models import User
 from dispatcher.models import Server
-from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
-from problem.tasks import upload_problem_to_judge_server
-from utils import random_string
-from utils.file_preview import sort_data_list_from_directory
-from utils.hash import file_hash, case_hash
-from utils.language import LANG_EXT
-from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
 from polygon.case import (
     well_form_binary, validate_input, run_output, check_output_with_result,
     check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
@@ -30,6 +23,14 @@ from polygon.case import (
 )
 from polygon.models import EditSession
 from polygon.models import Run
+from polygon.problem.utils import sort_out_directory
+from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
+from problem.tasks import upload_problem_to_judge_server
+from utils import random_string
+from utils.file_preview import sort_data_list_from_directory
+from utils.hash import file_hash, case_hash
+from utils.language import LANG_EXT
+from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -244,17 +245,6 @@ def push_session(session):
         server.last_synchronize_time = datetime.now()
         server.save(update_fields=['last_synchronize_time'])
     pull_session(session)
-
-
-def sort_out_directory(directory):
-    if not path.exists(directory):
-        return []
-    return sorted(list(map(lambda file: {'filename': path.basename(file),
-                                         'modified_time': datetime.fromtimestamp(path.getmtime(file)).
-                                                          strftime(settings.DATETIME_FORMAT_TEMPLATE),
-                                         'size': path.getsize(file)},
-                           listdir_with_prefix(directory))),
-                  key=lambda d: d['modified_time'], reverse=True)
 
 
 def load_statement_file_list(session):
@@ -726,7 +716,3 @@ def valid_fingerprint_check(fingerprint):
     return re.match(r"^[a-z0-9]{16,128}$", fingerprint)
 
 
-def listdir_with_prefix(directory):
-    return list(map(lambda file: path.join(directory, file),
-                    filter(lambda f2: not f2.startswith('.'),
-                           listdir(directory))))

@@ -1,6 +1,19 @@
-{% call modal(title="Delete confirmation", id="delete-confirmation") %}
-  <p>Are you sure you want to delete? All your changes will be lost.</p>
-  <form id="delete-confirmation-form" action="" method="POST">
-    {% csrf_token %}
-  </form>
-{% endcall %}
+<div class="ui tiny basic modal" id="delete-confirmation">
+  <div class="ui icon header">
+    <i class="trash icon"></i>
+    Delete Confirmation
+  </div>
+  <div class="content">
+    <p>Are you sure you want to delete? You may not undo this operation.</p>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i>
+      No
+    </div>
+    <div class="ui green ok inverted button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
+  </div>
+</div>

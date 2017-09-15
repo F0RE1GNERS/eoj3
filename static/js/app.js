@@ -108,13 +108,20 @@ $('.ui.dropdown.problem-search')
     }
   });
 
+// function
+function postWithLocalData (button) {
+  var link = button.data('link');
+  var data = button.data();
+  data['csrfmiddlewaretoken'] = Cookies.get('csrftoken');
+  $.post(link, data, function (data) {
+      location.reload();
+    }
+  );
+}
+
 $(".post-link")
   .on('click', function(e) {
-    var link = $(e.currentTarget).data('link');
-    $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
-        location.reload();
-      }
-    );
+    postWithLocalData($(e.currentTarget));
   })
   .attr('href', 'javascript:void(0)');
 
@@ -160,14 +167,10 @@ $(".comment .actions .reply").each(function () {
 
 $(".delete-link")
   .on('click', function (e) {
-    var link = $(e.currentTarget).data('link');
     $("#delete-confirmation")
       .modal({
         onApprove: function () {
-          $.post(link, {'csrfmiddlewaretoken': Cookies.get('csrftoken')}, function (data) {
-              location.reload();
-            }
-          );
+          postWithLocalData($(e.currentTarget));
         }
       })
       .modal('show');

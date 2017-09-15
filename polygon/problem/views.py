@@ -11,6 +11,9 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, UpdateView, TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -24,6 +27,7 @@ from polygon.problem.session import normal_regex_check, init_session, pull_sessi
     save_program_file, read_program_file, delete_program_file, save_case, reorder_case, preview_case, \
     process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case, \
     get_test_file_path, generate_input, stress, push_session
+from polygon.problem.utils import sort_out_directory
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem, SpecialProgram
 from problem.views import StatusList
@@ -154,22 +158,63 @@ class ProblemRejudge(PolygonBaseMixin, View):
             return super(ProblemRejudge, self).test_func()
         return False
 
-    def post(self, request, pk):
+    def post(self, request, *args, **kwargs):
         rejudge_all_submission_on_problem(self.problem)
         return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
 
 
 
-class SessionPull(PolygonProblemMixin, View):
+class ProblemPull(PolygonProblemMixin, APIView):
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         try:
             session = EditSession.objects.get(problem=self.problem, user=request.user)
             pull_session(session)
         except EditSession.DoesNotExist:
             init_session(self.problem, request.user)
         messages.add_message(request, messages.SUCCESS, "Synchronization succeeded!")
-        return redirect(request.POST['next'])
+        return Response()
+
+
+class ProblemStaticFileList(PolygonProblemMixin, ListView):
+    template_name = 'polygon/problem/files.jinja2'
+    context_object_name = 'file_list'
+
+    def get_queryset(self):
+        r = sort_out_directory(path.join(settings.UPLOAD_DIR, str(self.problem.pk)))
+        for dat in r:
+            dat['url'] = '/upload/%d/%s' % (self.problem.id, dat['filename'])
+            if re.search(r'(gif|jpg|jpeg|tiff|png)$', dat['filename'], re.IGNORECASE):
+                dat['type'] = 'image'
+            else:
+                dat['type'] = 'regular'
+        return r
+
+
+class ProblemUploadStaticFile(PolygonProblemMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        files = request.FILES.getlist('files[]')
+        for file in files:
+            save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.problem.pk)),
+                                  filename=path.splitext(file.name)[0] + '.' + random_string(16),
+                                  keep_extension=True)
+        return redirect(reverse('polygon:problem_static_file_list', kwargs={'pk': self.problem.pk}))
+
+
+class ProblemDeleteRegularFile(PolygonProblemMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        filename = request.POST['filename']
+        try:
+            upload_base_dir = path.join(settings.UPLOAD_DIR, str(self.problem.pk))
+            real_path = path.abspath(path.join(upload_base_dir, filename))
+            if path.commonpath([real_path, upload_base_dir]) != upload_base_dir:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+            remove(real_path)
+        except OSError:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response()
 
 
 class SessionEdit(BaseSessionMixin, TemplateView):
@@ -246,64 +291,6 @@ class SessionSaveMeta(BaseSessionPostMixin, View):
                 raise ValueError("Program file does not exist")
         self.config = update_config(self.config, **kw)
         dump_config(self.session, self.config)
-        return response_ok()
-
-
-class SessionCreateStatement(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        create_statement_file(self.session, filename)
-        return response_ok()
-
-
-class SessionDeleteStatement(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        delete_statement_file(self.session, filename)
-        return response_ok()
-
-
-class SessionGetStatementRaw(BaseSessionMixin, View):
-
-    def get(self, request, sid):
-        filename = request.GET['filename']
-        return HttpResponse(read_statement_file(self.session, filename))
-
-
-class SessionUpdateStatement(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        text = request.POST['text']
-        write_statement_file(self.session, filename, text)
-        return response_ok()
-
-
-class SessionUploadRegularFile(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        files = request.FILES.getlist('files[]')
-        for file in files:
-            used, all = load_volume(self.session)
-            save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.session.problem_id)),
-                                  filename=random_string(16), size_limit=all - used, keep_extension=True)
-        return response_ok()
-
-
-class SessionDeleteRegularFile(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        try:
-            upload_base_dir = path.join(settings.UPLOAD_DIR, str(self.session.problem_id))
-            real_path = path.abspath(path.join(upload_base_dir, filename))
-            if path.commonpath([real_path, upload_base_dir]) != upload_base_dir:
-                raise ValueError("No... no... you are penetrating...")
-            remove(real_path)
-        except OSError:
-            pass
         return response_ok()
 
 

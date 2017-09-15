@@ -9,8 +9,8 @@
   <div class="ui pointing secondary menu">
     <a class="item {{ active('polygon:problem_preview') }}" href="{{ url('polygon:problem_preview', problem.id) }}">Preview</a>
     <a class="item {{ active('polygon:problem_edit') }}" href="{{ url('polygon:problem_edit', problem.id) }}">Edit</a>
-    <a class="item" href="#">Files</a>
-    <a class="item" href="#">Programs</a>
+    <a class="item {{ active('polygon:problem_static_file_list') }}" href="{{ url('polygon:problem_static_file_list', problem.id) }}">Static Files</a>
+    <a class="item {{ active('polygon:problem_program_list') }}" href="{{ url('polygon:problem_program_list', problem.id) }}">Programs</a>
     <a class="item" href="#">Cases</a>
     <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submissions</a>
   </div>

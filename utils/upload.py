@@ -17,7 +17,7 @@ def save_uploaded_file_to(file, directory, filename=None, size_limit=None, keep_
     if keep_extension and filename:
         raw_ext = path.splitext(file.name)[1]
         filename_body, filename_ext = path.splitext(filename)
-        if not filename_ext:
+        if filename_ext != raw_ext:
             filename = filename + raw_ext
     makedirs(directory, exist_ok=True)
     new_path = path.join(directory, filename if filename else file.name)
