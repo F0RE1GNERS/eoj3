@@ -155,7 +155,7 @@ class Contest(models.Model):
     def add_contest_problem_to_submissions(self, submissions):
         find_contest_problem = {k.problem_id: k for k in self.contest_problem_list}
         for submission in submissions:
-            submission.contest_problem = find_contest_problem[submission.problem_id]
+            submission.contest_problem = find_contest_problem.get(submission.problem_id)
 
     @property
     def participants_ids(self):
