@@ -1,11 +1,13 @@
 import mimetypes
 import os
 import threading
-from urllib import parse
 from datetime import datetime, timedelta
 
-from django.http import HttpResponse
 from django.conf import settings
+from django.http import HttpResponse
+from django.utils.encoding import iri_to_uri
+
+from utils.jinja2.globals import url_encode
 
 
 def respond_as_attachment(request, file_path, original_filename, document_root=None):
@@ -21,7 +23,8 @@ def respond_as_attachment(request, file_path, original_filename, document_root=N
     response['Content-Length'] = str(os.stat(file_path).st_size)
     if encoding is not None:
         response['Content-Encoding'] = encoding
-    response['Content-Disposition'] = 'attachment; filename=%s' % original_filename
+        url_encode()
+    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % iri_to_uri(original_filename)
     return response
 
 
