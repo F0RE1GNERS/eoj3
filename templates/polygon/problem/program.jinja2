@@ -1,119 +1,115 @@
-{% extends 'polygon/edit/new_base.jinja2' %}
+{% extends 'polygon/problem/base.jinja2' %}
 
-{% block framework %}
+{% block problem_content %}
+
+  {# TODO: message show up error #}
+  {% include 'components/message.jinja2' %}
+
   <table class="ui celled striped table">
     <thead>
       <tr>
-        <th colspan="5" style="text-align: right;">
+        <th colspan="5" class="right aligned">
           <div class="ui dropdown onhover">
             <button class="ui icon button positive compact text"><i class="plus icon"></i> Add</button>
             <div class="menu">
-              <div class="item" v-on:click="showDialogWithOneForm" data-target="#program-file-edit" data-block="true"
-                   data-action="{{ url('polygon:session_create_program_file', session.id) }}">
-                <i class="write icon"></i> Manually</div>
-              <div class="item" v-on:click="showDialogWithOneForm" data-target="#program-file-import"
-                   data-action="{{ url('polygon:session_import_program_file', session.id) }}">
-                <i class="cloud download icon"></i> Import</div>
+              <a class="item modal-link" data-target="#program-add"
+                 data-action="{{ url('polygon:session_create_program', problem.id) }}">
+                <i class="write icon"></i> Manually</a>
+              <a class="item modal-link" data-target="#program-import"
+                 data-action="{{ url('polygon:session_import_program', problem.id) }}">
+                <i class="cloud download icon"></i> Import</a>
             </div>
           </div>
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="file in appData.program_file_list" :key="file.filename">
-        <td>
-          <i class="file icon" v-if="file.used"></i>
-          <i class="file outline icon" v-else></i>
-          <span class="click-able" v-on:click="showUpdateCodeEditor" data-target="#program-file-edit"
-                data-block="true" data-action="{{ url('polygon:session_update_program_file', session.id) }}"
-                v-bind:data-raw-filename="file.filename" v-bind:data-filename="file.filename"
-                v-bind:data-type="file.type" v-bind:data-lang="file.lang"
-                data-get-content="{{ url('polygon:session_read_program', session.id) }}">
-            [[ file.filename ]]</span>
+    {% for program in program_list %}
+      <tr>
+        <td class="collapsing">
+          <div class="ui fitted slider checkbox immediate">
+            <input class="post-link" data-link="{{ url('polygon:session_program_used_toggle', problem.id) }}" data-filename="{{ program.filename }}" type="checkbox" {% if program.used %}checked{% endif %}>
+          </div>
         </td>
-        <td class="right aligned collapsing">[[ file.lang_display ]]</td>
-        <td class="right aligned collapsing" style="text-transform: capitalize;">[[ file.type ]]</td>
-        <td class="right aligned collapsing">[[ file.modified_time ]]</td>
+        <td class="collapsing" style="text-transform: capitalize;">{{ program.type }}</td>
+        <td><i class="file icon"></i> {{ program.filename }}</td>
+        <td class="right aligned collapsing">{{ program.lang_display }}</td>
         <td class="right aligned collapsing">
           <div class="ui icon compact buttons">
-            <button class="ui button" data-action="{{ url('polygon:session_delete_program_file', session.id) }}"
-                    v-bind:data-filename="file.filename" v-on:click="showDeleteDialog">
-              <i class="trash icon"></i>
+            <button class="ui button primary modal-link" data-target="#program-edit" data-rawFilename="{{ program.filename }}"
+                    data-filename="{{ program.filename }}" data-type="{{ program.type }}" data-lang="{{ program.lang }}"
+                    data-code="{{ program.code }}"
+                    data-action="{{ url('polygon:session_update_program', problem.id) }}">
+              <i class="edit icon"></i>
             </button>
+            <a class="ui button delete-link" data-link="{{ url('polygon:session_delete_program', problem.id) }}"
+               data-filename="{{ program.filename }}">
+              <i class="trash icon"></i>
+            </a>
           </div>
         </td>
       </tr>
+    {% endfor %}
     </tbody>
   </table>
 
-  {% call modal(title="Add / Edit a program", id="program-file-problem", size="small") %}
+  {% macro program_editor() %}
+    <div class="field">
+      <label>Filename</label>
+      <input type="text" name="filename">
+    </div>
+
+    <div class="field">
+      <label>Type</label>
+      <select name="type" class="ui selection dropdown">
+        <option value="checker">Checker</option>
+        <option value="solution">Solution</option>
+        <option value="validator">Validator</option>
+        <option value="generator">Generator</option>
+        <option value="interactor">Interactor</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Language</label>
+      <select name="lang" class="ui selection dropdown">
+        {% for lang in lang_choices %}
+        <option value="{{ lang[0] }}">{{ lang[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Code</label>
+      <textarea name="code" spellcheck="false"></textarea>
+    </div>
+  {% endmacro %}
+
+  {% call modal(title="Add a program", id="program-add", size="small") %}
     <form class="ui form" action="" method="POST">
       {% csrf_token %}
-      <div class="field">
-        <label>Filename</label>
-        <input type="text" name="filename">
-      </div>
-
-      <div class="field">
-        <label>Type</label>
-        <div class="ui selection dropdown">
-          <input type="hidden" name="type" data-important="true">
-          <i class="dropdown icon"></i>
-          <div class="text"></div>
-          <div class="menu">
-            <div class="item">Checker</div>
-            <div class="item">Solution</div>
-            <div class="item">Validator</div>
-            <div class="item">Generator</div>
-            <div class="item">Interactor</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Language</label>
-        <div class="ui selection dropdown">
-          <input type="hidden" name="lang" data-important="true">
-          <i class="dropdown icon"></i>
-          <div class="text"></div>
-          <div class="menu">
-            {% for lang in lang_choices %}
-              <div class="item" data-value="{{ lang[0] }}">{{ lang[1] }}</div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Code</label>
-        <textarea name="code" spellcheck="false"></textarea>
-      </div>
-
+      {{ program_editor() }}
     </form>
   {% endcall %}
 
-  {% call modal(title="Import built-in programs", id="program-file-import") %}
+  {% call modal(title="Edit a program", id="program-edit", size="small") %}
+    <form class="ui form" action="" method="POST">
+      {% csrf_token %}
+      {{ program_editor() }}
+    </form>
+  {% endcall %}
+
+  {% call modal(title="Import built-in programs", id="program-import") %}
     <form class="ui form" action="" method="POST">
       {% csrf_token %}
       <div class="field">
-        <div class="ui selection dropdown">
-          <input type="hidden" name="type" data-important="true">
-          <i class="dropdown icon"></i>
-          <div class="text"></div>
-          <div class="menu">
-            {% for program in builtin_program_choices %}
-              <div class="item" data-value="{{ program.filename }}">{{ program }}</div>
-            {% endfor %}
-          </div>
-        </div>
+        <select name="type" class="ui selection dropdown">
+          {% for program in builtin_program_choices %}
+            <option value="{{ program.filename }}">{{ program }}</option>
+          {% endfor %}
+        </select>
       </div>
     </form>
   {% endcall %}
 
-{% endblock %}
-
-{% block tips %}
-  <ul class="list">
-    <li>If you import something which has the same name with an existing file, the existing file will be overwritten! So always check before importing!</li>
-  </ul>
 {% endblock %}

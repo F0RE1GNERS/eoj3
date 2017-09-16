@@ -2,9 +2,12 @@
 $('.ui.checkbox')
   .checkbox()
 ;
-$('.ui.selection.dropdown, select.selection')
+$('.ui.selection.dropdown, select.ui.selection')
   .dropdown()
 ;
+$('.ui.dropdown.onhover').dropdown({
+  on: 'hover'
+});
 $('.message .close')
   .on('click', function() {
     $(this)
@@ -108,7 +111,7 @@ $('.ui.dropdown.problem-search')
     }
   });
 
-// function
+// function post and modal related
 function postWithLocalData (button) {
   var link = button.data('link');
   var data = button.data();
@@ -117,6 +120,23 @@ function postWithLocalData (button) {
       location.reload();
     }
   );
+}
+
+function replaceFormData(form, extra_data) {
+  for (var val in extra_data) {
+    if (extra_data.hasOwnProperty(val)) {
+      var already_exist = form.find('*[name="' + val + '"]');
+      if (already_exist.length > 0) {
+        if (already_exist.prop("tagName") == "SELECT") {
+          already_exist.parent(".ui.dropdown").dropdown("set selected", extra_data[val]);
+        } else {
+          already_exist.val(extra_data[val]);
+        }
+      } else {
+        form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
+      }
+    }
+  }
 }
 
 $(".post-link")
@@ -179,13 +199,17 @@ $(".delete-link")
 
 $(".modal-link")
   .on('click', function (e) {
-    var modal = $($(e.currentTarget).data('target'));
-    if ($(e.currentTarget).data('action'))
+    var button = $(e.currentTarget);
+    var modal = $(button.data('target'));
+    if (button.data('action'))
       modal.find("form").attr("action", $(e.currentTarget).data('action'));
+    if (modal.find("form").length > 0)
+      replaceFormData(modal.find("form"), button.data());
     modal
       .modal({
         onApprove: function () {
-          $(this).find("form").submit();
+          var form = $(this).find("form");
+          form.submit();
         }
       })
       .modal('show');
@@ -195,13 +219,7 @@ $(".modal-link")
 $(".ui.checkbox.immediate")
   .checkbox({
     onChange: function () {
-      var link = $(this).data('link');
-      $.post(link, {
-        'csrfmiddlewaretoken': Cookies.get('csrftoken'),
-        'checked': $(this).prop('checked')
-      }, function (data) {
-        location.reload();
-      });
+      postWithLocalData($(this));
     }
   });
 

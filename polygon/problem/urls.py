@@ -12,4 +12,11 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/files/$', v.ProblemStaticFileList.as_view(), name='problem_static_file_list'),
     url(r'^(?P<pk>\d+)/files/add/$', v.ProblemUploadStaticFile.as_view(), name='problem_upload_static_file'),
     url(r'^(?P<pk>\d+)/files/delete/$', v.ProblemDeleteRegularFile.as_view(), name='problem_delete_static_file'),
+
+    url(r'^(?P<pk>\d+)/program/$', v.SessionProgramList.as_view(), name='session_program_list'),
+    url(r'^(?P<pk>\d+)/program/add/$', v.SessionCreateProgram.as_view(), name='session_create_program'),
+    url(r'^(?P<pk>\d+)/program/import/$', v.SessionImportProgram.as_view(), name='session_import_program'),
+    url(r'^(?P<pk>\d+)/program/delete/$', v.SessionDeleteProgram.as_view(), name='session_delete_program'),
+    url(r'^(?P<pk>\d+)/program/update/$', v.SessionUpdateProgram.as_view(), name='session_update_program'),
+    url(r'^(?P<pk>\d+)/program/used/$', v.SessionProgramUsedToggle.as_view(), name='session_program_used_toggle'),
 ]

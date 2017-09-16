@@ -23,7 +23,7 @@ from polygon.case import (
 )
 from polygon.models import EditSession
 from polygon.models import Run
-from polygon.problem.utils import sort_out_directory
+from polygon.problem.utils import sort_out_directory, valid_fingerprint_check, normal_regex_check
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from problem.tasks import upload_problem_to_judge_server
 from utils import random_string
@@ -247,54 +247,6 @@ def push_session(session):
     pull_session(session)
 
 
-def load_statement_file_list(session):
-    return sort_out_directory(path.join(get_session_dir(session), STATEMENT_DIR))
-
-
-def create_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    if path.exists(filepath):
-        raise ValueError("File already exists")
-    with open(filepath, 'w'):
-        pass
-
-
-def delete_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    if not path.exists(filepath):
-        raise ValueError("File does not exist")
-    config = load_config(session)
-    if filename in list(map(lambda x: config[x], STATEMENT_TYPE_LIST)):
-        raise ValueError("File is still in use")
-    remove(filepath)
-
-
-def read_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    with open(filepath) as fs:
-        return fs.read()
-
-
-def write_statement_file(session, filename, text):
-    filepath = _get_statement_file_path(session, filename)
-    with open(filepath, 'w') as fs:
-        fs.write(text)
-
-
-def update_statement(session, description, input, output, hint):
-    config = load_config(session)
-    description_file, input_file, output_file, hint_file = map(lambda x: config.get, STATEMENT_TYPE_LIST)
-    write_statement_file(session, description_file, description)
-    write_statement_file(session, input_file, input)
-    write_statement_file(session, output_file, output)
-    write_statement_file(session, hint_file, hint)
-
-
-def statement_file_exists(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    return path.exists(filepath)
-
-
 def load_regular_file_list(session):
     return sort_out_directory(path.join(settings.UPLOAD_DIR, str(session.problem_id)))
 
@@ -368,6 +320,19 @@ def delete_program_file(session, filename):
     config['program'].pop(filename, None)
     dump_config(session, config)
     remove(filepath)
+
+
+def toggle_program_file_use(session, filename):
+    if not program_file_exists(session, filename):
+        raise ValueError("File does not exist")
+    config = load_config(session)
+    t = config['program'][filename]['type']
+    if config[t] == filename:
+        # turn it off
+        config[t] = ''
+    else:
+        config[t] = filename
+    dump_config(session, config)
 
 
 def save_case(session, input_binary, output_binary, raw_fingerprint=None, **kwargs):
@@ -706,13 +671,3 @@ def _get_program_tuple(session, filename, config=None):
     if not config:
         config = load_config(session)
     return read_program_file(session, filename), config['program'][filename]['lang']
-
-
-def normal_regex_check(alias):
-    return re.match(r"^[\.a-z0-9_-]{4,64}$", alias)
-
-
-def valid_fingerprint_check(fingerprint):
-    return re.match(r"^[a-z0-9]{16,128}$", fingerprint)
-
-

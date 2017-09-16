@@ -1,5 +1,6 @@
 from datetime import datetime
 from os import path, listdir
+import re
 
 from django.conf import settings
 
@@ -19,3 +20,11 @@ def listdir_with_prefix(directory):
     return list(map(lambda file: path.join(directory, file),
                     filter(lambda f2: not f2.startswith('.'),
                            listdir(directory))))
+
+
+def normal_regex_check(alias):
+    return re.match(r"^[\.a-z0-9_-]{4,64}$", alias)
+
+
+def valid_fingerprint_check(fingerprint):
+    return re.match(r"^[a-z0-9]{16,128}$", fingerprint)

@@ -2,6 +2,8 @@
 
 {% block problem_content %}
 
+  {% include 'components/message.jinja2' %}
+
   <table class="ui celled striped table">
     <thead>
       <tr>
@@ -56,7 +58,5 @@
       </div>
     </form>
   {% endcall %}
-
-  {% include 'components/delete_confirmation.jinja2' %}
 
 {% endblock %}

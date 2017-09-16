@@ -21,13 +21,9 @@ from polygon.base_views import PolygonBaseMixin, response_ok
 from polygon.case import well_form_text
 from polygon.forms import ProblemEditForm
 from polygon.models import EditSession
-from polygon.problem.session import normal_regex_check, init_session, pull_session, load_config, get_config_update_time, \
-    load_volume, load_regular_file_list, load_program_file_list, get_case_metadata, program_file_exists, update_config, \
-    dump_config, create_statement_file, delete_statement_file, read_statement_file, write_statement_file, \
-    save_program_file, read_program_file, delete_program_file, save_case, reorder_case, preview_case, \
-    process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case, \
-    get_test_file_path, generate_input, stress, push_session
-from polygon.problem.utils import sort_out_directory
+from polygon.problem.session import init_session, pull_session, load_config, save_program_file, delete_program_file, \
+    read_program_file, toggle_program_file_use
+from polygon.problem.utils import sort_out_directory, normal_regex_check
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem, SpecialProgram
 from problem.views import StatusList
@@ -71,9 +67,13 @@ class ProblemCreate(PolygonBaseMixin, View):
 class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
     raise_exception = True
 
+    def init_session_during_dispatch(self):
+        pass
+
     def dispatch(self, request, *args, **kwargs):
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
-        return super(PolygonProblemMixin, self).dispatch(request, *args, **kwargs)
+        self.init_session_during_dispatch()
+        return super().dispatch(request, *args, **kwargs)
 
     def test_func(self):
         if not is_problem_manager(self.request.user, self.problem):
@@ -83,30 +83,46 @@ class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
     def get_context_data(self, **kwargs):
         data = super(PolygonProblemMixin, self).get_context_data(**kwargs)
         data['problem'] = self.problem
+        data['lang_choices'] = LANG_CHOICE
+        data['builtin_program_choices'] = SpecialProgram.objects.filter(builtin=True).all()
         return data
 
 
 class BaseSessionMixin(PolygonProblemMixin):
-    raise_exception = True
 
-    def get_context_data(self, **kwargs):
-        data = super(BaseSessionMixin, self).get_context_data(**kwargs)
+    def init_session_during_dispatch(self):
+        if not (self.get_test_func())():
+            # Manually check permission to make sure there is no redundant session created
+            # Call super before update session does not work
+            return self.handle_no_permission()
         try:
             self.session = self.problem.editsession_set.get(user=self.request.user)
         except EditSession.DoesNotExist:
             self.session = init_session(self.problem, self.request.user)
         self.config = load_config(self.session)
+
+    def get_context_data(self, **kwargs):
+        data = super(BaseSessionMixin, self).get_context_data(**kwargs)
         data['session'], data['config'] = self.session, self.config
         return data
 
 
+class SessionPostMixin(BaseSessionMixin):
+    redirect_view_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except Exception as e:
+            messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
+        finally:
+            if self.redirect_view_name:
+                return redirect(reverse(self.redirect_view_name, kwargs=kwargs))
+            # automatically raise exception here
+
+
 class ProblemPreview(PolygonProblemMixin, TemplateView):
     template_name = 'polygon/problem/preview.jinja2'
-
-    def get_context_data(self, **kwargs):
-        data = super(ProblemPreview, self).get_context_data(**kwargs)
-        data['lang_choices'] = LANG_CHOICE
-        return data
 
 
 class ProblemAccessManage(PolygonProblemMixin, View):
@@ -147,21 +163,11 @@ class ProblemStatus(PolygonProblemMixin, StatusList):
         return Submission.objects.filter(problem_id=self.problem.id)
 
 
-class ProblemRejudge(PolygonBaseMixin, View):
-
-    def dispatch(self, request, *args, **kwargs):
-        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
-        return super(ProblemRejudge, self).dispatch(request, *args, **kwargs)
-
-    def test_func(self):
-        if self.problem.problemmanagement_set.filter(user=self.request.user).exists():
-            return super(ProblemRejudge, self).test_func()
-        return False
+class ProblemRejudge(PolygonProblemMixin, View):
 
     def post(self, request, *args, **kwargs):
         rejudge_all_submission_on_problem(self.problem)
         return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
-
 
 
 class ProblemPull(PolygonProblemMixin, APIView):
@@ -217,15 +223,64 @@ class ProblemDeleteRegularFile(PolygonProblemMixin, APIView):
         return Response()
 
 
-class SessionEdit(BaseSessionMixin, TemplateView):
-
-    template_name = 'polygon/session_edit.jinja2'
+class SessionProgramList(BaseSessionMixin, TemplateView):
+    template_name = 'polygon/problem/program.jinja2'
 
     def get_context_data(self, **kwargs):
-        data = super(SessionEdit, self).get_context_data(**kwargs)
-        data['lang_choices'] = LANG_CHOICE
-        data['builtin_program_choices'] = SpecialProgram.objects.filter(builtin=True).all()
+        data = super().get_context_data(**kwargs)
+        data["program_list"] = program_list = []
+        for filename, val in self.config["program"].items():
+            program_list.append(dict(filename=filename))
+            program_list[-1].update(val)
+            program_list[-1]["lang_display"] = dict(LANG_CHOICE)[program_list[-1]["lang"]]
+            program_list[-1]["code"] = read_program_file(self.session, filename)
+            for sp_type in ['checker', 'validator', 'generator', 'interactor', 'model']:
+                if self.config.get(sp_type) == filename:
+                    program_list[-1].update(used=True)
         return data
+
+
+class SessionCreateProgram(SessionPostMixin, View):
+    redirect_view_name = 'polygon:session_program_list'
+
+    def post(self, request, *args, **kwargs):
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
+        save_program_file(self.session, filename, type, lang, code)
+
+
+class SessionImportProgram(SessionPostMixin, View):
+    redirect_view_name = 'polygon:session_program_list'
+
+    def post(self, request, *args, **kwargs):
+        type = request.POST['type']
+        sp = SpecialProgram.objects.get(builtin=True, filename=type)
+        save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
+
+
+class SessionUpdateProgram(SessionPostMixin, View):
+    redirect_view_name = 'polygon:session_program_list'
+
+    def post(self, request, *args, **kwargs):
+        raw_filename = request.POST['rawfilename']
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
+        save_program_file(self.session, filename, type, lang, code, raw_filename)
+
+
+class SessionDeleteProgram(SessionPostMixin, View):
+    redirect_view_name = 'polygon:session_program_list'
+
+    def post(self, request, *args, **kwargs):
+        filename = request.POST['filename']
+        delete_program_file(self.session, filename)
+
+
+class SessionProgramUsedToggle(BaseSessionMixin, APIView):
+    def post(self, request, pk):
+        filename = request.POST['filename']
+        toggle_program_file_use(self.session, filename)
+        return Response()
 
 
 class SessionEditUpdateAPI(BaseSessionMixin, View):
@@ -266,76 +321,8 @@ class SessionEditUpdateAPI(BaseSessionMixin, View):
         return HttpResponse(json.dumps(app_data))
 
 
-class BaseSessionPostMixin(BaseSessionMixin):
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            return super(BaseSessionPostMixin, self).dispatch(request, *args, **kwargs)
-        except Exception as e:
-            if settings.DEBUG:
-                import traceback
-                traceback.print_exc()
-            return HttpResponse(json.dumps({"status": "reject", "message": "%s: %s" % (e.__class__.__name__, str(e))}))
-
-
-class SessionSaveMeta(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        param_list = ['alias', 'time_limit', 'memory_limit', 'source', 'checker', 'interactor', 'validator', 'model',
-
-                      'title']
-        kw = {x: request.POST[x] for x in param_list}
-        kw.update(interactive=request.POST.get('interactive') == 'on')
-        for param in ['checker', 'interactor', 'validator', 'model']:
-            if kw[param] and not program_file_exists(self.session, kw[param]):
-                raise ValueError("Program file does not exist")
-        self.config = update_config(self.config, **kw)
-        dump_config(self.session, self.config)
-        return response_ok()
-
-
-class SessionCreateProgram(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
-                                     request.POST['lang'], request.POST['code']
-        save_program_file(self.session, filename, type, lang, code)
-        return response_ok()
-
-
-class SessionUpdateProgram(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        raw_filename = request.POST['rawFilename']
-        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
-                                     request.POST['lang'], request.POST['code']
-        save_program_file(self.session, filename, type, lang, code, raw_filename)
-        return response_ok()
-
-
-class SessionReadProgram(BaseSessionMixin, View):
-
-    def get(self, request, sid):
-        filename = request.GET['filename']
-        return HttpResponse(read_program_file(self.session, filename))
-
-
-class SessionDeleteProgram(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        filename = request.POST['filename']
-        delete_program_file(self.session, filename)
-        return response_ok()
-
-
-class SessionImportProgram(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        type = request.POST['type']
-        sp = SpecialProgram.objects.get(builtin=True, filename=type)
-        save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
-        return response_ok()
-
+class BaseSessionPostMixin:
+    pass
 
 class SessionCreateCaseManually(BaseSessionPostMixin, View):
 
