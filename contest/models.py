@@ -25,12 +25,12 @@ class ContestManager(models.Manager):
                 q |= models.Q(manager=filter_user)
         if always_running is not None:
             q &= models.Q(always_running=always_running)
-        contest_list = super(ContestManager, self).get_queryset().filter(q)
+        contest_list = self.get_queryset().filter(q)
 
         if sorting_by_id:
-            contest_list = contest_list.order_by("-pk")
+            contest_list = contest_list.order_by("-pk").distinct()
         else:
-            contest_list = contest_list.order_by("-start_time")
+            contest_list = contest_list.order_by("-start_time").distinct()
             for contest in contest_list:
                 contest.length = contest.end_time - contest.start_time
         for contest in contest_list:
