@@ -9,7 +9,7 @@ import requests
 
 from utils import random_string
 
-white_space_reg = re.compile(r'[\x00-\x20]+')
+white_space_reg = re.compile(r'[\x00-\x20\s]+')
 
 SERVER_URL = 'http://123.57.161.63:5002'
 TOKEN = ('ejudge', 'naive')

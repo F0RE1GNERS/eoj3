@@ -36,4 +36,24 @@
     </tbody>
   </table>
 
+  <div class="ui basic tiny modal" id="contest-create">
+    <div class="ui icon header">
+      <i class="fork icon"></i>
+      Create a problem
+    </div>
+    <div class="content">
+      <p>Are you sure you want to create a problem? You can not undo this.</p>
+    </div>
+    <div class="actions">
+      <div class="ui red basic cancel inverted button">
+        <i class="remove icon"></i>
+        No
+      </div>
+      <a class="ui green ok inverted button post-link" data-link="{{ url('polygon:problem_create') }}">
+        <i class="checkmark icon"></i>
+        Yes
+      </a>
+    </div>
+  </div>
+
 {% endblock %}

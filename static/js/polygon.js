@@ -9,16 +9,7 @@ $('.ui.calendar').calendar({
     }
   }
 });
-$('#session-create-button').click(function () {
-  $("#session-create")
-    .modal({
-      onApprove : function () {
-        $("#session-create-form").submit();
-      }
-    })
-    .modal('show')
-  ;
-});
+
 $('#contest-create-button').click(function () {
   $("#contest-create")
     .modal('show');
@@ -30,22 +21,13 @@ $("#session-create-form")
     }
   })
 ;
-$('.synchronize.button').click(function () {
-  $("#session-synchronize-form").find("input[name=problem]").val($(this).data("problem"));
-  $("#session-synchronize")
-    .modal({
-      onApprove: function () {
-        $("#session-synchronize-form").submit();
-      }
-    })
-    .modal('show');
-});
 $('.run-message-reveal-link').click(function (event) {
   $.get($(event.currentTarget).data("get-action"), {}, function (data) {
     if (!data) data = '[ This message is empty. ]';
-    $("#message-preview-modal").find("code").html(data);
+    var modal = $("#message-preview-modal");
+    modal.find("code").html(data);
+    modal.modal('show');
   });
-  $("#message-preview-modal").modal('show');
 });
 
 function updateRunNumber(delta) {
@@ -78,17 +60,15 @@ function bindFormAndButtonData(form, button) {
   clearAndAddExtraData(form, button.data());
 }
 
-if ($("#session-problem-app").length > 0) {
+if ($("#session-case-app").length > 0) {
   // Vue.js needed
   Vue.options.delimiters = ["[[", "]]"];
   new Vue({
-    el: "#session-problem-app",
+    el: "#session-case-app",
     data: {
-      appData: {},
       apiRoute: "",
       errorMessage: "",
       caseList: [],
-      unusedCaseList: [],
       previewCaseInput: "",
       previewCaseOutput: "",
       generateParam: ""
@@ -105,28 +85,11 @@ if ($("#session-problem-app").length > 0) {
       updateConfig: function () {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
-          this.appData = data;
-          this.updateCaseList();
+          this.caseList = data;
+          console.log(this.caseList);
+          for (var i = 0; i < this.caseList.length; ++i)
+            this.caseList[i].used = this.caseList[i].order > 0;
         }.bind(this));
-      },
-      updateCaseList: function() {
-        this.caseList = [];
-        this.unusedCaseList = [];
-        for (var fingerprint in this.appData.case) {
-          if (this.appData.case.hasOwnProperty(fingerprint)) {
-            var val = this.appData.case[fingerprint];
-            var thisCase = val;
-            thisCase["fingerprint"] = fingerprint;
-            if (!val.hasOwnProperty("order") || !val["order"]) {
-              this.unusedCaseList.push(thisCase);
-            } else {
-              this.caseList.push(thisCase);
-            }
-          }
-        }
-        this.caseList.sort(function(a, b) {
-          return a["order"] - b["order"];
-        });
       },
       clearErrorMessage: function () {
         this.errorMessage = "";
@@ -157,9 +120,7 @@ if ($("#session-problem-app").length > 0) {
           form.find(".ui.checkbox").checkbox();
         }
         if (form.find(".ui.file.input").length > 0) {
-          form.find(".ui.file.input").inputFile({
-            sizeLimit: this.appData.volume_all - this.appData.volume_used
-          });
+          form.find(".ui.file.input").inputFile();
           autofocus = false;
         }
         local_modal
@@ -171,15 +132,6 @@ if ($("#session-problem-app").length > 0) {
             }
           })
           .modal('show');
-      },
-      showUpdateCodeEditor: function (event) {
-        var button = $(event.currentTarget);
-        $.get(button.data("get-content"), {"filename": button.data("filename")},
-          function (data) {
-            var local_form = $(button.data("target")).find("form");
-            local_form.find("*[name='code']").val(data);
-          }.bind(this));
-        this.showDialogWithOneForm(event);
       },
       postLink: function (event) {
         var data = { csrfmiddlewaretoken: Cookies.get('csrftoken') };
@@ -197,22 +149,18 @@ if ($("#session-problem-app").length > 0) {
           'unused': JSON.stringify(this.unusedCaseList),
           'csrfmiddlewaretoken': Cookies.get('csrftoken')
         }, function (data) {
-          if (data['status'] != 'received') {
-            this.errorMessage = data["message"];
-          } else {
-            $("#success-modal").modal('show');
-            this.updateConfig();
-          }
+          $("#success-modal").modal('show');
+          this.updateConfig();
         }.bind(this),
         "json");
       },
       convertStatusCodeToHelpText: function (statusCode) {
         if (statusCode == 1) {
-          return "yes";
+          return "Yes";
         } else if (statusCode == -1) {
-          return "failed";
+          return "No";
         } else {
-          return "no";
+          return "Unknown";
         }
       },
       previewCase: function (event) {
@@ -224,30 +172,12 @@ if ($("#session-problem-app").length > 0) {
           this.previewCaseOutput = data.output;
         }.bind(this), "json");
         $("#case-preview-modal").modal('show');
-      },
-      longPollRunResult: function (id) {
-        updateRunNumber(1);
-        longPoll("/api/polygon/run/" + id + "/", function () {
-          this.updateConfig();
-          updateRunNumber(-1);
-        }.bind(this), 1000, function (data) {
-          return data["run_status"] != 0;
-        });
       }
     },
     beforeMount: function () {
       this.updateConfig();
     },
     mounted: function () {
-      $("#save-meta-form")
-        .form({
-          fields: {
-            alias: ["regExp[/^[a-z0-9_-]{4,64}$/]"],
-            time_limit: "integer[200..30000]",
-            memory_limit: "integer[64..4096]",
-            source: "maxLength[128]"
-          }
-        });
       $('.tabular.menu .item').tab({
         history: true,
         historyType: 'hash'
@@ -270,21 +200,7 @@ if ($("#session-problem-app").length > 0) {
             type: 'POST',
             data: formData,
             success: function (data) {
-              if (data["status"] == "received") {
-                target.removeClass("error").addClass("success");
-                this.updateConfig();
-                this.errorMessage = "";
-                setTimeout(function () {
-                  target.removeClass("success");
-                }, 2000);
-                if (data.hasOwnProperty("run_id")) {
-                  this.longPollRunResult(data["run_id"]);
-                }
-              } else {
-                target.form('add errors', [data["message"]]);
-                this.errorMessage = data["message"];
-                target.removeClass("success").addClass("error");
-              }
+              this.updateConfig();
             }.bind(this),
             complete: function () {
               if (progressBar) {

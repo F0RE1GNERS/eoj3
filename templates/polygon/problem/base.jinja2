@@ -11,7 +11,7 @@
     <a class="item {{ active('polygon:problem_edit') }}" href="{{ url('polygon:problem_edit', problem.id) }}">Edit</a>
     <a class="item {{ active('polygon:problem_static_file_list') }}" href="{{ url('polygon:problem_static_file_list', problem.id) }}">Static Files</a>
     <a class="item {{ active('polygon:session_program_list') }}" href="{{ url('polygon:session_program_list', problem.id) }}">Programs</a>
-    <a class="item" href="#">Cases</a>
+    <a class="item {{ active('polygon:session_case_list') }}" href="{{ url('polygon:session_case_list', problem.id) }}">Cases</a>
     <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submissions</a>
   </div>
 

@@ -22,7 +22,9 @@ from polygon.case import well_form_text
 from polygon.forms import ProblemEditForm
 from polygon.models import EditSession
 from polygon.problem.session import init_session, pull_session, load_config, save_program_file, delete_program_file, \
-    read_program_file, toggle_program_file_use
+    read_program_file, toggle_program_file_use, get_case_metadata, save_case, reorder_case, preview_case, \
+    process_uploaded_case, reform_case, readjust_case_point, validate_case, get_case_output, check_case, delete_case, \
+    get_test_file_path
 from polygon.problem.utils import sort_out_directory, normal_regex_check
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem, SpecialProgram
@@ -46,22 +48,15 @@ class ProblemList(PolygonBaseMixin, ListView):
             return self.request.user.managing_problems.all()
 
 
-class ProblemCreate(PolygonBaseMixin, View):
+class ProblemCreate(PolygonBaseMixin, APIView):
 
-    def post(self, request):
-        """
-        It is actually "repository create"
-        named "session create" for convenience
-        """
-        if request.method == 'POST':
-            alias = request.POST['alias']
-            if not normal_regex_check(alias):
-                raise ValueError
-            problem = Problem.objects.create(alias=alias)
-            problem.title = 'Problem #%d' % problem.id
-            problem.save(update_fields=['title'])
-            problem.manager.add(request.user)
-            return redirect(reverse('polygon:problem_edit', problem.pk))
+    def post(self, request, *args, **kwargs):
+        problem = Problem.objects.create()
+        problem.title = 'Problem #%d' % problem.id
+        problem.alias = 'p%d' % problem.id
+        problem.save(update_fields=['title', 'alias'])
+        problem.managers.add(request.user)
+        return Response()
 
 
 class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
@@ -71,6 +66,7 @@ class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
         pass
 
     def dispatch(self, request, *args, **kwargs):
+        self.request = request
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
         self.init_session_during_dispatch()
         return super().dispatch(request, *args, **kwargs)
@@ -112,13 +108,13 @@ class SessionPostMixin(BaseSessionMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            return super().dispatch(request, *args, **kwargs)
+            super().dispatch(request, *args, **kwargs)
         except Exception as e:
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
         finally:
             if self.redirect_view_name:
                 return redirect(reverse(self.redirect_view_name, kwargs=kwargs))
-            # automatically raise exception here
+            raise NotImplementedError
 
 
 class ProblemPreview(PolygonProblemMixin, TemplateView):
@@ -277,56 +273,25 @@ class SessionDeleteProgram(SessionPostMixin, View):
 
 
 class SessionProgramUsedToggle(BaseSessionMixin, APIView):
-    def post(self, request, pk):
+    def post(self, request, *args, **kwargs):
         filename = request.POST['filename']
         toggle_program_file_use(self.session, filename)
         return Response()
 
 
-class SessionEditUpdateAPI(BaseSessionMixin, View):
-
-    def get(self, request, sid):
-        data = self.get_context_data(sid=sid)
-        app_data = data['config']
-        app_data['config_update_time'] = get_config_update_time(self.session)
-        app_data['problem_id'] = self.problem.id
-        app_data['case_count'] = len(list(filter(lambda x: x.get('order'), app_data['case'].values())))
-        app_data['pretest_count'] = len(list(filter(lambda x: x.get('pretest'), app_data['case'].values())))
-        app_data['sample_count'] = len(list(filter(lambda x: x.get('sample'), app_data['case'].values())))
-        app_data['volume_used'], app_data['volume_all'] = load_volume(self.session)
-        app_data['regular_file_list'] = load_regular_file_list(self.session)
-        for dat in app_data['regular_file_list']:
-            dat['url'] = '/upload/%d/%s' % (self.problem.id, dat['filename'])
-            if re.search(r'(gif|jpg|jpeg|tiff|png)$', dat['filename'], re.IGNORECASE):
-                dat['type'] = 'image'
-            else:
-                dat['type'] = 'regular'
-        app_data['program_special_identifier'] = ['checker', 'validator', 'generator', 'interactor', 'model']
-        app_data['program_file_list'] = load_program_file_list(self.session)
-        language_choice_dict = dict(LANG_CHOICE)
-        for dat in app_data['program_file_list']:
-            extra_data = app_data['program'].get(dat['filename'])
-            if extra_data:
-                dat.update(extra_data)
-                for identifier in app_data['program_special_identifier']:
-                    if dat['filename'] == app_data.get(identifier):
-                        dat['used'] = identifier
-                dat['lang_display'] = language_choice_dict[dat['lang']]
-            else:
-                dat['remove_mark'] = True
-        app_data['program_file_list'] = list(filter(lambda x: not x.get('remove_mark'), app_data['program_file_list']))
-        for key, val in app_data['case'].items():
-            val.update(get_case_metadata(self.session, key))
-        # print(json.dumps(app_data, sort_keys=True, indent=4))
-        return HttpResponse(json.dumps(app_data))
+class SessionCaseList(BaseSessionMixin, TemplateView):
+    template_name = 'polygon/problem/case.jinja2'
 
 
-class BaseSessionPostMixin:
-    pass
+class SessionCaseDataAPI(BaseSessionMixin, APIView):
+    def get(self, request, *args, **kwargs):
+        for fingerprint, val in self.config['case'].items():
+            val.update(fingerprint=fingerprint)
+        return Response(data=sorted(self.config['case'].values(), key=lambda x: (not bool(x['order']), x['order'])))
 
-class SessionCreateCaseManually(BaseSessionPostMixin, View):
 
-    def post(self, request, sid):
+class SessionCreateCaseManually(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         input = request.POST['input']
         output = request.POST['output']
         well_form = request.POST.get("wellForm") == "on"
@@ -335,189 +300,206 @@ class SessionCreateCaseManually(BaseSessionPostMixin, View):
         if not input:
             raise ValueError('Input file cannot be empty')
         save_case(self.session, input.encode(), output.encode(), well_form=well_form)
-        return response_ok()
+        return Response()
 
 
-class SessionUpdateOrders(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
+class SessionReorderCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         case = json.loads(request.POST['case'])
-        unused = json.loads(request.POST['unused'])
         conclusion = dict()
         for order, k in enumerate(case, start=1):
             conclusion[k['fingerprint']] = order
-        for k in unused:
-            conclusion[k['fingerprint']] = 0
         reorder_case(self.session, conclusion)
-        return response_ok()
+        return Response()
 
 
-class SessionPreviewCase(BaseSessionMixin, View):
-
-    def get(self, request, sid):
+class SessionPreviewCase(BaseSessionMixin, APIView):
+    def get(self, request, *args, **kwargs):
         fingerprint = request.GET['case']
-        return HttpResponse(json.dumps(preview_case(self.session, fingerprint)))
+        return Response(data=preview_case(self.session, fingerprint))
 
 
-class SessionUploadCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
+class SessionUploadCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         file = request.FILES['file']
         file_directory = '/tmp'
         file_path = save_uploaded_file_to(file, file_directory, filename=random_string(), keep_extension=True)
         process_uploaded_case(self.session, file_path)
         remove(file_path)
-        return response_ok()
+        return Response()
 
 
-class SessionReformCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        case = request.POST['fingerprint']
-        inputOnly = request.POST.get('inputOnly') == 'on'
-        reform_case(self.session, case, only_input=inputOnly)
-        return response_ok()
-
-
-class SessionUpdateCasePoint(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
+class SessionUpdateCasePoint(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         point = request.POST['point']
         case = request.POST['fingerprint']
         readjust_case_point(self.session, case, int(point))
-        return response_ok()
+        return Response()
 
 
-class SessionValidateCase(BaseSessionPostMixin, View):
+class SessionReformCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        case = request.POST['fingerprint']
+        inputOnly = request.POST.get('inputOnly') == 'on'
+        reform_case(self.session, case, only_input=inputOnly)
+        return Response()
 
-    def post(self, request, sid):
+
+class SessionValidateCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         case = request.POST['fingerprint']
         validator = request.POST['program']
-        return response_ok(run_id=validate_case("Validate a case", self.session, validator, case))
+        validate_case("Validate a case", self.session, validator, case)
+        return Response()
 
 
-class SessionRunCaseOutput(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
+class SessionOutputCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         case = request.POST['fingerprint']
         model = request.POST['program']
-        return response_ok(run_id=get_case_output("Run case output", self.session, model, case))
+        get_case_output("Run case output", self.session, model, case)
+        return Response()
 
 
-class SessionCheckCaseOutput(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        case = request.POST['fingerprint']
-        submission = request.POST['program']
-        checker = request.POST['checker']
-        return response_ok(run_id=check_case("Check a case", self.session, submission, checker, case))
-
-
-class SessionValidateAllCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        validator = request.POST['program']
-        return response_ok(run_id=validate_case("Validate all cases", self.session, validator))
-
-
-class SessionRunAllCaseOutput(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        model = request.POST['program']
-        return response_ok(run_id=get_case_output("Run all case outputs", self.session, model))
-
-
-class SessionCheckAllCaseOutput(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        submission = request.POST['program']
-        checker = request.POST['checker']
-        return response_ok(run_id=check_case("Check all cases", self.session, submission, checker))
-
-
-class SessionDeleteCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
+class SessionDeleteCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
         case = request.POST['fingerprint']
         delete_case(self.session, case)
-        return response_ok()
+        return Response()
 
 
-class SessionDownloadInput(BaseSessionMixin, View):
+class SessionCheckCase(BaseSessionMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        case = request.POST['fingerprint']
+        submission = request.POST['program']
+        checker = request.POST['checker']
+        check_case("Check a case", self.session, submission, checker, case)
+        return Response()
 
+
+class SessionDownloadCase(BaseSessionMixin, View):
     def get(self, request, sid):
         case = request.GET['fingerprint']
         input, _ = get_test_file_path(self.session, case)
         return respond_as_attachment(request, input, case + '.in')
 
 
-class SessionDownloadOutput(BaseSessionMixin, View):
-
-    def get(self, request, sid):
-        case = request.GET['fingerprint']
-        _, output = get_test_file_path(self.session, case)
-        return respond_as_attachment(request, output, case + '.in')
-
-
-class SessionGenerateInput(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        generator = request.POST['generator']
-        raw_param = request.POST['param']
-        return response_ok(run_id=generate_input('Generate cases', self.session, generator, raw_param))
-
-
-class SessionAddCaseFromStress(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        generator = request.POST['generator']
-        raw_param = request.POST['param']
-        submission = request.POST['submission']
-        time = int(request.POST['time']) * 60
-        if time < 60 or time > 300:
-            raise ValueError('Time not in range')
-        return response_ok(run_id=stress('Stress test', self.session, generator, submission, raw_param, time))
-
-
-class SessionReformAllCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        inputOnly = request.POST.get('inputOnly') == 'on'
-        config = load_config(self.session)
-        for case in list(config['case'].keys()):
-            reform_case(self.session, case, only_input=inputOnly)
-        return response_ok()
-
-
-class SessionTogglePretestCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        case = request.POST['fingerprint']
-        config = load_config(self.session)
-        config['case'][case]['pretest'] = not bool(config['case'][case].get('pretest'))
-        dump_config(self.session, config)
-        return response_ok()
-
-
-class SessionToggleSampleCase(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        case = request.POST['fingerprint']
-        config = load_config(self.session)
-        config['case'][case]['sample'] = not bool(config['case'][case].get('sample'))
-        dump_config(self.session, config)
-        return response_ok()
-
-
-class SessionPullHotReload(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        pull_session(self.session)
-        return response_ok()
-
-
-class SessionPush(BaseSessionPostMixin, View):
-
-    def post(self, request, sid):
-        push_session(self.session)
-        return response_ok()
+#
+#
+# class SessionCheckCaseOutput(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         case = request.POST['fingerprint']
+#         submission = request.POST['program']
+#         checker = request.POST['checker']
+#         return response_ok(run_id=check_case("Check a case", self.session, submission, checker, case))
+#
+#
+# class SessionValidateAllCase(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         validator = request.POST['program']
+#         return response_ok(run_id=validate_case("Validate all cases", self.session, validator))
+#
+#
+# class SessionRunAllCaseOutput(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         model = request.POST['program']
+#         return response_ok(run_id=get_case_output("Run all case outputs", self.session, model))
+#
+#
+# class SessionCheckAllCaseOutput(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         submission = request.POST['program']
+#         checker = request.POST['checker']
+#         return response_ok(run_id=check_case("Check all cases", self.session, submission, checker))
+#
+#
+# class SessionDeleteCase(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         case = request.POST['fingerprint']
+#         delete_case(self.session, case)
+#         return response_ok()
+#
+#
+# class SessionDownloadInput(BaseSessionMixin, View):
+#
+#     def get(self, request, sid):
+#         case = request.GET['fingerprint']
+#         input, _ = get_test_file_path(self.session, case)
+#         return respond_as_attachment(request, input, case + '.in')
+#
+#
+# class SessionDownloadOutput(BaseSessionMixin, View):
+#
+#     def get(self, request, sid):
+#         case = request.GET['fingerprint']
+#         _, output = get_test_file_path(self.session, case)
+#         return respond_as_attachment(request, output, case + '.in')
+#
+#
+# class SessionGenerateInput(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         generator = request.POST['generator']
+#         raw_param = request.POST['param']
+#         return response_ok(run_id=generate_input('Generate cases', self.session, generator, raw_param))
+#
+#
+# class SessionAddCaseFromStress(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         generator = request.POST['generator']
+#         raw_param = request.POST['param']
+#         submission = request.POST['submission']
+#         time = int(request.POST['time']) * 60
+#         if time < 60 or time > 300:
+#             raise ValueError('Time not in range')
+#         return response_ok(run_id=stress('Stress test', self.session, generator, submission, raw_param, time))
+#
+#
+# class SessionReformAllCase(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         inputOnly = request.POST.get('inputOnly') == 'on'
+#         config = load_config(self.session)
+#         for case in list(config['case'].keys()):
+#             reform_case(self.session, case, only_input=inputOnly)
+#         return response_ok()
+#
+#
+# class SessionTogglePretestCase(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         case = request.POST['fingerprint']
+#         config = load_config(self.session)
+#         config['case'][case]['pretest'] = not bool(config['case'][case].get('pretest'))
+#         dump_config(self.session, config)
+#         return response_ok()
+#
+#
+# class SessionToggleSampleCase(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         case = request.POST['fingerprint']
+#         config = load_config(self.session)
+#         config['case'][case]['sample'] = not bool(config['case'][case].get('sample'))
+#         dump_config(self.session, config)
+#         return response_ok()
+#
+#
+# class SessionPullHotReload(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         pull_session(self.session)
+#         return response_ok()
+#
+#
+# class SessionPush(BaseSessionPostMixin, View):
+#
+#     def post(self, request, sid):
+#         push_session(self.session)
+#         return response_ok()

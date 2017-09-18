@@ -317,4 +317,5 @@ $.parseStatusDisplay = function () {
   new Clipboard('.clipboard');
 };
 
+// initialize
 $.parseStatusDisplay();

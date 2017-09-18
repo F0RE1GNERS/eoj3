@@ -22,7 +22,7 @@ class ContestManager(models.Manager):
         if not all:
             q &= models.Q(visible=True)
             if filter_user:
-                q |= models.Q(manager=filter_user)
+                q |= models.Q(managers=filter_user)
         if always_running is not None:
             q &= models.Q(always_running=always_running)
         contest_list = super(ContestManager, self).get_queryset().filter(q)
