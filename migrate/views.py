@@ -12,8 +12,6 @@ from submission.models import Submission, SubmissionStatus
 from .models import OldUser, OldSubmission, OldDiscussion
 from account.payment import reward_problem_ac
 
-problem_content_type = ContentType.objects.get_for_model(Problem)
-
 
 def verify_old_user(user, pwd):
     return OldUser.objects.filter(username=user,
@@ -27,6 +25,7 @@ class MigrationThread(threading.Thread):
         self.new_user = str(request_user.pk)
 
     def run(self):
+        problem_content_type = ContentType.objects.get_for_model(Problem)
         with transaction.atomic():
             new_author = User.objects.select_for_update().get(pk=self.new_user)
             for submission in OldSubmission.objects.filter(author=self.username).order_by("create_time").all():
