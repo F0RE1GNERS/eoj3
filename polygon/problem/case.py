@@ -54,46 +54,6 @@ def base64decode(binary):
     return base64.b64decode(binary).decode()
 
 
-def validate_input(binary, validator_code, validator_lang, max_time):
-    val_data = {
-        'max_time': max_time / 1000,
-        'max_memory': -1,
-        'input': base64encode(binary)
-    }
-    val_data.update(_pre_json_program_from_kwargs(lang=validator_lang, code=validator_code))
-    return requests.post(VALIDATE_URL, json=val_data, auth=TOKEN, timeout=TIMEOUT).json()
-
-
-def run_output(model_code, model_lang, max_time, input):
-    data = {
-        "input": base64encode(input),
-        "max_time": max_time / 1000,
-        "max_memory": -1,
-        "submission": _pre_json_program_from_kwargs(lang=model_lang, code=model_code)
-    }
-    return requests.post(OUTPUT_URL, json=data, auth=TOKEN, timeout=TIMEOUT).json()
-
-
-def check_output_with_result(submission, checker, max_time, max_memory, input, output, interactor=None):
-    """
-    :type submission: tuple
-    :param submission: (code, lang)
-    :type submission: tuple
-    :param checker: (code, lang)
-    """
-    data = {
-        "input": base64encode(input),
-        "output": base64encode(output),
-        "max_time": max_time / 1000,
-        "max_memory": max_memory,
-        "submission": _pre_json_program_from_kwargs(submission),
-        "checker": _pre_json_program_from_kwargs(checker)
-    }
-    if interactor:
-        data.update(interactor=_pre_json_program_from_kwargs(interactor))
-    return requests.post(CHECKER_URL, json=data, auth=TOKEN, timeout=TIMEOUT).json()
-
-
 def validate_input_multiple(binary, validator_code, validator_lang, max_time):
     val_data = {
         'max_time': max_time / 1000,

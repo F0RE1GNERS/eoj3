@@ -1,5 +1,5 @@
 import base64
-import copy
+import json
 import logging
 import re
 import time
@@ -7,7 +7,7 @@ import traceback
 import zipfile
 from datetime import datetime
 from functools import wraps
-from os import path, makedirs, remove, walk, replace
+from os import path, makedirs, remove, replace
 from shutil import copyfile, rmtree
 from threading import Thread
 
@@ -16,14 +16,13 @@ from django.conf import settings
 
 from account.models import User
 from dispatcher.models import Server
-from polygon.case import (
-    well_form_binary, validate_input, run_output, check_output_with_result,
-    check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
-    stress_test, generate_multiple
-)
 from polygon.models import EditSession
 from polygon.models import Run
-from polygon.problem.utils import sort_out_directory, valid_fingerprint_check, normal_regex_check
+from polygon.problem.case import (
+    well_form_binary, check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
+    stress_test, generate_multiple, base64decode
+)
+from polygon.problem.utils import valid_fingerprint_check, normal_regex_check
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from problem.tasks import upload_problem_to_judge_server
 from utils import random_string
@@ -42,7 +41,6 @@ USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
 USUAL_READ_SIZE = 4096
-MESSAGE_STORAGE_SIZE = 4096
 
 
 def load_config(session):
@@ -66,17 +64,6 @@ def dump_config(session, config):
         yaml.dump(config, f, default_flow_style=False)
 
 
-class SessionManager:
-
-    def __init__(self, session, config=None):
-        self.session = session
-        self.config = config
-        if not self.config:
-            self.config = load_config(self.session)
-
-
-
-
 def run_with_report(func, run, *args, **kwargs):
     try:
         start = time.time()
@@ -84,10 +71,10 @@ def run_with_report(func, run, *args, **kwargs):
         ed = time.time()
         logging.info('%.3fs %s' % (ed - start, str(d)))
         run.status = 1 if d.get('status') == 'received' else -1
-        run.message = d.get('message', '')[:MESSAGE_STORAGE_SIZE]
+        run.message = json.dumps(d, sort_keys=True, indent=4)
     except:
         run.status = -1
-        run.message = traceback.format_exc()[:MESSAGE_STORAGE_SIZE]
+        run.message = traceback.format_exc()
     finally:
         run.save()
 
@@ -125,6 +112,11 @@ def init_session(problem, user):
 
 
 def pull_session(session):
+    """
+    Make a session up-to-date with the problem
+    :type session: EditSession
+    :return: None
+    """
 
     def case_setdefault(d):
         d["order"] = 0
@@ -132,11 +124,6 @@ def pull_session(session):
         d["pretest"] = False
         d["sample"] = False
 
-    """
-    Make a session up-to-date with the problem
-    :type session: EditSession
-    :return: None
-    """
     problem = session.problem
     session_dir = get_session_dir(session)
     config = load_config(session)
@@ -241,7 +228,8 @@ def push_session(session):
     problem.sample = ','.join(sample_list)
 
     for server in Server.objects.filter(enabled=True).all():
-        upload_problem_to_judge_server(problem, server)
+        if not upload_problem_to_judge_server(problem, server):
+            raise ValueError
         server.last_synchronize_time = datetime.now()
         server.save(update_fields=['last_synchronize_time'])
 
@@ -429,79 +417,47 @@ def delete_case(session, fingerprint):
 
 
 @run_async_with_report
-def validate_case(session, validator, fingerprint=None):
+def validate_case(session, validator, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input = _get_test_input(session, fingerprint)
-        call_func = validate_input
-        multiple = False
-    else:
-        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
-        call_func = validate_input_multiple
-        multiple = True
-    result = call_func(input, read_program_file(session, validator),
-                       config['program'][validator]['lang'], config['time_limit'])
+    input = list(map(lambda fp: _get_test_input(session, fp), fingerprints))
+    result = validate_input_multiple(input, read_program_file(session, validator),
+                                     config['program'][validator]['lang'], config['time_limit'])
     if success_response(result):
         config = load_config(session)
-        if multiple:
-            for i, res in zip(all_fingerprints, result['result']):
-                config['case'][i]['validated'] = -1 if res['verdict'] != 0 else 1
-        else:
-            config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
+        for i, res in zip(fingerprints, result['result']):
+            config['case'][i]['validated'] = -1 if res['verdict'] != 0 else 1
         dump_config(session, config)
     return result
 
 
 @run_async_with_report
-def get_case_output(session, model, fingerprint=None):
+def get_case_output(session, model, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input = _get_test_input(session, fingerprint)
-        call_func = run_output
-        multiple = False
-    else:
-        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
-        call_func = run_output_multiple
-        multiple = True
-    result = call_func(read_program_file(session, model), config['program'][model]['lang'],
-                       config['time_limit'], input)
+
+    input = list(map(lambda fp: _get_test_input(session, fp), fingerprints))
+    result = run_output_multiple(read_program_file(session, model), config['program'][model]['lang'],
+                                 config['time_limit'], input)
     if success_response(result):
-        if multiple:
-            for i, inp, res in zip(all_fingerprints, input, result['result']):
-                save_case(session, inp, base64.b64decode(res['output']), raw_fingerprint=i, model=True)
-        else:
-            save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
+        for i, inp, res in zip(fingerprints, input, result['result']):
+            save_case(session, inp, base64decode(res.pop('output')), raw_fingerprint=i, model=True)
     return result
 
 
 @run_async_with_report
-def check_case(session, submission, checker, fingerprint=None):
+def check_case(session, submission, checker, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input, output = _get_test_input_and_output(session, fingerprint)
-        call_func = check_output_with_result
-        multiple = False
-    else:
-        inp_with_oup = list(map(lambda fp: _get_test_input_and_output(session, fp), all_fingerprints))
-        input, output = zip(*inp_with_oup)
-        call_func = check_output_with_result_multiple
-        multiple = True
+    inp_with_oup = list(map(lambda fp: _get_test_input_and_output(session, fp), fingerprints))
+    input, output = zip(*inp_with_oup)
     kw = {}
-    if config.get('interactive'):
+    if config.get('interactor'):
         kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
-    result = call_func(_get_program_tuple(session, submission, config),
-                       _get_program_tuple(session, checker, config),
-                       config['time_limit'], config['memory_limit'],
-                       input, output, **kw)
+    result = check_output_with_result_multiple(_get_program_tuple(session, submission, config),
+                                               _get_program_tuple(session, checker, config),
+                                               config['time_limit'], config['memory_limit'],
+                                               input, output, **kw)
     if success_response(result):
-        if multiple:
-            for i, res in zip(all_fingerprints, result['result']):
-                update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
-        else:
-            update_case_config(session, fingerprint, checked=1 if result['verdict'] == 0 else -1)
+        for i, res in zip(fingerprints, result['result']):
+            update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
     return result
 
 
@@ -517,9 +473,9 @@ def generate_input(session, generator, param_raw):
     result = generate_multiple(_get_program_tuple(session, generator, config), config['time_limit'],
                                config['memory_limit'], param_list)
     if success_response(result):
-        outputs = result['output']
+        outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64.b64decode(output), b'')
+            save_case(session, base64decode(output), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
@@ -542,7 +498,7 @@ def stress(session, generator, submission, param_raw, time):
     config = load_config(session)
 
     kw = {}
-    if config.get('interactive'):
+    if config.get('interactor'):
         kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
     result = stress_test(_get_program_tuple(session, model, config),
                          _get_program_tuple(session, submission, config),
@@ -551,54 +507,15 @@ def stress(session, generator, submission, param_raw, time):
                          _get_program_tuple(session, config['checker'], config), kw)
 
     if success_response(result):
-        outputs = result['output']
+        outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64.b64decode(output), b'')
+            save_case(session, base64decode(output), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
 
-def update_config(config, **kwargs):
-    def pop_and_check(kw, conf, prop, varname, convert_func, check_func, ):
-        _var = kw.pop(prop, None)
-        if _var is not None:
-            if convert_func:
-                _var = convert_func(_var)
-            if check_func and not check_func(_var):
-                raise ValueError("Invalid %s" % varname)
-            conf.update({prop: _var})
-
-    new_config = copy.deepcopy(config)
-
-    pop_and_check(kwargs, new_config, 'title', 'title', None, None)
-    pop_and_check(kwargs, new_config, 'alias', 'alias', None, normal_regex_check)
-    pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
-    pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
-    pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
-    pop_and_check(kwargs, new_config, 'interactive', 'interactive', None, None)
-    for i in STATEMENT_TYPE_LIST + USED_PROGRAM_IN_CONFIG_LIST:
-        # Please check in advance
-        pop_and_check(kwargs, new_config, i, i, None, None)
-
-    return new_config
-
-    # TODO: is there another param?
-
-
-def get_config_update_time(session):
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    return datetime.fromtimestamp(path.getmtime(config_file)).strftime(settings.DATETIME_FORMAT_TEMPLATE)
-
-
 def get_session_dir(session):
     return path.join(settings.REPO_DIR, session.fingerprint)
-
-
-def _get_statement_file_path(session, filename):
-    statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
-    if not normal_regex_check(filename):
-        raise ValueError("Invalid filename")
-    return path.join(statement_dir, filename)
 
 
 def _get_program_file_path(session, filename):

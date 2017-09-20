@@ -1,16 +1,18 @@
+import re
+import traceback
 import zipfile
-from contest.models import Contest
-from os import path, replace, remove, environ
+from os import path, replace, remove
 from shutil import rmtree
+
 from django.conf import settings
+
+from contest.models import Contest
+from polygon.problem.case import well_form_text
 from problem.models import Problem, get_input_path, get_output_path
 from submission.models import Submission, SubmissionStatus
-from polygon.case import well_form_text
 from utils import random_string
 from utils.file_preview import sort_data_list_from_directory
 from utils.hash import case_hash
-import re
-import traceback
 
 
 def strip_and_remove_slash(text):

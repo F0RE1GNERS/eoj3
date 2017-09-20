@@ -65,17 +65,12 @@ class RunsList(PolygonBaseMixin, ListView):
         return Run.objects.filter(user=self.request.user).order_by("-pk").all()
 
 
-class RunMessageView(PolygonBaseMixin, APIView):
-
+class RunMessageView(PolygonBaseMixin, View):
     def get(self, request, pk):
+        message = ''
         try:
             run = Run.objects.get(pk=pk, user=request.user)
-            return Response(run.message)
+            message = run.message
         except Run.DoesNotExist:
-            return Response()
-
-
-class RunStatus(PolygonBaseMixin, APIView):
-
-    def get(self, request, pk):
-        return Response(data=dict(run_status=Run.objects.get(pk=pk, user=request.user).status))
+            pass
+        return HttpResponse(message, content_type='text/plain')

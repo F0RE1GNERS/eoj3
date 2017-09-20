@@ -5,6 +5,10 @@ import polygon.problem.views as v
 urlpatterns = [
     url(r'^$', v.ProblemList.as_view(), name='problem_list'),
     url(r'^create/$', v.ProblemCreate.as_view(), name='problem_create'),
+
+    url(r'^(?P<pk>\d+)/pull/$', v.ProblemPull.as_view(), name='problem_pull'),
+    url(r'^(?P<pk>\d+)/push/$', v.ProblemPush.as_view(), name='problem_push'),
+
     url(r'^(?P<pk>\d+)/preview/$', v.ProblemPreview.as_view(), name='problem_preview'),
     url(r'^(?P<pk>\d+)/edit/$', v.ProblemEdit.as_view(), name='problem_edit'),
     url(r'^(?P<pk>\d+)/access/$', v.ProblemAccessManage.as_view(), name='problem_access_manage'),

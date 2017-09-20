@@ -4,7 +4,6 @@ from os import path, remove
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -18,14 +17,14 @@ from rest_framework.views import APIView
 from account.models import User
 from account.permissions import is_admin_or_root
 from polygon.base_views import PolygonBaseMixin
-from polygon.case import well_form_text
 from polygon.forms import ProblemEditForm
 from polygon.models import EditSession
+from polygon.problem.case import well_form_text
 from polygon.problem.session import init_session, pull_session, load_config, save_program_file, delete_program_file, \
     read_program_file, toggle_program_file_use, save_case, read_case, \
     process_uploaded_case, reform_case, validate_case, get_case_output, check_case, delete_case, \
-    get_test_file_path, generate_input, stress, update_case_config, update_multiple_case_config
-from polygon.problem.utils import sort_out_directory, normal_regex_check
+    get_test_file_path, generate_input, stress, update_multiple_case_config, push_session
+from polygon.problem.utils import sort_out_directory
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem, SpecialProgram
 from problem.views import StatusList
@@ -174,7 +173,13 @@ class ProblemPull(PolygonProblemMixin, APIView):
             pull_session(session)
         except EditSession.DoesNotExist:
             init_session(self.problem, request.user)
-        messages.add_message(request, messages.SUCCESS, "Synchronization succeeded!")
+        return Response()
+
+
+class ProblemPush(BaseSessionMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        push_session(self.session)
         return Response()
 
 
@@ -397,25 +402,26 @@ class SessionPreviewCase(BaseSessionMixin, View):
 
 class SessionReformCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id']
+        case = request.POST['id'].split(',')
         inputOnly = request.POST.get('inputOnly') == 'on'
-        reform_case(self.session, case, only_input=inputOnly)
+        for c in case:
+            reform_case(self.session, c, only_input=inputOnly)
         return Response()
 
 
 class SessionValidateCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id']
+        case = request.POST['id'].split(',')
         validator = request.POST['program']
-        validate_case("Validate a case", self.session, validator, case)
+        validate_case("Validate", self.session, validator, case)
         return Response()
 
 
 class SessionOutputCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id']
+        case = request.POST['id'].split(',')
         model = request.POST['program']
-        get_case_output("Run case output", self.session, model, case)
+        get_case_output("Output", self.session, model, case)
         return Response()
 
 
@@ -429,10 +435,10 @@ class SessionDeleteCase(BaseSessionMixin, APIView):
 
 class SessionCheckCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id']
+        case = request.POST['id'].split(',')
         submission = request.POST['program']
         checker = request.POST['checker']
-        check_case("Check a case", self.session, submission, checker, case)
+        check_case("Check", self.session, submission, checker, case)
         return Response()
 
 

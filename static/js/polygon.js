@@ -21,13 +21,9 @@ $("#session-create-form")
     }
   })
 ;
-$('.run-message-reveal-link').click(function (event) {
-  $.get($(event.currentTarget).data("get-action"), {}, function (data) {
-    if (!data) data = '[ This message is empty. ]';
-    var modal = $("#message-preview-modal");
-    modal.find("code").html(data);
-    modal.modal('show');
-  });
+$(".loader-button").click(function () {
+  $("#loading-dimmer").addClass("active");
+  return true;
 });
 
 function updateRunNumber(delta) {
@@ -259,10 +255,10 @@ if ($("#session-case-app").length > 0) {
   });
 }
 
-if ($("#contest-edit-app").length > 0) {
+if ($("#contest-problem-app").length > 0) {
   Vue.options.delimiters = ["[[", "]]"];
   new Vue({
-    el: "#contest-edit-app",
+    el: "#contest-problem-app",
     data: {
       appData: []
     },
