@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from polygon.base_views import PolygonBaseMixin, response_ok
+from polygon.base_views import PolygonBaseMixin
 from polygon.models import Run
 from polygon.rejudge import rejudge_submission, rejudge_all_submission_on_problem
 from problem.models import Problem

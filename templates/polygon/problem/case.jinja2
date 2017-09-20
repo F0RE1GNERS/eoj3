@@ -95,8 +95,33 @@
         </tr>
       </tbody>
       <tfoot>
-        <tr><th colspan="11" class="right aligned">
-          <button class="ui positive button" @click="saveChanges" data-url="{{ url('polygon:session_case_save_changes', problem.id) }}">Save changes</button>
+        <tr><th colspan="11" class="left aligned">
+          <div class="ui icon bottom left pointing dropdown button">
+            <i class="travel icon"></i>
+            <div class="menu">
+              <div class="item" @click="showDeleteDialog" :data-id="selectedId" data-action="{{ url('polygon:session_delete_case', problem.id) }}">
+                Delete selected
+              </div>
+{#              <div class="item" @click="showDialogWithOneForm" data-target="#case-reform-modal"#}
+{#                   data-action="{{ url('polygon:session_reform_all_case', session.id) }}">#}
+{#                Reform all cases#}
+{#              </div>#}
+{#              <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"#}
+{#                   :data-program="appData.validator" data-action="{{ url('polygon:session_validate_all_case', session.id) }}">#}
+{#                Validate all cases#}
+{#              </div>#}
+{#              <div class="item" @click="showDialogWithOneForm" data-target="#select-program-modal"#}
+{#                   :data-program="appData.model" data-action="{{ url('polygon:session_run_all_case_with_model', session.id) }}">#}
+{#                Produce all outputs#}
+{#              </div>#}
+{#              <div class="item" @click="showDialogWithOneForm" data-target="#check-output-modal"#}
+{#                   :data-program="appData.model" :data-checker="appData.checker"#}
+{#                   data-action="{{ url('polygon:session_check_all_case_output', session.id) }}">#}
+{#                Check all cases#}
+{#              </div>#}
+            </div>
+          </div>
+          <button class="ui right floated positive button" @click="saveChanges" data-url="{{ url('polygon:session_case_save_changes', problem.id) }}">Save changes</button>
         </th></tr>
       </tfoot>
     </table>

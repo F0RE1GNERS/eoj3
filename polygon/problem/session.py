@@ -45,6 +45,38 @@ USUAL_READ_SIZE = 4096
 MESSAGE_STORAGE_SIZE = 4096
 
 
+def load_config(session):
+    """
+    Load config of a session
+    If the session does not have a config, return an empty dict
+    :type session: EditSession
+    :rtype: dict
+    """
+    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
+    try:
+        with open(config_file, 'r') as f:
+            return yaml.load(f)
+    except FileNotFoundError:
+        return dict()
+
+
+def dump_config(session, config):
+    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
+    with open(config_file, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+
+
+class SessionManager:
+
+    def __init__(self, session, config=None):
+        self.session = session
+        self.config = config
+        if not self.config:
+            self.config = load_config(self.session)
+
+
+
+
 def run_with_report(func, run, *args, **kwargs):
     try:
         start = time.time()
@@ -93,6 +125,13 @@ def init_session(problem, user):
 
 
 def pull_session(session):
+
+    def case_setdefault(d):
+        d["order"] = 0
+        d["point"] = DEFAULT_POINT
+        d["pretest"] = False
+        d["sample"] = False
+
     """
     Make a session up-to-date with the problem
     :type session: EditSession
@@ -101,56 +140,29 @@ def pull_session(session):
     problem = session.problem
     session_dir = get_session_dir(session)
     config = load_config(session)
-    config['alias'] = problem.alias
-    config['title'] = problem.title
-    config['time_limit'] = problem.time_limit
-    config['memory_limit'] = problem.memory_limit
-    config['source'] = problem.source
-
-    description_file = config.setdefault('description', 'description.md')
-    input_file = config.setdefault('input', 'input.md')
-    output_file = config.setdefault('output', 'output.md')
-    hint_file = config.setdefault('hint', 'hint.md')
-    statement_dir = path.join(session_dir, STATEMENT_DIR)
-    makedirs(statement_dir, exist_ok=True)
-    with open(path.join(statement_dir, description_file), 'w') as f1, \
-            open(path.join(statement_dir, input_file), 'w') as f2, \
-            open(path.join(statement_dir, output_file), 'w') as f3,\
-            open(path.join(statement_dir, hint_file), 'w') as f4:
-        f1.write(problem.description)
-        f2.write(problem.input)
-        f3.write(problem.output)
-        f4.write(problem.hint)
 
     tests_dir = path.join(session_dir, TESTS_DIR)
-    case_dict = config.setdefault('case', dict())
+    config['case'] = case_dict = config.setdefault('case', dict())
     point_list = problem.point_list
     for key in case_dict.keys():
-        case_dict[key]["order"] = 0
-        case_dict[key]["point"] = DEFAULT_POINT
-        case_dict[key]["pretest"] = False
-        case_dict[key]["sample"] = False
+        case_setdefault(case_dict[key])
+
     makedirs(tests_dir, exist_ok=True)
-    for case in problem.sample_list:
-        if case not in case_dict.keys():
-            case_dict[case] = dict(order=0, point=10, sample=True)
-            now_input_path, now_output_path = get_test_file_path(session, case)
-            copyfile(get_input_path(case), now_input_path)
-            copyfile(get_output_path(case), now_output_path)
-        case_dict[case]['sample'] = True
-    for ind, case in enumerate(problem.case_list, start=1):
-        if case not in case_dict.keys():
+    for case in set(problem.sample_list + problem.pretest_list + problem.case_list):
+        if case not in case_dict:
             case_dict[case] = dict()
+            case_setdefault(case_dict[case])
             now_input_path, now_output_path = get_test_file_path(session, case)
             copyfile(get_input_path(case), now_input_path)
             copyfile(get_output_path(case), now_output_path)
+
+    for case in set(problem.sample_list):
+        case_dict[case]["sample"] = True
+    for case in set(problem.pretest_list):
+        case_dict[case]["pretest"] = True
+    for ind, case in enumerate(problem.case_list, start=1):
         case_dict[case]["order"] = ind
         case_dict[case]["point"] = point_list[ind - 1]
-        if case in problem.pretest_list:
-            case_dict[case]["pretest"] = True
-        if case in problem.sample_list:
-            case_dict[case]["sample"] = True
-    config['case'] = case_dict
 
     programs = config.setdefault('program', dict())
     # pull top-relevant programs first
@@ -158,8 +170,6 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
-    config["interactive"] = bool(problem.interactor)
-    config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",
         problem.interactor: "interactor",
@@ -195,18 +205,9 @@ def push_session(session):
     :return:
     """
     problem = session.problem
-    if any(s.last_synchronize > session.last_synchronize for s in problem.editsession_set.all()):
-        raise Exception('Sorry, there has been a newer session, try to re-pull.')
     config = load_config(session)
-    problem.alias = config['alias']
-    problem.title = config['title']
-    problem.time_limit = config['time_limit']
-    problem.memory_limit = config['memory_limit']
-    problem.source = config['source']
     for type in ['checker', 'validator', 'interactor']:
         file = config[type]
-        if type == 'interactor' and not config['interactive']:
-            file = ''
         if file:
             file_config = config['program'][file]
             if not SpecialProgram.objects.filter(fingerprint=file_config['fingerprint']).exists():
@@ -238,34 +239,14 @@ def push_session(session):
     problem.points = ','.join(map(str, points))
     problem.pretests = ','.join(pretest_list)
     problem.sample = ','.join(sample_list)
-    problem.save()
 
     for server in Server.objects.filter(enabled=True).all():
         upload_problem_to_judge_server(problem, server)
         server.last_synchronize_time = datetime.now()
         server.save(update_fields=['last_synchronize_time'])
+
+    problem.save()  # update finally
     pull_session(session)
-
-
-def load_regular_file_list(session):
-    return sort_out_directory(path.join(settings.UPLOAD_DIR, str(session.problem_id)))
-
-
-def load_volume(session):
-    def get_size(start_path='.'):
-        total_size = 0
-        for dirpath, dirnames, filenames in walk(start_path):
-            for f in filenames:
-                fp = path.join(dirpath, f)
-                total_size += path.getsize(fp)
-        return total_size
-
-    session_dir = get_session_dir(session)
-    return get_size(session_dir) // 1024576, 256
-
-
-def load_program_file_list(session):
-    return sort_out_directory(path.join(get_session_dir(session), PROGRAM_DIR))
 
 
 def program_file_exists(session, filename):
@@ -575,28 +556,6 @@ def stress(session, generator, submission, param_raw, time):
             save_case(session, base64.b64decode(output), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
-
-
-
-def load_config(session):
-    """
-    Load config of a session
-    If the session does not have a config, return an empty dict
-    :type session: EditSession
-    :rtype: dict
-    """
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    try:
-        with open(config_file, 'r') as f:
-            return yaml.load(f)
-    except FileNotFoundError:
-        return dict()
-
-
-def dump_config(session, config):
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    with open(config_file, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
 
 
 def update_config(config, **kwargs):

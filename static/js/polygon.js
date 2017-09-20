@@ -62,6 +62,13 @@ if ($("#session-case-app").length > 0) {
     computed: {
       generateParamLength: function () {
         return this.generateParam.split('\n').length;
+      },
+      selectedId: function () {
+        return this.caseList.filter(function (c) {
+          return c.selected;
+        }).map(function (c) {
+          return c.fingerprint;
+        }).join(',');
       }
     },
     methods: {
@@ -275,14 +282,14 @@ if ($("#contest-edit-app").length > 0) {
         data = this.addCsrfToken(data);
         $.post($(event.currentTarget).data("url"), data, function (data) {
           this.updateConfig();
-        }.bind(this), "json");
+        }.bind(this));
       },
       reorderProblem: function () {
         var data = { 'orders': JSON.stringify(this.appData) };
         data = this.addCsrfToken(data);
         $.post($(event.currentTarget).data("url"), data, function (data) {
           this.updateConfig();
-        }.bind(this), "json");
+        }.bind(this));
       },
       readjustProblemPoint: function (e) {
         var modal = $("#problem-point-modal");
@@ -295,7 +302,7 @@ if ($("#contest-edit-app").length > 0) {
               'weight': form.find("input[name='weight']").val()
             }), function (data) {
               this.updateConfig();
-            }.bind(this), "json");
+            }.bind(this));
           }.bind(this)
         }).modal('show');
       },
