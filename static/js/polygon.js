@@ -40,24 +40,10 @@ function updateRunNumber(delta) {
     run_number_label.addClass("hidden");
 }
 
-function clearAndAddExtraData(form, extra_data) {
-  form.find('input[type="hidden"][name!="next"][name!="csrfmiddlewaretoken"][data-important!="true"]').remove();
-  for (var val in extra_data) {
-    if (extra_data.hasOwnProperty(val)) {
-      var already_exist = form.find('input[name="' + val + '"]');
-      if (already_exist.length > 0) {
-        already_exist.val(extra_data[val]);
-      } else {
-        form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
-      }
-    }
-  }
-}
-
 function bindFormAndButtonData(form, button) {
   button.removeData();
   form.attr("action", button.data("action"));
-  clearAndAddExtraData(form, button.data());
+  replaceFormData(form, button.data());
 }
 
 if ($("#session-case-app").length > 0) {
@@ -85,8 +71,7 @@ if ($("#session-case-app").length > 0) {
       updateConfig: function () {
         this.apiRoute = $(this.$el).data("api-route");
         $.getJSON(this.apiRoute, function (data) {
-          this.caseList = data;
-          console.log(this.caseList);
+          this.caseList = data['caseList'];
           for (var i = 0; i < this.caseList.length; ++i)
             this.caseList[i].used = this.caseList[i].order > 0;
         }.bind(this));
@@ -95,14 +80,50 @@ if ($("#session-case-app").length > 0) {
         this.errorMessage = "";
       },
       showDeleteDialog: function (event) {
-        bindFormAndButtonData($("#delete-confirmation-form"), $(event.currentTarget));
+        button = $(event.currentTarget);
         $("#delete-confirmation")
           .modal({
             onApprove: function () {
-              $("#delete-confirmation-form").submit();
-            }
+              $.post(button.attr("data-action"), {
+                csrfmiddlewaretoken: Cookies.get('csrftoken'),
+                id: button.attr("data-id")
+              }, function () {
+                this.updateConfig();
+              }.bind(this));
+            }.bind(this)
           })
           .modal('show');
+      },
+      initializeCaseEditor: function (event) {
+        var url = $(event.currentTarget).attr("data-api");
+        var modal = $("#case-edit-modal");
+        $.getJSON(url, function (data) {
+          var inputText = modal.find("*[name='inputText']"),
+            outputText = modal.find("*[name='outputText']"),
+            fileInput = modal.find(".file.input"),
+            pointInput = modal.find("*[name='point']"),
+            sampleCheckbox = modal.find("*[name='sample']"),
+            pretestCheckbox = modal.find("*[name='pretest']"),
+            formatCheckbox = modal.find("*[name='reform']");
+          fileInput.find("input").val('');
+          modal.find(".ui.file.input").inputFile();
+          inputText.prop("readonly", data.input.nan);
+          inputText.val(data.input.text);
+          outputText.prop("readonly", data.output.nan);
+          outputText.val(data.output.text);
+          pointInput.val(data.point);
+          sampleCheckbox.prop("checked", data.sample);
+          pretestCheckbox.prop("checked", data.pretest);
+          formatCheckbox.prop("checked", true);
+          modal.modal({
+            closable: false,
+            autofocus: false,
+            onApprove: function () {
+              modal.find("form").attr("action", url);
+              modal.find("form").submit();
+            }
+          }).modal('show');
+        }.bind(this));
       },
       showDialogWithOneForm: function (event) {
         var button = $(event.currentTarget);
@@ -143,35 +164,24 @@ if ($("#session-case-app").length > 0) {
       showTargetModalNaive: function (event) {
         $($(event.currentTarget).data("target")).modal('show');
       },
-      saveCaseOrders: function (event) {
-        $.post($(event.currentTarget).data("action"), {
+      saveChanges: function (event) {
+        $.post($(event.currentTarget).data("url"), {
           'case': JSON.stringify(this.caseList),
-          'unused': JSON.stringify(this.unusedCaseList),
           'csrfmiddlewaretoken': Cookies.get('csrftoken')
-        }, function (data) {
+        }, function () {
           $("#success-modal").modal('show');
           this.updateConfig();
-        }.bind(this),
-        "json");
+        }.bind(this));
       },
-      convertStatusCodeToHelpText: function (statusCode) {
-        if (statusCode == 1) {
-          return "Yes";
-        } else if (statusCode == -1) {
-          return "No";
-        } else {
-          return "Unknown";
+      toggleSelectAll: function () {
+        var ans = true;
+        if (this.caseList.every(function (element) {
+          return element.selected;
+        })) {
+          ans = false;
         }
-      },
-      previewCase: function (event) {
-        var button = $(event.currentTarget);
-        $.get(button.data("get-action"), {
-          'case': button.data("fingerprint")
-        }, function (data) {
-          this.previewCaseInput = data.input;
-          this.previewCaseOutput = data.output;
-        }.bind(this), "json");
-        $("#case-preview-modal").modal('show');
+        for (var i = 0; i < this.caseList.length; ++i)
+          this.caseList[i].selected = ans;
       }
     },
     beforeMount: function () {
@@ -179,13 +189,15 @@ if ($("#session-case-app").length > 0) {
     },
     mounted: function () {
       $('.tabular.menu .item').tab({
-        history: true,
-        historyType: 'hash'
+        history: false,
+        onLoad: function () {
+          $(this).siblings("input[type='hidden']").val($(this).attr("data-type"));
+        }
       });
       $('.ui.dropdown.onhover').dropdown({
         on: 'hover'
       });
-      $('.ui.checkbox').checkbox();
+      $('.ui.checkbox:not(.vue)').checkbox();
       $('.ui.selection.dropdown').dropdown();
       $(".ui.icon.pointing.dropdown.button")
         .dropdown();
@@ -199,10 +211,10 @@ if ($("#session-case-app").length > 0) {
             url: target.attr("action"),
             type: 'POST',
             data: formData,
-            success: function (data) {
+            success: function () {
               this.updateConfig();
             }.bind(this),
-            complete: function () {
+            complete: function (data) {
               if (progressBar) {
                 setTimeout(function () {
                   progressBar.hide();
@@ -212,7 +224,6 @@ if ($("#session-case-app").length > 0) {
             cache: false,
             contentType: false,
             processData: false,
-            dataType: "json",
             xhr: function () {
               var myXhr = $.ajaxSettings.xhr();
               if (myXhr.upload && progressBar) {
@@ -236,7 +247,6 @@ if ($("#session-case-app").length > 0) {
     updated: function () {
       $(".ui.icon.pointing.dropdown.button")
         .dropdown();
-      $('.ui.checkbox').checkbox();
       $('.ui.selection.dropdown').dropdown();
     }
   });

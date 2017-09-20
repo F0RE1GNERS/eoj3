@@ -1,5 +1,13 @@
 {% extends 'polygon/problem/base.jinja2' %}
 
+{% macro program_list_selector(name='') %}
+  <select class="ui dropdown selection" name="{{ name }}">
+    {% for program in program_list %}
+      <option value="{{ program.filename }}">{{ program.filename }} ({{ program.type }})</option>
+    {% endfor %}
+  </select>
+{% endmacro %}
+
 {% block problem_content %}
 
   <div id="session-case-app" data-api-route="{{ url('polygon:session_case_data_api', problem.id) }}">
@@ -32,19 +40,20 @@
           <th colspan="3" class="collapsing">Validated</th>
           <th class="right aligned collapsing">Sample</th>
           <th class="right aligned collapsing">Pretest</th>
-          <th class="right aligned collapsing">Selected</th>
+          <th class="right aligned collapsing">Selected <i class="checkmark box icon link fitted" @click="toggleSelectAll"></i></th>
           <th class="collapsing">Edit</th>
         </tr>
       </thead>
       <tbody is="draggable" v-model="caseList" element="tbody">
-        <tr v-for="(ele, index) in caseList" :key="ele.fingerprint">
+        <tr v-for="(ele, index) in caseList" :key="ele.fingerprint" :class="{ active: ele.selected }">
           <td class="collapsing">
-            <div class="ui fitted checkbox">
+            <div class="ui fitted vue checkbox">
               <input type="checkbox" v-model="ele.used">
+              <label></label>
             </div>
           </td>
-          <td><a href="#">Input #[[ index + 1 ]]</a></td>
-          <td><a href="#">Output #[[ index + 1 ]]</a></td>
+          <td><a target="_blank" :href="'{{ url('polygon:session_preview_case', problem.id) }}?type=in&case=' + ele.fingerprint">Input #[[ index + 1 ]]</a></td>
+          <td><a target="_blank" :href="'{{ url('polygon:session_preview_case', problem.id) }}?type=out&case=' + ele.fingerprint">Output #[[ index + 1 ]]</a></td>
           <td>[[ ele.point ]]</td>
           <td class="collapsing" data-tooltip="Case format">
             <i class="check icon" v-if="ele.well_form == 1"></i>
@@ -62,37 +71,40 @@
             <i class="help icon" v-else></i>
           </td>
           <td class="collapsing">
-            <div class="ui fitted checkbox">
+            <div class="ui fitted vue checkbox">
               <input type="checkbox" v-model="ele.sample">
+              <label></label>
             </div>
           </td>
           <td class="collapsing">
-            <div class="ui fitted checkbox">
+            <div class="ui fitted vue checkbox">
               <input type="checkbox" v-model="ele.pretest">
+              <label></label>
             </div>
           </td>
           <td class="collapsing">
-            <div class="ui fitted checkbox">
+            <div class="ui fitted vue checkbox">
               <input type="checkbox" v-model="ele.selected">
+              <label></label>
             </div>
           </td>
           <td class="collapsing">
-            <i class="icon edit link"></i>
-            <i class="icon trash link"></i>
+            <i class="icon edit link" @click="initializeCaseEditor" :data-api="'{{ url('polygon:session_case_data_api', problem.id) }}?id=' + ele.fingerprint"></i>
+            <i class="icon trash link" @click="showDeleteDialog" :data-id="ele.fingerprint" data-action="{{ url('polygon:session_delete_case', problem.id) }}"></i>
           </td>
         </tr>
       </tbody>
       <tfoot>
-        <tr><th colspan="8" class="right aligned">
-          <button class="ui teal button" @click="saveCaseOrders" data-url="{{ url('polygon:session_reorder_case', problem.id) }}">Save orders</button>
+        <tr><th colspan="11" class="right aligned">
+          <button class="ui positive button" @click="saveChanges" data-url="{{ url('polygon:session_case_save_changes', problem.id) }}">Save changes</button>
         </th></tr>
       </tfoot>
     </table>
-  </div>
 
   {% call modal(title="Add new cases", id="case-add", size="small") %}
-    <form class="ui form" action="{{ url('polygon:session_create_case_manually', problem.id) }}" method="POST">
+    <form class="ui form" action="{{ url('polygon:session_create_case', problem.id) }}" method="POST">
       {% csrf_token %}
+      <input type="hidden" name="type" value="manual">
       <div class="two fields">
         <div class="field">
           <label for="input">Input</label>
@@ -111,9 +123,10 @@
   {% endcall %}
 
   {% call modal(title="Upload a new file", id="case-file-upload") %}
-    <form class="ui form" action="{{ url('polygon:session_upload_case', problem.id) }}" method="POST"
+    <form class="ui form" action="{{ url('polygon:session_create_case', problem.id) }}" method="POST"
           data-progress-bar="#case-upload-progress">
       {% csrf_token %}
+      <input type="hidden" name="type" value="upload">
       <p>Upload an input file or tests wrapped in a zip archive.</p>
       <div class="field">
         <label for="files">Choose a file</label>
@@ -127,72 +140,156 @@
   {% endcall %}
 
   {% call modal(title='Generate input', id='generate-input-modal') %}
-{#    <form class="ui form" action="{{ url('polygon:session_generate_input', problem.id) }}" method="POST">#}
-{#      {% csrf_token %}#}
-{#      <div class="field">#}
-{#        <div class="ui selection dropdown fluid">#}
-{#          <label>Generate with</label>#}
-{#          <input type="hidden" name="generator" data-important="true">#}
-{#          <i class="dropdown icon"></i>#}
-{#          <div class="text"></div>#}
-{#          <div class="menu">#}
-{#            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>#}
-{#          </div>#}
-{#        </div>#}
-{#      </div>#}
-{#      <div class="field">#}
-{#        <label for="input">This will generate [[ generateParamLength ]] cases.</label>#}
-{#        <textarea name="param" v-model="generateParam"></textarea>#}
-{#      </div>#}
-{#    </form>#}
+    <p>Please enter parameters line by line. Leave empty if there is no parameter.</p>
+    <form class="ui form" action="{{ url('polygon:session_create_case', problem.id) }}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="generate">
+      <div class="field">
+        <label>Generator:</label>
+        {{ program_list_selector("generator") }}
+      </div>
+      <div class="field">
+        <label for="input">This will generate [[ generateParamLength ]] cases.</label>
+        <textarea name="param" v-model="generateParam"></textarea>
+      </div>
+    </form>
   {% endcall %}
 
   {% call modal(title='Stress test', id='stress-test-modal') %}
-{#    <form class="ui form" action="{{ url('polygon:session_create_case_from_stress', problem.id) }}" method="POST">#}
-{#      {% csrf_token %}#}
-{#      <div class="field">#}
-{#        <label>Suspect:</label>#}
-{#        <div class="ui selection dropdown fluid">#}
-{#          <input type="hidden" name="submission" data-important="true">#}
-{#          <i class="dropdown icon"></i>#}
-{#          <div class="text"></div>#}
-{#          <div class="menu">#}
-{#            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>#}
-{#          </div>#}
-{#        </div>#}
-{#      </div>#}
-{#      <div class="field">#}
-{#        <label>Generator:</label>#}
-{#        <div class="ui selection dropdown fluid">#}
-{#          <input type="hidden" name="generator" data-important="true">#}
-{#          <i class="dropdown icon"></i>#}
-{#          <div class="text"></div>#}
-{#          <div class="menu">#}
-{#            <div class="item" v-for="program in appData.program_file_list" :data-value="program.filename">[[ program.filename ]] ([[ program.type ]])</div>#}
-{#          </div>#}
-{#        </div>#}
-{#      </div>#}
-{#      <div class="field">#}
-{#        <label for="input">This will generate [[ generateParamLength ]] cases.</label>#}
-{#        <textarea name="param" v-model="generateParam"></textarea>#}
-{#      </div>#}
-{#      <div class="field">#}
-{#        <label>Time:</label>#}
-{#        <div class="ui selection dropdown fluid">#}
-{#          <input type="hidden" name="time" data-important="true">#}
-{#          <i class="dropdown icon"></i>#}
-{#          <div class="text"></div>#}
-{#          <div class="menu">#}
-{#            <div class="item" data-value="1">1 min</div>#}
-{#            <div class="item" data-value="2">2 mins</div>#}
-{#            <div class="item" data-value="3">3 mins</div>#}
-{#            <div class="item" data-value="4">4 mins</div>#}
-{#            <div class="item" data-value="5">5 mins</div>#}
-{#          </div>#}
-{#        </div>#}
-{#      </div>#}
-{#    </form>#}
+    <form class="ui form" action="{{ url('polygon:session_create_case', problem.id) }}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="stress">
+      <div class="field">
+        <label>Suspect:</label>
+        {{ program_list_selector("submission") }}
+      </div>
+      <div class="field">
+        <label>Generator:</label>
+        {{ program_list_selector("generator") }}
+      </div>
+      <div class="field">
+        <label for="input">This will generate [[ generateParamLength ]] cases.</label>
+        <textarea name="param" v-model="generateParam"></textarea>
+      </div>
+      <div class="field">
+        <label>Time:</label>
+        <select class="ui selection dropdown">
+          <option value="1">1 min</option>
+          <option value="2">2 mins</option>
+          <option value="3">3 mins</option>
+          <option value="4">4 mins</option>
+          <option value="5">5 mins</option>
+        </select>
+      </div>
+    </form>
   {% endcall %}
+
+  <div class="ui modal" id="case-edit-modal">
+    <div class="header">
+      Case Editor
+    </div>
+    <div class="content">
+      <form class="ui form">
+        <div class="inline fields">
+          <div class="field">
+            <label>Point</label>
+            <input type="number" name="point">
+          </div>
+          <div class="field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="sample">
+              <label>Sample</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="pretest">
+              <label>Pretest</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="reform">
+              <label>Reformat texts</label>
+            </div>
+          </div>
+        </div>
+        <div class="ui equal width grid">
+          <div class="column">
+            <div class="ui top attached tabular menu">
+              <a class="active item" data-tab="tab-editor-input">Editor</a>
+              <a class="item" data-tab="tab-upload-input">Upload</a>
+              <div class="right menu">
+                <span class="item"><b>Input</b></span>
+              </div>
+            </div>
+            <div class="ui bottom attached segment">
+              <input type="hidden" name="inputType" value="editor">
+              <div class="ui active tab" data-tab="tab-editor-input" data-type="editor">
+                <textarea name="inputText" spellcheck="false" autocomplete="off"></textarea>
+              </div>
+              <div class="ui tab" data-tab="tab-upload-input" data-type="upload">
+                <div class="field">
+                  <label for="files">Choose a file</label>
+                  <div class="ui fluid file input action">
+                    <input type="text" readonly>
+                    <input type="file" name="inputFile" autocomplete="off">
+                    <div class="ui button">Select...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="ui top attached tabular menu">
+              <a class="active item" data-tab="tab-editor-output">Editor</a>
+              <a class="item" data-tab="tab-upload-output">Upload</a>
+              <div class="right menu">
+                <span class="item"><b>Output</b></span>
+              </div>
+            </div>
+            <div class="ui bottom attached segment">
+              <input type="hidden" name="outputType" value="editor">
+              <div class="ui active tab" data-tab="tab-editor-output" data-type="editor">
+                <div class="field">
+                  <textarea name="outputText" spellcheck="false" autocomplete="off"></textarea>
+                </div>
+              </div>
+              <div class="ui tab" data-tab="tab-upload-output" data-type="upload">
+                <div class="field">
+                  <label for="files">Choose a file</label>
+                  <div class="ui fluid file input action">
+                    <input type="text" readonly>
+                    <input type="file" name="outputFile" autocomplete="off">
+                    <div class="ui button">Select...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+    <div class="actions">
+      <div class="ui deny button">Discard</div>
+      <div class="ui positive right labeled icon button">OK <i class="checkmark icon"></i></div>
+    </div>
+  </div>
+
+  </div>
+
+  <div class="ui basic modal tiny" id="success-modal">
+    <div class="ui icon green inverted header">
+      <i class="check circle icon"></i>
+      Congratulations!
+    </div>
+    <div class="content" style="text-align: center;">
+      <p>Your changes have been saved.</p>
+    </div>
+  </div>
+
+  {% include 'components/delete_confirmation.jinja2' %}
 
 {% endblock %}
 {##}

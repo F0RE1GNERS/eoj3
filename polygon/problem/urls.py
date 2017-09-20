@@ -22,10 +22,9 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/program/used/$', v.SessionProgramUsedToggle.as_view(), name='session_program_used_toggle'),
 
     url(r'^(?P<pk>\d+)/case/$', v.SessionCaseList.as_view(), name='session_case_list'),
-    url(r'^(?P<pk>\d+)/case/add/$', v.SessionCreateCaseManually.as_view(), name='session_create_case_manually'),
-    url(r'^(?P<pk>\d+)/case/upload/$', v.SessionUploadCase.as_view(), name='session_upload_case'),
+    url(r'^(?P<pk>\d+)/case/add/$', v.SessionCreateCase.as_view(), name='session_create_case'),
     url(r'^(?P<pk>\d+)/case/api/$', v.SessionCaseDataAPI.as_view(), name='session_case_data_api'),
-    url(r'^(?P<pk>\d+)/case/reorder/$', v.SessionReorderCase.as_view(), name='session_reorder_case'),
+    url(r'^(?P<pk>\d+)/case/save/$', v.SessionSaveCaseChanges.as_view(), name='session_case_save_changes'),
     url(r'^(?P<pk>\d+)/case/preview/$', v.SessionPreviewCase.as_view(), name='session_preview_case'),
     url(r'^(?P<pk>\d+)/case/reform/$', v.SessionReformCase.as_view(), name='session_reform_case'),
     url(r'^(?P<pk>\d+)/case/validate/$', v.SessionValidateCase.as_view(), name='session_validate_case'),

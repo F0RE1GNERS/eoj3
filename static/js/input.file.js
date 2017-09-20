@@ -16,11 +16,14 @@ $.fn.inputFile = function(data) {
       window.alert("File too large! If you insist on uploading, it is likely to fail...");
     }
   }
-  this.find('input:text, .ui.button')
-    .on('click', function(e) {
-      $(e.target).parent().find('input:file').click();
-    })
-  ;
-  this.on('change', changeFunction);
-  this.find('.ui.file.input').on('change', changeFunction);
+  if (!this.prop("init")) {
+    this.prop("init", true);
+    this.find('input:text, .ui.button')
+      .on('click', function (e) {
+        $(e.target).parent().find('input:file').click();
+      })
+    ;
+    this.on('change', changeFunction);
+    this.find('.ui.file.input').on('change', changeFunction);
+  }
 };

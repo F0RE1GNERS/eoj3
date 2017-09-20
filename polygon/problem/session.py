@@ -41,7 +41,7 @@ PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solutio
 USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
-USUAL_READ_SIZE = 1024
+USUAL_READ_SIZE = 4096
 MESSAGE_STORAGE_SIZE = 4096
 
 
@@ -373,15 +373,26 @@ def get_case_metadata(session, fingerprint):
             'size': path.getsize(inp) + path.getsize(oup)}
 
 
-def preview_case(session, fingerprint):
+def read_case(session, fingerprint, type=None):
     inp, oup = get_test_file_path(session, fingerprint)
     with open(inp, 'r') as fs, open(oup, 'r') as gs:
-        res = {'input': fs.read(USUAL_READ_SIZE), 'output': gs.read(USUAL_READ_SIZE)}
-        if fs.read(1):
-            res['input'] += '...'
-        if gs.read(1):
-            res['output'] += '...'
-        return res
+        if type == 'in':
+            return fs.read()
+        elif type == 'out':
+            return gs.read()
+        else:
+            res = {'input': {'nan': False,
+                             'text': fs.read(USUAL_READ_SIZE)},
+                   'output': {'nan': False,
+                              'text': gs.read(USUAL_READ_SIZE)}
+                   }
+            if fs.read(1):
+                res['input']['text'] = 'This file is too large to edit.\n' + res['input']['text']
+                res['input']['nan'] = True
+            if gs.read(1):
+                res['output']['text'] = 'This file is too large to edit.\n' + res['output']['text']
+                res['output']['nan'] = True
+            return res
 
 
 def process_uploaded_case(session, file_path):
@@ -409,22 +420,12 @@ def reform_case(session, fingerprint, **kwargs):
     save_case(session, input, output, raw_fingerprint=fingerprint, well_form=True)
 
 
-def readjust_case_point(session, fingerprint, point):
-    if point <= 0 or point > 100:
-        raise ValueError("Point not in range")
-    update_case_config(session, fingerprint, point=point)
-
-
-def reorder_case(session, orders):
-    """
-    :type orders: dict
-    :param orders: {fingerprint -> order_number}
-    """
+def update_multiple_case_config(session, kw):
     config = load_config(session)
     for fingerprint, d in config['case'].items():
         d.update(order=0)  # clear first
-        if orders.get(fingerprint):
-            d.update(order=orders[fingerprint])
+        if fingerprint in kw:
+            d.update(kw[fingerprint])
     dump_config(session, config)
 
 

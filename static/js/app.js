@@ -1,5 +1,5 @@
 // ui
-$('.ui.checkbox')
+$('.ui.checkbox:not(.vue)')
   .checkbox()
 ;
 $('.ui.selection.dropdown, select.ui.selection')

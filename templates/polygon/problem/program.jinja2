@@ -31,7 +31,7 @@
             <input class="post-link" data-link="{{ url('polygon:session_program_used_toggle', problem.id) }}" data-filename="{{ program.filename }}" type="checkbox" {% if program.used %}checked{% endif %}>
           </div>
         </td>
-        <td class="collapsing" style="text-transform: capitalize;">{{ program.type }}</td>
+        <td class="center aligned collapsing" style="text-transform: capitalize;">{{ program.type }}</td>
         <td><i class="file icon"></i> {{ program.filename }}</td>
         <td class="right aligned collapsing">{{ program.lang_display }}</td>
         <td class="right aligned collapsing">
