@@ -12,6 +12,8 @@ from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from account.models import User, MAGIC_CHOICE
 from account.permissions import is_admin_or_root
@@ -27,9 +29,10 @@ from problem.views import StatusList
 from utils.identicon import Identicon
 from utils.download import respond_generate_file
 from utils.csv_writer import write_csv
+from utils.permission import is_contest_manager
 from .forms import ContestEditForm
-from .rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
-from .views import PolygonBaseMixin, response_ok
+from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
+from polygon.base_views import PolygonBaseMixin
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
@@ -48,7 +51,7 @@ def reorder_contest_problem_identifiers(contest: Contest, orders=None):
 
 
 class ContestList(PolygonBaseMixin, ListView):
-    template_name = 'polygon/contest_list.jinja2'
+    template_name = 'polygon/contest/list.jinja2'
     context_object_name = 'contest_list'
 
     def get_queryset(self):
@@ -66,10 +69,7 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
         return super(PolygonContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        if not self.request.user.is_authenticated:
-            return False
-        if not is_admin_or_root(self.request.user) and not self.contest.manager.filter(
-                id=self.request.user.id).exists():
+        if not is_contest_manager(self.request.user, self.contest):
             return False
         return super(PolygonContestMixin, self).test_func()
 
@@ -81,12 +81,12 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
 
 class ContestEdit(PolygonContestMixin, UpdateView):
     form_class = ContestEditForm
-    template_name = 'polygon/contest_edit.jinja2'
+    template_name = 'polygon/contest/edit.jinja2'
     queryset = Contest.objects.all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestEdit, self).get_context_data(**kwargs)
-        data['admin_list'] = self.contest.manager.all()
+        data['admin_list'] = self.contest.managers.all()
         return data
 
     def form_valid(self, form):
@@ -96,41 +96,37 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         return redirect(self.request.path)
 
 
-class ContestCreate(PolygonBaseMixin, View):
-    def post(self, request):
-        """
-        It is actually "repository create"
-        named "session create" for convenience
-        """
-        if request.method == 'POST':
-            contest = Contest.objects.create(title='Contest')
-            contest.title = 'Contest #%d' % contest.id
-            contest.save(update_fields=['title'])
-            return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
+class ContestCreate(PolygonBaseMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        contest = Contest.objects.create(title='Contest')
+        contest.title = 'Contest #%d' % contest.id
+        contest.save(update_fields=['title'])
+        contest.managers.add(request.user)
+        return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
 
 
-class ContestToggleVisible(PolygonContestMixin, View):
+class ContestToggleVisible(PolygonContestMixin, APIView):
     def post(self, request, pk):
         self.contest.visible = request.POST.get('checked') == 'true'
         self.contest.save(update_fields=['visible'])
-        return response_ok()
+        return Response()
 
 
 class ContestAccessManage(PolygonContestMixin, View):
     def post(self, request, pk):
         upload_permission_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
-        for record in self.contest.manager.all():
+        for record in self.contest.managers.all():
             if record.id in upload_permission_set:
                 upload_permission_set.remove(record.id)
             else:
                 record.delete()
         for key in upload_permission_set:
-            self.contest.manager.add(User.objects.get(pk=key))
+            self.contest.managers.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
 
 class ContestProblemManage(PolygonContestMixin, TemplateView):
-    template_name = 'polygon/contest_problem.jinja2'
+    template_name = 'polygon/contest/problem.jinja2'
 
     def get(self, request, *args, **kwargs):
         if 'data' in request.GET:
@@ -155,14 +151,14 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
         return super(ContestProblemManage, self).get(request, *args, **kwargs)
 
 
-class ContestProblemReorder(PolygonContestMixin, TemplateView):
+class ContestProblemReorder(PolygonContestMixin, APIView):
     def post(self, request, *args, **kwargs):
         data = {k['pid']: index for (index, k) in enumerate(json.loads(request.POST['orders']))}
         reorder_contest_problem_identifiers(self.contest, data)
-        return response_ok()
+        return Response()
 
 
-class ContestProblemCreate(PolygonContestMixin, View):
+class ContestProblemCreate(PolygonContestMixin, APIView):
     def post(self, request, pk):
         def get_next_identifier(identifiers):
             from collections import deque
@@ -182,27 +178,27 @@ class ContestProblemCreate(PolygonContestMixin, View):
             identifier = get_next_identifier([x.identifier for x in self.contest.contestproblem_set.all()])
             self.contest.contestproblem_set.create(problem_id=problem, identifier=identifier)
         reorder_contest_problem_identifiers(self.contest)
-        return response_ok()
+        return Response()
 
 
-class ContestProblemDelete(PolygonContestMixin, View):
+class ContestProblemDelete(PolygonContestMixin, APIView):
     def post(self, request, pk):
         self.contest.contestproblem_set.filter(id=request.POST['pid']).delete()
         reorder_contest_problem_identifiers(self.contest)
-        return response_ok()
+        return Response()
 
 
-class ContestProblemChangeWeight(PolygonContestMixin, View):
+class ContestProblemChangeWeight(PolygonContestMixin, APIView):
     def post(self, request, pk):
         problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
         problem.weight = int(request.POST['weight'])
         assert 0 < problem.weight <= 10000
         problem.save(update_fields=['weight'])
-        return response_ok()
+        return Response()
 
 
 class ContestInvitationList(PolygonContestMixin, ListView):
-    template_name = 'polygon/contest_invitation.jinja2'
+    template_name = 'polygon/contest/invitation.jinja2'
     paginate_by = 100
     context_object_name = 'invitation_list'
 
@@ -255,7 +251,7 @@ class ContestInvitationAssign(PolygonContestMixin, View):
 
 
 class ContestParticipantList(PolygonContestMixin, ListView):
-    template_name = 'polygon/contest_participant.jinja2'
+    template_name = 'polygon/contest/participant.jinja2'
     paginate_by = 100
     context_object_name = 'participant_list'
 
@@ -278,13 +274,13 @@ class ContestParticipantCommentUpdate(PolygonContestMixin, View):
         return HttpResponseRedirect(request.POST['next'])
 
 
-class ContestParticipantStarToggle(PolygonContestMixin, View):
+class ContestParticipantStarToggle(PolygonContestMixin, APIView):
     def post(self, request, pk, participant_pk):
         with transaction.atomic():
             participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
             participant.star = True if not participant.star else False
             participant.save(update_fields=["star"])
-        return response_ok()
+        return Response()
 
 
 class ContestParticipantCreate(PolygonContestMixin, View):
@@ -345,7 +341,7 @@ class RejudgeContestProblemSubmission(PolygonContestMixin, View):
 
 class ContestStatusBackend(PolygonContestMixin, StatusList):
 
-    template_name = 'polygon/contest_status.jinja2'
+    template_name = 'polygon/contest/status.jinja2'
     contest_submission_visible = True
 
     def get_selected_from(self):

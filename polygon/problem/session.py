@@ -1,13 +1,13 @@
 import base64
-import copy
+import json
 import logging
 import re
+import time
 import traceback
 import zipfile
-import time
 from datetime import datetime
 from functools import wraps
-from os import path, makedirs, listdir, remove, walk, replace
+from os import path, makedirs, remove, replace
 from shutil import copyfile, rmtree
 from threading import Thread
 
@@ -16,6 +16,13 @@ from django.conf import settings
 
 from account.models import User
 from dispatcher.models import Server
+from polygon.models import EditSession
+from polygon.models import Run
+from polygon.problem.case import (
+    well_form_binary, check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
+    stress_test, generate_multiple, base64decode
+)
+from polygon.problem.utils import valid_fingerprint_check, normal_regex_check
 from problem.models import Problem, SpecialProgram, get_input_path, get_output_path
 from problem.tasks import upload_problem_to_judge_server
 from utils import random_string
@@ -23,13 +30,6 @@ from utils.file_preview import sort_data_list_from_directory
 from utils.hash import file_hash, case_hash
 from utils.language import LANG_EXT
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
-from .case import (
-    well_form_binary, validate_input, run_output, check_output_with_result,
-    check_output_with_result_multiple, run_output_multiple, validate_input_multiple,
-    stress_test, generate_multiple
-)
-from .models import EditSession
-from .models import Run
 
 CONFIG_FILE_NAME = 'config.yml'
 STATEMENT_DIR = 'statement'
@@ -40,8 +40,28 @@ PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solutio
 USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
-USUAL_READ_SIZE = 1024
-MESSAGE_STORAGE_SIZE = 4096
+USUAL_READ_SIZE = 4096
+
+
+def load_config(session):
+    """
+    Load config of a session
+    If the session does not have a config, return an empty dict
+    :type session: EditSession
+    :rtype: dict
+    """
+    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
+    try:
+        with open(config_file, 'r') as f:
+            return yaml.load(f)
+    except FileNotFoundError:
+        return dict()
+
+
+def dump_config(session, config):
+    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
+    with open(config_file, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
 
 
 def run_with_report(func, run, *args, **kwargs):
@@ -51,10 +71,10 @@ def run_with_report(func, run, *args, **kwargs):
         ed = time.time()
         logging.info('%.3fs %s' % (ed - start, str(d)))
         run.status = 1 if d.get('status') == 'received' else -1
-        run.message = d.get('message', '')[:MESSAGE_STORAGE_SIZE]
+        run.message = json.dumps(d, sort_keys=True, indent=4)
     except:
         run.status = -1
-        run.message = traceback.format_exc()[:MESSAGE_STORAGE_SIZE]
+        run.message = traceback.format_exc()
     finally:
         run.save()
 
@@ -80,7 +100,7 @@ def init_session(problem, user):
     Init a session
     :type problem: Problem
     :type user: User
-    :return: None
+    :return: session
     """
     fingerprint = random_string()
     session = EditSession.objects.create(problem=problem, user=user, fingerprint=fingerprint,
@@ -88,6 +108,7 @@ def init_session(problem, user):
     rmtree(path.join(settings.REPO_DIR, fingerprint), ignore_errors=True)
     makedirs(path.join(settings.REPO_DIR, fingerprint))
     pull_session(session)
+    return session
 
 
 def pull_session(session):
@@ -96,59 +117,39 @@ def pull_session(session):
     :type session: EditSession
     :return: None
     """
+
+    def case_setdefault(d):
+        d["order"] = 0
+        d["point"] = DEFAULT_POINT
+        d["pretest"] = False
+        d["sample"] = False
+
     problem = session.problem
     session_dir = get_session_dir(session)
     config = load_config(session)
-    config['alias'] = problem.alias
-    config['title'] = problem.title
-    config['time_limit'] = problem.time_limit
-    config['memory_limit'] = problem.memory_limit
-    config['source'] = problem.source
-
-    description_file = config.setdefault('description', 'description.md')
-    input_file = config.setdefault('input', 'input.md')
-    output_file = config.setdefault('output', 'output.md')
-    hint_file = config.setdefault('hint', 'hint.md')
-    statement_dir = path.join(session_dir, STATEMENT_DIR)
-    makedirs(statement_dir, exist_ok=True)
-    with open(path.join(statement_dir, description_file), 'w') as f1, \
-            open(path.join(statement_dir, input_file), 'w') as f2, \
-            open(path.join(statement_dir, output_file), 'w') as f3,\
-            open(path.join(statement_dir, hint_file), 'w') as f4:
-        f1.write(problem.description)
-        f2.write(problem.input)
-        f3.write(problem.output)
-        f4.write(problem.hint)
 
     tests_dir = path.join(session_dir, TESTS_DIR)
-    case_dict = config.setdefault('case', dict())
+    config['case'] = case_dict = config.setdefault('case', dict())
     point_list = problem.point_list
     for key in case_dict.keys():
-        case_dict[key]["order"] = 0
-        case_dict[key]["point"] = DEFAULT_POINT
-        case_dict[key]["pretest"] = False
-        case_dict[key]["sample"] = False
+        case_setdefault(case_dict[key])
+
     makedirs(tests_dir, exist_ok=True)
-    for case in problem.sample_list:
-        if case not in case_dict.keys():
-            case_dict[case] = dict(order=0, point=10, sample=True)
-            now_input_path, now_output_path = get_test_file_path(session, case)
-            copyfile(get_input_path(case), now_input_path)
-            copyfile(get_output_path(case), now_output_path)
-        case_dict[case]['sample'] = True
-    for ind, case in enumerate(problem.case_list, start=1):
-        if case not in case_dict.keys():
+    for case in set(problem.sample_list + problem.pretest_list + problem.case_list):
+        if case not in case_dict:
             case_dict[case] = dict()
+            case_setdefault(case_dict[case])
             now_input_path, now_output_path = get_test_file_path(session, case)
             copyfile(get_input_path(case), now_input_path)
             copyfile(get_output_path(case), now_output_path)
+
+    for case in set(problem.sample_list):
+        case_dict[case]["sample"] = True
+    for case in set(problem.pretest_list):
+        case_dict[case]["pretest"] = True
+    for ind, case in enumerate(problem.case_list, start=1):
         case_dict[case]["order"] = ind
         case_dict[case]["point"] = point_list[ind - 1]
-        if case in problem.pretest_list:
-            case_dict[case]["pretest"] = True
-        if case in problem.sample_list:
-            case_dict[case]["sample"] = True
-    config['case'] = case_dict
 
     programs = config.setdefault('program', dict())
     # pull top-relevant programs first
@@ -156,8 +157,6 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
-    config["interactive"] = bool(problem.interactor)
-    config.setdefault('model', '')
     _important_special_program = {
         problem.checker: "checker",
         problem.interactor: "interactor",
@@ -193,18 +192,9 @@ def push_session(session):
     :return:
     """
     problem = session.problem
-    if any(s.last_synchronize > session.last_synchronize for s in problem.editsession_set.all()):
-        raise Exception('Sorry, there has been a newer session, try to re-pull.')
     config = load_config(session)
-    problem.alias = config['alias']
-    problem.title = config['title']
-    problem.time_limit = config['time_limit']
-    problem.memory_limit = config['memory_limit']
-    problem.source = config['source']
     for type in ['checker', 'validator', 'interactor']:
         file = config[type]
-        if type == 'interactor' and not config['interactive']:
-            file = ''
         if file:
             file_config = config['program'][file]
             if not SpecialProgram.objects.filter(fingerprint=file_config['fingerprint']).exists():
@@ -236,93 +226,15 @@ def push_session(session):
     problem.points = ','.join(map(str, points))
     problem.pretests = ','.join(pretest_list)
     problem.sample = ','.join(sample_list)
-    problem.save()
 
     for server in Server.objects.filter(enabled=True).all():
-        upload_problem_to_judge_server(problem, server)
+        if not upload_problem_to_judge_server(problem, server):
+            raise ValueError
         server.last_synchronize_time = datetime.now()
         server.save(update_fields=['last_synchronize_time'])
+
+    problem.save()  # update finally
     pull_session(session)
-
-
-def sort_out_directory(directory):
-    if not path.exists(directory):
-        return []
-    return sorted(list(map(lambda file: {'filename': path.basename(file),
-                                         'modified_time': datetime.fromtimestamp(path.getmtime(file)).
-                                                          strftime(settings.DATETIME_FORMAT_TEMPLATE),
-                                         'size': path.getsize(file)},
-                           listdir_with_prefix(directory))),
-                  key=lambda d: d['modified_time'], reverse=True)
-
-
-def load_statement_file_list(session):
-    return sort_out_directory(path.join(get_session_dir(session), STATEMENT_DIR))
-
-
-def create_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    if path.exists(filepath):
-        raise ValueError("File already exists")
-    with open(filepath, 'w'):
-        pass
-
-
-def delete_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    if not path.exists(filepath):
-        raise ValueError("File does not exist")
-    config = load_config(session)
-    if filename in list(map(lambda x: config[x], STATEMENT_TYPE_LIST)):
-        raise ValueError("File is still in use")
-    remove(filepath)
-
-
-def read_statement_file(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    with open(filepath) as fs:
-        return fs.read()
-
-
-def write_statement_file(session, filename, text):
-    filepath = _get_statement_file_path(session, filename)
-    with open(filepath, 'w') as fs:
-        fs.write(text)
-
-
-def update_statement(session, description, input, output, hint):
-    config = load_config(session)
-    description_file, input_file, output_file, hint_file = map(lambda x: config.get, STATEMENT_TYPE_LIST)
-    write_statement_file(session, description_file, description)
-    write_statement_file(session, input_file, input)
-    write_statement_file(session, output_file, output)
-    write_statement_file(session, hint_file, hint)
-
-
-def statement_file_exists(session, filename):
-    filepath = _get_statement_file_path(session, filename)
-    return path.exists(filepath)
-
-
-def load_regular_file_list(session):
-    return sort_out_directory(path.join(settings.UPLOAD_DIR, str(session.problem_id)))
-
-
-def load_volume(session):
-    def get_size(start_path='.'):
-        total_size = 0
-        for dirpath, dirnames, filenames in walk(start_path):
-            for f in filenames:
-                fp = path.join(dirpath, f)
-                total_size += path.getsize(fp)
-        return total_size
-
-    session_dir = get_session_dir(session)
-    return get_size(session_dir) // 1024576, 256
-
-
-def load_program_file_list(session):
-    return sort_out_directory(path.join(get_session_dir(session), PROGRAM_DIR))
 
 
 def program_file_exists(session, filename):
@@ -379,6 +291,19 @@ def delete_program_file(session, filename):
     remove(filepath)
 
 
+def toggle_program_file_use(session, filename):
+    if not program_file_exists(session, filename):
+        raise ValueError("File does not exist")
+    config = load_config(session)
+    t = config['program'][filename]['type']
+    if config[t] == filename:
+        # turn it off
+        config[t] = ''
+    else:
+        config[t] = filename
+    dump_config(session, config)
+
+
 def save_case(session, input_binary, output_binary, raw_fingerprint=None, **kwargs):
     fingerprint = case_hash(session.problem_id, input_binary, output_binary)
     new_input_path, new_output_path = get_test_file_path(session, fingerprint)
@@ -417,15 +342,26 @@ def get_case_metadata(session, fingerprint):
             'size': path.getsize(inp) + path.getsize(oup)}
 
 
-def preview_case(session, fingerprint):
+def read_case(session, fingerprint, type=None):
     inp, oup = get_test_file_path(session, fingerprint)
     with open(inp, 'r') as fs, open(oup, 'r') as gs:
-        res = {'input': fs.read(USUAL_READ_SIZE), 'output': gs.read(USUAL_READ_SIZE)}
-        if fs.read(1):
-            res['input'] += '...'
-        if gs.read(1):
-            res['output'] += '...'
-        return res
+        if type == 'in':
+            return fs.read()
+        elif type == 'out':
+            return gs.read()
+        else:
+            res = {'input': {'nan': False,
+                             'text': fs.read(USUAL_READ_SIZE)},
+                   'output': {'nan': False,
+                              'text': gs.read(USUAL_READ_SIZE)}
+                   }
+            if fs.read(1):
+                res['input']['text'] = 'This file is too large to edit.\n' + res['input']['text']
+                res['input']['nan'] = True
+            if gs.read(1):
+                res['output']['text'] = 'This file is too large to edit.\n' + res['output']['text']
+                res['output']['nan'] = True
+            return res
 
 
 def process_uploaded_case(session, file_path):
@@ -453,22 +389,12 @@ def reform_case(session, fingerprint, **kwargs):
     save_case(session, input, output, raw_fingerprint=fingerprint, well_form=True)
 
 
-def readjust_case_point(session, fingerprint, point):
-    if point <= 0 or point > 100:
-        raise ValueError("Point not in range")
-    update_case_config(session, fingerprint, point=point)
-
-
-def reorder_case(session, orders):
-    """
-    :type orders: dict
-    :param orders: {fingerprint -> order_number}
-    """
+def update_multiple_case_config(session, kw):
     config = load_config(session)
     for fingerprint, d in config['case'].items():
         d.update(order=0)  # clear first
-        if orders.get(fingerprint):
-            d.update(order=orders[fingerprint])
+        if fingerprint in kw:
+            d.update(kw[fingerprint])
     dump_config(session, config)
 
 
@@ -491,79 +417,47 @@ def delete_case(session, fingerprint):
 
 
 @run_async_with_report
-def validate_case(session, validator, fingerprint=None):
+def validate_case(session, validator, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input = _get_test_input(session, fingerprint)
-        call_func = validate_input
-        multiple = False
-    else:
-        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
-        call_func = validate_input_multiple
-        multiple = True
-    result = call_func(input, read_program_file(session, validator),
-                       config['program'][validator]['lang'], config['time_limit'])
+    input = list(map(lambda fp: _get_test_input(session, fp), fingerprints))
+    result = validate_input_multiple(input, read_program_file(session, validator),
+                                     config['program'][validator]['lang'], config['time_limit'])
     if success_response(result):
         config = load_config(session)
-        if multiple:
-            for i, res in zip(all_fingerprints, result['result']):
-                config['case'][i]['validated'] = -1 if res['verdict'] != 0 else 1
-        else:
-            config['case'][fingerprint]['validated'] = -1 if result['verdict'] != 0 else 1
+        for i, res in zip(fingerprints, result['result']):
+            config['case'][i]['validated'] = -1 if res['verdict'] != 0 else 1
         dump_config(session, config)
     return result
 
 
 @run_async_with_report
-def get_case_output(session, model, fingerprint=None):
+def get_case_output(session, model, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input = _get_test_input(session, fingerprint)
-        call_func = run_output
-        multiple = False
-    else:
-        input = list(map(lambda fp: _get_test_input(session, fp), all_fingerprints))
-        call_func = run_output_multiple
-        multiple = True
-    result = call_func(read_program_file(session, model), config['program'][model]['lang'],
-                       config['time_limit'], input)
+
+    input = list(map(lambda fp: _get_test_input(session, fp), fingerprints))
+    result = run_output_multiple(read_program_file(session, model), config['program'][model]['lang'],
+                                 config['time_limit'], input)
     if success_response(result):
-        if multiple:
-            for i, inp, res in zip(all_fingerprints, input, result['result']):
-                save_case(session, inp, base64.b64decode(res['output']), raw_fingerprint=i, model=True)
-        else:
-            save_case(session, input, base64.b64decode(result['output']), raw_fingerprint=fingerprint, model=True)
+        for i, inp, res in zip(fingerprints, input, result['result']):
+            save_case(session, inp, base64decode(res.pop('output')), raw_fingerprint=i, model=True)
     return result
 
 
 @run_async_with_report
-def check_case(session, submission, checker, fingerprint=None):
+def check_case(session, submission, checker, fingerprints):
     config = load_config(session)
-    all_fingerprints = list(config['case'].keys())
-    if fingerprint:
-        input, output = _get_test_input_and_output(session, fingerprint)
-        call_func = check_output_with_result
-        multiple = False
-    else:
-        inp_with_oup = list(map(lambda fp: _get_test_input_and_output(session, fp), all_fingerprints))
-        input, output = zip(*inp_with_oup)
-        call_func = check_output_with_result_multiple
-        multiple = True
+    inp_with_oup = list(map(lambda fp: _get_test_input_and_output(session, fp), fingerprints))
+    input, output = zip(*inp_with_oup)
     kw = {}
-    if config.get('interactive'):
+    if config.get('interactor'):
         kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
-    result = call_func(_get_program_tuple(session, submission, config),
-                       _get_program_tuple(session, checker, config),
-                       config['time_limit'], config['memory_limit'],
-                       input, output, **kw)
+    result = check_output_with_result_multiple(_get_program_tuple(session, submission, config),
+                                               _get_program_tuple(session, checker, config),
+                                               config['time_limit'], config['memory_limit'],
+                                               input, output, **kw)
     if success_response(result):
-        if multiple:
-            for i, res in zip(all_fingerprints, result['result']):
-                update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
-        else:
-            update_case_config(session, fingerprint, checked=1 if result['verdict'] == 0 else -1)
+        for i, res in zip(fingerprints, result['result']):
+            update_case_config(session, i, checked=1 if res['verdict'] == 0 else -1)
     return result
 
 
@@ -579,9 +473,9 @@ def generate_input(session, generator, param_raw):
     result = generate_multiple(_get_program_tuple(session, generator, config), config['time_limit'],
                                config['memory_limit'], param_list)
     if success_response(result):
-        outputs = result['output']
+        outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64.b64decode(output), b'')
+            save_case(session, base64decode(output), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
@@ -604,7 +498,7 @@ def stress(session, generator, submission, param_raw, time):
     config = load_config(session)
 
     kw = {}
-    if config.get('interactive'):
+    if config.get('interactor'):
         kw.update(interactor=_get_program_tuple(session, config['interactor'], config))
     result = stress_test(_get_program_tuple(session, model, config),
                          _get_program_tuple(session, submission, config),
@@ -613,76 +507,15 @@ def stress(session, generator, submission, param_raw, time):
                          _get_program_tuple(session, config['checker'], config), kw)
 
     if success_response(result):
-        outputs = result['output']
+        outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64.b64decode(output), b'')
+            save_case(session, base64decode(output), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
 
-
-def load_config(session):
-    """
-    Load config of a session
-    If the session does not have a config, return an empty dict
-    :type session: EditSession
-    :rtype: dict
-    """
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    try:
-        with open(config_file, 'r') as f:
-            return yaml.load(f)
-    except FileNotFoundError:
-        return dict()
-
-
-def dump_config(session, config):
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    with open(config_file, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
-
-
-def update_config(config, **kwargs):
-    def pop_and_check(kw, conf, prop, varname, convert_func, check_func, ):
-        _var = kw.pop(prop, None)
-        if _var is not None:
-            if convert_func:
-                _var = convert_func(_var)
-            if check_func and not check_func(_var):
-                raise ValueError("Invalid %s" % varname)
-            conf.update({prop: _var})
-
-    new_config = copy.deepcopy(config)
-
-    pop_and_check(kwargs, new_config, 'title', 'title', None, None)
-    pop_and_check(kwargs, new_config, 'alias', 'alias', None, normal_regex_check)
-    pop_and_check(kwargs, new_config, 'time_limit', 'time limit', int, lambda x: x >= 200 and x <= 30000)
-    pop_and_check(kwargs, new_config, 'memory_limit', 'memory limit', int, lambda x: x >= 64 and x <= 4096)
-    pop_and_check(kwargs, new_config, 'source', 'source', None, lambda x: len(x) <= 128)
-    pop_and_check(kwargs, new_config, 'interactive', 'interactive', None, None)
-    for i in STATEMENT_TYPE_LIST + USED_PROGRAM_IN_CONFIG_LIST:
-        # Please check in advance
-        pop_and_check(kwargs, new_config, i, i, None, None)
-
-    return new_config
-
-    # TODO: is there another param?
-
-
-def get_config_update_time(session):
-    config_file = path.join(settings.REPO_DIR, session.fingerprint, CONFIG_FILE_NAME)
-    return datetime.fromtimestamp(path.getmtime(config_file)).strftime(settings.DATETIME_FORMAT_TEMPLATE)
-
-
 def get_session_dir(session):
     return path.join(settings.REPO_DIR, session.fingerprint)
-
-
-def _get_statement_file_path(session, filename):
-    statement_dir = path.join(get_session_dir(session), STATEMENT_DIR)
-    if not normal_regex_check(filename):
-        raise ValueError("Invalid filename")
-    return path.join(statement_dir, filename)
 
 
 def _get_program_file_path(session, filename):
@@ -715,17 +548,3 @@ def _get_program_tuple(session, filename, config=None):
     if not config:
         config = load_config(session)
     return read_program_file(session, filename), config['program'][filename]['lang']
-
-
-def normal_regex_check(alias):
-    return re.match(r"^[\.a-z0-9_-]{4,64}$", alias)
-
-
-def valid_fingerprint_check(fingerprint):
-    return re.match(r"^[a-z0-9]{16,128}$", fingerprint)
-
-
-def listdir_with_prefix(directory):
-    return list(map(lambda file: path.join(directory, file),
-                    filter(lambda f2: not f2.startswith('.'),
-                           listdir(directory))))

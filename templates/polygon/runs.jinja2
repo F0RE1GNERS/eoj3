@@ -21,18 +21,11 @@
           <td>{{ run.create_time | date('Y-m-d H:i:s') }}</td>
           <td class="capitalize">{{ run.get_status_display() }}</td>
           <td>{{ run.label }}</td>
-          <td><a class="run-message-reveal-link click-able" data-get-action="{{ url('polygon:run_message', run.id) }}">Reveal</a></td>
+          <td><a href="{{ url('polygon:run_message', run.id) }}" target="_blank">Reveal</a></td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
   {{ my_paginator() }}
-
-  <div class="ui longer small modal" id="message-preview-modal">
-    <div class="header">Message</div>
-    <div class="scrolling content">
-      <pre><code></code></pre>
-    </div>
-  </div>
 
 {% endblock %}

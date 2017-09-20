@@ -1,0 +1,62 @@
+{% extends 'polygon/problem/base.jinja2' %}
+
+{% block problem_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <table class="ui celled striped table">
+    <thead>
+      <tr>
+        <th colspan="4">
+          <button class="ui right floated icon button positive compact modal-link" id="files-upload-button"
+                  data-target="#regular-file-upload">
+            <i class="upload icon"></i> Add
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for file in file_list %}
+      <tr>
+        <td>
+          <i class="file {% if file.type == 'image' %}image{% endif %} outline icon"></i>
+          {{ file.filename }}
+        </td>
+        <td class="right aligned collapsing">{{ file.modified_time }}</td>
+        <td class="right aligned collapsing">{{ (file.size / 1024) | int }} KB</td>
+        <td class="right aligned collapsing">
+          <div class="ui icon compact buttons">
+            <a class="ui primary button clipboard" data-clipboard-text="{{ file.url }}">
+              <i class="copy icon"></i>
+            </a>
+            {% if file.type == 'image' %}
+            <a class="ui button" href="{{ file.url }}" target="_blank">
+              <i class="image icon"></i>
+            </a>
+            {% endif %}
+            <a class="ui button delete-link" data-link="{{ url('polygon:problem_delete_static_file', problem.pk) }}"
+               data-filename="{{ file.filename }}">
+              <i class="trash icon"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  {% call modal(title="Upload a new file", id="regular-file-upload") %}
+    <form class="ui form" action="{{ url('polygon:problem_upload_static_file', problem.pk) }}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="field">
+        <label for="files[]">Choose multiple files</label>
+        <div class="ui fluid file input action">
+          <input type="text" readonly>
+          <input type="file" name="files[]" autocomplete="off" multiple>
+          <div class="ui button">Select...</div>
+        </div>
+      </div>
+    </form>
+  {% endcall %}
+
+{% endblock %}

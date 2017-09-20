@@ -26,7 +26,7 @@
   {% if request.user.is_authenticated %}
   <div class="ui container center aligned">
     {% if request.user.polygon_enabled %}
-      <a href="{{ url('polygon:session') }}" class="ui primary button">Already registered. Continue.</a>
+      <a href="{{ url('polygon:problem_list') }}" class="ui primary button">Already registered. Continue.</a>
     {% elif polygon_authorized %}
       <a href="{{ url('polygon:register') }}" class="ui primary button">Be a member of Polygon.</a>
     {% else %}

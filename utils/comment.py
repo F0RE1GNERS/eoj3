@@ -12,7 +12,7 @@ from notifications.signals import notify
 from problem.models import Problem
 from contest.models import Contest
 from account.permissions import is_admin_or_root
-from utils.permission import has_permission_for_contest_management
+from utils.permission import is_contest_manager
 from blog.models import Blog
 
 
@@ -62,11 +62,11 @@ def send_notification(request, **kwargs):
             if comment['parent_id']:
                 recipient = get_parent_user(comment)
                 verb = 'replied in'
-            elif has_permission_for_contest_management(comment.user, contest):
+            elif is_contest_manager(comment.user, contest):
                 recipient = list(map(lambda x: x.user, contest.contestparticipant_set.all()))
                 verb = 'posted a notification in'
             else:
-                recipient = contest.manager.all()
+                recipient = contest.managers.all()
                 verb = 'asked a question in'
         elif comment['content_type'].name == 'problem':
             if comment['parent_id']:

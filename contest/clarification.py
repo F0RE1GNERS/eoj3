@@ -3,7 +3,7 @@ from django.shortcuts import reverse, redirect, get_object_or_404
 from django.views.generic import View
 from notifications.signals import notify
 
-from utils.permission import has_permission_for_contest_management
+from utils.permission import is_contest_manager
 from .models import ContestClarification
 from .views import BaseContestMixin
 
@@ -16,7 +16,7 @@ class ContestClarificationView(BaseContestMixin, View):
         text = request.POST["text"]
         if not text:
             raise PermissionDenied
-        if has_permission_for_contest_management(request.user, self.contest):
+        if is_contest_manager(request.user, self.contest):
             ContestClarification.objects.create(contest=self.contest, important=True, author=request.user, answer=text)
             notify.send(sender=request.user,
                         recipient=list(map(lambda x: x.user, self.contest.contestparticipant_set.select_related("user").all())),
@@ -26,7 +26,7 @@ class ContestClarificationView(BaseContestMixin, View):
         else:
             ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
             notify.send(sender=request.user,
-                        recipient=self.contest.manager.all(),
+                        recipient=self.contest.managers.all(),
                         verb="asked a question in",
                         level="warning",
                         target=self.contest)
@@ -36,7 +36,7 @@ class ContestClarificationView(BaseContestMixin, View):
 class ContestClarificationAnswer(BaseContestMixin, View):
 
     def post(self, request, cid, pk):
-        if has_permission_for_contest_management(request.user, self.contest):
+        if is_contest_manager(request.user, self.contest):
             clarification = get_object_or_404(ContestClarification, contest_id=cid, pk=pk)
             clarification.answer = request.POST["text"]
             clarification.save(update_fields=["answer"])

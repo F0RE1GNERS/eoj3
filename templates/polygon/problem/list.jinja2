@@ -1,0 +1,59 @@
+{% extends 'polygon/base.jinja2' %}
+
+{% block title %}
+  Problems
+{% endblock %}
+
+{% block content %}
+
+  <table class="ui celled table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="5">
+          <button id="contest-create-button" class="ui right floated small primary labeled icon button">
+            <i class="server icon"></i> Add Problem
+          </button>
+        </th>
+      </tr>
+      <tr>
+        <th>Title</th>
+        <th class="collapsing">Alias</th>
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+        <th class="collapsing">Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
+        <tr>
+          <td><a href="{{ url('polygon:problem_preview', problem.pk) }}">{{ problem.title }}</a></td>
+          <td>{{ problem.alias }}</td>
+          <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
+          <td><a href="{{ url('polygon:problem_edit', problem.pk) }}">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="ui basic tiny modal" id="contest-create">
+    <div class="ui icon header">
+      <i class="fork icon"></i>
+      Create a problem
+    </div>
+    <div class="content">
+      <p>Are you sure you want to create a problem? You can not undo this.</p>
+    </div>
+    <div class="actions">
+      <div class="ui red basic cancel inverted button">
+        <i class="remove icon"></i>
+        No
+      </div>
+      <a class="ui green ok inverted button post-link" data-link="{{ url('polygon:problem_create') }}">
+        <i class="checkmark icon"></i>
+        Yes
+      </a>
+    </div>
+  </div>
+
+{% endblock %}
