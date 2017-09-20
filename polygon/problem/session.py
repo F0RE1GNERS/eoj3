@@ -296,7 +296,7 @@ def toggle_program_file_use(session, filename):
         raise ValueError("File does not exist")
     config = load_config(session)
     t = config['program'][filename]['type']
-    if config[t] == filename:
+    if config.get(t) == filename:
         # turn it off
         config[t] = ''
     else:

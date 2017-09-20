@@ -1,0 +1,45 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Problem Tags
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui celled table aligned">
+    <thead>
+      <tr>
+        <th colspan="2">
+          <a href="" class="ui right floated primary labeled icon button">
+            <i class="server icon"></i> Add Tag
+          </a>
+        </th>
+      </tr>
+      <tr>
+        <th>Visible</th>
+        <th>Name</th>
+        <th>Alias</th>
+        <th>Created</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:problem_visible_switch', problem.id) }}" type="checkbox" {% if problem.visible %}checked{% endif %}>
+            </div>
+          </td>
+          <td>{{ problem.title }}</td>
+          <td>{{ problem.alias }}</td>
+          <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+{% endblock %}

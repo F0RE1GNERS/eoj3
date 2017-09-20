@@ -9,13 +9,18 @@
   <table class="ui celled definition table center aligned">
     <thead class="full-width">
       <tr>
+        <th colspan="5">
+          <a href="" class="ui right floated primary labeled icon button">
+            <i class="server icon"></i> Manage Tags
+          </a>
+        </th>
+      </tr>
+      <tr>
         <th>Visible</th>
         <th>Name</th>
         <th>Alias</th>
         <th>Created</th>
-        <th>Update</th>
-        <th>Edit</th>
-        <th colspan="2">Access</th>
+        <th>Updated</th>
       </tr>
     </thead>
     <tbody>
@@ -30,9 +35,6 @@
           <td>{{ problem.alias }}</td>
           <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
-          <td><a href="{{ url('backstage:problem_edit', problem.pk) }}">Edit</a></td>
-          <td><a class="post-link" data-link="{{ url('backstage:problem_access_add', problem.pk) }}">Add Me</a></td>
-          <td><a href="{{ url('backstage:problem_meta', problem.pk) }}">Manage</a></td>
         </tr>
       {% endfor %}
     </tbody>

@@ -10,7 +10,7 @@
     <thead class="full-width">
       <tr>
         <th colspan="5">
-          <button id="contest-create-button" class="ui right floated small primary labeled icon button">
+          <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Problem
           </button>
         </th>
@@ -35,6 +35,8 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {{ my_paginator() }}
 
   <div class="ui basic tiny modal" id="contest-create">
     <div class="ui icon header">

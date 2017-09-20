@@ -39,6 +39,7 @@ from utils.upload import save_uploaded_file_to
 class ProblemList(PolygonBaseMixin, ListView):
     template_name = 'polygon/problem/list.jinja2'
     context_object_name = 'problem_list'
+    paginate_by = 250
 
     def get_queryset(self):
         if is_admin_or_root(self.request.user):
