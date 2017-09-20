@@ -37,7 +37,7 @@ TESTS_DIR = 'tests'
 PROGRAM_DIR = 'program'
 DEFAULT_POINT = 10
 PROGRAM_TYPE_LIST = ['checker', 'validator', 'interactor', 'generator', 'solution']
-USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'model']
+USED_PROGRAM_IN_CONFIG_LIST = ['checker', 'validator', 'interactor', 'solution']
 STATEMENT_TYPE_LIST = ['description', 'input', 'output', 'hint']
 MAXIMUM_CASE_SIZE = 128  # in megabytes
 USUAL_READ_SIZE = 4096
@@ -157,6 +157,7 @@ def pull_session(session):
     config["checker"] = problem.checker  # This is fingerprint, to be converted to filename later
     config["interactor"] = problem.interactor
     config["validator"] = problem.validator
+    config.setdefault('solution', '')
     _important_special_program = {
         problem.checker: "checker",
         problem.interactor: "interactor",

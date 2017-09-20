@@ -44,7 +44,7 @@
         <div class="ui multiple selection dropdown">
           <input name="{{ field.name }}" type="hidden" value="{{ field.initial }}">
           <i class="dropdown icon"></i>
-          <div class="default text">Select Languages</div>
+          <div class="default text">Select Multiple</div>
           <div class="menu">
             {% for key, val in field.field.widget.choices %}
               <div class="item" data-value="{{ key }}">{{ val }}</div>

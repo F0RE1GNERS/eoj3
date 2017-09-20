@@ -1,5 +1,6 @@
 import json
 import re
+import traceback
 from os import path, remove
 
 from django.conf import settings
@@ -17,9 +18,9 @@ from rest_framework.views import APIView
 from account.models import User
 from account.permissions import is_admin_or_root
 from polygon.base_views import PolygonBaseMixin
-from polygon.forms import ProblemEditForm
 from polygon.models import EditSession
 from polygon.problem.case import well_form_text
+from polygon.problem.forms import ProblemEditForm
 from polygon.problem.session import init_session, pull_session, load_config, save_program_file, delete_program_file, \
     read_program_file, toggle_program_file_use, save_case, read_case, \
     process_uploaded_case, reform_case, validate_case, get_case_output, check_case, delete_case, \
@@ -104,17 +105,13 @@ class BaseSessionMixin(PolygonProblemMixin):
 
 
 class SessionPostMixin(BaseSessionMixin):
-    redirect_view_name = None
-
     def dispatch(self, request, *args, **kwargs):
         try:
             super().dispatch(request, *args, **kwargs)
         except Exception as e:
+            traceback.print_exc()
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
-        finally:
-            if self.redirect_view_name:
-                return redirect(reverse(self.redirect_view_name, kwargs=kwargs))
-            raise NotImplementedError
+            return HttpResponse()
 
 
 class ProblemPreview(PolygonProblemMixin, TemplateView):
@@ -139,6 +136,12 @@ class ProblemEdit(PolygonProblemMixin, UpdateView):
     template_name = 'polygon/problem/edit.jinja2'
     form_class = ProblemEditForm
     queryset = Problem.objects.all()
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.tags = form.cleaned_data['tags']
+        instance.save()
+        return redirect(self.request.path)
 
     def get_object(self, queryset=None):
         return self.problem
@@ -202,7 +205,7 @@ class ProblemStaticFileList(PolygonProblemMixin, ListView):
 class ProblemUploadStaticFile(PolygonProblemMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        files = request.FILES.getlist('files[]')
+        files = request.POST.getlist('files[]')
         for file in files:
             save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.problem.pk)),
                                   filename=path.splitext(file.name)[0] + '.' + random_string(16),
@@ -242,40 +245,36 @@ class SessionProgramList(BaseSessionMixin, TemplateView):
         return data
 
 
-class SessionCreateProgram(SessionPostMixin, View):
-    redirect_view_name = 'polygon:session_program_list'
-
+class SessionCreateProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
         filename, type, lang, code = request.POST['filename'], request.POST['type'], \
                                      request.POST['lang'], request.POST['code']
         save_program_file(self.session, filename, type, lang, code)
+        return Response()
 
 
-class SessionImportProgram(SessionPostMixin, View):
-    redirect_view_name = 'polygon:session_program_list'
-
+class SessionImportProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
         type = request.POST['type']
         sp = SpecialProgram.objects.get(builtin=True, filename=type)
         save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
+        return Response()
 
 
-class SessionUpdateProgram(SessionPostMixin, View):
-    redirect_view_name = 'polygon:session_program_list'
-
+class SessionUpdateProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
         raw_filename = request.POST['rawfilename']
         filename, type, lang, code = request.POST['filename'], request.POST['type'], \
                                      request.POST['lang'], request.POST['code']
         save_program_file(self.session, filename, type, lang, code, raw_filename)
+        return Response()
 
 
-class SessionDeleteProgram(SessionPostMixin, View):
-    redirect_view_name = 'polygon:session_program_list'
-
+class SessionDeleteProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
         filename = request.POST['filename']
         delete_program_file(self.session, filename)
+        return Response()
 
 
 class SessionProgramUsedToggle(BaseSessionMixin, APIView):

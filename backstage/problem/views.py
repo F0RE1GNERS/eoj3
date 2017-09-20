@@ -1,17 +1,15 @@
 import json
 
-from django.contrib import messages
 from django.db import transaction
-from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse, get_object_or_404, redirect
-from django.views.generic import TemplateView
+from django.shortcuts import HttpResponse
 from django.views.generic import View
 from django.views.generic.list import ListView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from tagging.models import Tag
 
-from .forms import ProblemEditForm
-from dispatcher.tasks import ProblemRejudgeThread
 from problem.models import Problem
-from submission.models import Submission
-from ..base_views import BaseBackstageMixin, BaseUpdateView
+from ..base_views import BaseBackstageMixin
 
 
 class ProblemList(BaseBackstageMixin, ListView):
@@ -32,5 +30,21 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
 
 class ProblemTagList(BaseBackstageMixin, ListView):
     template_name = 'backstage/tags.jinja2'
-    queryset = Problem.tags.all()
+    queryset = Tag.objects.all()
     context_object_name = 'tag_list'
+
+
+class ProblemTagCreate(BaseBackstageMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        name = request.POST['name']
+        Tag.objects.create(name=name)
+        return Response()
+
+
+class ProblemTagEdit(BaseBackstageMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        pk, name = request.POST['pk'], request.POST['name']
+        tag = Tag.objects.get(pk=pk)
+        tag.name = name
+        tag.save(update_fields=["name"])
+        return Response()

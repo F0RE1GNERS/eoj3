@@ -1,8 +1,7 @@
 from django import forms
+from tagging.models import Tag
 
 from problem.models import Problem
-from contest.models import Contest
-from utils.language import LANG_CHOICE
 from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 
 
@@ -20,7 +19,7 @@ class ProblemEditForm(forms.ModelForm):
             'hint': forms.Textarea(attrs={'class': 'markdown'}),
         }
 
-    tags = forms.CharField(required=False)
+    tags = CommaSeparatedMultipleChoiceField(choices=[(i, i) for i in Tag.objects.all()])
 
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
@@ -29,3 +28,13 @@ class ProblemEditForm(forms.ModelForm):
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
             self.fields['tags'].initial = ','.join(map(str, self.instance.tags))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        used_tag = []
+        if 'tags' in cleaned_data:
+            for tag in cleaned_data['tags']:
+                if Tag.objects.filter(name=tag).exists():
+                    used_tag.append(tag)
+        cleaned_data['tags'] = ', '.join(used_tag)
+        return cleaned_data

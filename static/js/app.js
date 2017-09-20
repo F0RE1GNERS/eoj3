@@ -209,7 +209,14 @@ $(".modal-link")
       .modal({
         onApprove: function () {
           var form = $(this).find("form");
-          form.submit();
+          $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            data: form.serialize(),
+            complete: function () {
+              location.reload();
+            }
+          });
         }
       })
       .modal('show');
