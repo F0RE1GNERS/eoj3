@@ -443,7 +443,7 @@ def get_case_output(session, model, fingerprints):
                                  config['time_limit'], input)
     if success_response(result):
         for i, inp, res in zip(fingerprints, input, result['result']):
-            save_case(session, inp, base64decode(res.pop('output')), raw_fingerprint=i, model=True)
+            save_case(session, inp, base64decode(res.pop('output')).encode(), raw_fingerprint=i, model=True)
     return result
 
 
@@ -479,7 +479,7 @@ def generate_input(session, generator, param_raw):
     if success_response(result):
         outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64decode(output), b'')
+            save_case(session, base64decode(output).encode(), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
@@ -513,7 +513,7 @@ def stress(session, generator, submission, param_raw, time):
     if success_response(result):
         outputs = result.pop('output')
         for output in outputs:
-            save_case(session, base64decode(output), b'')
+            save_case(session, base64decode(output).encode(), b'')
         result.update(message='[ Successfully created %d cases ]\n%s' % (len(outputs), result.get('message', '')))
     return result
 
