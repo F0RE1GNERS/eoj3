@@ -21,8 +21,8 @@ def time_formatter(seconds):
                              seconds % 60)
 
 
-class BaseContestMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
-    raise_exception = True  # TODO show permission denied message
+class BaseContestMixin(ContextMixin, UserPassesTestMixin):
+    raise_exception = True
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))

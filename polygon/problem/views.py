@@ -61,7 +61,7 @@ class ProblemCreate(PolygonBaseMixin, APIView):
         return Response()
 
 
-class PolygonProblemMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin):
+class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     raise_exception = True
 
     def init_session_during_dispatch(self):
@@ -112,7 +112,8 @@ class SessionPostMixin(BaseSessionMixin):
         except Exception as e:
             traceback.print_exc()
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            # return Response(status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse()
 
 
 class ProblemPreview(PolygonProblemMixin, TemplateView):
@@ -262,7 +263,7 @@ class SessionImportProgram(SessionPostMixin, GenericAPIView):
         return Response()
 
 
-class SessionUpdateProgram(SessionPostMixin, GenericAPIView):
+class SessionUpdateProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
         raw_filename = request.data['rawfilename']
         filename, type, lang, code = request.data['filename'], request.data['type'], \
