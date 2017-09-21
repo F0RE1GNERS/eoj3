@@ -209,10 +209,13 @@ $(".modal-link")
       .modal({
         onApprove: function () {
           var form = $(this).find("form");
+          var data = new FormData(form[0]);
           $.ajax({
             url: form.attr("action"),
             type: 'POST',
-            data: form.serialize(),
+            data: data,
+            processData: false,
+            contentType: false,
             complete: function () {
               location.reload();
             }

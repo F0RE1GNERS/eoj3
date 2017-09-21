@@ -205,18 +205,18 @@ class ProblemStaticFileList(PolygonProblemMixin, ListView):
 class ProblemUploadStaticFile(PolygonProblemMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        files = request.POST.getlist('files[]')
+        files = request.data.getlist("files[]")
         for file in files:
             save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.problem.pk)),
                                   filename=path.splitext(file.name)[0] + '.' + random_string(16),
                                   keep_extension=True)
-        return redirect(reverse('polygon:problem_static_file_list', kwargs={'pk': self.problem.pk}))
+        return Response()
 
 
 class ProblemDeleteRegularFile(PolygonProblemMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        filename = request.POST['filename']
+        filename = request.data['filename']
         try:
             upload_base_dir = path.join(settings.UPLOAD_DIR, str(self.problem.pk))
             real_path = path.abspath(path.join(upload_base_dir, filename))
@@ -247,15 +247,15 @@ class SessionProgramList(BaseSessionMixin, TemplateView):
 
 class SessionCreateProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
-        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
-                                     request.POST['lang'], request.POST['code']
+        filename, type, lang, code = request.data['filename'], request.data['type'], \
+                                     request.data['lang'], request.data['code']
         save_program_file(self.session, filename, type, lang, code)
         return Response()
 
 
 class SessionImportProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
-        type = request.POST['type']
+        type = request.data['type']
         sp = SpecialProgram.objects.get(builtin=True, filename=type)
         save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
         return Response()
@@ -263,23 +263,23 @@ class SessionImportProgram(SessionPostMixin, APIView):
 
 class SessionUpdateProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
-        raw_filename = request.POST['rawfilename']
-        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
-                                     request.POST['lang'], request.POST['code']
+        raw_filename = request.data['rawfilename']
+        filename, type, lang, code = request.data['filename'], request.data['type'], \
+                                     request.data['lang'], request.data['code']
         save_program_file(self.session, filename, type, lang, code, raw_filename)
         return Response()
 
 
 class SessionDeleteProgram(SessionPostMixin, APIView):
     def post(self, request, *args, **kwargs):
-        filename = request.POST['filename']
+        filename = request.data['filename']
         delete_program_file(self.session, filename)
         return Response()
 
 
 class SessionProgramUsedToggle(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        filename = request.POST['filename']
+        filename = request.data['filename']
         toggle_program_file_use(self.session, filename)
         return Response()
 
@@ -315,63 +315,63 @@ class SessionCaseDataAPI(BaseSessionMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         """
-        A example of request.POST:
+        A example of request.data:
         <QueryDict: {'outputText': ['5\r\n'], 'sample': ['on'], 'point': ['10'], 'pretest': ['on'], 'outputType':
         ['editor'], 'inputText': ['2 3\r\n'], 'reform': ['on'], 'inputFile': [''], 'inputType': ['editor'], 'outputFile': ['']}>
         """
         case_id = request.GET['id']
         case_config = self.get_case_config(case_id)
 
-        if not case_config['input']['nan'] and request.POST['inputType'] == 'editor':
-            input = request.POST['inputText']
-        elif request.FILES.get('inputFile') and request.POST['inputType'] == 'upload':
-            input = request.FILES['inputFile'].read().decode()
+        if not case_config['input']['nan'] and request.data['inputType'] == 'editor':
+            input = request.data['inputText']
+        elif request.data.get('inputFile') and request.data['inputType'] == 'upload':
+            input = request.data['inputFile'].read().decode()
             # TODO: universal decoding
         else:
             input = read_case(self.session, case_id, type='in')
 
-        if not case_config['output']['nan'] and request.POST['outputType'] == 'editor':
-            output = request.POST['outputText']
-        elif request.FILES.get('outputFile') and request.POST['outputType'] == 'upload':
-            output = request.FILES['outputFile'].read().decode()
+        if not case_config['output']['nan'] and request.data['outputType'] == 'editor':
+            output = request.data['outputText']
+        elif request.data.get('outputFile') and request.data['outputType'] == 'upload':
+            output = request.data['outputFile'].read().decode()
         else:
             output = read_case(self.session, case_id, type='out')
 
-        well_form = request.POST.get('reform') == 'on'
+        well_form = request.data.get('reform') == 'on'
         if well_form:
             input, output = well_form_text(input), well_form_text(output)
         save_case(self.session, input.encode(), output.encode(), raw_fingerprint=case_id,
-                  sample=request.POST.get('sample') == 'on', pretest=request.POST.get('pretest') == 'on',
-                  point=int(request.POST['point']), well_form=well_form)
+                  sample=request.data.get('sample') == 'on', pretest=request.data.get('pretest') == 'on',
+                  point=int(request.data['point']), well_form=well_form)
         return Response()
 
 
 class SessionCreateCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        if request.POST['type'] == 'manual':
-            input = request.POST['input']
-            output = request.POST['output']
-            well_form = request.POST.get("wellForm") == "on"
+        if request.data['type'] == 'manual':
+            input = request.data['input']
+            output = request.data['output']
+            well_form = request.data.get("wellForm") == "on"
             if well_form:
                 input, output = well_form_text(input), well_form_text(output)
             if not input:
                 raise ValueError('Input file cannot be empty')
             save_case(self.session, input.encode(), output.encode(), well_form=well_form)
-        elif request.POST['type'] == 'upload':
-            file = request.FILES['file']
+        elif request.data['type'] == 'upload':
+            file = request.data['file']
             file_directory = '/tmp'
             file_path = save_uploaded_file_to(file, file_directory, filename=random_string(), keep_extension=True)
             process_uploaded_case(self.session, file_path)
             remove(file_path)
-        elif request.POST['type'] == 'generate':
-            generator = request.POST['generator']
-            raw_param = request.POST['param']
+        elif request.data['type'] == 'generate':
+            generator = request.data['generator']
+            raw_param = request.data['param']
             generate_input('Generate cases', self.session, generator, raw_param)
-        elif request.POST['type'] == 'stress':
-            generator = request.POST['generator']
-            raw_param = request.POST['param']
-            submission = request.POST['submission']
-            time = int(request.POST['time']) * 60
+        elif request.data['type'] == 'stress':
+            generator = request.data['generator']
+            raw_param = request.data['param']
+            submission = request.data['submission']
+            time = int(request.data['time']) * 60
             if time < 60 or time > 300:
                 raise ValueError('Time not in range')
             stress('Stress test', self.session, generator, submission, raw_param, time)
@@ -380,7 +380,7 @@ class SessionCreateCase(BaseSessionMixin, APIView):
 
 class SessionSaveCaseChanges(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case_list = json.loads(request.POST['case'])
+        case_list = json.loads(request.data['case'])
         print(case_list)
         idx = 1
         for k in case_list:
@@ -402,8 +402,8 @@ class SessionPreviewCase(BaseSessionMixin, View):
 
 class SessionReformCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
-        inputOnly = request.POST.get('inputOnly') == 'on'
+        case = request.data['id'].split(',')
+        inputOnly = request.data.get('inputOnly') == 'on'
         for c in case:
             reform_case(self.session, c, only_input=inputOnly)
         return Response()
@@ -411,23 +411,23 @@ class SessionReformCase(BaseSessionMixin, APIView):
 
 class SessionValidateCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
-        validator = request.POST['program']
+        case = request.data['id'].split(',')
+        validator = request.data['program']
         validate_case("Validate", self.session, validator, case)
         return Response()
 
 
 class SessionOutputCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
-        model = request.POST['program']
+        case = request.data['id'].split(',')
+        model = request.data['program']
         get_case_output("Output", self.session, model, case)
         return Response()
 
 
 class SessionDeleteCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id']
+        case = request.data['id']
         for c in case.split(','):
             delete_case(self.session, c)
         return Response()
@@ -435,9 +435,9 @@ class SessionDeleteCase(BaseSessionMixin, APIView):
 
 class SessionCheckCase(BaseSessionMixin, APIView):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
-        submission = request.POST['program']
-        checker = request.POST['checker']
+        case = request.data['id'].split(',')
+        submission = request.data['program']
+        checker = request.data['checker']
         check_case("Check", self.session, submission, checker, case)
         return Response()
 
