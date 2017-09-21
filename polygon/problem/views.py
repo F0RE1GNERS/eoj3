@@ -5,16 +5,15 @@ from os import path, remove
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.http import HttpResponseServerError
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, UpdateView, TemplateView
-from django.views.generic.base import TemplateResponseMixin, ContextMixin
-from rest_framework import status
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.views.generic.base import ContextMixin
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -50,7 +49,7 @@ class ProblemList(PolygonBaseMixin, ListView):
             return self.request.user.managing_problems.all()
 
 
-class ProblemCreate(PolygonBaseMixin, APIView):
+class ProblemCreate(PolygonBaseMixin, View):
 
     def post(self, request, *args, **kwargs):
         problem = Problem.objects.create()
@@ -58,7 +57,7 @@ class ProblemCreate(PolygonBaseMixin, APIView):
         problem.alias = 'p%d' % problem.id
         problem.save(update_fields=['title', 'alias'])
         problem.managers.add(request.user)
-        return Response()
+        return HttpResponse()
 
 
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
@@ -112,7 +111,6 @@ class SessionPostMixin(BaseSessionMixin):
         except Exception as e:
             traceback.print_exc()
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
-            # return Response(status=status.HTTP_400_BAD_REQUEST)
             return HttpResponse()
 
 
@@ -171,7 +169,7 @@ class ProblemRejudge(PolygonProblemMixin, View):
         return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
 
 
-class ProblemPull(PolygonProblemMixin, APIView):
+class ProblemPull(PolygonProblemMixin, View):
 
     def post(self, request, *args, **kwargs):
         try:
@@ -179,14 +177,13 @@ class ProblemPull(PolygonProblemMixin, APIView):
             pull_session(session)
         except EditSession.DoesNotExist:
             init_session(self.problem, request.user)
-        return Response()
+        return HttpResponse()
 
 
-class ProblemPush(BaseSessionMixin, APIView):
-
+class ProblemPush(SessionPostMixin, View):
     def post(self, request, *args, **kwargs):
         push_session(self.session)
-        return Response()
+        return HttpResponse()
 
 
 class ProblemStaticFileList(PolygonProblemMixin, ListView):
@@ -204,30 +201,28 @@ class ProblemStaticFileList(PolygonProblemMixin, ListView):
         return r
 
 
-class ProblemUploadStaticFile(PolygonProblemMixin, APIView):
-
+class ProblemUploadStaticFile(PolygonProblemMixin, View):
     def post(self, request, *args, **kwargs):
-        files = request.data.getlist("files[]")
+        files = request.FILES.getlist("files[]")
         for file in files:
             save_uploaded_file_to(file, path.join(settings.UPLOAD_DIR, str(self.problem.pk)),
                                   filename=path.splitext(file.name)[0] + '.' + random_string(16),
                                   keep_extension=True)
-        return Response()
+        return HttpResponse()
 
 
-class ProblemDeleteRegularFile(PolygonProblemMixin, APIView):
-
+class ProblemDeleteRegularFile(PolygonProblemMixin, View):
     def post(self, request, *args, **kwargs):
-        filename = request.data['filename']
+        filename = request.POST['filename']
         try:
             upload_base_dir = path.join(settings.UPLOAD_DIR, str(self.problem.pk))
             real_path = path.abspath(path.join(upload_base_dir, filename))
             if path.commonpath([real_path, upload_base_dir]) != upload_base_dir:
-                return Response(status=status.HTTP_403_FORBIDDEN)
+                raise PermissionDenied
             remove(real_path)
         except OSError:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response()
+            return HttpResponseServerError()
+        return HttpResponse()
 
 
 class SessionProgramList(BaseSessionMixin, TemplateView):
@@ -247,43 +242,43 @@ class SessionProgramList(BaseSessionMixin, TemplateView):
         return data
 
 
-class SessionCreateProgram(SessionPostMixin, GenericAPIView):
+class SessionCreateProgram(SessionPostMixin, View):
     def post(self, request, *args, **kwargs):
-        filename, type, lang, code = request.data['filename'], request.data['type'], \
-                                     request.data['lang'], request.data['code']
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
         save_program_file(self.session, filename, type, lang, code)
-        return Response()
+        return HttpResponse()
 
 
-class SessionImportProgram(SessionPostMixin, GenericAPIView):
+class SessionImportProgram(SessionPostMixin, View):
     def post(self, request, *args, **kwargs):
-        type = request.data['type']
+        type = request.POST['type']
         sp = SpecialProgram.objects.get(builtin=True, filename=type)
         save_program_file(self.session, sp.filename, sp.category, sp.lang, sp.code)
-        return Response()
+        return HttpResponse()
 
 
-class SessionUpdateProgram(SessionPostMixin, APIView):
+class SessionUpdateProgram(SessionPostMixin, View):
     def post(self, request, *args, **kwargs):
-        raw_filename = request.data['rawfilename']
-        filename, type, lang, code = request.data['filename'], request.data['type'], \
-                                     request.data['lang'], request.data['code']
+        raw_filename = request.POST['rawfilename']
+        filename, type, lang, code = request.POST['filename'], request.POST['type'], \
+                                     request.POST['lang'], request.POST['code']
         save_program_file(self.session, filename, type, lang, code, raw_filename)
-        return Response()
+        return HttpResponse()
 
 
-class SessionDeleteProgram(SessionPostMixin, GenericAPIView):
+class SessionDeleteProgram(SessionPostMixin, View):
     def post(self, request, *args, **kwargs):
-        filename = request.data['filename']
+        filename = request.POST['filename']
         delete_program_file(self.session, filename)
-        return Response()
+        return HttpResponse()
 
 
-class SessionProgramUsedToggle(BaseSessionMixin, APIView):
+class SessionProgramUsedToggle(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        filename = request.data['filename']
+        filename = request.POST['filename']
         toggle_program_file_use(self.session, filename)
-        return Response()
+        return HttpResponse()
 
 
 class SessionCaseList(BaseSessionMixin, TemplateView):
@@ -297,7 +292,7 @@ class SessionCaseList(BaseSessionMixin, TemplateView):
         return data
 
 
-class SessionCaseDataAPI(BaseSessionMixin, APIView):
+class SessionCaseDataAPI(BaseSessionMixin, View):
     def get_case_config(self, case_id):
         case_dict = self.config['case'][case_id]
         case_dict.update(fingerprint=case_id)
@@ -307,82 +302,82 @@ class SessionCaseDataAPI(BaseSessionMixin, APIView):
     def get(self, request, *args, **kwargs):
         case_id = request.GET.get('id')
         if case_id is not None:
-            return Response(data=self.get_case_config(case_id))
+            return JsonResponse(self.get_case_config(case_id))
         else:
             for fingerprint, val in self.config['case'].items():
                 val.update(fingerprint=fingerprint)
                 val.setdefault('selected', False)
             case_list = sorted(self.config['case'].values(), key=lambda x: (not bool(x['order']), x['order']))
-            return Response(data={'caseList': case_list})
+            return JsonResponse({'caseList': case_list})
 
     def post(self, request, *args, **kwargs):
         """
-        A example of request.data:
+        A example of request.POST:
         <QueryDict: {'outputText': ['5\r\n'], 'sample': ['on'], 'point': ['10'], 'pretest': ['on'], 'outputType':
         ['editor'], 'inputText': ['2 3\r\n'], 'reform': ['on'], 'inputFile': [''], 'inputType': ['editor'], 'outputFile': ['']}>
         """
         case_id = request.GET['id']
         case_config = self.get_case_config(case_id)
 
-        if not case_config['input']['nan'] and request.data['inputType'] == 'editor':
-            input = request.data['inputText']
-        elif request.data.get('inputFile') and request.data['inputType'] == 'upload':
-            input = request.data['inputFile'].read().decode()
+        if not case_config['input']['nan'] and request.POST['inputType'] == 'editor':
+            input = request.POST['inputText']
+        elif request.FILES.get('inputFile') and request.POST['inputType'] == 'upload':
+            input = request.FILES['inputFile'].read().decode()
             # TODO: universal decoding
         else:
             input = read_case(self.session, case_id, type='in')
 
-        if not case_config['output']['nan'] and request.data['outputType'] == 'editor':
-            output = request.data['outputText']
-        elif request.data.get('outputFile') and request.data['outputType'] == 'upload':
-            output = request.data['outputFile'].read().decode()
+        if not case_config['output']['nan'] and request.POST['outputType'] == 'editor':
+            output = request.POST['outputText']
+        elif request.FILES.get('outputFile') and request.POST['outputType'] == 'upload':
+            output = request.FILES['outputFile'].read().decode()
         else:
             output = read_case(self.session, case_id, type='out')
 
-        well_form = request.data.get('reform') == 'on'
+        well_form = request.POST.get('reform') == 'on'
         if well_form:
             input, output = well_form_text(input), well_form_text(output)
         save_case(self.session, input.encode(), output.encode(), raw_fingerprint=case_id,
-                  sample=request.data.get('sample') == 'on', pretest=request.data.get('pretest') == 'on',
-                  point=int(request.data['point']), well_form=well_form)
-        return Response()
+                  sample=request.POST.get('sample') == 'on', pretest=request.POST.get('pretest') == 'on',
+                  point=int(request.POST['point']), well_form=well_form)
+        return HttpResponse()
 
 
-class SessionCreateCase(BaseSessionMixin, APIView):
+class SessionCreateCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        if request.data['type'] == 'manual':
-            input = request.data['input']
-            output = request.data['output']
-            well_form = request.data.get("wellForm") == "on"
+        if request.POST['type'] == 'manual':
+            input = request.POST['input']
+            output = request.POST['output']
+            well_form = request.POST.get("wellForm") == "on"
             if well_form:
                 input, output = well_form_text(input), well_form_text(output)
             if not input:
                 raise ValueError('Input file cannot be empty')
             save_case(self.session, input.encode(), output.encode(), well_form=well_form)
-        elif request.data['type'] == 'upload':
-            file = request.data['file']
+        elif request.POST['type'] == 'upload':
+            file = request.FILES['file']
             file_directory = '/tmp'
             file_path = save_uploaded_file_to(file, file_directory, filename=random_string(), keep_extension=True)
             process_uploaded_case(self.session, file_path)
             remove(file_path)
-        elif request.data['type'] == 'generate':
-            generator = request.data['generator']
-            raw_param = request.data['param']
+        elif request.POST['type'] == 'generate':
+            generator = request.POST['generator']
+            raw_param = request.POST['param']
             generate_input('Generate cases', self.session, generator, raw_param)
-        elif request.data['type'] == 'stress':
-            generator = request.data['generator']
-            raw_param = request.data['param']
-            submission = request.data['submission']
-            time = int(request.data['time']) * 60
+        elif request.POST['type'] == 'stress':
+            generator = request.POST['generator']
+            raw_param = request.POST['param']
+            submission = request.POST['submission']
+            time = int(request.POST['time']) * 60
             if time < 60 or time > 300:
                 raise ValueError('Time not in range')
             stress('Stress test', self.session, generator, submission, raw_param, time)
-        return Response()
+        return HttpResponse()
 
 
-class SessionSaveCaseChanges(BaseSessionMixin, APIView):
+class SessionSaveCaseChanges(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case_list = json.loads(request.data['case'])
+        case_list = json.loads(request.POST['case'])
         print(case_list)
         idx = 1
         for k in case_list:
@@ -392,7 +387,7 @@ class SessionSaveCaseChanges(BaseSessionMixin, APIView):
             else:
                 k['order'] = 0
         update_multiple_case_config(self.session, {k.pop('fingerprint'): k for k in case_list})
-        return Response()
+        return HttpResponse()
 
 
 class SessionPreviewCase(BaseSessionMixin, View):
@@ -402,46 +397,46 @@ class SessionPreviewCase(BaseSessionMixin, View):
         return HttpResponse(read_case(self.session, fingerprint, type), content_type='text/plain')
 
 
-class SessionReformCase(BaseSessionMixin, APIView):
+class SessionReformCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.data['id'].split(',')
-        inputOnly = request.data.get('inputOnly') == 'on'
+        case = request.POST['id'].split(',')
+        inputOnly = request.POST.get('inputOnly') == 'on'
         for c in case:
             reform_case(self.session, c, only_input=inputOnly)
-        return Response()
+        return HttpResponse()
 
 
-class SessionValidateCase(BaseSessionMixin, APIView):
+class SessionValidateCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.data['id'].split(',')
-        validator = request.data['program']
+        case = request.POST['id'].split(',')
+        validator = request.POST['program']
         validate_case("Validate", self.session, validator, case)
-        return Response()
+        return HttpResponse()
 
 
-class SessionOutputCase(BaseSessionMixin, APIView):
+class SessionOutputCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.data['id'].split(',')
-        model = request.data['program']
+        case = request.POST['id'].split(',')
+        model = request.POST['program']
         get_case_output("Output", self.session, model, case)
-        return Response()
+        return HttpResponse()
 
 
-class SessionDeleteCase(BaseSessionMixin, APIView):
+class SessionDeleteCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.data['id']
+        case = request.POST['id']
         for c in case.split(','):
             delete_case(self.session, c)
-        return Response()
+        return HttpResponse()
 
 
-class SessionCheckCase(BaseSessionMixin, APIView):
+class SessionCheckCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.data['id'].split(',')
-        submission = request.data['program']
-        checker = request.data['checker']
+        case = request.POST['id'].split(',')
+        submission = request.POST['program']
+        checker = request.POST['checker']
         check_case("Check", self.session, submission, checker, case)
-        return Response()
+        return HttpResponse()
 
 
 class SessionDownloadCase(BaseSessionMixin, View):

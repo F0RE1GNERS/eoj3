@@ -233,7 +233,7 @@ def push_session(session):
 
     for server in Server.objects.filter(enabled=True).all():
         if not upload_problem_to_judge_server(problem, server):
-            raise ValueError
+            raise ValueError("Upload failed. Please recheck your programs.")
         server.last_synchronize_time = datetime.now()
         server.save(update_fields=['last_synchronize_time'])
 
