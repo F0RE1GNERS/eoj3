@@ -272,7 +272,7 @@ def save_program_file(session, filename, type, lang, code, raw_filename=None):
         old_filepath = _get_program_file_path(session, raw_filename)
         replace(old_filepath, new_filepath)
     else:
-        if config['program'].get(filename):
+        if filename in config['program']:
             raise ValueError('File %s already exists' % filename)
 
     with open(new_filepath, 'w') as new_fs:

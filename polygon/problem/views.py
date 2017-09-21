@@ -107,7 +107,7 @@ class BaseSessionMixin(PolygonProblemMixin):
 class SessionPostMixin(BaseSessionMixin):
     def dispatch(self, request, *args, **kwargs):
         try:
-            super().dispatch(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
         except Exception as e:
             traceback.print_exc()
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
