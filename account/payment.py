@@ -38,7 +38,7 @@ def reward_contest_ac(user, amount, contest_id):
 def change_username(user, amount, new_username):
     with transaction.atomic():
         try:
-            user.username = new_username
+            user.username = User.normalize_username(new_username)
             if len(new_username) < 6 or '#' in new_username:
                 raise PermissionDenied("Username too short or illegal.")
             user.save(update_fields=["username"])
