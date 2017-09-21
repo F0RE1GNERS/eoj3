@@ -32,7 +32,7 @@ def get_problem_q_object(kw, all=False, managing=None):
             if not all:
                 q &= Q(visible=True)
             if managing:
-                q |= Q(problemmanagement__user=managing)
+                q |= Q(managers=managing)
             return q
     return None
 

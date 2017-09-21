@@ -12,6 +12,7 @@ from django.views import View
 from django.views.generic import ListView, UpdateView, TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -111,7 +112,7 @@ class SessionPostMixin(BaseSessionMixin):
         except Exception as e:
             traceback.print_exc()
             messages.add_message(request, messages.ERROR, "%s: %s" % (e.__class__.__name__, str(e)))
-            return HttpResponse()
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProblemPreview(PolygonProblemMixin, TemplateView):
@@ -245,7 +246,7 @@ class SessionProgramList(BaseSessionMixin, TemplateView):
         return data
 
 
-class SessionCreateProgram(SessionPostMixin, APIView):
+class SessionCreateProgram(SessionPostMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         filename, type, lang, code = request.data['filename'], request.data['type'], \
                                      request.data['lang'], request.data['code']
@@ -253,7 +254,7 @@ class SessionCreateProgram(SessionPostMixin, APIView):
         return Response()
 
 
-class SessionImportProgram(SessionPostMixin, APIView):
+class SessionImportProgram(SessionPostMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         type = request.data['type']
         sp = SpecialProgram.objects.get(builtin=True, filename=type)
@@ -261,7 +262,7 @@ class SessionImportProgram(SessionPostMixin, APIView):
         return Response()
 
 
-class SessionUpdateProgram(SessionPostMixin, APIView):
+class SessionUpdateProgram(SessionPostMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         raw_filename = request.data['rawfilename']
         filename, type, lang, code = request.data['filename'], request.data['type'], \
@@ -270,7 +271,7 @@ class SessionUpdateProgram(SessionPostMixin, APIView):
         return Response()
 
 
-class SessionDeleteProgram(SessionPostMixin, APIView):
+class SessionDeleteProgram(SessionPostMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         filename = request.data['filename']
         delete_program_file(self.session, filename)

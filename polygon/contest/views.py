@@ -12,6 +12,7 @@ from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -172,6 +173,9 @@ class ContestProblemCreate(PolygonContestMixin, APIView):
                     q.append(u + chr(i))
 
         problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split(','))))
+        for problem in problems:
+            if not is_admin_or_root(request.user) and not problem.managers.filter(pk=request.user.pk).exists():
+                raise PermissionDenied
         for problem in problems:
             if self.contest.contestproblem_set.filter(problem_id=problem).exists():
                 continue

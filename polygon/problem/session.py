@@ -128,6 +128,9 @@ def pull_session(session):
     session_dir = get_session_dir(session)
     config = load_config(session)
 
+    config['time_limit'] = problem.time_limit
+    config['memory_limit'] = problem.memory_limit
+
     tests_dir = path.join(session_dir, TESTS_DIR)
     config['case'] = case_dict = config.setdefault('case', dict())
     point_list = problem.point_list
