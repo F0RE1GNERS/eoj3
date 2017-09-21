@@ -114,6 +114,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                             reward_problem_ac(submission.author, get_problem_difficulty(submission.problem_id),
                                               submission.problem_id)
                         submission.rewarded = True
+                        submission.save(update_fields=["rewarded"])
                 if callback:
                     Thread(target=callback).start()
                 return True
