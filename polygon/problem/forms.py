@@ -19,7 +19,7 @@ class ProblemEditForm(forms.ModelForm):
             'hint': forms.Textarea(attrs={'class': 'markdown'}),
         }
 
-    tags = CommaSeparatedMultipleChoiceField(choices=[(i, i) for i in Tag.objects.all()])
+    tags = CommaSeparatedMultipleChoiceField(choices=[(i, i) for i in Tag.objects.all()], required=False)
 
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
