@@ -11,6 +11,9 @@
     <a class="item {{ active('problem:submit') }}" href="{{ url('problem:submit', problem.pk) }}">SUBMIT</a>
     <a class="item {{ active('problem:statistics') }}" href="{{ url('problem:statistics', problem.pk) }}">STATISTICS</a>
     <a class="item {{ active('problem:discussion') }}" href="{{ url('problem:discussion', problem.pk) }}">DISCUSSION</a>
+    {% if is_privileged %}
+    <a class="item" href="{{ url('polygon:problem_edit', problem.pk) }}">MANAGE</a>
+    {% endif %}
   </div>
 
   {% block problem_content %}
