@@ -283,8 +283,8 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
 class ProblemUpdateTags(ProblemDetailMixin, View):
     @staticmethod
     def clear_tags(text):
-        return ','.join(list(filter(lambda u: Tag.objects.filter(name=u).exists(),
-                                    map(lambda t: t.strip(), text.split(','))))[:5])
+        return ','.join(list(map(lambda x: "%s" % x, filter(lambda u: Tag.objects.filter(name=u).exists(),
+                                                            map(lambda t: t.strip(), text.split(',')))))[:5])
 
     def post(self, request, *args, **kwargs):
         if not is_problem_accepted(self.request.user, self.problem):
