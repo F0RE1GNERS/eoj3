@@ -68,7 +68,7 @@
       {% for clarification in clarifications %}
         <tr>
           <td class="center aligned collapsing">{{ clarification.time | date('Y-m-d H:i:s') }}</td>
-          <td>{{ username_display(clarification.author, tiny=True) }}</td>
+          <td class="center aligned collapsing">{{ username_display(clarification.author, tiny=True) }}</td>
           <td>{{ clarification.text }}</td>
           <td>
             {{ clarification.answer }}

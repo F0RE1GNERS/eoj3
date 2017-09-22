@@ -4,6 +4,7 @@ import random
 import names
 import shortuuid
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
 from django.shortcuts import get_object_or_404, redirect
@@ -12,9 +13,6 @@ from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from account.models import User, MAGIC_CHOICE
 from account.permissions import is_admin_or_root
@@ -97,7 +95,7 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         return redirect(self.request.path)
 
 
-class ContestCreate(PolygonBaseMixin, APIView):
+class ContestCreate(PolygonBaseMixin, View):
     def post(self, request, *args, **kwargs):
         contest = Contest.objects.create(title='Contest')
         contest.title = 'Contest #%d' % contest.id
@@ -106,11 +104,11 @@ class ContestCreate(PolygonBaseMixin, APIView):
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
 
 
-class ContestToggleVisible(PolygonContestMixin, APIView):
+class ContestToggleVisible(PolygonContestMixin, View):
     def post(self, request, pk):
-        self.contest.visible = request.POST.get('checked') == 'true'
+        self.contest.visible = not self.contest.visible
         self.contest.save(update_fields=['visible'])
-        return Response()
+        return HttpResponse()
 
 
 class ContestAccessManage(PolygonContestMixin, View):
@@ -152,14 +150,14 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
         return super(ContestProblemManage, self).get(request, *args, **kwargs)
 
 
-class ContestProblemReorder(PolygonContestMixin, APIView):
+class ContestProblemReorder(PolygonContestMixin, View):
     def post(self, request, *args, **kwargs):
         data = {k['pid']: index for (index, k) in enumerate(json.loads(request.POST['orders']))}
         reorder_contest_problem_identifiers(self.contest, data)
-        return Response()
+        return HttpResponse()
 
 
-class ContestProblemCreate(PolygonContestMixin, APIView):
+class ContestProblemCreate(PolygonContestMixin, View):
     def post(self, request, pk):
         def get_next_identifier(identifiers):
             from collections import deque
@@ -182,23 +180,23 @@ class ContestProblemCreate(PolygonContestMixin, APIView):
             identifier = get_next_identifier([x.identifier for x in self.contest.contestproblem_set.all()])
             self.contest.contestproblem_set.create(problem_id=problem, identifier=identifier)
         reorder_contest_problem_identifiers(self.contest)
-        return Response()
+        return HttpResponse()
 
 
-class ContestProblemDelete(PolygonContestMixin, APIView):
+class ContestProblemDelete(PolygonContestMixin, View):
     def post(self, request, pk):
         self.contest.contestproblem_set.filter(id=request.POST['pid']).delete()
         reorder_contest_problem_identifiers(self.contest)
-        return Response()
+        return HttpResponse()
 
 
-class ContestProblemChangeWeight(PolygonContestMixin, APIView):
+class ContestProblemChangeWeight(PolygonContestMixin, View):
     def post(self, request, pk):
         problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
         problem.weight = int(request.POST['weight'])
         assert 0 < problem.weight <= 10000
         problem.save(update_fields=['weight'])
-        return Response()
+        return HttpResponse()
 
 
 class ContestInvitationList(PolygonContestMixin, ListView):
@@ -278,13 +276,13 @@ class ContestParticipantCommentUpdate(PolygonContestMixin, View):
         return HttpResponseRedirect(request.POST['next'])
 
 
-class ContestParticipantStarToggle(PolygonContestMixin, APIView):
+class ContestParticipantStarToggle(PolygonContestMixin, View):
     def post(self, request, pk, participant_pk):
         with transaction.atomic():
             participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
             participant.star = True if not participant.star else False
             participant.save(update_fields=["star"])
-        return Response()
+        return HttpResponse()
 
 
 class ContestParticipantCreate(PolygonContestMixin, View):
