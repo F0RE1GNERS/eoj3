@@ -1,4 +1,4 @@
-if (window.hasOwnProperty("ace")) {
+if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var map = {
     'c': 'c_cpp',
     'c11': 'c_cpp',

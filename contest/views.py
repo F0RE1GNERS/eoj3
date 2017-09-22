@@ -10,7 +10,8 @@ from django.views.generic.list import ListView
 from account.permissions import is_admin_or_root, is_volunteer
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
-from utils.comment import CommentForm
+from utils.permission import is_contest_manager
+from utils.site_settings import is_site_closed
 from .models import Contest, ContestProblem, ContestInvitation
 from .tasks import add_participant_with_invitation
 
@@ -27,8 +28,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
         self.user = request.user
-        self.privileged = is_admin_or_root(self.user) or (
-            self.user.is_authenticated and self.contest.managers.filter(pk=self.user.pk).exists())
+        self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
@@ -74,6 +74,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
         data['base_notifications'] = self.important_clarifications
+        data['site_closed'] = is_site_closed() and not self.privileged
 
         return data
 
@@ -110,7 +111,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     q = Q(important=True)
                     if self.user.is_authenticated:
                         q |= Q(author=self.user)
-                    clarifications = self.contest.contestclarification_set.filter(q)
+                    clarifications = self.contest.contestclarification_set.filter(q).select_related("author")
                 data["clarifications"] = clarifications
 
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),

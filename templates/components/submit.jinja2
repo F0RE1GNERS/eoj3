@@ -1,6 +1,5 @@
 {% macro submit_view(submit_action="", hide_submit=False) %}
 
-  {% if not hide_submit %}
   {% include 'components/message.jinja2' %}
 
   <form class="ui form" action="{{ submit_action }}" method="post">
@@ -35,7 +34,7 @@
         <div id="editor" style="height: 400px; position: relative"></div>
       </div>
       <div class="ui compact right aligned segment">
-        <button class="ui right labeled icon green button" id="problem-submit">
+        <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
            <i class="icon send"></i> Submit
         </button>
       </div>
@@ -47,8 +46,6 @@
   </form>
 
   <div id="current-submission"></div>
-
-  {% endif %}
 
   {% if contest %}
     <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id) }}"></div>
