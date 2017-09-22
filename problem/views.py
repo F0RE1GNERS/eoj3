@@ -326,20 +326,20 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ProblemSubmissionView, self).get_context_data(**kwargs)
         data['submission'] = submission = get_object_or_404(Submission, pk=self.kwargs.get('sid'),
-                                                                        problem_id=self.kwargs.get('pk'))
+                                                                        problem_id=self.kwargs.get('pk'),
+                                                                        contest__isnull=True)
         if self.request.user.is_authenticated and (
                             submission.author == self.request.user or
                         is_problem_manager(self.request.user,
                                            submission.problem) or
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
-                        status=SubmissionStatus.ACCEPTED,
-                        contest__isnull=True).exists()):
+                        status=SubmissionStatus.ACCEPTED).exists()):
             data['submission_block'] = render_submission(submission, permission=get_permission_for_submission(self.request.user,
                                                                                                       submission,
                                                                                                       special_permission=True))
         else:
-            raise PermissionDenied
+            raise PermissionDenied("Code is not public for users who have not got accepted yet.")
         data['problem'] = submission.problem
         return data
 
