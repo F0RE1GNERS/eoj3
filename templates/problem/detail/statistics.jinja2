@@ -97,11 +97,13 @@
           </div>
         </td>
       </tr>
+      {% if all_count > 0 %}
       <tr>
         <td colspan="3">
           <div id="distribution"></div>
         </td>
       </tr>
+      {% endif %}
     </tbody>
   </table>
 
@@ -131,11 +133,41 @@
     </a>
   </div>
 
+  <div class="ui hidden divider" style="clear: both;">
+  </div>
+
+  <div class="ui header">Public Edit</div>
+  <form class="ui form" action="{{ url('problem:update_tags', problem.pk) }}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+    <div class="field">
+      <label>Tags:</label>
+      <div class="ui multiple selection dropdown maximum-5">
+        <input name="tags" type="hidden" value="{{ tags }}">
+        <i class="dropdown icon"></i>
+        <div class="default text">Select Multiple</div>
+        <div class="menu">
+          {% for val in tags_choices %}
+            <div class="item" data-value="{{ val }}">{{ val }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      {% if public_edit_access %}
+        <button class="ui positive button" type="submit">Submit</button>
+      {% else %}
+        <button class="ui disabled button">You don't have public edit access</button>
+      {% endif %}
+    </div>
+  </form>
+
 {% endblock %}
 
 {% block script %}
   <script src="/static/node_modules/raphael/raphael.min.js"></script>
   <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  {% if all_count > 0 %}
   <script type="text/javascript">
     Morris.Donut({
       element: 'distribution',
@@ -148,4 +180,5 @@
       ]
     });
   </script>
+  {% endif %}
 {% endblock %}

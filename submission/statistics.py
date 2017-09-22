@@ -3,6 +3,7 @@ from random import uniform
 from django.core.cache import cache
 
 from submission.models import SubmissionStatus, Submission
+from utils.permission import is_problem_manager
 
 USER_TOTAL_COUNT = 'u{user}_c{contest}_total_count'
 USER_TOTAL_LIST = 'u{user}_c{contest}_total_list'
@@ -73,3 +74,8 @@ def update_user(user_id, contest_id=0):
     cache.set(USER_AC_COUNT.format(user=user_id, contest=contest_id), accept_count, cache_time)
     cache.set(USER_AC_DIFF_COUNT.format(user=user_id, contest=contest_id), accept_diff, cache_time)
     cache.set(USER_AC_LIST.format(user=user_id, contest=contest_id), accept_list, cache_time)
+
+
+def is_problem_accepted(user, problem):
+    return is_problem_manager(user, problem) or (user.is_authenticated and
+           user.submission_set.filter(problem=problem, status=SubmissionStatus.ACCEPTED).exists())

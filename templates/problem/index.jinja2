@@ -20,7 +20,7 @@
         <td class="left aligned middle aligned">
           <div style="float:right">
           {% for tag in problem.my_tags %}
-            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui">{{ tag }}</a>
+            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
           {% endfor %}
           </div>
           <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>

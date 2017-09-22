@@ -5,6 +5,10 @@ $('.ui.checkbox:not(.vue)')
 $('.ui.selection.dropdown, select.ui.selection')
   .dropdown()
 ;
+$('.ui.selection.dropdown.maximum-5')
+  .dropdown({
+    maxSelections: 5
+  });
 $('.ui.dropdown.onhover').dropdown({
   on: 'hover'
 });
@@ -327,5 +331,31 @@ $.parseStatusDisplay = function () {
   new Clipboard('.clipboard');
 };
 
+// tags
+function toggleTags(showTags) {
+  var tags = $(".problem-tag");
+  if (showTags) {
+    tags.show();
+  }
+  else tags.hide();
+}
+
 // initialize
-$.parseStatusDisplay();
+$(document).ready(function () {
+  $.parseStatusDisplay();
+  var tagsCheckbox = $("*[name='showTags']");
+  if (tagsCheckbox.length > 0) {
+    var showTags = true;
+    if (window.localStorage && typeof localStorage.getItem('showTags') == "boolean") {
+      showTags = localStorage.getItem('showTags');
+      tagsCheckbox.prop("checked", showTags);
+    }
+    toggleTags(showTags);
+    tagsCheckbox.parent().checkbox({
+      onChange: function () {
+        toggleTags($(this).parent().checkbox("is checked"));
+      }
+    });
+  }
+});
+

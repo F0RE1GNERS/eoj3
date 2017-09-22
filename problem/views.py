@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
-from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404
+from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
@@ -14,9 +14,10 @@ from account.models import User
 from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission
-from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from submission.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
+from utils.tagging import edit_string_for_tags
 from .models import Problem
 from utils.permission import is_problem_manager, get_permission_for_submission
 from .statistics import (
@@ -273,7 +274,26 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         data['difficulty'] = get_problem_difficulty(self.problem.id)
         data['stats'] = get_problem_stats(self.problem.id)
         data['param_type'] = self.request.GET.get('type', 'latest')
+        data['tags'] = edit_string_for_tags(self.problem.tags)
+        data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
+        data['public_edit_access'] = is_problem_accepted(self.request.user, self.problem)
         return data
+
+
+class ProblemUpdateTags(ProblemDetailMixin, View):
+    @staticmethod
+    def clear_tags(text):
+        return ','.join(list(filter(lambda u: Tag.objects.filter(name=u).exists(),
+                                    map(lambda t: t.strip(), text.split(','))))[:5])
+
+    def post(self, request, *args, **kwargs):
+        if not is_problem_accepted(self.request.user, self.problem):
+            raise PermissionDenied
+        tags = self.__class__.clear_tags(request.POST['tags'])
+        if tags:
+            self.problem.tags = tags
+            self.problem.save()
+        return redirect(request.POST['next'])
 
 
 class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
