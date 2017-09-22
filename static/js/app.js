@@ -334,9 +334,8 @@ $.parseStatusDisplay = function () {
 // tags
 function toggleTags(showTags) {
   var tags = $(".problem-tag");
-  if (showTags) {
+  if (showTags)
     tags.show();
-  }
   else tags.hide();
 }
 
@@ -346,14 +345,16 @@ $(document).ready(function () {
   var tagsCheckbox = $("*[name='showTags']");
   if (tagsCheckbox.length > 0) {
     var showTags = true;
-    if (window.localStorage && typeof localStorage.getItem('showTags') == "boolean") {
-      showTags = localStorage.getItem('showTags');
+    if (window.localStorage && localStorage.getItem('showTags') !== null) {
+      showTags = localStorage.getItem('showTags') == "true";
       tagsCheckbox.prop("checked", showTags);
     }
     toggleTags(showTags);
     tagsCheckbox.parent().checkbox({
       onChange: function () {
-        toggleTags($(this).parent().checkbox("is checked"));
+        var checked = $(this).parent().checkbox("is checked");
+        toggleTags(checked);
+        localStorage.setItem('showTags', checked);
       }
     });
   }
