@@ -34,7 +34,7 @@ def upload_problem_to_judge_server(problem, server):
 def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING):
     if not 6 <= len(code) <= 65536:
         raise ValueError("Code is too short or too long.")
-    if (author.submission_set.exists() and datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
+    if author.submission_set.exists() and (datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
         raise ValueError("Please don't resubmit in 10 seconds.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
