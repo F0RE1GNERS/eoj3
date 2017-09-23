@@ -56637,6 +56637,15 @@ pre,
 samp {
   font-family: "Consolas", "Courier", "Courier New", monospace !important;
 }
+:not(pre) > code {
+  color: #ad1457;
+  white-space: nowrap;
+  padding: 0 4px;
+  border: 1px solid #d7d7d7;
+  border-radius: 3px;
+  background: #f7f7f7;
+  margin: 0 5px;
+}
 .click-able.label.icon {
   margin: 0 .25rem 0 0;
 }
@@ -56905,9 +56914,9 @@ a.user {
   margin-bottom: 1.5em;
 }
 .problem-body .title {
-  font-size: 1.4em;
+  font-size: 1.3em;
   margin-bottom: 0.4em;
-  font-weight: 600;
+  font-weight: 700;
 }
 .problem-body .graphics {
   clear: both;
