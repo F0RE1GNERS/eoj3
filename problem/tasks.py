@@ -12,6 +12,7 @@ from dispatcher.models import Server
 from submission.models import Submission, SubmissionStatus
 from submission.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
+from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram
 from .statistics import get_problem_difficulty
 
@@ -30,9 +31,11 @@ def upload_problem_to_judge_server(problem, server):
                                                         SpecialProgram.objects.get(fingerprint=problem.interactor)))
 
 
-def create_submission(problem, author, code, lang, contest=None, status=SubmissionStatus.WAITING):
-    if not 0 < len(code) <= 65536:
-        raise PermissionDenied
+def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING):
+    if not 6 <= len(code) <= 65536:
+        raise ValueError("Code is too short or too long.")
+    if (datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
+        raise ValueError("Please don't resubmit in 10 seconds.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
                                          status=status, status_private=status)

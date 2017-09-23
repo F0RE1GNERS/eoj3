@@ -3,6 +3,8 @@ import json
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
+from django.http import HttpResponseBadRequest
+from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
@@ -165,10 +167,16 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
         return data
 
     def post(self, request, pk):
-        submission = create_submission(self.problem, self.user, request.POST['code'], request.POST['lang'])
-        judge_submission_on_problem(submission)
-        return HttpResponse(json.dumps({"url": reverse('problem:submission_api',
-                                                       kwargs={'pk': self.problem.id, 'sid': submission.id})}))
+        try:
+            lang = request.POST.get('lang', '')
+            if lang not in dict(LANG_CHOICE).keys():
+                raise ValueError("Invalid language.")
+            submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang)
+            judge_submission_on_problem(submission)
+            return JsonResponse({"url": reverse('problem:submission_api',
+                                                kwargs={'pk': self.problem.id, 'sid': submission.id})})
+        except Exception as e:
+            return HttpResponseBadRequest(str(e).encode())
 
 
 class StatusList(ListView):

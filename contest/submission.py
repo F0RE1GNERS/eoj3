@@ -1,3 +1,5 @@
+from django.http import HttpResponseBadRequest
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse, HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
@@ -36,20 +38,24 @@ class ContestSubmit(BaseContestMixin, TemplateView):
         return data
 
     def post(self, request, cid):
-        if self.contest.status != 0:
-            raise PermissionDenied
-        if request.POST['lang'] not in self.contest.supported_language_list:
-            raise PermissionDenied
         try:
-            problem = self.contest.contestproblem_set.get(identifier=request.POST['problem']).problem_id
-        except ContestProblem.DoesNotExist:
-            raise PermissionDenied
-        submission = create_submission(problem, self.user, request.POST['code'], request.POST['lang'],
-                                       contest=self.contest)
-        self.contest.contestparticipant_set.get_or_create(user=self.user)
-        judge_submission_on_contest(submission)
-        return HttpResponse(json.dumps({"url": reverse('contest:submission_api',
-                                                       kwargs={'cid': self.contest.id, 'sid': submission.id})}))
+            if self.contest.status != 0:
+                raise ValueError("Contest is not running.")
+            lang = request.POST.get('lang', '')
+            if lang not in self.contest.supported_language_list:
+                raise ValueError("Invalid language.")
+            try:
+                problem = self.contest.contestproblem_set.get(identifier=request.POST.get('problem', '')).problem_id
+            except ContestProblem.DoesNotExist:
+                raise ValueError("Invalid problem.")
+            submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
+                                           contest=self.contest)
+            self.contest.contestparticipant_set.get_or_create(user=self.user)
+            judge_submission_on_contest(submission)
+            return JsonResponse({"url": reverse('contest:submission_api',
+                                                kwargs={'cid': self.contest.id, 'sid': submission.id})})
+        except Exception as e:
+            return HttpResponseBadRequest(str(e).encode())
 
 
 class ContestSubmissionAPI(BaseContestMixin, View):

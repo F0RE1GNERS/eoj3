@@ -3,6 +3,14 @@
   {% include 'components/message.jinja2' %}
 
   <form class="ui form" action="{{ submit_action }}" method="post">
+
+    <div class="ui error message">
+      <div class="header">Should check something!</div>
+      <ul class="list">
+        <li id="error-message-goes-here"></li>
+      </ul>
+    </div>
+
     {% csrf_token %}
     <div class="ui segments" style="margin-top: 0">
       <div class="ui right aligned compact segment">
@@ -38,9 +46,6 @@
            <i class="icon send"></i> Submit
         </button>
       </div>
-    </div>
-
-    <div class="ui error message">
     </div>
 
   </form>

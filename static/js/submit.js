@@ -55,22 +55,24 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
 
 function scrollToCurrentSubmission () {
   $('html, body').animate({
-    scrollTop: $("#current-submission").offset().top - $("#navbar").height() - 15
+    scrollTop: $("#current-submission").find("table").offset().top - $("#navbar").height() - 15
   }, 500);
 }
 
-function updateSubmission (url) {
+function updateSubmission (url, scroll) {
   $.get(url, function (data) {
     var submissionBox = $("#current-submission");
     submissionBox.html(data);
     var status = submissionBox.find(".status-span.with-icon").attr("data-status");
     if (status == "-3" || status == "-2") {
       setTimeout(function() {
-        updateSubmission(url);
+        updateSubmission(url, false);
       }, 500);
     } else {
       updatePastSubmissions();
     }
+    if (scroll)
+      scrollToCurrentSubmission();
     $.parseStatusDisplay();
   });
 }
@@ -88,56 +90,23 @@ function updatePastSubmissions () {
 $("#problem-submit").click(function (event) {
   var button = $(event.currentTarget);
   var form = button.closest("form");
-  var fields_rule = {
-    code: {
-      identifier: 'code',
-      rules: [
-        {
-          type: 'minLength[6]',
-          prompt: 'Your code must have a length greater than 6.'
-        },
-        {
-          type: 'maxLength[65536]',
-          prompt: 'Your code must have a length less than 65536.'
-        }
-      ]
-    },
-    lang: {
-      identifier: 'lang',
-      rules: [
-        {
-          type: 'empty',
-          prompt: 'Please select a language.'
-        }
-      ]
-    }
-  };
-  if (form.find('input[name="problem"]').length > 0) {
-    fields_rule.problem = {
-      identifier: 'problem',
-      rules: [
-        {
-          type: 'empty',
-          prompt: 'Please select a problem.'
-        }
-      ]
-    }
-  }
-  form.form({
-    fields: fields_rule
-  });
-  if (form.form("is valid")) {
-    form.removeClass("error");
-    form.addClass("loading");
-    $.post(form.attr("action"), form.serialize(), function (data) {
-      updateSubmission(data.url);
+  form.removeClass("error");
+  form.addClass("loading");
+  $.post(form.attr("action"), form.serialize())
+    .done(function (data) {
+      updateSubmission(data.url, true);
       form.removeClass("loading");
-      scrollToCurrentSubmission();
-    }, "json");
-    return false;
-  } else {
-    return true;
-  }
+    })
+    .fail(function (xhr) {
+      form.addClass("error");
+      if (xhr.hasOwnProperty("responseText") && xhr.responseText) {
+        form.find("#error-message-goes-here").html(xhr.responseText);
+      } else {
+        form.find("#error-message-goes-here").html("Submit failed. Try again later.");
+      }
+      form.removeClass("loading");
+    });
+  return false;
 });
 
 updatePastSubmissions();
