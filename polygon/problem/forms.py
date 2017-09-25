@@ -37,4 +37,6 @@ class ProblemEditForm(forms.ModelForm):
                 if Tag.objects.filter(name=tag).exists():
                     used_tag.append(tag)
         cleaned_data['tags'] = ', '.join(used_tag)
+        if ',' not in cleaned_data['tags']:
+            cleaned_data['tags'] = "\"%s\"" % cleaned_data['tags']
         return cleaned_data
