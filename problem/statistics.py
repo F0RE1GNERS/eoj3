@@ -162,3 +162,12 @@ def invalidate_problems(problem_ids, contest_id=0):
         })
 
     cache.set_many(cache_res, cache_time)
+
+
+def get_contest_problem_ac_submit(problem_ids, contest_id):
+    ac_count = _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_AC_COUNT)
+    submit_count = _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_ALL_COUNT)
+    ans = dict()
+    for problem in problem_ids:
+        ans[problem] = dict(ac=ac_count.get(problem, 0), submit=submit_count.get(problem, 0))
+    return ans

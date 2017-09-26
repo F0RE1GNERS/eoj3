@@ -4,9 +4,10 @@ from django.views.generic import View
 from django.core.exceptions import PermissionDenied
 from django.views import static
 
+from problem.statistics import get_contest_problem_ac_submit
 from .models import ContestParticipant
 from .views import BaseContestMixin
-from .statistics import get_contest_rank, get_participant_rank, invalidate_contest
+from .statistics import get_contest_rank, get_participant_rank, invalidate_contest, get_first_yes
 from utils.csv_writer import write_csv
 from utils.download import respond_generate_file
 from django.conf import settings
@@ -47,6 +48,13 @@ class ContestStandings(BaseContestMixin, ListView):
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
         data['my_rank'] = get_participant_rank(self.contest, self.request.user.pk)
+        if not self.contest.standings_without_problem:
+            data['statistics'] = {
+                'problem': get_contest_problem_ac_submit(list(map(lambda x: x.problem_id,
+                                                                  self.contest.contest_problem_list)),
+                                                         self.contest.pk),
+                'first_yes': get_first_yes(self.contest)
+            }
         return data
 
 

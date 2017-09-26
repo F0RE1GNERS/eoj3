@@ -30,13 +30,18 @@
     {% set column_style = 'one wide' %}
   {% endif %}
 
+  {% set first_column_span = 3 %}
+
   <table class="ui compact celled table">
     <thead>
       <tr class="ui center aligned">
       <th class="{{ column_style }}">#</th>
       <th class="ui left aligned">Who</th>
       <th class="{{ column_style }}">=</th>
-      {% if contest.penalty_counts %}<th class="one wide">Penalty</th>{% endif %}
+      {% if contest.penalty_counts %}
+        {% set first_column_span = first_column_span + 1 %}
+        <th class="one wide">Penalty</th>
+      {% endif %}
       {% if not contest.standings_without_problem %}
         {% for problem in contest.contest_problem_list %}
           <th class="{{ column_style }}">{{ problem.identifier }}</th>
@@ -104,6 +109,27 @@
         </tr>
       {% endfor %}
     </tbody>
+  {% if not contest.standings_without_problem %}
+    <tfoot>
+      <tr>
+        <th colspan="{{ first_column_span }}"><span class="ui text green">Accepted</span><br>Submitted</th>
+        {% for problem in contest.contest_problem_list %}
+          <th class="center aligned"><span class="ui text green">{{ statistics.problem[problem.problem.id].ac }}</span><br>
+          {{ statistics.problem[problem.problem.id].submit }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th colspan="{{ first_column_span }}">First Yes</th>
+        {% for problem in contest.contest_problem_list %}
+          <th class="center aligned">{% if statistics.first_yes[problem.problem.id] %}
+            {{ (statistics.first_yes[problem.problem.id].time / 60) | int }}
+            {% else %}
+              --
+          {% endif %}</th>
+        {% endfor %}
+      </tr>
+    </tfoot>
+  {% endif %}
   </table>
 
   {% if paginator %}

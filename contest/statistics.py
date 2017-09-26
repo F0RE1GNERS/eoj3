@@ -201,6 +201,7 @@ def get_first_yes(contest: Contest):
             if first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
                                       author=first_accepted_sub.author_id)
+                invalidate_contest_participant(contest, first_accepted_sub.author_id)
             else:
                 first_accepted = None
             t[contest_problem.problem_id] = first_accepted
