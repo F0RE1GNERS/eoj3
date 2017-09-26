@@ -17,6 +17,7 @@
         <th>Hidden</th>
         <th>Star</th>
         <th>Edit</th>
+        <th class="ui text red">Ban</th>
       </tr>
     </thead>
     <tbody>
@@ -27,6 +28,7 @@
           <td>{{ participant.hidden_comment }}</td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
           <td><a class="modal-link" data-url="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>
+          <td><a class="post-link" data-link="{{ url('account:ban_account', participant.user_id) }}">{{ not participant.user.is_active }}</a></td>
         </tr>
       {% endfor %}
     </tbody>

@@ -1,4 +1,7 @@
 import random
+
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
 from django.contrib.auth import PermissionDenied
 from django.views import View
@@ -13,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from account.payment import create_payment, change_username
+from account.permissions import is_admin_or_root
 from utils import auth_view
 from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
                     MigrateForm, FeedbackForm, LoginForm)
@@ -143,3 +147,13 @@ def my_password_reset_confirm(request, **kwargs):
                                             set_password_form=MySetPasswordForm,
                                             **kwargs)
 
+
+class BanAccount(UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_or_root(self.request.user)
+
+    def post(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        user.is_active = not user.is_active
+        user.save(update_fields=['is_active'])
+        return JsonResponse({})

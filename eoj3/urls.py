@@ -67,7 +67,7 @@ if DEBUG:
         # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='media',
         #     kwargs={'document_root': MEDIA_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r't/', TestView.as_view())
+        url(r'^t/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
 
