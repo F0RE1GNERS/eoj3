@@ -34,5 +34,6 @@ urlpatterns = [
         name='contest_participant_download'),
     url(r'^(?P<pk>\d+)/status/$', v.ContestStatusBackend.as_view(), name='contest_status'),
     url(r'^(?P<pk>\d+)/rejudge/$', v.RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
+    url(r'^(?P<pk>\d+)/disable/(?P<participant_pk>\d+)/$', v.ContestAccountDisable.as_view(), name='contest_account_disable')
 
 ]

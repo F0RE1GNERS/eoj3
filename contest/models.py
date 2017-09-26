@@ -203,6 +203,7 @@ class ContestParticipant(models.Model):
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
     html_cache = models.TextField(blank=True)
+    is_disabled = models.BooleanField(default=False)
     rank = models.IntegerField(blank=True, null=True)
 
     class Meta:

@@ -4,8 +4,10 @@ import random
 import names
 import shortuuid
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
+from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
@@ -373,3 +375,11 @@ class ContestParticipantsNoteDownload(PolygonContestMixin, View):
                 self.contest.contestparticipant_set.select_related("user").all()]
         filename = write_csv(data)
         return respond_generate_file(request, filename, file_name_serve_as="ContestParticipant - %s.csv" % self.contest.title)
+
+
+class ContestAccountDisable(PolygonContestMixin, View):
+    def post(self, request, pk, participant_pk):
+        contest_participant = get_object_or_404(ContestParticipant, pk=participant_pk)
+        contest_participant.is_disabled = not contest_participant.is_disabled
+        contest_participant.save(update_fields=['is_disabled'])
+        return JsonResponse({})
