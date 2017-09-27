@@ -56918,23 +56918,6 @@ a.user {
   margin-bottom: 0.4em;
   font-weight: 700;
 }
-.problem-body .graphics {
-  clear: both;
-  display: block;
-  margin: auto;
-  width: 100%;
-  height: auto;
-}
-@media (min-width: 480px) {
-  .problem-body .graphics {
-    width: 80%;
-  }
-}
-@media (min-width: 768px) {
-  .problem-body .graphics {
-    width: 60%;
-  }
-}
 .problem-body .examples .example {
   font-family: "Courier New", "Courier", monospace;
   font-size: 0.95em;
@@ -57413,4 +57396,11 @@ Remove comment to apply this style to date with value equal to 0
 }
 .property p:not(:last-child) {
   margin-bottom: .2rem;
+}
+.blog-like-link {
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 .75em 0 0;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: .875em;
 }

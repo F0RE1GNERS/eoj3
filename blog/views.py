@@ -1,5 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.core.serializers import json
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -13,7 +15,7 @@ from submission.statistics import get_accept_problem_count
 from utils.authentication import test_site_open
 from utils.comment import CommentForm
 from .forms import BlogEditForm
-from .models import Blog, Comment
+from .models import Blog, Comment, BlogLikes
 
 
 class GenericView(UserPassesTestMixin, ListView):
@@ -118,6 +120,29 @@ class BlogAddComment(UserPassesTestMixin, View):
     def post(self, request, pk):
         Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
+
+
+class LikeBlog(View):
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return HttpResponse('no', content_type="application/json")
+        flag = request.POST['flag']
+        if flag != 'like' and flag != 'dislike':
+            return HttpResponse('no', content_type="application/json")
+        pk = request.POST['comment']
+        bloglike, created = BlogLikes.objects.get_or_create(user=request.user, blog_id=pk)
+        if created:
+            bloglike.flag = flag
+            bloglike.save()
+        else:
+            if bloglike.flag != flag:
+                bloglike.flag = flag
+                bloglike.save()
+            else:
+                bloglike.delete()
+                return HttpResponse('')
+        return HttpResponse('{}', content_type="application/json")
 
 
 class BlogDeleteComment(UserPassesTestMixin, View):
