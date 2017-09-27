@@ -280,3 +280,6 @@ COMMENT_MAX_LENGTH = 3000
 
 # notification
 NOTIFICATIONS_SOFT_DELETE = True
+
+
+AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']

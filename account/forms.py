@@ -7,6 +7,10 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 class LoginForm(AuthenticationForm):
+    def __init__(self, request=None, *args, **kwargs):
+        super(LoginForm, self).__init__(request, *args, **kwargs)
+        self.fields['username'].label = 'Username or Email'
+
     captcha = CaptchaField()
     remember_me = forms.BooleanField(required=False)
 

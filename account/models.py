@@ -1,11 +1,14 @@
 import random
 import json
 import html
+
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from utils.language import LANG_CHOICE
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
+from django.utils.translation import ugettext_lazy as _
 
 
 class Privilege(object):
@@ -34,10 +37,22 @@ MAGIC_CHOICE = (
 )
 
 
+class UsernameValidator(UnicodeUsernameValidator):
+    regex = r'^[\w.+-]+$'
+    message = _(
+        'Enter a valid username. This value may contain only letters, '
+        'numbers, and ./+/-/_ characters.'
+    )
+
+
 class User(AbstractUser):
-    username = models.CharField('username', max_length=30, unique=True, error_messages={
-        'unique': "A user with that username already exists."
-    })
+    username_validator = UsernameValidator()
+
+    username = models.CharField('username', max_length=30, unique=True,
+                                validators=[username_validator],
+                                error_messages={
+                                    'unique': "A user with that username already exists."}
+                                )
     email = models.EmailField('email', max_length=192, unique=True, error_messages={
         'unique': "This email has already been used."
     })
