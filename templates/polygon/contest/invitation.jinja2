@@ -23,7 +23,7 @@
         <tr>
           <td>{{ invitation.code }}</td>
           <td>{{ invitation.comment }}</td>
-          <td><a data-toggle="modal" href="#assignInvitationModal" data-url="{{ url('polygon:contest_invitation_assign', contest.pk, invitation.pk) }}">Assign</a></td>
+          <td><a class="modal-link" data-target="#assignInvitationModal" data-action="{{ url('polygon:contest_invitation_assign', contest.pk, invitation.pk) }}">Assign</a></td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_invitation_delete', contest.pk, invitation.pk) }}">Delete</a></td>
         </tr>
       {% endfor %}
@@ -38,14 +38,12 @@
     <div class="field"><textarea name="list" id="list" rows="7" placeholder="One record per line"></textarea></div>
   {% endcall %}
 
-  {% call modal(title="Assign invitations", id="assignInvitationModal") %}
+  {% call modal(title="Assign invitations", id="assignInvitationModal", action="#") %}
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.path }}">
-    <div class="form-group">
-      <label for="username" class="col-sm-2 control-label">Username</label>
-      <div class="col-sm-10">
-        <input class="form-control" id="username" name="username">
-      </div>
+    <div class="field">
+      <label>Username:</label>
+      <input name="username">
     </div>
   {% endcall %}
 
