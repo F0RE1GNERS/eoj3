@@ -17,6 +17,9 @@
       <div class="extra text">
         {{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
       </div>
+      <div class="meta">
+        <i class="like icon"></i> {{ blog.likes__count }} Likes
+      </div>
     </div>
   </div>
 {% endmacro %}
