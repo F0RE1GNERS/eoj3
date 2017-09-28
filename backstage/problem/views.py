@@ -1,6 +1,7 @@
 import json
 
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import HttpResponse
 from django.views.generic import View
 from django.views.generic.list import ListView
@@ -14,9 +15,18 @@ from ..base_views import BaseBackstageMixin
 
 class ProblemList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem.jinja2'
-    queryset = Problem.objects.order_by("-update_time").all()
     paginate_by = 250
     context_object_name = 'problem_list'
+
+    def get_queryset(self):
+        queryset = Problem.objects
+        kw = self.request.GET.get('keyword')
+        if kw:
+            q = Q(title__icontains=kw) | Q(alias=kw)
+            if kw.isdigit():
+                q |= Q(pk=kw)
+            queryset = queryset.filter(q)
+        return queryset.order_by("-update_time").all()
 
 
 class ProblemVisibleSwitch(BaseBackstageMixin, View):
