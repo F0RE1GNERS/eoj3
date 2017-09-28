@@ -1,6 +1,14 @@
 from django.db import models
+from django.db.models import Sum, Case, When, IntegerField
 from account.models import User
 from problem.models import Problem
+
+
+class BlogQuerySet(models.QuerySet):
+    def with_likes(self):
+        return self.annotate(
+                likes__count=Sum(Case(When(bloglikes__flag='like', then=1), default=0, output_field=IntegerField()))
+        )
 
 
 class Blog(models.Model):
@@ -13,6 +21,8 @@ class Blog(models.Model):
     edit_time = models.DateTimeField('Edit time', auto_now=True)
 
     likes = models.ManyToManyField(User, through='BlogLikes', related_name='blog_user_like')
+
+    objects = BlogQuerySet.as_manager()
 
     class Meta:
         ordering = ["-edit_time"]

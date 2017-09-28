@@ -29,13 +29,10 @@ class GenericView(UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
-        blogswithlikes = self.user.blog_set.annotate(
-                likes__count=Sum(Case(When(bloglikes__flag='like', then=1), default=0, output_field=IntegerField()))
-            )
-        if is_admin_or_root(self.request.user) or self.request.user == self.user:
-            return blogswithlikes.all()
-        else:
-            return blogswithlikes.filter(visibile=True).all()
+        qs = self.user.blog_set.all().with_likes()
+        if not is_admin_or_root(self.request.user) and not self.request.user == self.user:
+            qs = qs.filter(visibile=True)
+        return qs
 
     def get_context_data(self, **kwargs):
         res = super(GenericView, self).get_context_data(**kwargs)
