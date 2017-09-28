@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers import json
+from django.db.models import Count, Sum, Case, When, IntegerField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.views.generic import View, TemplateView
@@ -28,10 +29,10 @@ class GenericView(UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
-        if is_admin_or_root(self.request.user) or self.request.user == self.user:
-            return self.user.blog_set.all()
-        else:
-            return self.user.blog_set.filter(visible=True).all()
+        qs = self.user.blog_set.all().with_likes()
+        if not is_admin_or_root(self.request.user) and not self.request.user == self.user:
+            qs = qs.filter(visibile=True)
+        return qs
 
     def get_context_data(self, **kwargs):
         res = super(GenericView, self).get_context_data(**kwargs)

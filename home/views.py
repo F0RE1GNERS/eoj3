@@ -1,5 +1,7 @@
+from django.db.models import Sum, When, Case, IntegerField
 from django.shortcuts import render, reverse
 from random import randint
+
 from blog.models import Blog
 from django.views.generic import TemplateView
 from submission.statistics import get_accept_problem_count
@@ -8,12 +10,12 @@ from utils.site_settings import is_site_closed, site_settings_get
 
 def home_view(request):
     if request.user.is_authenticated:
-        return render(request, 'home_logged_in.jinja2', context={'solved': get_accept_problem_count(request.user.pk),
-                                                                 'blog_list': Blog.objects.select_related(
-                                                                     "author").order_by("-create_time").filter(
-                                                                     visible=True)[
-                                                                              :15] if not is_site_closed() else None,
-                                                                 'bulletin': site_settings_get('BULLETIN', '')})
+        ctx = {'solved': get_accept_problem_count(request.user.pk),
+               'bulletin': site_settings_get('BULLETIN', '')}
+        if not is_site_closed():
+            ctx['blog_list'] = Blog.objects.with_likes().select_related("author").order_by("-create_time").filter(visible=True)[:15]
+        return render(request, 'home_logged_in.jinja2', context=ctx)
+
     else:
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14), })
 
