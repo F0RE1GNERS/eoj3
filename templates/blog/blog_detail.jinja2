@@ -9,9 +9,9 @@
   {% set flag = '' %}
 
     {% if user.is_authenticated %}
-        {% set item = blog.bloglikes_set.get(user=user) %}
-        {% if item!=None %}
-            {% set flag = item.flag%}
+        {% set item = blog.bloglikes_set.filter(user=user).all() %}
+        {% if item.count()>0 %}
+            {% set flag = item[0].flag%}
         {% endif %}
     {% endif %}
 
