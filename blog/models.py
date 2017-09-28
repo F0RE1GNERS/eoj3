@@ -29,6 +29,9 @@ class BlogLikes(models.Model):
     user = models.ForeignKey(User)
     flag = models.CharField("Flag", max_length=8, choices=BLOG_LIKE_FLAGS)
 
+    class Meta:
+        unique_together = ('blog', 'user')
+
 
 class Comment(models.Model):
     text = models.TextField('Text')

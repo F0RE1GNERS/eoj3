@@ -6,14 +6,6 @@
 {% block page_header %}{{ blog.title }}{% endblock %}
 
 {% block content %}
-  {% set flag = '' %}
-
-    {% if user.is_authenticated %}
-        {% set item = blog.bloglikes_set.filter(user=user).all() %}
-        {% if item.count()>0 %}
-            {% set flag = item[0].flag%}
-        {% endif %}
-    {% endif %}
 
   <p>{{ username_display(blog.author, tiny=True) }} edited {{ blog.edit_time | naturaltime }}
   {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
@@ -21,14 +13,15 @@
   <div class="actions">
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
       <i class="thumbs up {% if flag != 'like' %}outline{% endif %} icon"></i>
-      <span>{{ blog.bloglikes_set.filter(flag='like').count() }}</span>
+      <span>{{ like_count }}</span>
     </a>
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="dislike">
       <i class="thumbs down {% if flag != 'dislike' %}outline{% endif %} icon"></i>
-      <span>{{ blog.bloglikes_set.filter(flag='dislike').count() }}</span>
+      <span>{{ dislike_count }}</span>
     </a>
   </div>
 
+  <h3 class="ui dividing header">Comments</h3>
   {{ render_comment_tree(blog) }}
   {% include 'components/form.jinja2' %}
 

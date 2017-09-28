@@ -79,6 +79,13 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         context['action_path'] = reverse('comments-post-comment')
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
+        context['like_count'] = self.blog.bloglikes_set.filter(flag='like').count()
+        context['dislike_count'] = self.blog.bloglikes_set.filter(flag='dislike').count()
+        if self.request.user.is_authenticated:
+            try:
+                context['flag'] = self.blog.bloglikes_set.get(user=self.request.user).flag
+            except BlogLikes.DoesNotExist:
+                pass
         return context
 
 
