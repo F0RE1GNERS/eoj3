@@ -10,6 +10,18 @@ class BlogQuerySet(models.QuerySet):
                 likes__count=Sum(Case(When(bloglikes__flag='like', then=1), default=0, output_field=IntegerField()))
         )
 
+    def with_dislikes(self):
+        return self.annotate(
+                dislikes__count=Sum(Case(When(bloglikes__flag='dislike', then=1), default=0, output_field=IntegerField()))
+        )
+
+    def with_likes_flag(self, user):
+        return self.annotate(
+                likes__flag=Sum(
+                    Case(When(bloglikes__user=user, bloglikes__flag='like', then=1),
+                         When(bloglikes__user=user, bloglikes__flag='dislike', then=-1), default=0, output_field=IntegerField()))
+        )
+
 
 class Blog(models.Model):
     title = models.CharField('Title', max_length=128)

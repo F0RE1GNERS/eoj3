@@ -12,12 +12,12 @@
   {{ blog.text | markdown | safer | safe }}
   <div class="actions">
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
-      <i class="thumbs up {% if flag != 'like' %}outline{% endif %} icon"></i>
-      <span>{{ like_count }}</span>
+      <i class="thumbs up {% if blog.likes__flag != 1 %}outline{% endif %} icon"></i>
+      <span>{{ blog.likes__count }}</span>
     </a>
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="dislike">
-      <i class="thumbs down {% if flag != 'dislike' %}outline{% endif %} icon"></i>
-      <span>{{ dislike_count }}</span>
+      <i class="thumbs down {% if blog.likes__flag != -1 %}outline{% endif %} icon"></i>
+      <span>{{ blog.dislikes__count }}</span>
     </a>
   </div>
 
