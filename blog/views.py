@@ -31,7 +31,7 @@ class GenericView(UserPassesTestMixin, ListView):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
         qs = self.user.blog_set.all().with_likes()
         if not is_admin_or_root(self.request.user) and not self.request.user == self.user:
-            qs = qs.filter(visibile=True)
+            qs = qs.filter(visible=True)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -62,7 +62,10 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         return kw
 
     def dispatch(self, request, *args, **kwargs):
-        self.blog = get_object_or_404(Blog, pk=kwargs.get('pk'))
+        blogs = Blog.objects.with_likes().with_dislikes()
+        if request.user.is_authenticated:
+            blogs = blogs.with_likes_flag(request.user)
+        self.blog = get_object_or_404(blogs, pk=kwargs.get('pk'))
         return super(BlogView, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
@@ -80,13 +83,6 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         context['action_path'] = reverse('comments-post-comment')
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
-        context['like_count'] = self.blog.bloglikes_set.filter(flag='like').count()
-        context['dislike_count'] = self.blog.bloglikes_set.filter(flag='dislike').count()
-        if self.request.user.is_authenticated:
-            try:
-                context['flag'] = self.blog.bloglikes_set.get(user=self.request.user).flag
-            except BlogLikes.DoesNotExist:
-                pass
         return context
 
 
