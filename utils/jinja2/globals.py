@@ -172,9 +172,11 @@ def render_comment_tree(context, obj):
                                          is_public=True).annotate(
         likes__count=Sum(Case(When(flags__flag=LIKEDIT_FLAG, then=1), default=0, output_field=IntegerField()))).annotate(
         dislikes__count=Sum(Case(When(flags__flag=DISLIKEDIT_FLAG, then=1), default=0, output_field=IntegerField())))
-    if context['user'].is_authenticated:
+    user = context['user']
+    if user.is_authenticated:
         queryset = queryset.annotate(
-            likes__flag=Sum(Case(When(flags__flag=LIKEDIT_FLAG, then=1), When(flags__flag=DISLIKEDIT_FLAG, then=-1), default=0, output_field=IntegerField())))
+            likes__flag=Sum(Case(When(flags__user=user, flags__flag=LIKEDIT_FLAG, then=1),
+                                 When(flags__user=user, flags__flag=DISLIKEDIT_FLAG, then=-1), default=0, output_field=IntegerField())))
     comments = tree_from_queryset(
         queryset,
         with_feedback=config['allow_feedback'],
