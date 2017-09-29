@@ -3,8 +3,8 @@ from django.conf import settings
 from os import path
 from account.models import User
 from tagging.registry import register
-from django.core.cache import cache
 from utils.language import LANG_CHOICE
+from django.utils.translation import ugettext_lazy as _
 
 
 # This is the hash value of the famous fcmp.cpp
@@ -13,29 +13,29 @@ FCMP_FINGERPRINT = '3813d49afd13857026fcd4643f51689c39639f83c2b4136b8d95ed285510
 
 class Problem(models.Model):
 
-    alias = models.CharField(max_length=64, blank=True)
-    title = models.CharField(max_length=192, blank=True)
-    description = models.TextField(blank=True)
-    input = models.TextField(blank=True)
-    output = models.TextField(blank=True)
-    sample = models.TextField(blank=True)
-    hint = models.TextField(blank=True)
-    source = models.CharField(max_length=128, blank=True)
-    judge = models.CharField('Judge indicator', max_length=128, blank=True)  # to delete
+    alias = models.CharField(_('Alias'), max_length=64, blank=True)
+    title = models.CharField(_('Title'), max_length=192, blank=True)
+    description = models.TextField(_('Description'), blank=True)
+    input = models.TextField(_('Input'), blank=True)
+    output = models.TextField(_('Output'), blank=True)
+    sample = models.TextField(_('Sample'), blank=True)
+    hint = models.TextField(_('Hint'), blank=True)
+    source = models.CharField(_('Source'), max_length=128, blank=True)
+    judge = models.CharField(_('Judge indicator'), max_length=128, blank=True)  # to delete
 
     visible = models.BooleanField(default=False)
     maintaining = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
-    time_limit = models.IntegerField(default=2000)
-    memory_limit = models.IntegerField(default=256)
-    checker = models.CharField(max_length=64, default=FCMP_FINGERPRINT)
-    interactor = models.CharField(blank=True, max_length=64)
-    validator = models.CharField(blank=True, max_length=64)
-    pretests = models.TextField(blank=True)
-    cases = models.TextField(blank=True)
-    points = models.TextField(blank=True)
+    time_limit = models.IntegerField(_('Time Limit'), default=2000)
+    memory_limit = models.IntegerField(_('Memory Limit'), default=256)
+    checker = models.CharField(_('Checker'), max_length=64, default=FCMP_FINGERPRINT)
+    interactor = models.CharField(_('Interactor'), blank=True, max_length=64)
+    validator = models.CharField(_('Validator'), blank=True, max_length=64)
+    pretests = models.TextField(_('Pretest'), blank=True)
+    cases = models.TextField(_('Cases'), blank=True)
+    points = models.TextField(_('Points'), blank=True)
 
     managers = models.ManyToManyField(User, related_name='managing_problems')
 

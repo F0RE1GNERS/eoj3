@@ -1,6 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse, redirect, get_object_or_404
 from django.views.generic import View
+from django.utils.translation import ugettext_lazy as _
 from notifications.signals import notify
 
 from utils.permission import is_contest_manager

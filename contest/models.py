@@ -1,6 +1,7 @@
 import shortuuid
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from account.models import User
 from problem.models import Problem
@@ -41,33 +42,33 @@ class ContestManager(models.Manager):
 class Contest(models.Model):
 
     SCORING_METHOD_CHOICE = (
-        ('acm', 'ACM Rule'),
-        ('oi', 'OI Rule'),
-        ('cf', 'Codeforces Rule')
+        ('acm', _('ACM Rule')),
+        ('oi', _('OI Rule')),
+        ('cf', _('Codeforces Rule'))
     )
 
     TEST_DURING_CONTEST_CHOICE = (
-        ('all', 'All'),
-        ('pretest', 'Pretests'),
-        ('sample', 'Samples'),
-        ('none', 'None')
+        ('all', _('All')),
+        ('pretest', _('Pretests')),
+        ('sample', _('Samples')),
+        ('none', _('None'))
     )
 
     CODE_SHARE_CHOICE = (
-        (0, 'Forbidden'),
-        (1, 'Share code after contest for AC users'),
-        (2, 'Share code after contest for all'),
-        (3, 'Share code after AC during contest'),
+        (0, _('Forbidden')),
+        (1, _('Share code after contest for AC users')),
+        (2, _('Share code after contest for all')),
+        (3, _('Share code after AC during contest')),
     )
 
     CONTEST_STATUS_CHOICE = (
-        (1, 'Running'),
-        (2, 'Ended'),
+        (1, _('Running')),
+        (2, _('Ended')),
     )
 
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
-    allowed_lang = models.CharField('Allowed languages', max_length=192, default=get_language_all_list())
+    allowed_lang = models.CharField(_('Allowed languages'), max_length=192, default=get_language_all_list())
 
     always_running = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
@@ -75,7 +76,7 @@ class Contest(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     standings_update_time = models.DateTimeField(blank=True, null=True)
 
-    freeze = models.BooleanField('The standings will be frozen', default=False)
+    freeze = models.BooleanField(_('The standings will be frozen'), default=False)
     freeze_time = models.DateTimeField(blank=True, null=True)
     scoring_method = models.CharField(default='acm', max_length=5, choices=SCORING_METHOD_CHOICE)
     run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default=TEST_DURING_CONTEST_CHOICE[0][0])

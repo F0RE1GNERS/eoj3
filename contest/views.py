@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
+from django.utils.translation import ugettext_lazy as _
 
 from account.permissions import is_admin_or_root, is_volunteer
 from problem.statistics import get_many_problem_accept_count
@@ -43,15 +44,15 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if self.privileged:
             return True
         if not self.contest.visible:
-            self.permission_denied_message = 'Contest is not visible.'
+            self.permission_denied_message = _('Contest is not visible.')
             return False
         if self.contest.status < 0:
-            self.permission_denied_message = "Contest hasn't started."
+            self.permission_denied_message = _("Contest hasn't started.")
             return False
         if self.registered:
             return True
         else:
-            self.permission_denied_message = "Did you forget to register for the contest?"
+            self.permission_denied_message = _("Did you forget to register for the contest?")
             return False
 
     def get_context_data(self, **kwargs):
@@ -143,9 +144,9 @@ class ContestBoundUser(View):
             try:
                 invitation = ContestInvitation.objects.get(code=invitation_code)
                 add_participant_with_invitation(cid, invitation.pk, request.user)
-                messages.success(request, 'You have successfully joined this contest.')
+                messages.success(request, _('You have successfully joined this contest.'))
             except ContestInvitation.DoesNotExist:
-                messages.error(request, 'There seems to be something wrong with your invitation code.')
+                messages.error(request, _('There seems to be something wrong with your invitation code.'))
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
 
 
