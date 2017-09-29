@@ -21,14 +21,14 @@ class ContestClarificationView(BaseContestMixin, View):
             ContestClarification.objects.create(contest=self.contest, important=True, author=request.user, answer=text)
             notify.send(sender=request.user,
                         recipient=list(map(lambda x: x.user, self.contest.contestparticipant_set.select_related("user").all())),
-                        verb=_("posted a notification in"),
+                        verb="posted a notification in",
                         level="warning",
                         target=self.contest)
         else:
             ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
             notify.send(sender=request.user,
                         recipient=self.contest.managers.all(),
-                        verb=_("asked a question in"),
+                        verb="asked a question in",
                         level="warning",
                         target=self.contest)
         return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
@@ -43,7 +43,7 @@ class ContestClarificationAnswer(BaseContestMixin, View):
             clarification.save(update_fields=["answer"])
             notify.send(sender=request.user,
                         recipient=[clarification.author],
-                        verb=_("answered a question in"),
+                        verb="answered a question in",
                         level="warning",
                         target=self.contest)
             return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))

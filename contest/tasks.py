@@ -32,6 +32,11 @@ def add_participant_with_invitation(contest_pk, invitation_pk, user):
     with transaction.atomic():
         contest = Contest.objects.get(pk=contest_pk)
         invitation = contest.contestinvitation_set.get(pk=invitation_pk)
-        ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
+        if contest.contestparticipant_set.filter(user=user).exists():
+            participant = contest.contestparticipant_set.get(user=user)
+            participant.comment = invitation.comment
+            participant.save(update_fields=['comment'])
+        else:
+            ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
         invitation.delete()
     invalidate_contest(contest)
