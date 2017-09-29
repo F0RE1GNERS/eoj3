@@ -31,7 +31,6 @@ mkdocs-bootswatch
 django-redis
 pyyaml
 chardet
-channels
 socketio-client
 django-extensions
 django-comments-xtd==2.0.6

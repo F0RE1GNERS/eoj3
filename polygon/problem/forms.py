@@ -19,7 +19,7 @@ class ProblemEditForm(forms.ModelForm):
             'hint': forms.Textarea(attrs={'class': 'markdown'}),
         }
 
-    tags = CommaSeparatedMultipleChoiceField(choices=[(i, i) for i in Tag.objects.all()], required=False)
+    tags = CommaSeparatedMultipleChoiceField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(ProblemEditForm, self).__init__(*args, **kwargs)
@@ -28,6 +28,7 @@ class ProblemEditForm(forms.ModelForm):
         self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
         if self.instance:
             self.fields['tags'].initial = ','.join(map(str, self.instance.tags))
+            self.fields['tags'].choices = [(i, i) for i in Tag.objects.all()]
 
     def clean(self):
         cleaned_data = super().clean()

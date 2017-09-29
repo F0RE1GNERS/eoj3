@@ -25,7 +25,6 @@
     "django-channels": "^1.1.5",
     "echarts": "^3.7.1",
     "font-awesome": "^4.7.0",
-    "foundation-sites": "^6.4.1",
     "gulp-autoprefixer": "^3.1.0",
     "jquery": "^3.2.1",
     "jquery-address": "^1.6.0",
