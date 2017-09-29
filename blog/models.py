@@ -17,6 +17,8 @@ class BlogQuerySet(models.QuerySet):
         )
 
     def with_likes_flag(self, user):
+        if not user.is_authenticated:
+            return self
         return self.annotate(
                 likes__flag=Sum(
                     Case(When(bloglikes__user=user, bloglikes__flag='like', then=1),

@@ -18,7 +18,10 @@
         {{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
       </div>
       <div class="meta">
-        <i class="like icon"></i> {{ blog.likes__count }} Likes
+        <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
+          <i class="like icon"></i>
+          <span>{{ blog.likes__count }}</span> Likes
+        </a>
       </div>
     </div>
   </div>

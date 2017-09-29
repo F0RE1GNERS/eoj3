@@ -56,9 +56,7 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         return kw
 
     def dispatch(self, request, *args, **kwargs):
-        blogs = Blog.objects.with_likes().with_dislikes()
-        if request.user.is_authenticated:
-            blogs = blogs.with_likes_flag(request.user)
+        blogs = Blog.objects.with_likes().with_dislikes().with_likes_flag(request.user)
         self.blog = get_object_or_404(blogs, pk=kwargs.get('pk'))
         return super(BlogView, self).dispatch(request, *args, **kwargs)
 
