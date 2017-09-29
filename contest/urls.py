@@ -7,7 +7,7 @@ from .clarification import ContestClarificationView, ContestClarificationAnswer
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
-    url(r'^always/$', ContestAlwaysRunningList.as_view(), name='always_running'),
+    url(r'^gym/$', ContestAlwaysRunningList.as_view(), name='gym'),
     url(r'^(?P<cid>\d+)/$', DashboardView.as_view(), name='dashboard'),
     url(r'^(?P<cid>\d+)/standings/$', ContestStandings.as_view(), name='standings'),
     url(r'^(?P<cid>\d+)/problem/(?P<pid>\w+)/$', ContestProblemDetail.as_view(), name='problem'),
