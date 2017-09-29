@@ -26,12 +26,12 @@
               {% endif %}
               {% if allow_feedback %}
                 <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="like">
-                  <i class="thumbs {% if not item.likedit %}outline{% endif %} up icon"></i>
-                  <span>{{ item.likedit_users | length }}</span>
+                  <i class="thumbs {% if item.likes_flag != 1 %}outline{% endif %} up icon"></i>
+                  <span>{{ item.likes_count }}</span>
                 </a>
                 <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="dislike">
-                  <i class="thumbs {% if not item.dislikedit %}outline{% endif %} down icon"></i>
-                  <span>{{ item.dislikedit_users | length }}</span>
+                  <i class="thumbs {% if item.likes_flag != -1 %}outline{% endif %} down icon"></i>
+                  <span>{{ item.dislikes_count}}</span>
                 </a>
               {% endif %}
               {% if allow_flagging and (user == item.comment.user or user is admin) %}

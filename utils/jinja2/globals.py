@@ -6,6 +6,7 @@ import markupsafe
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Sum, Case, IntegerField, When
 from django.http import QueryDict
 from django_comments_xtd.templatetags.comments_xtd import XtdComment
 from django_jinja import library
@@ -75,11 +76,69 @@ def paginator(context, adjacent_pages=3):
 @jinja2.contextfunction
 @library.render_with("comments/comment_tree.jinja2")
 def render_comment_tree(context, obj):
+
+    def tree_from_queryset(queryset, with_feedback=False, user=None):
+        """Converts a XtdComment queryset into a list of nested dictionaries.
+        The queryset has to be ordered by thread_id, order.
+        Each dictionary contains two attributes::
+            {
+                'comment': the comment object itself,
+                'children': [list of child comment dictionaries]
+            }
+        """
+        def get_user_feedback(comment, user):
+            d = {
+                'likes_count': comment.likes__count,
+                'dislikes_count': comment.dislikes__count,
+                 }
+            if user.is_authenticated:
+                d['likes_flag'] = comment.likes__flag
+            else:
+                d['likes_flag'] = 0
+            return d
+
+        def add_children(children, obj, user):
+            for item in children:
+                if item['comment'].pk == obj.parent_id:
+                    child_dict = {'comment': obj, 'children': []}
+                    if with_feedback:
+                        child_dict.update(get_user_feedback(obj, user))
+                    item['children'].append(child_dict)
+                    return True
+                elif item['children']:
+                    if add_children(item['children'], obj, user):
+                        return True
+            return False
+
+        def get_new_dict(obj):
+            new_dict = {'comment': obj, 'children': []}
+            if with_feedback:
+                new_dict.update(get_user_feedback(obj, user))
+            return new_dict
+
+        dic_list = []
+        cur_dict = None
+        for obj in queryset:
+            if cur_dict and obj.level == cur_dict['comment'].level:
+                dic_list.append(cur_dict)
+                cur_dict = None
+            if not cur_dict:
+                cur_dict = get_new_dict(obj)
+                continue
+            if obj.parent_id == cur_dict['comment'].pk:
+                child_dict = get_new_dict(obj)
+                cur_dict['children'].append(child_dict)
+            else:
+                add_children(cur_dict['children'], obj, user)
+        if cur_dict:
+            dic_list.append(cur_dict)
+        return dic_list
+
     def sort(c, sort_with_like, depth):
         def key(x):
             day = (datetime.now() - x['comment'].submit_date).seconds / 86400
             if sort_with_like:
-                vote = len(x['likedit_users']) - len(x['dislikedit_users']) * 3
+                vote = x['likes_count'] - x['dislikes_count'] * 3
             else:
                 vote = 0
             return vote - day
@@ -105,13 +164,19 @@ def render_comment_tree(context, obj):
 
     ctype = ContentType.objects.get_for_model(obj)
     config = get_config(ctype)
+    from django_comments_xtd.models import LIKEDIT_FLAG
+    from django_comments_xtd.models import DISLIKEDIT_FLAG
     queryset = XtdComment.objects.filter(content_type=ctype,
                                          object_pk=obj.pk,
                                          site__pk=settings.SITE_ID,
-                                         is_public=True)
-    comments = XtdComment.tree_from_queryset(
+                                         is_public=True).annotate(
+        likes__count=Sum(Case(When(flags__flag=LIKEDIT_FLAG, then=1), default=0, output_field=IntegerField()))).annotate(
+        dislikes__count=Sum(Case(When(flags__flag=DISLIKEDIT_FLAG, then=1), default=0, output_field=IntegerField())))
+    if context['user'].is_authenticated:
+        queryset = queryset.annotate(
+            likes__flag=Sum(Case(When(flags__flag=LIKEDIT_FLAG, then=1), When(flags__flag=DISLIKEDIT_FLAG, then=-1), default=0, output_field=IntegerField())))
+    comments = tree_from_queryset(
         queryset,
-        with_flagging=config['allow_flagging'],
         with_feedback=config['allow_feedback'],
         user=context['user']
     )
