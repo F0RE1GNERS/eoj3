@@ -1,6 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse, redirect, get_object_or_404
 from django.views.generic import View
+from django.utils.translation import ugettext_lazy as _
 from notifications.signals import notify
 
 from utils.permission import is_contest_manager
@@ -20,14 +21,14 @@ class ContestClarificationView(BaseContestMixin, View):
             ContestClarification.objects.create(contest=self.contest, important=True, author=request.user, answer=text)
             notify.send(sender=request.user,
                         recipient=list(map(lambda x: x.user, self.contest.contestparticipant_set.select_related("user").all())),
-                        verb="posted a notification in",
+                        verb=_("posted a notification in"),
                         level="warning",
                         target=self.contest)
         else:
             ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
             notify.send(sender=request.user,
                         recipient=self.contest.managers.all(),
-                        verb="asked a question in",
+                        verb=_("asked a question in"),
                         level="warning",
                         target=self.contest)
         return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
@@ -42,7 +43,7 @@ class ContestClarificationAnswer(BaseContestMixin, View):
             clarification.save(update_fields=["answer"])
             notify.send(sender=request.user,
                         recipient=[clarification.author],
-                        verb="answered a question in",
+                        verb=_("answered a question in"),
                         level="warning",
                         target=self.contest)
             return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))

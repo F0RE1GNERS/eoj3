@@ -1,4 +1,3 @@
-import random
 import json
 import html
 
@@ -48,24 +47,24 @@ class UsernameValidator(UnicodeUsernameValidator):
 class User(AbstractUser):
     username_validator = UsernameValidator()
 
-    username = models.CharField('username', max_length=30, unique=True,
+    username = models.CharField(_('username'), max_length=30, unique=True,
                                 validators=[username_validator],
                                 error_messages={
-                                    'unique': "A user with that username already exists."}
+                                    'unique': _("A user with that username already exists.")}
                                 )
-    email = models.EmailField('email', max_length=192, unique=True, error_messages={
-        'unique': "This email has already been used."
+    email = models.EmailField(_('email'), max_length=192, unique=True, error_messages={
+        'unique': _("This email has already been used.")
     })
     privilege = models.CharField(choices=PRIVILEGE_CHOICE, max_length=12, default=Privilege.REGULAR_USER)
-    school = models.CharField('school', max_length=64, blank=True)
+    school = models.CharField(_('school'), max_length=64, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    nickname = models.CharField('nickname', max_length=30, blank=True)
-    magic = models.CharField('magic', choices=MAGIC_CHOICE, max_length=18, blank=True)
-    show_tags = models.BooleanField('show tags', default=True)
-    preferred_lang = models.CharField('preferred language', choices=LANG_CHOICE, max_length=12, default='cpp')
-    motto = models.CharField('motto', max_length=192, blank=True)
+    nickname = models.CharField(_('nickname'), max_length=30, blank=True)
+    magic = models.CharField(_('magic'), choices=MAGIC_CHOICE, max_length=18, blank=True)
+    show_tags = models.BooleanField(_('show tags'), default=True)
+    preferred_lang = models.CharField(_('preferred language'), choices=LANG_CHOICE, max_length=12, default='cpp')
+    motto = models.CharField(_('motto'), max_length=192, blank=True)
 
-    avatar = models.ImageField('avatar', upload_to='avatar', default='avatar/default.jpg')
+    avatar = models.ImageField(_('avatar'), upload_to='avatar', default='avatar/default.jpg')
     avatar_small = ImageSpecField(source='avatar',
                                   processors=[ResizeToFill(50, 50)],
                                   format='JPEG',
@@ -96,10 +95,10 @@ class Payment(models.Model):
     TRANSFER = 'transfer'
 
     TYPE_CHOICES = (
-        (CHANGE_USERNAME, 'Change Username'),
-        (DOWNLOAD_CASE, 'Download Case'),
-        (REWARD, 'Reward'),
-        (TRANSFER, 'Transfer'),
+        (CHANGE_USERNAME, _('Change Username')),
+        (DOWNLOAD_CASE, _('Download Case')),
+        (REWARD, _('Reward')),
+        (TRANSFER, _('Transfer')),
     )
 
     user = models.ForeignKey(User)

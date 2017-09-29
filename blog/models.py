@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Sum, Case, When, IntegerField
 from account.models import User
 from problem.models import Problem
+from django.utils.translation import ugettext_lazy as _
 
 
 class BlogQuerySet(models.QuerySet):
@@ -43,8 +44,8 @@ class Blog(models.Model):
 class BlogLikes(models.Model):
 
     BLOG_LIKE_FLAGS = (
-        ('like', 'Like Blog'),
-        ('dislike', 'Dislike Blog')
+        ('like', _('Like Blog')),
+        ('dislike', _('Dislike Blog'))
     )
 
     blog = models.ForeignKey(Blog)
@@ -56,9 +57,9 @@ class BlogLikes(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField('Text')
+    text = models.TextField(_('Text'))
     author = models.ForeignKey(User)
-    create_time = models.DateTimeField('Created time', auto_now_add=True)
+    create_time = models.DateTimeField(_('Created time'), auto_now_add=True)
     blog = models.ForeignKey(Blog, null=True)
     problem = models.ForeignKey(Problem, null=True)
 

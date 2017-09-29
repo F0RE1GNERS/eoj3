@@ -11,7 +11,7 @@ def create_payment(user: User, credit, type, memo):
     user.refresh_from_db(fields=["score"])
     user.score += credit
     if user.score < 0:
-        raise PermissionDenied("You are running out of EMB...")
+        raise PermissionDenied(_("You are running out of EMB..."))
     user.save(update_fields=["score"])
     payment = Payment.objects.create(user=user, type=type, credit=credit, balance=user.score)
     payment.detail = memo
@@ -40,10 +40,10 @@ def change_username(user, amount, new_username):
         try:
             user.username = User.normalize_username(new_username)
             if len(new_username) < 6 or '#' in new_username:
-                raise PermissionDenied("Username too short or illegal.")
+                raise PermissionDenied(_("Username too short or illegal."))
             user.save(update_fields=["username"])
         except IntegrityError:
-            raise PermissionDenied("Username should be unique.")
+            raise PermissionDenied(_("Username should be unique."))
         create_payment(user, amount, Payment.CHANGE_USERNAME, {"new": new_username})
 
 

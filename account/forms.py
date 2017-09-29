@@ -4,12 +4,13 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from captcha.fields import CaptchaField
 from django.contrib.auth.forms import AuthenticationForm
+from django.utils.translation import ugettext_lazy as _
 
 
 class LoginForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         super(LoginForm, self).__init__(request, *args, **kwargs)
-        self.fields['username'].label = 'Username or Email'
+        self.fields['username'].label = _('Username or Email')
 
     captcha = CaptchaField()
     remember_me = forms.BooleanField(required=False)
@@ -20,15 +21,15 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ['email', 'username']
         help_texts = {
-            'email': 'Email cannot be changed once created',
-            'username': 'Username cannot be changed once created'
+            'email': _('Email cannot be changed once created'),
+            'username': _('Username cannot be changed once created')
         }
         error_messages = {
             'username': {
-                'require': "Please enter your username.",
+                'require': _("Please enter your username."),
             },
             'email': {
-                'require': "Please enter a email."
+                'require': _("Please enter a email.")
             }
         }
 
@@ -43,30 +44,30 @@ class RegisterForm(forms.ModelForm):
     def clean_username(self):
         data = self.cleaned_data.get('username')
         if len(data) < 6:
-            raise forms.ValidationError("Username should contain at least 6 characters.")
+            raise forms.ValidationError(_("Username should contain at least 6 characters."))
         if '#' in data:
-            raise forms.ValidationError("Please do not use # in username.")
+            raise forms.ValidationError(_("Please do not use # in username."))
         return data
 
     def clean(self):
         data = super(RegisterForm, self).clean()
         if data.get('password') != data.get('repeat_password'):
-            self.add_error('repeat_password', forms.ValidationError("Password doesn't match.", code='invalid'))
+            self.add_error('repeat_password', forms.ValidationError(_("Password doesn't match."), code='invalid'))
         return data
 
-    password = forms.CharField(help_text='Length should be at least 6',
+    password = forms.CharField(help_text=_('Length should be at least 6'),
                                widget=forms.PasswordInput,
                                min_length=6,
                                required=True,
                                error_messages={
-                                   'min_length': "Your password is too short.",
-                                   'require': "Please enter a password."
+                                   'min_length': _("Your password is too short."),
+                                   'require': _("Please enter a password.")
                                })
-    repeat_password = forms.CharField(help_text="Please repeat your password",
+    repeat_password = forms.CharField(help_text=_("Please repeat your password"),
                                       widget=forms.PasswordInput,
                                       required=True,
                                       error_messages={
-                                          'require': 'Please repeat your password.'
+                                          'require': _('Please repeat your password.')
                                       })
 
     captcha = CaptchaField()
@@ -74,7 +75,7 @@ class RegisterForm(forms.ModelForm):
 
 class MyPasswordChangeForm(PasswordChangeForm):
     new_password1 = forms.CharField(
-        label="New password",
+        label=_("New password"),
         widget=forms.PasswordInput,
         strip=False,
         help_text='',

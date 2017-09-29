@@ -93,6 +93,7 @@ MIDDLEWARE = [
     'utils.middleware.close_site_middleware.CloseSiteMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'utils.middleware.globalrequestmiddleware.GlobalRequestMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'eoj3.urls'
@@ -111,6 +112,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.i18n",
             ],
             "globals": {
                 "myGlobal": "utils.jinja2.globals.is_active",
@@ -146,6 +148,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.i18n",
             ],
         },
     },
@@ -194,6 +197,15 @@ SESSION_CACHE_ALIAS = "default"
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+LANGUAGES = (
+    ('en', 'English'),
+    ('zh-hans', '中文简体'),
+)
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 USE_I18N = True
 

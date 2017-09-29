@@ -1,13 +1,12 @@
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.serializers import json
-from django.db.models import Count, Sum, Case, When, IntegerField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import ListView
+from django.utils.translation import ugettext_lazy as _
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -98,7 +97,7 @@ class BlogUpdate(UpdateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         if not is_admin_or_root(self.request.user) and instance.author != self.request.user:
-            raise PermissionDenied("You don't have the access.")
+            raise PermissionDenied(_("You don't have the access."))
         instance.save()
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
@@ -139,7 +138,7 @@ class BlogDeleteComment(LoginRequiredMixin, View):
         elif instance.blog is not None and instance.blog.author == request.author:
             instance.delete()
         else:
-            return PermissionDenied("You don't have the access.")
+            return PermissionDenied(_("You don't have the access."))
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
 
@@ -176,5 +175,5 @@ class ProblemDeleteComment(LoginRequiredMixin, View):
         if is_admin_or_root(request.user) or request.user == instance.author:
             instance.delete()
         else:
-            return PermissionDenied("You don't have the access.")
+            return PermissionDenied(_("You don't have the access."))
         return HttpResponseRedirect(reverse('blog:discuss', kwargs={'pk': self.kwargs.get('pk')}))
