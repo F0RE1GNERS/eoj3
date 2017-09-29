@@ -111,7 +111,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     q = Q(important=True)
                     if self.user.is_authenticated:
                         q |= Q(author=self.user)
-                    clarifications = self.contest.contestclarification_set.filter(q).select_related("author")
+                    clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
                 data["clarifications"] = clarifications
 
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
@@ -155,7 +155,7 @@ class ContestList(ListView):
     context_object_name = 'contest_list'
 
     def get_queryset(self):
-        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user), always_running=False)
+        return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), always_running=False)
 
 
 class ContestAlwaysRunningList(ListView):
@@ -165,5 +165,5 @@ class ContestAlwaysRunningList(ListView):
 
     def get_queryset(self):
         user = self.request.user if self.request.user.is_authenticated else None
-        return Contest.objects.get_status_list(all=is_admin_or_root(self.request.user), filter_user=user,
+        return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
                                                sorting_by_id=True, always_running=True)

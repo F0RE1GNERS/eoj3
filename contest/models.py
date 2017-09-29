@@ -17,9 +17,9 @@ def get_language_all_list():
 
 class ContestManager(models.Manager):
 
-    def get_status_list(self, all=False, filter_user=None, sorting_by_id=False, always_running=None):
+    def get_status_list(self, show_all=False, filter_user=None, sorting_by_id=False, always_running=None):
         q = models.Q()
-        if not all:
+        if not show_all:
             q &= models.Q(visible=True)
             if filter_user:
                 q |= models.Q(managers=filter_user)

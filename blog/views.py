@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers import json
 from django.db.models import Count, Sum, Case, When, IntegerField
@@ -13,19 +13,15 @@ from account.models import User
 from account.permissions import is_admin_or_root
 from problem.models import Problem
 from submission.statistics import get_accept_problem_count
-from utils.authentication import test_site_open
 from utils.comment import CommentForm
 from .forms import BlogEditForm
 from .models import Blog, Comment, BlogLikes
 
 
-class GenericView(UserPassesTestMixin, ListView):
+class GenericView(ListView):
     template_name = 'generic.jinja2'
     paginate_by = 50
     context_object_name = 'blog_list'
-
-    def test_func(self):
-        return test_site_open(self.request)
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
@@ -46,7 +42,6 @@ class GenericView(UserPassesTestMixin, ListView):
 
 
 class BlogGoto(View):
-
     def post(self, request):
         user = get_object_or_404(User, username=request.POST['name'])
         return HttpResponseRedirect(reverse('generic', kwargs={'pk': user.pk}))
@@ -71,8 +66,6 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def test_func(self):
         if is_admin_or_root(self.request.user):
             return True
-        if not test_site_open(self.request):
-            return False
         if self.request.user == self.blog.author or self.blog.visible:
             return True
         return False
@@ -86,12 +79,9 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
         return context
 
 
-class BlogCreate(UserPassesTestMixin, CreateView):
+class BlogCreate(LoginRequiredMixin, CreateView):
     form_class = BlogEditForm
     template_name = 'blog/blog_add.jinja2'
-
-    def test_func(self):
-        return self.request.user.is_authenticated
 
     def form_valid(self, form):
         instance = form.save(commit=False)
@@ -100,13 +90,10 @@ class BlogCreate(UserPassesTestMixin, CreateView):
         return HttpResponseRedirect(reverse('generic', kwargs={'pk': self.request.user.pk}))
 
 
-class BlogUpdate(UserPassesTestMixin, UpdateView):
+class BlogUpdate(UpdateView):
     form_class = BlogEditForm
     queryset = Blog.objects.all()
     template_name = 'blog/blog_edit.jinja2'
-
-    def test_func(self):
-        return test_site_open(self.request)
 
     def form_valid(self, form):
         instance = form.save(commit=False)
@@ -116,18 +103,13 @@ class BlogUpdate(UserPassesTestMixin, UpdateView):
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
 
-class BlogAddComment(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_authenticated
-
+class BlogAddComment(LoginRequiredMixin, View):
     def post(self, request, pk):
         Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
 
 
 class LikeBlog(View):
-
     def post(self, request):
         if not request.user.is_authenticated:
             return HttpResponse('no', content_type="application/json")
@@ -149,11 +131,7 @@ class LikeBlog(View):
         return HttpResponse('{}', content_type="application/json")
 
 
-class BlogDeleteComment(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_authenticated
-
+class BlogDeleteComment(LoginRequiredMixin, View):
     def post(self, request, pk, comment_id):
         instance = get_object_or_404(Comment, pk=comment_id)
         if is_admin_or_root(request.user) or request.user == instance.author:
@@ -165,17 +143,10 @@ class BlogDeleteComment(UserPassesTestMixin, View):
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
 
-class ProblemDiscuss(UserPassesTestMixin, ListView):
+class ProblemDiscuss(ListView):
     template_name = 'discuss.jinja2'
     paginate_by = 100
     context_object_name = 'comment_list'
-
-    def test_func(self):
-        if is_admin_or_root(self.request.user):
-            return True
-        if test_site_open(self.request):
-            return True
-        return False
 
     def get_queryset(self):
         if is_admin_or_root(self.request.user):
@@ -193,21 +164,13 @@ class ProblemDiscuss(UserPassesTestMixin, ListView):
         return context
 
 
-class ProblemAddComment(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_authenticated
-
+class ProblemAddComment(LoginRequiredMixin, View):
     def post(self, request, pk):
         Comment.objects.create(text=request.POST['text'], author=request.user, problem_id=pk)
         return HttpResponseRedirect(reverse('blog:discuss', kwargs={'pk': pk}))
 
 
-class ProblemDeleteComment(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_authenticated
-
+class ProblemDeleteComment(LoginRequiredMixin, View):
     def get(self, request, pk, comment_id):
         instance = get_object_or_404(Comment, pk=comment_id)
         if is_admin_or_root(request.user) or request.user == instance.author:

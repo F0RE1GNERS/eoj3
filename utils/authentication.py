@@ -5,10 +5,3 @@ from account.permissions import is_admin_or_root
 class UnsafeSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
-
-
-def test_site_open(request):
-    return True
-    # if is_admin_or_root(request.user):
-    #     return True
-    # return get_site_settings().open

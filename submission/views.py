@@ -14,7 +14,6 @@ from pygments.lexers import get_lexer_by_name
 from account.models import User
 from account.permissions import is_admin_or_root
 from dispatcher.tasks import send_rejudge
-from utils.authentication import test_site_open
 from utils.permission import get_permission_for_submission
 from .models import Submission, SubmissionStatus
 
@@ -43,8 +42,6 @@ class SubmissionView(UserPassesTestMixin, View):
             return True
         if self.submission.contest_id and self.submission.contest.get_status() == 'running':
             return True
-        if not test_site_open(self.request):
-            raise PermissionDenied("Site is closed now.")
         if self.submission.author != user:
             raise PermissionDenied("You don't have access to this code.")
         return True

@@ -56,9 +56,9 @@ class ProblemList(ListView):
             if not self.request.user.is_authenticated or self.request.user.show_tags:
                 tag = Tag.objects.filter(name=kw)
                 if tag.exists():
-                    queryset = (queryset | TaggedItem.objects.get_by_model(Problem, tag.first())).distinct()
+                    queryset |= TaggedItem.objects.get_by_model(Problem, tag.first())
 
-        return queryset
+        return queryset.distinct()
 
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)
