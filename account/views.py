@@ -19,7 +19,7 @@ from account.payment import create_payment, change_username
 from account.permissions import is_admin_or_root
 from utils import auth_view
 from .forms import (RegisterForm, MyPasswordChangeForm, MySetPasswordForm, ProfileForm, PreferenceForm,
-                    MigrateForm, FeedbackForm, LoginForm)
+                    FeedbackForm, LoginForm)
 from .models import User
 from django.contrib.auth.decorators import login_required
 # from utils.models import get_site_settings
@@ -84,25 +84,6 @@ def change_username_view(request):
         request.user.username_change_attempt += 1
         request.user.save(update_fields=["username_change_attempt"])
     return redirect(reverse("account:profile"))
-
-
-@login_required
-def migrate_from_old(request):
-    if request.method == 'POST':
-        form = MigrateForm(request.POST)
-        form.full_clean()
-        result = form.cleaned_data
-        username = result.get('username')
-        password = result.get('password')
-        if verify_old_user(username, password):
-            MigrationThread(username, request.user).start()
-            messages.success(request, 'It could take a few minutes for the changes to take effect.')
-        else:
-            messages.error(request, 'Username or password wrong.')
-    else:
-        form = MigrateForm()
-
-    return render(request, 'account/migrate.jinja2', {'form': form})
 
 
 class RegisterView(FormView):

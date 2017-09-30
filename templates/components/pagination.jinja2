@@ -1,6 +1,6 @@
 <div class="ui container center aligned">
   <div class="ui pagination menu secondary">
-    <a class="icon item" href="?page=1"><i class="angle double left icon"></i></a>
+    <a class="icon item" href="?{{ url_replace(request, 'page', 1) }}"><i class="angle double left icon"></i></a>
 
     {% if page_obj.has_previous() %}
     <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.previous_page_number()) }}">

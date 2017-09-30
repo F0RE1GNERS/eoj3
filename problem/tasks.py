@@ -107,9 +107,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
                     if not submission.rewarded and \
-                                    Submission.objects.filter(author_id=submission.author_id,
-                                                              problem_id=submission.problem_id,
-                                                              status=SubmissionStatus.ACCEPTED).last() == submission:
+                            not Submission.objects.filter(author_id=submission.author_id, problem_id=submission.problem_id,
+                                                          status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
                         if submission.contest_id:
                             reward_contest_ac(submission.author, get_problem_difficulty(submission.problem_id),
                                               submission.contest_id)
