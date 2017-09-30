@@ -46,7 +46,7 @@ def is_active(context, match, **kwargs):
         return ""
     (namespace, name) = match.split(':', 1) if ':' in match else ('', match)
     if ((not namespace and not resolve_path.namespaces) or namespace in resolve_path.namespaces) \
-            and (name == '*' or resolve_path.url_name.startswith(name)):
+            and (name == '*' or (resolve_path.url_name is not None and resolve_path.url_name.startswith(name))):
         return "active"
     return ""
 

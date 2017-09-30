@@ -120,11 +120,6 @@ class PreferenceForm(forms.ModelForm):
         fields = ['show_tags', 'preferred_lang']
 
 
-class MigrateForm(forms.Form):
-    username = forms.CharField(label='Old username', max_length=224, required=True)
-    password = forms.CharField(label='Old password', widget=forms.PasswordInput, max_length=224, required=True)
-
-
 class FeedbackForm(forms.Form):
     class Meta:
         help_texts = {

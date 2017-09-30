@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.static import serve
+
+from migrate.views import migrate_view
 from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 
@@ -44,6 +46,8 @@ urlpatterns = [
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
     url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
+    url(r'^migrate/temp/$', FeedbackView.as_view(), name='migrate'),  # redirect to feedback view temporarily
+    url(r'^migrate/$', migrate_view),
 ]
 
 

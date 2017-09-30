@@ -86,7 +86,7 @@ class Submission(models.Model):
         return super(Submission, self).save(*args, **kwargs)
 
     class Meta:
-        ordering = ['-pk']
+        ordering = ['-create_time']
 
     @property
     def verbose_status(self):

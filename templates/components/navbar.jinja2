@@ -23,7 +23,7 @@
             <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">Submissions</a>
             <a class="item" href="{{ url('account:profile') }}">Settings</a>
             <a class="item" href="{{ url('account:payment') }}">Payment</a>
-            <a class="item" href="{{ url('account:migrate') }}">Migrate</a>
+            <a class="item" href="{{ url('migrate') }}">Migrate</a>
             <a class="item" href="{{ url('feedback') }}">Feedback</a>
           {% if user is admin %}
             <a class="item" href="{{ url('backstage:index') }}">Backstage</a>
