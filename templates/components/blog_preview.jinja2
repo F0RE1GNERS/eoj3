@@ -19,7 +19,7 @@
       </div>
       <div class="meta">
         <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
-          <i class="like icon"></i>
+          <i class="heart icon {% if blog.likes__flag != 1  %} empty {% endif %}"></i>
           <span>{{ blog.likes__count }}</span> Likes
         </a>
       </div>
