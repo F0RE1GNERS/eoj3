@@ -42,6 +42,6 @@ def run():
                 s.create_time = submission.create_time
                 s.save(update_fields=["create_time"])
                 idx += 1
-            OldSubmission.all().delete()
+            OldSubmission.objects.all().delete()
     except:
         traceback.print_exc()
