@@ -176,14 +176,15 @@ def render_comment_tree(context, obj):
     if user.is_authenticated:
         queryset = queryset.annotate(
             likes__flag=Sum(Case(When(flags__user=user, flags__flag=LIKEDIT_FLAG, then=1),
-                                 When(flags__user=user, flags__flag=DISLIKEDIT_FLAG, then=-1), default=0, output_field=IntegerField())))
+                                 When(flags__user=user, flags__flag=DISLIKEDIT_FLAG, then=-1),
+                                 default=0, output_field=IntegerField())))
     comments = tree_from_queryset(
         queryset,
         with_feedback=config['allow_feedback'],
-        user=context['user']
+        user=user
     )
     comments = sort(comments, sort_with_like=config['allow_feedback'], depth=2)
-    ctx = dict(comments=comments, user=context['user'])
+    ctx = dict(comments=comments, user=user)
     ctx.update(config)
     return ctx
 
