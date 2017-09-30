@@ -19,6 +19,7 @@ from submission.views import render_submission
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
+from utils.pagination import EndlessListView
 from utils.tagging import edit_string_for_tags
 from .models import Problem
 from utils.permission import is_problem_manager, get_permission_for_submission
@@ -179,14 +180,14 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             return HttpResponseBadRequest(str(e).encode())
 
 
-class StatusList(ListView):
+class StatusList(EndlessListView):
 
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
     allow_problem_query = True
     allow_verdict_query = True
-    query_number = 10000
+    query_number = None
     distinct_by_author = False  # query number should not be too large when this is true
     contest_submission_visible = False
 
@@ -227,11 +228,11 @@ class StatusList(ListView):
                     if submission.author_id not in author_set:
                         author_set.add(submission.author_id)
                         res.append(submission)
-                        if len(res) >= self.query_number:
+                        if self.query_number and len(res) >= self.query_number:
                             break
                 return res
             else:
-                return queryset.all()[:self.query_number]
+                return queryset.all()
         except:
             raise Http404
 

@@ -11,6 +11,8 @@ from django.http import QueryDict
 from django_comments_xtd.templatetags.comments_xtd import XtdComment
 from django_jinja import library
 
+from utils.pagination import EndlessPaginator
+
 
 @library.global_function(name='active')
 @jinja2.contextfunction
@@ -55,7 +57,11 @@ def is_active(context, match, **kwargs):
 def paginator(context, adjacent_pages=3):
     display_pages = adjacent_pages * 2 + 1
     page_obj = context['page_obj']
-    num = context['paginator'].num_pages
+    endless = isinstance(context['paginator'], EndlessPaginator)
+    if endless:
+        num = int(1e18)  # Hopefully we will get there!
+    else:
+        num = context['paginator'].num_pages
     cur = page_obj.number
     if num <= display_pages:
         page_numbers = range(1, num + 1)
@@ -69,6 +75,7 @@ def paginator(context, adjacent_pages=3):
         'page_obj': page_obj,
         'page_numbers': page_numbers,
         'request': context['request'],
+        'endless': endless
     }
 
 
