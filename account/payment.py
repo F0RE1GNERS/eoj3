@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.db import transaction
 from django.views.generic import ListView
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Payment, User
 
