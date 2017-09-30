@@ -166,6 +166,7 @@ $(".like-link")
       if (span.length) {
         if (data) {
           button.find('i.thumbs').removeClass("outline");
+          button.find('i.heart').removeClass('empty');
           add(span, 1);
           var siblingSpan = button.siblings('.like-link');
           if (!siblingSpan.find('i.thumbs').hasClass("outline")) {
@@ -174,6 +175,7 @@ $(".like-link")
           }
         } else {
           button.find('i.thumbs').addClass("outline");
+          button.find('i.heart').addClass('empty');
           add(span, -1);
         }
       } else { location.reload(); }

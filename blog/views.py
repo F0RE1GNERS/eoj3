@@ -24,7 +24,7 @@ class GenericView(ListView):
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
-        qs = self.user.blog_set.all().with_likes()
+        qs = self.user.blog_set.all().with_likes().with_likes_flag(self.request.user)
         if not is_admin_or_root(self.request.user) and not self.request.user == self.user:
             qs = qs.filter(visible=True)
         return qs
