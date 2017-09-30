@@ -18,7 +18,7 @@
       {% endif %}
     {% endfor %}
 
-    {% if page_obj.has_next() %}
+    {% if endless or page_obj.has_next() %}
     <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.next_page_number()) }}">
       <i class="right angle icon"></i>
     </a>
@@ -26,6 +26,8 @@
     <div class="disabled item icon"><i class="right angle icon"></i></div>
     {% endif %}
 
+    {% if not endless %}
     <a class="icon item" href="?page={{ page_obj.paginator.num_pages }}"><i class="angle double right icon"></i></a>
+    {% endif %}
   </div>
 </div>

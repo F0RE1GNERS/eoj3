@@ -207,7 +207,7 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
-USE_I18N = True
+USE_I18N = False
 
 
 # Static files (CSS, JavaScript, Images)
