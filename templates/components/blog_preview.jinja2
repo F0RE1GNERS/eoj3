@@ -15,7 +15,10 @@
         <p></p>
       </div>
       <div class="extra text">
-        {{ blog.text | markdown | get_intro }} <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
+        {% cache 3600 blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
+          {{ blog.text | markdown | get_intro }}
+        {% endcache %}
+        <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
       </div>
       <div class="meta">
         <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
