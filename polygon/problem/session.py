@@ -13,6 +13,8 @@ from threading import Thread
 
 import yaml
 from django.conf import settings
+from django.http import Http404
+from yaml.scanner import ScannerError
 
 from account.models import User
 from dispatcher.models import Server
@@ -56,6 +58,8 @@ def load_config(session):
             return yaml.load(f)
     except FileNotFoundError:
         return dict()
+    except ScannerError:
+        raise Http404
 
 
 def dump_config(session, config):
@@ -347,25 +351,28 @@ def get_case_metadata(session, fingerprint):
 
 
 def read_case(session, fingerprint, type=None):
-    inp, oup = get_test_file_path(session, fingerprint)
-    with open(inp, 'r') as fs, open(oup, 'r') as gs:
-        if type == 'in':
-            return fs.read()
-        elif type == 'out':
-            return gs.read()
-        else:
-            res = {'input': {'nan': False,
-                             'text': fs.read(USUAL_READ_SIZE)},
-                   'output': {'nan': False,
-                              'text': gs.read(USUAL_READ_SIZE)}
-                   }
-            if fs.read(1):
-                res['input']['text'] = 'This file is too large to edit.\n' + res['input']['text']
-                res['input']['nan'] = True
-            if gs.read(1):
-                res['output']['text'] = 'This file is too large to edit.\n' + res['output']['text']
-                res['output']['nan'] = True
-            return res
+    try:
+        inp, oup = get_test_file_path(session, fingerprint)
+        with open(inp, 'r') as fs, open(oup, 'r') as gs:
+            if type == 'in':
+                return fs.read()
+            elif type == 'out':
+                return gs.read()
+            else:
+                res = {'input': {'nan': False,
+                                 'text': fs.read(USUAL_READ_SIZE)},
+                       'output': {'nan': False,
+                                  'text': gs.read(USUAL_READ_SIZE)}
+                       }
+                if fs.read(1):
+                    res['input']['text'] = 'This file is too large to edit.\n' + res['input']['text']
+                    res['input']['nan'] = True
+                if gs.read(1):
+                    res['output']['text'] = 'This file is too large to edit.\n' + res['output']['text']
+                    res['output']['nan'] = True
+                return res
+    except:
+        raise Http404
 
 
 def process_uploaded_case(session, file_path):

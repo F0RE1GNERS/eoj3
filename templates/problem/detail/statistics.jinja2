@@ -11,19 +11,19 @@
   <table class="ui very padded center aligned celled table">
     <thead>
       <tr>
-        <th class="seven wide">
+        <th class="six wide">
           <h4 class="ui header">
             <i class="user icon"></i>
             BY AUTHORS
           </h4>
         </th>
-        <th class="seven wide">
+        <th class="six wide">
           <h4 class="ui header">
             <i class="tag icon"></i>
             TOTAL
           </h4>
         </th>
-        <th class="two wide">
+        <th class="four wide">
           <h4 class="ui header">REWARD</h4>
         </th>
       </tr>
@@ -31,58 +31,22 @@
     <tbody>
       <tr>
         <td>
-          <div class="ui three statistics">
-            <div class="statistic">
-              <div class="value">
-                {{ user_ac_count }}
-              </div>
-              <div class="label">
-                Solved
-              </div>
+          <div class="ui statistic">
+            <div class="value">
+              {{ user_ac_count }} / {{ user_all_count }}
             </div>
-            <div class="statistic">
-              <div class="value">
-                {{ user_all_count }}
-              </div>
-              <div class="label">
-                Attempted
-              </div>
-            </div>
-            <div class="statistic">
-              <div class="value">
-                {{ user_ratio }}
-              </div>
-              <div class="label">
-                Percent
-              </div>
+            <div class="label">
+              {{ "%.2f %%" | format(user_ratio) }} Accepted
             </div>
           </div>
         </td>
         <td>
-          <div class="ui three statistics">
-            <div class="statistic">
-              <div class="value">
-                {{ ac_count }}
-              </div>
-              <div class="label">
-                Accepted
-              </div>
+          <div class="ui statistic">
+            <div class="value">
+              {{ ac_count }} / {{ all_count }}
             </div>
-            <div class="statistic">
-              <div class="value">
-                {{ all_count }}
-              </div>
-              <div class="label">
-                Submitted
-              </div>
-            </div>
-            <div class="statistic">
-              <div class="value">
-                {{ ratio }}
-              </div>
-              <div class="label">
-                Percent
-              </div>
+            <div class="label">
+              {{ "%.2f %%" | format(ratio) }} Solved
             </div>
           </div>
         </td>

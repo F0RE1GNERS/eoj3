@@ -15,9 +15,14 @@
     <thead class="full-width">
       <tr>
         <th colspan="6">
-          <a href="{{ url('backstage:tags') }}" class="ui right floated primary labeled icon button">
-            <i class="server icon"></i> Manage Tags
-          </a>
+          <div class="ui right floated buttons">
+            <a href="{{ url('backstage:tags') }}" class="ui primary labeled icon button">
+              <i class="server icon"></i> Manage Tags
+            </a>
+            <a href="{{ url('backstage:archive') }}" class="ui button">
+              Archive
+            </a>
+          </div>
         </th>
       </tr>
       <tr>

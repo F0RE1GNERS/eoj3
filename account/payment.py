@@ -1,11 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError
 from django.db import transaction
 from django.views.generic import ListView
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Payment, User
+from .models import Payment, User, UsernameValidator
 
 
 def create_payment(user: User, credit, type, memo):
@@ -40,9 +40,10 @@ def change_username(user, amount, new_username):
     with transaction.atomic():
         try:
             user.username = User.normalize_username(new_username)
-            if len(new_username) < 6 or '#' in new_username:
-                raise PermissionDenied(_("Username too short or illegal."))
+            UsernameValidator()(user.username)
             user.save(update_fields=["username"])
+        except ValidationError:
+            raise PermissionDenied(_("Username too short or illegal."))
         except IntegrityError:
             raise PermissionDenied(_("Username should be unique."))
         create_payment(user, amount, Payment.CHANGE_USERNAME, {"new": new_username})

@@ -7,10 +7,6 @@ from utils.language import LANG_CHOICE
 from django.utils.translation import ugettext_lazy as _
 
 
-# This is the hash value of the famous fcmp.cpp
-FCMP_FINGERPRINT = '3813d49afd13857026fcd4643f51689c39639f83c2b4136b8d95ed285510a00f'
-
-
 class Problem(models.Model):
 
     alias = models.CharField(_('Alias'), max_length=64, blank=True)
@@ -30,7 +26,7 @@ class Problem(models.Model):
 
     time_limit = models.IntegerField(_('Time Limit'), default=2000)
     memory_limit = models.IntegerField(_('Memory Limit'), default=256)
-    checker = models.CharField(_('Checker'), max_length=64, default=FCMP_FINGERPRINT)
+    checker = models.CharField(_('Checker'), blank=True, max_length=64)
     interactor = models.CharField(_('Interactor'), blank=True, max_length=64)
     validator = models.CharField(_('Validator'), blank=True, max_length=64)
     pretests = models.TextField(_('Pretest'), blank=True)
@@ -105,3 +101,15 @@ def get_input_path(case_hash):
 
 def get_output_path(case_hash):
     return path.join(settings.TESTDATA_DIR, case_hash + '.out')
+
+
+class Skill(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.TextField(blank=True)
+    parent_id = models.IntegerField(default=-1)
+    problem_list = models.TextField(blank=True)
+    priority = models.IntegerField(default=0)
+
+    @property
+    def parsed_problem_list(self):
+        return list(map(int, filter(lambda x: x, self.problem_list.split(','))))

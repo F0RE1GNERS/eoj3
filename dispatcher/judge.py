@@ -9,7 +9,7 @@ from .manage import DEFAULT_USERNAME
 
 
 def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                            interactor, callback, timeout=600):
+                            interactor, callback, timeout=900):
     server.last_seen_time = datetime.now()
     server.save(update_fields=['last_seen_time'])
     data = _prepare_judge_json_data(code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
@@ -22,7 +22,7 @@ def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_
 
 
 def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                             interactor, callback, timeout=180, fallback=True):
+                             interactor, callback, timeout=600, fallback=True):
     """
     :param interactor: None or '' if there is no interactor
     :param callback: function, to call when something is returned (possibly preliminary results)

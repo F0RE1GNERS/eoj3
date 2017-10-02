@@ -29,6 +29,7 @@
   </table>
 
   {% call modal(id="tag-add", title="Add a tag", action=url('backstage:tag_add')) %}
+    {% csrf_token %}
     <div class="field">
       <label>Tag name:</label>
       <input type="text" name="name">
@@ -36,6 +37,7 @@
   {% endcall %}
 
   {% call modal(id="tag-edit", title="Edit tag", action=url('backstage:tag_edit')) %}
+    {% csrf_token %}
     <div class="field">
       <label>Tag name:</label>
       <input type="text" name="name">
