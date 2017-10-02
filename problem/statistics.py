@@ -137,8 +137,8 @@ def invalidate_problems(problem_ids, contest_id=0):
         accept_user_count = len(accept_user[problem_id])
         all_user_count = len(all_user[problem_id])
         if all_user_count > 0:
-            accept_ratio = int(accept_count[problem_id] / all_count[problem_id] * 100)
-            accept_user_ratio = int(accept_user_count / all_user_count * 100)
+            accept_ratio = accept_count[problem_id] / all_count[problem_id] * 100
+            accept_user_ratio = accept_user_count / all_user_count * 100
         else:
             accept_ratio = accept_user_ratio = 0
         difficulty = max(min(.02 * (100 - accept_ratio) + .03 * (100 - accept_user_ratio) + max(
