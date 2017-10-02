@@ -62,10 +62,10 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem)
     author = models.ForeignKey(User)
 
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True, db_index=True)
     judge_end_time = models.DateTimeField(blank=True, null=True)
 
-    status = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.SUBMITTED)
+    status = models.IntegerField(choices=STATUS_CHOICE, db_index=True, default=SubmissionStatus.SUBMITTED)
     status_private = models.IntegerField(choices=STATUS_CHOICE, default=SubmissionStatus.SUBMITTED)
     status_percent = models.FloatField(default=0)
     # Private Status has to be accurate, because you yourself know more than others

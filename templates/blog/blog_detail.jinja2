@@ -9,7 +9,9 @@
 
   <p>{{ username_display(blog.author, tiny=True) }} edited {{ blog.edit_time | naturaltime }}
   {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
-  {{ blog.text | markdown | safer | safe }}
+  {% cache 3600 'blog_view#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
+    {{ blog.text | markdown | safer | safe }}
+  {% endcache %}
   <div class="actions">
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
       <i class="thumbs up {% if blog.likes__flag != 1 %}outline{% endif %} icon"></i>
