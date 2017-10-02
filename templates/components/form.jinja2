@@ -41,7 +41,7 @@
         </select>
       {% elif field.field.widget.__class__.__name__ == 'SelectMultiple' %}
         {{ field.label_tag() }}
-        <div class="ui multiple selection dropdown">
+        <div class="ui multiple selection search dropdown">
           <input name="{{ field.name }}" type="hidden" value="{{ field.initial }}">
           <i class="dropdown icon"></i>
           <div class="default text">Select Multiple</div>

@@ -1,27 +1,46 @@
 import base64
 import io
-import json
-import logging
 import re
 
 import chardet
 import requests
 
 from utils import random_string
+from utils.site_settings import site_settings_get
 
 white_space_reg = re.compile(r'[\x00-\x20\s]+')
 
-SERVER_URL = 'http://123.57.161.63:5002'
-TOKEN = ('ejudge', 'naive')
 TIMEOUT = 60
 LONG_TEST_TIMEOUT = 600
 MAX_GENERATE = 5
-VALIDATE_URL = SERVER_URL + '/validate'
-OUTPUT_URL = SERVER_URL + '/judge/output'
-CHECKER_URL = SERVER_URL + '/judge/checker'
-GENERATOR_URL = SERVER_URL + '/generate'
-STRESS_URL = SERVER_URL + '/stress'
 
+
+def get_token():
+    return ('ejudge', site_settings_get('POLYGON_TOKEN', 'naive'))
+
+
+def get_server_url():
+    return site_settings_get('POLYGON_JUDGE_SERVER', '127.0.0.1:5000')
+
+
+def get_validate_url():
+    return 'http://%s/validate' % get_server_url()
+
+
+def get_output_url():
+    return 'http://%s/judge/output' % get_server_url()
+
+
+def get_checker_url():
+    return 'http://%s/judge/checker' % get_server_url()
+
+
+def get_generator_url():
+    return 'http://%s/generate' % get_server_url()
+
+
+def get_stress_url():
+    return 'http://%s/stress' % get_server_url()
 
 
 def read_by_formed_lines(fileobj):
@@ -62,7 +81,7 @@ def validate_input_multiple(binary, validator_code, validator_lang, max_time):
         'multiple': True
     }
     val_data.update(_pre_json_program_from_kwargs(lang=validator_lang, code=validator_code))
-    return requests.post(VALIDATE_URL, json=val_data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+    return requests.post(get_validate_url(), json=val_data, auth=get_token(), timeout=LONG_TEST_TIMEOUT).json()
 
 
 def run_output_multiple(model_code, model_lang, max_time, input):
@@ -73,7 +92,7 @@ def run_output_multiple(model_code, model_lang, max_time, input):
         "submission": _pre_json_program_from_kwargs(lang=model_lang, code=model_code),
         'multiple': True
     }
-    return requests.post(OUTPUT_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+    return requests.post(get_output_url(), json=data, auth=get_token(), timeout=LONG_TEST_TIMEOUT).json()
 
 
 def check_output_with_result_multiple(submission, checker, max_time, max_memory, input, output, interactor=None):
@@ -88,7 +107,7 @@ def check_output_with_result_multiple(submission, checker, max_time, max_memory,
     }
     if interactor:
         data.update(interactor=_pre_json_program_from_kwargs(interactor))
-    return requests.post(CHECKER_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+    return requests.post(get_checker_url(), json=data, auth=get_token(), timeout=LONG_TEST_TIMEOUT).json()
 
 
 def generate_multiple(generator, max_time, max_memory, command_line_args):
@@ -99,7 +118,7 @@ def generate_multiple(generator, max_time, max_memory, command_line_args):
         'multiple': True
     }
     data.update(_pre_json_program_from_kwargs(generator))
-    return requests.post(GENERATOR_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+    return requests.post(get_generator_url(), json=data, auth=get_token(), timeout=LONG_TEST_TIMEOUT).json()
 
 
 def stress_test(model, submission, generator, command_line_args_list, max_time, max_memory, max_sum_time,
@@ -117,7 +136,7 @@ def stress_test(model, submission, generator, command_line_args_list, max_time, 
     }
     if interactor:
         data.update(interactor=_pre_json_program_from_kwargs(interactor))
-    return requests.post(STRESS_URL, json=data, auth=TOKEN, timeout=LONG_TEST_TIMEOUT).json()
+    return requests.post(get_stress_url(), json=data, auth=get_token(), timeout=LONG_TEST_TIMEOUT).json()
 
 
 def _pre_json_program_from_kwargs(*args, **kwargs):

@@ -1,0 +1,52 @@
+{% extends 'problem/base.jinja2' %}
+
+{% macro render_problem(problem, comment='') %}
+  <div class="item">
+    {% if problem.personal_label == 1%}
+      <div class="ui green horizontal label">Solved</div>
+    {% elif problem.personal_label == -1 %}
+      <div class="ui orange horizontal label">Attempted</div>
+    {% endif %}
+    <a href="#">{{ problem }}</a>
+  </div>
+{% endmacro %}
+
+{% macro render_node(id, first_layer=False) %}
+  {% if children_list[id] %}
+    <div class="item">
+      {% if first_layer %}
+        <b>{{ skill_list[id].name }}</b>
+      {% else %}
+        {{ skill_list[id].name }}
+      {% endif %}
+      <div class="list">
+        {% for child in children_list[id] %}
+          {{ render_node(child) }}
+        {% endfor %}
+      </div>
+    </div>
+  {% elif problem_list[id] %}
+    <div class="item">
+      {% if first_layer %}
+        <b>{{ skill_list[id].name }}</b>
+      {% else %}
+        {{ skill_list[id].name }}
+      {% endif %}
+      <div class="list">
+        {% for p in problem_list[id] %}
+          {{ render_problem(problem_set[p]) }}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% block title %}Archive - {% endblock %}
+
+{% block problem_content %}
+<div class="ui bulleted relaxed list">
+  {% for node in children_list[-1] %}
+    {{ render_node(node, True) }}
+  {% endfor %}
+</div>
+{% endblock %}

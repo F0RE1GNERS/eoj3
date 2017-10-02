@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
@@ -21,7 +22,7 @@ from utils.comment import CommentForm
 from utils.language import LANG_CHOICE
 from utils.pagination import EndlessListView
 from utils.tagging import edit_string_for_tags
-from .models import Problem
+from .models import Problem, Skill
 from utils.permission import is_problem_manager, get_permission_for_submission
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
@@ -380,3 +381,29 @@ class SourceList(ListView):
             queryset = queryset.filter(visible=True)
         return queryset.only('source').exclude(source='').\
             order_by('source').values('source').annotate(count=Count('source'))
+
+
+class ArchiveList(TemplateView):
+    template_name = 'problem/archive.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        skill_list = Skill.objects.order_by("-priority").all()
+        children_list = defaultdict(list)
+        problem_list = defaultdict(list)
+        problem_set = set()
+        for skill in skill_list:
+            children_list[skill.parent_id].append(skill.pk)
+            problem_list[skill.pk] = skill.parsed_problem_list
+            problem_set = problem_set.union(skill.parsed_problem_list)
+        problem_set = {problem.pk: problem for problem in Problem.objects.only("title").filter(pk__in=problem_set)}
+        skill_list = {skill.pk: skill for skill in skill_list}
+        attempt_list = set(get_attempted_problem_list(self.request.user.id))
+        accept_list = set(get_accept_problem_list(self.request.user.id))
+        for problem in problem_set.values():
+            if problem.pk in accept_list:
+                problem.personal_label = 1
+            elif problem.pk in attempt_list:
+                problem.personal_label = -1
+        data.update(children_list=children_list, problem_list=problem_list, problem_set=problem_set, skill_list=skill_list)
+        return data

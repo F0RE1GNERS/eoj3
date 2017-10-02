@@ -2,19 +2,22 @@ import json
 
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse, redirect
+from django.urls import reverse
+from django.views.generic import UpdateView
 from django.views.generic import View
 from django.views.generic.list import ListView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from tagging.models import Tag
 
-from problem.models import Problem
+from backstage.problem.forms import SkillEditForm
+from problem.models import Problem, Skill
 from ..base_views import BaseBackstageMixin
 
 
 class ProblemList(BaseBackstageMixin, ListView):
-    template_name = 'backstage/problem.jinja2'
+    template_name = 'backstage/problem/problem.jinja2'
     paginate_by = 250
     context_object_name = 'problem_list'
 
@@ -39,7 +42,7 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
 
 
 class ProblemTagList(BaseBackstageMixin, ListView):
-    template_name = 'backstage/tags.jinja2'
+    template_name = 'backstage/problem/tags.jinja2'
     queryset = Tag.objects.all()
     context_object_name = 'tag_list'
 
@@ -58,3 +61,33 @@ class ProblemTagEdit(BaseBackstageMixin, APIView):
         tag.name = name
         tag.save(update_fields=["name"])
         return Response()
+
+
+class ProblemArchiveList(BaseBackstageMixin, ListView):
+    template_name = 'backstage/problem/skill.jinja2'
+    queryset = Skill.objects.all()
+    context_object_name = 'skill_list'
+
+
+class ProblemArchiveCreate(BaseBackstageMixin, APIView):
+    def post(self, request, *args, **kwargs):
+        name = request.POST['name']
+        Skill.objects.create(name=name)
+        return Response()
+
+
+class ProblemArchiveEdit(BaseBackstageMixin, UpdateView):
+    form_class = SkillEditForm
+    template_name = 'backstage/problem/skill_edit.jinja2'
+    queryset = Skill.objects.all()
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        return data
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.problem_list = ','.join(form.cleaned_data['problem_list'])
+        instance.parent_id = form.cleaned_data['parent']
+        instance.save()
+        return redirect(reverse('backstage:archive'))

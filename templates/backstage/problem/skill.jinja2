@@ -1,0 +1,51 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Problem Tags
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui center aligned celled table">
+    <thead>
+      <tr>
+        <th colspan="6">
+          <button class="ui right floated primary labeled icon button modal-link" data-target="#archive-add">
+            <i class="server icon"></i> Add Skill
+          </button>
+        </th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Problems</th>
+        <th>Parent</th>
+        <th class="right aligned collapsing">Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for skill in skill_list %}
+        <tr>
+          <td>{{ skill.pk }}</td>
+          <td>{{ skill.name }}</td>
+          <td>{{ skill.description }}</td>
+          <td>{{ skill.problem_list }}</td>
+          <td>{{ skill.parent_id }}</td>
+          <td class="right aligned collapsing">
+            <a href="{{ url('backstage:archive_edit', skill.pk) }}">Edit</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% call modal(id="archive-add", title="Add a skill", action=url('backstage:archive_add')) %}
+    {% csrf_token %}
+    <div class="field">
+      <label>Skill name:</label>
+      <input type="text" name="name">
+    </div>
+  {% endcall %}
+
+{% endblock %}
