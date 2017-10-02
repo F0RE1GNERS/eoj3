@@ -130,38 +130,9 @@ class ContestStatus(BaseContestMixin, StatusList):
         return data
 
 
-class ContestBalloon(BaseContestMixin, ListView):
-    template_name = 'contest/balloon.jinja2'
-    paginate_by = 100
-    context_object_name = 'submission_list'
-
-    def test_func(self):
-        if not self.privileged and not self.volunteer:
-            raise PermissionDenied("You don't have the access.")
-        return True
-
-    def get_queryset(self):
-        queryset = self.contest.submission_set.select_related('author'). \
-            only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
-                 'author__magic', 'problem_id', 'status', 'addon_info').filter(status=SubmissionStatus.ACCEPTED,
-                                                                               addon_info=False)
-        return queryset.all()
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestBalloon, self).get_context_data(**kwargs)
-        author_list = set(x.author_id for x in data['submission_list'])
-        contest_participants = self.contest.contestparticipant_set.filter(user_id__in=author_list). \
-            only("user_id", "comment", "contest_id").all()
-        contest_participant_set = dict()
-        for participant in contest_participants:
-            contest_participant_set[participant.user_id] = participant.comment
-        for submission in data['submission_list']:
-            submission.comment = contest_participant_set[submission.author_id]
-            submission.create_time = time_formatter((submission.create_time - self.contest.start_time).total_seconds())
-            submission.contest_problem = self.contest.get(submission.problem_id)
-            if type(submission.contest_problem) == ContestProblem:
-                submission.contest_problem = submission.contest_problem.identifier
-        return data
+class ContestBalloon(BaseContestMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse()
 
 
 def balloon_switch(request, pk):
