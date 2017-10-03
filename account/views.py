@@ -1,6 +1,7 @@
 import random
 
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, get_object_or_404
 from django.contrib.auth import PermissionDenied
@@ -74,16 +75,18 @@ class UpdatePreferencesView(UpdateView):
         return self.request.path
 
 
-@login_required
-def change_username_view(request):
-    if request.method != "POST":
-        raise PermissionDenied
-    username = request.POST["username"]
-    if username != request.user.username:
-        change_username(request.user, -100 * (request.user.username_change_attempt ** 2), username)
-        request.user.username_change_attempt += 1
-        request.user.save(update_fields=["username_change_attempt"])
-    return redirect(reverse("account:profile"))
+class ChangeUsernameView(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST["username"]
+        if username != request.user.username:
+            try:
+                change_username(request.user, -100 * (request.user.username_change_attempt ** 2), username)
+                request.user.username_change_attempt += 1
+                request.user.save(update_fields=["username_change_attempt"])
+            except PermissionError as e:
+                messages.error(request, str(e))
+        return HttpResponse()
 
 
 class RegisterView(FormView):
