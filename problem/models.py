@@ -19,7 +19,7 @@ class Problem(models.Model):
     source = models.CharField(_('Source'), max_length=128, blank=True)
     judge = models.CharField(_('Judge indicator'), max_length=128, blank=True)  # to delete
 
-    visible = models.BooleanField(default=False)
+    visible = models.BooleanField(default=False, db_index=True)
     maintaining = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
