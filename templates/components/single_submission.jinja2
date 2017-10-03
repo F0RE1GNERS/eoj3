@@ -1,19 +1,5 @@
 {# This template is for author only if access directly #}
 
-<div class="ui segment">
-  <div class="ui simple dropdown top right attached label">
-    <i class="code icon"></i> {{ submission.get_lang_display() }}
-    <div class="menu">
-      <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
-    {% if not submission.contest %}
-      <a class="item" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">
-        <i class="external icon"></i> Open in editor
-      </a>
-    {% endif %}
-    </div>
-  </div>
-  <div>{{ submission.code_as_html | safe }}</div>
-</div>
 <table class="ui celled table structured">
   <thead>
     <tr class="center aligned">

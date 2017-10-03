@@ -55,7 +55,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
 
 function scrollToCurrentSubmission () {
   $('html, body').animate({
-    scrollTop: $("#current-submission").find("table").offset().top - $("#navbar").height() - 15
+    scrollTop: $("#current-submission").offset().top - $("#navbar").height() - 15
   }, 500);
 }
 
