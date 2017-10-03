@@ -9,6 +9,21 @@
 
   {{ submission_block }}
 
+  <div class="ui segment">
+    <div class="ui simple dropdown top right attached label">
+      <i class="code icon"></i> {{ submission.get_lang_display() }}
+      <div class="menu">
+        <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
+      {% if not submission.contest %}
+        <a class="item" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">
+          <i class="external icon"></i> Open in editor
+        </a>
+      {% endif %}
+      </div>
+    </div>
+    <div>{{ submission.code_as_html | safe }}</div>
+  </div>
+
   {% if submission.author == request.user %}
     {% if contest %}
       <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id) }}"></div>
@@ -17,8 +32,4 @@
     {% endif %}
   {% endif %}
   
-{% endblock %}
-
-{% block script %}
-  <script src="/static/js/submit.js"></script>
 {% endblock %}

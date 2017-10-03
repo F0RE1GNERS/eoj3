@@ -55,19 +55,19 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
 
 function scrollToCurrentSubmission () {
   $('html, body').animate({
-    scrollTop: $("#current-submission").find("table").offset().top - $("#navbar").height() - 15
+    scrollTop: $("#current-submission").offset().top - $("#navbar").height() - 15
   }, 500);
 }
 
-function updateSubmission (url, scroll) {
+function updateSubmission (url, scroll, preset_timeout) {
   $.get(url, function (data) {
     var submissionBox = $("#current-submission");
     submissionBox.html(data);
     var status = submissionBox.find(".status-span.with-icon").attr("data-status");
     if (status == "-3" || status == "-2") {
       setTimeout(function() {
-        updateSubmission(url, false);
-      }, 500);
+        updateSubmission(url, false, (preset_timeout || 500) + 50);
+      }, preset_timeout || 500);
     } else {
       updatePastSubmissions();
     }

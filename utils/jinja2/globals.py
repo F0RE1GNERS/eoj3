@@ -4,6 +4,7 @@ from datetime import datetime
 import jinja2
 import markupsafe
 from bs4 import BeautifulSoup
+from django.core.cache import cache
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum, Case, IntegerField, When
@@ -220,6 +221,11 @@ def url_encode(d):
 
 
 @library.global_function(name='static_file_modify')
-def static_file_modify(path):
-    real_path = os.path.join(settings.STATIC_DIR, path)
-    return int(os.path.getmtime(real_path))
+def static_file_modify():
+    def get_modified_time(path):
+        return max(map(lambda x: int(os.path.getmtime(x[0])), os.walk(path)))
+    t = cache.get("STATIC_FILE_MODIFIED_TIME")
+    if t is None:
+        t = max(map(get_modified_time, [os.path.join(settings.STATIC_DIR, "css"), os.path.join(settings.STATIC_DIR, "js")]))
+        cache.set("STATIC_FILE_MODIFIED_TIME", t)
+    return t

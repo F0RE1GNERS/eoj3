@@ -43,9 +43,9 @@ def change_username(user, amount, new_username):
             UsernameValidator()(user.username)
             user.save(update_fields=["username"])
         except ValidationError:
-            raise PermissionDenied(_("Username too short or illegal."))
+            raise PermissionError(_("Username too short or illegal."))
         except IntegrityError:
-            raise PermissionDenied(_("Username should be unique."))
+            raise PermissionError(_("Username should be unique."))
         create_payment(user, amount, Payment.CHANGE_USERNAME, {"new": new_username})
 
 
