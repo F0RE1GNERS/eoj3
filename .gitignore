@@ -18,3 +18,5 @@ node_modules/
 bower_components/
 media/
 repo/
+app.css
+app.min.css

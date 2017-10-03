@@ -1,3 +1,5 @@
+{% set static_file_version = static_file_modify() %}
+
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -8,7 +10,7 @@
   <link rel="icon" href="/static/favicon.ico">
   <link rel="stylesheet" href="/static/node_modules/npm-font-open-sans/open-sans.css">
   <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/css/app.min.css?v=20170928">
+  <link rel="stylesheet" href="/static/css/app.min.css?v={{ static_file_version }}">
   <link rel="stylesheet" href="/static/node_modules/simplemde/dist/simplemde.min.css">
   <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
   {% block css %}
@@ -35,10 +37,11 @@
 <script src="/static/node_modules/lodash/lodash.min.js"></script>
 <script src="/static/node_modules/semantic-ui-less/semantic.js"></script>
 <script src="/static/node_modules/simplemde/dist/simplemde.min.js"></script>
-<script src="/static/js/markdown.js?v=20170829"></script>
-<script src="/static/js/longpoll.js"></script>
-<script src="/static/js/input.file.js"></script>
-<script src="/static/js/app.js?v=20170930"></script>
+<script src="/static/js/markdown.js?v={{ static_file_version }}"></script>
+<script src="/static/js/longpoll.js?v={{ static_file_version }}"></script>
+<script src="/static/js/input.file.js?v={{ static_file_version }}"></script>
+<script src="/static/js/app.js?v={{ static_file_version }}"></script>
+<script src="/static/js/submit.js?v={{ static_file_version }}"></script>
 {% if request.user.is_authenticated %}
 <script>
   var alarmIcon = $("#notification-alarm");
