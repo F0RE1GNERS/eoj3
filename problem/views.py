@@ -296,8 +296,7 @@ class ProblemUpdateTags(ProblemDetailMixin, View):
             raise PermissionDenied
         tags = self.__class__.clear_tags(request.POST['tags'])
         if tags:
-            self.problem.tags = tags
-            self.problem.save()
+            Tag.objects.update_tags(self.problem, tags)
         return redirect(request.POST['next'])
 
 
