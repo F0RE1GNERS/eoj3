@@ -7,18 +7,22 @@
 
 {% block content %}
 
-{#  <div>#}
-{#    <p>#}
-{#      {% if contest.status == -1 %}#}
-{#        Before start <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>#}
-{#      {% elif contest.status == 0 %}#}
-{#        Before close <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span>#}
-{#      {% else %}#}
-{#        Contest finished#}
-{#      {% endif %}#}
-{#    </p>#}
-{#  </div>#}
-
+  {% if is_privileged %}
+  <div class="ui right floated buttons">
+    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>Refresh</a>
+    <div class="ui simple dropdown icon button">
+      <i class="download icon"></i>
+      <div class="menu">
+        <a class="item" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">
+          <i class="external icon"></i> Standings as .csv
+        </a>
+        <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all" target="_blank">
+          <i class="code icon"></i> All Submissions
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
   <p>Your standing: {{ my_rank }}</p>
@@ -136,13 +140,6 @@
 
   {% if paginator %}
     {{ my_paginator() }}
-  {% endif %}
-
-  {% if is_privileged %}
-  <div class="ui right floated buttons">
-    <a class="ui button primary" href="{{ url('contest:update_standings', contest.pk) }}">Update standings</a>
-    <a class="ui button" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">Download</a>
-  </div>
   {% endif %}
 
 {% endblock %}

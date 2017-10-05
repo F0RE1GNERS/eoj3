@@ -1,8 +1,10 @@
 import datetime
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect, HttpResponse
 from django.template import loader, Context
@@ -13,9 +15,26 @@ from pygments.lexers import get_lexer_by_name
 
 from account.models import User
 from account.permissions import is_admin_or_root
+from contest.models import ContestProblem
 from dispatcher.tasks import send_rejudge
 from utils.permission import get_permission_for_submission
 from .models import Submission, SubmissionStatus
+
+
+@login_required
+def submission_code_api(request):
+    c = request.GET.get('c')
+    p = request.GET.get('p')
+    try:
+        if c:
+            p = ContestProblem.objects.get(contest_id=c, identifier=p).problem_id
+            submission = request.user.submission_set.filter(contest_id=c, problem_id=p).first()
+        else:
+            submission = request.user.submission_set.filter(problem_id=p).first()
+        code = submission.code
+    except (AttributeError, ValueError, ContestProblem.DoesNotExist):
+        code = ''
+    return HttpResponse(code, content_type='text_plain')
 
 
 def render_submission(submission: Submission, permission=1, hide_problem=False, show_percent=False) -> str:

@@ -35,9 +35,12 @@
             {% endfor %}
           </select>
         </div>
+        {% else %}
+          <input name="problem" value="{{ default_problem }}" type="hidden">
         {% endif %}
       </div>
       <div class="ui compact segment">
+        <input id="default-contest" value="{% if contest %}{{ contest.pk }}{% endif %}" type="hidden">
         <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
         <div id="editor" style="height: 400px; position: relative"></div>
       </div>

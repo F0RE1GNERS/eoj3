@@ -166,6 +166,7 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             if get_permission_for_submission(self.request.user, submission):
                 data['code'] = submission.code
         data['lang_choices'] = LANG_CHOICE
+        data['default_problem'] = self.problem.pk
         return data
 
     def post(self, request, pk):
@@ -215,12 +216,6 @@ class StatusList(EndlessListView):
                 queryset = queryset.filter(lang=self.request.GET['lang'])
             if self.allow_verdict_query and 'verdict' in self.request.GET:
                 queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
-            #
-            # if kw:
-            #     q = Q(author__username__iexact=kw)
-            #     if kw.isdigit():
-            #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
-            #     queryset = queryset.filter(q)
 
             if self.distinct_by_author:
                 author_set = set()
@@ -234,8 +229,8 @@ class StatusList(EndlessListView):
                 return res
             else:
                 return queryset.all()
-        except:
-            raise Http404
+        except Exception as e:
+            raise Http404(e)
 
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)

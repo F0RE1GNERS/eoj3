@@ -49,4 +49,8 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if view_more %}
+    <a href="{{ url('contest:my', contest.pk) }}" class="ui right floated primary button">View All <i class="right chevron icon"></i></a>
+  {% endif %}
+
 {% endif %}

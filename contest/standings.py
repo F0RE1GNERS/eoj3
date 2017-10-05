@@ -107,3 +107,8 @@ class ContestDownloadStandings(BaseContestMixin, View):
             data.append(d)
         file_name = write_csv(data)
         return respond_generate_file(request, file_name, file_name_serve_as="ContestStandings - %s.csv" % self.contest.title)
+
+
+class ContestDownloadCode(BaseContestMixin, View):
+    def get(self, request, cid):
+        pass

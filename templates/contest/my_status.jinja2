@@ -1,0 +1,9 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_title %}My Submissions - {% endblock %}
+{% block contest_content %}
+
+  {{ status() }}
+
+{% endblock %}

@@ -34,7 +34,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ContestSubmit, self).get_context_data(**kwargs)
         data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
-        data['default_problem'] = self.request.GET.get('problem', None)
+        data['default_problem'] = self.request.GET.get('problem', '')
         return data
 
     def post(self, request, cid):
@@ -100,17 +100,18 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         return data
 
 
-class ContestMySubmission(BaseContestMixin, TemplateView):
+class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
     template_name = 'components/past_submissions.jinja2'
 
     def get_context_data(self, **kwargs):
-        data = super(ContestMySubmission, self).get_context_data(**kwargs)
+        data = super(ContestMyPastSubmissions, self).get_context_data(**kwargs)
         data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status", "status_private",
                                                                    "status_private", "create_time", "contest_id",
                                                                    "author_id", "author__username",
                                                                    "author__nickname", "author__magic"). \
-            filter(author_id=self.request.user.pk)
+            filter(author_id=self.request.user.pk)[:20]
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        data['view_more'] = True
         return data
 
 
@@ -127,6 +128,20 @@ class ContestStatus(BaseContestMixin, StatusList):
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        return data
+
+
+class ContestMyStatus(ContestStatus):
+    template_name = 'contest/my_status.jinja2'
+
+    def get_selected_from(self):
+        if not self.user.is_authenticated:
+            raise PermissionDenied
+        return self.contest.submission_set.filter(author=self.user).all()
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data.update(hide_users=True)
         return data
 
 
