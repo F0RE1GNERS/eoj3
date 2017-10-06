@@ -147,7 +147,7 @@ class ContestDownloadCode(BaseContestMixin, View):
                 if participants[submission.author_id]:
                     user = participants[submission.author_id]
                 user = self.__class__.slugify_filename(user)
-                if hasattr(submission, 'contest_problem'):
+                if getattr(submission, 'contest_problem') and submission.contest_problem:
                     zip.writestr("/%s_%s/%s_#%d_%s.%s" % (user, submission.author_id, submission.contest_problem.identifier,
                                                           submission.pk, submission.get_status_display().replace(' ', '_'),
                                                           lang_ext_dict.get(submission.lang, 'txt')),
