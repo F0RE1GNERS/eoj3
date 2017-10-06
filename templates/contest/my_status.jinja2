@@ -4,6 +4,15 @@
 {% block contest_title %}My Submissions - {% endblock %}
 {% block contest_content %}
 
+  <div class="ui horizontal divided link list">
+    <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my" target="_blank">
+      Download All
+    </a>
+    <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my_accepted" target="_blank">
+      Only Accepted
+    </a>
+  </div>
+
   {{ status() }}
 
 {% endblock %}

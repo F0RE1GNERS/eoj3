@@ -140,6 +140,9 @@ class ContestStatus(BaseContestMixin, StatusList):
 class ContestMyStatus(ContestStatus):
     template_name = 'contest/my_status.jinja2'
 
+    def test_func(self):
+        return super().test_func() and self.user.is_authenticated
+
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
