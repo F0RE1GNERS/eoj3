@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^source/$', v.SourceList.as_view(), name='source'),
     url(r'^(?P<pk>\d+)/statistics/$', v.ProblemStatisticsView.as_view(), name='statistics'),
     url(r'^archive/$', v.ArchiveList.as_view(), name='archive'),
+    url(r'^case/pay/$', v.make_payment_for_case_download, name='case_pay'),
 ]

@@ -14,7 +14,7 @@ from account.permissions import is_volunteer
 from .models import Contest, ContestProblem
 from .views import BaseContestMixin, time_formatter
 from .tasks import judge_submission_on_contest
-from utils.permission import is_contest_manager
+from utils.permission import is_contest_manager, is_case_download_available
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
 from utils.permission import get_permission_for_submission
@@ -66,6 +66,9 @@ class ContestSubmissionAPI(BaseContestMixin, View):
         if not request.user.is_authenticated:
             raise PermissionDenied
         submission = get_object_or_404(Submission, contest_id=cid, author=request.user, pk=sid)
+        if not self.contest.case_public and submission.is_judged and \
+                is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
+            submission.allow_case_download = True
         return HttpResponse(
             render_submission(submission, permission=get_permission_for_submission(request.user, submission),
                               hide_problem=True))
@@ -79,6 +82,9 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         data['submission'] = submission = get_object_or_404(Submission, contest_id=self.kwargs.get('cid'),
                                                                         pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
+        if not self.contest.case_public and submission.is_judged and \
+                is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
+            submission.allow_case_download = True
         authorized = False
         if self.request.user.is_authenticated:  # Check author or managers (no share)
             if is_contest_manager(self.request.user,

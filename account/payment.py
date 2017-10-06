@@ -49,9 +49,11 @@ def change_username(user, amount, new_username):
         create_payment(user, amount, Payment.CHANGE_USERNAME, {"new": new_username})
 
 
-def download_case(user, amount, memo):
+def download_case(user, amount, case_fingerprint, case_num, submission):
     with transaction.atomic():
-        create_payment(user, amount, Payment.DOWNLOAD_CASE, memo)
+        create_payment(user, -amount, Payment.DOWNLOAD_CASE, {"case_num": case_num,
+                                                              "submission": submission,
+                                                              "fingerprint": case_fingerprint})
 
 
 class PaymentList(LoginRequiredMixin, ListView):

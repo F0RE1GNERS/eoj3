@@ -119,5 +119,3 @@ def submission_count_api(request, name):
     submissions = Submission.objects.filter(author=user, create_time__gte=one_year_ago)
     result = {submission.create_time.timestamp(): 1 for submission in submissions}
     return JsonResponse(result)
-
-

@@ -133,6 +133,7 @@ class Submission(models.Model):
             r.append((u, v))
         return r
 
+    @property
     def is_judged(self):
         return SubmissionStatus.is_judged(self.status)
 
@@ -144,7 +145,7 @@ class Submission(models.Model):
 
     def get_status_display_in_contest(self):
         addition = ''
-        if self.contest is not None and (self.contest.rule == 'oi' or self.contest.rule == 'oi2') and self.is_judged():
+        if self.contest is not None and (self.contest.rule == 'oi' or self.contest.rule == 'oi2') and self.is_judged:
             addition = ' %d%%' % self.status_percent
         return self.get_status_display() + addition
 
