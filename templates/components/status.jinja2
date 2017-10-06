@@ -8,6 +8,7 @@
       <tr>
         <th>#</th>
         <th>When</th>
+        {% if not hide_users %}
         <th>
           <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}">
             <span class="text">Who</span>
@@ -17,6 +18,7 @@
           </div>
           <span class="restore"><i class="close icon"></i></span>
         </th>
+        {% endif %}
         {% if not hide_problems %}
           {% if contest %}
             <th>
@@ -104,7 +106,9 @@
           <td><a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}</a></td>
         {% endif %}
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+        {% if not hide_users %}
           <td>{{ username_display(submission.author, tiny=True) }}</td>
+        {% endif %}
           {% if not hide_problems %}
             {% if not contest %}
               <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>

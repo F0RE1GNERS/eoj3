@@ -2,11 +2,12 @@ from django.conf import settings
 from django.conf.urls import url
 
 from home import search_api
-from submission.views import submission_count_api
+from submission.views import submission_code_api, submission_count_api
 from utils.markdown3 import markdown_convert_api
 from message.views import ReplyAPI, ConversationAPI
 
 urlpatterns = [
+    url(r'^submission/$', submission_code_api),
     url(r'^submission/user/(?P<name>.*)/$', submission_count_api),
     url(r'^markdown/$', markdown_convert_api),
     url(r'^search/$', search_api.SearchAPI.as_view(), name='search'),

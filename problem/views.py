@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
@@ -13,17 +14,19 @@ from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from tagging.models import Tag, TaggedItem, ContentType
 
-from account.models import User
+from account.models import User, Payment
+from account.payment import download_case
 from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from utils.comment import CommentForm
+from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
 from utils.pagination import EndlessListView
 from utils.tagging import edit_string_for_tags
-from .models import Problem, Skill
-from utils.permission import is_problem_manager, get_permission_for_submission
+from .models import Problem, Skill, get_input_path, get_output_path
+from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
@@ -166,6 +169,7 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             if get_permission_for_submission(self.request.user, submission):
                 data['code'] = submission.code
         data['lang_choices'] = LANG_CHOICE
+        data['default_problem'] = self.problem.pk
         return data
 
     def post(self, request, pk):
@@ -215,12 +219,6 @@ class StatusList(EndlessListView):
                 queryset = queryset.filter(lang=self.request.GET['lang'])
             if self.allow_verdict_query and 'verdict' in self.request.GET:
                 queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
-            #
-            # if kw:
-            #     q = Q(author__username__iexact=kw)
-            #     if kw.isdigit():
-            #     q |= Q(pk__exact=kw) | Q(problem__pk__exact=kw)
-            #     queryset = queryset.filter(q)
 
             if self.distinct_by_author:
                 author_set = set()
@@ -234,8 +232,8 @@ class StatusList(EndlessListView):
                 return res
             else:
                 return queryset.all()
-        except:
-            raise Http404
+        except Exception as e:
+            raise Http404(e)
 
     def get_context_data(self, **kwargs):
         data = super(StatusList, self).get_context_data(**kwargs)
@@ -301,8 +299,7 @@ class ProblemUpdateTags(ProblemDetailMixin, View):
             raise PermissionDenied
         tags = self.__class__.clear_tags(request.POST['tags'])
         if tags:
-            self.problem.tags = tags
-            self.problem.save()
+            Tag.objects.update_tags(self.problem, tags)
         return redirect(request.POST['next'])
 
 
@@ -324,6 +321,8 @@ class ProblemSubmissionAPI(LoginRequiredMixin, View):
 
     def get(self, request, pk, sid):
         submission = get_object_or_404(Submission, problem_id=pk, author=self.request.user, pk=sid)
+        if submission.is_judged and is_case_download_available(self.request.user, pk):
+            submission.allow_case_download = True
         return HttpResponse(render_submission(submission,
                                               permission=get_permission_for_submission(request.user, submission),
                                               hide_problem=True))
@@ -338,6 +337,8 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
         data['submission'] = submission = get_object_or_404(Submission, pk=self.kwargs.get('sid'),
                                                                         problem_id=self.kwargs.get('pk'),
                                                                         contest__isnull=True)
+        if submission.is_judged and is_case_download_available(self.request.user, self.kwargs.get('pk')):
+            submission.allow_case_download = True
         if self.request.user.is_authenticated and (
                             submission.author == self.request.user or
                         is_problem_manager(self.request.user,
@@ -407,3 +408,50 @@ class ArchiveList(TemplateView):
                 problem.personal_label = -1
         data.update(children_list=children_list, problem_list=problem_list, problem_set=problem_set, skill_list=skill_list)
         return data
+
+
+@login_required
+def make_payment_for_case_download(request):
+    def find_index(func, iter):
+        try:
+            return next((idx, x) for idx, x in enumerate(iter) if func(x))[0]
+        except StopIteration:
+            return -1  # fail
+
+    try:
+        submission = get_object_or_404(Submission, author_id=request.user.pk, pk=request.POST.get('sub', request.GET['sub']))
+        if not is_admin_or_root(request.user):
+            if submission.author_id != request.user.pk:
+                raise PermissionDenied("This submission does not belong to you.")
+            if submission.contest_id and not submission.contest.case_public:
+                raise PermissionDenied("Case is not public in this contest.")
+        price = 10 if submission.contest_id else get_problem_difficulty(submission.problem_id)
+        if request.method == 'POST':
+            try:
+                num = int(request.POST['num'])
+                fingerprint = submission.problem.case_list[num - 1]
+                download_case(request.user, price, fingerprint, num, submission.pk)
+            except IndexError:
+                raise PermissionDenied("The case you selected no longer exists. Try to resubmit.")
+            return redirect('account:payment')
+        else:
+            return render(request, 'case_download.jinja2', context={
+                'submission': submission.pk,
+                'price': price,
+                'num_init': find_index(lambda x: x.get('verdict') != 0, submission.status_detail_list) + 1,
+                'old': submission.judge_end_time < submission.problem.update_time
+            })
+    except (ValueError, KeyError):
+        raise Http404
+
+
+@login_required
+def case_download_link(request):
+    pk = request.GET.get('p')
+    fingerprint = get_object_or_404(Payment, pk=pk, user=request.user).detail['fingerprint']
+    if request.GET.get('t') == 'in':
+        return respond_as_attachment(request, get_input_path(fingerprint), "case.%s.in" % fingerprint[:8])
+    elif request.GET.get('t') == 'out':
+        return respond_as_attachment(request, get_output_path(fingerprint), "case.%s.out" % fingerprint[:8])
+    else:
+        raise Http404

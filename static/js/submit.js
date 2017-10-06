@@ -1,4 +1,5 @@
 if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
+  // has a editor
   var map = {
     'c': 'c_cpp',
     'c11': 'c_cpp',
@@ -35,7 +36,32 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var editor = ace.edit("editor");
   var lang = $("#id_lang");
   var code = $("#id_code");
-  editor.getSession().setValue(code.val());
+  var problem = $("*[name='problem']");
+  var code_param = "", code_in_storage_key = "";
+  code.on("change", function (event) {
+    editor.getSession().setValue(code.val());
+  });
+
+  function updateStorageKey() {
+    var problem_val = problem.val();
+    if (problem_val) {
+      code_param = "?c=" + $("#default-contest").val() + "&p=" + problem_val;
+      code_in_storage_key = "code" + code_param;
+      if (window.sessionStorage && window.sessionStorage.getItem(code_in_storage_key)) {
+        code.val(window.sessionStorage.getItem(code_in_storage_key));
+        code.trigger("change");
+      } else {
+        $.get("/api/submission/" + code_param, function (data) {
+          code.val(data);
+          code.trigger("change");
+        });
+      }
+    } else {
+      code_in_storage_key = "";
+    }
+  }
+  updateStorageKey();
+
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/" + map[lang.val()]);
   editor.setOptions({
@@ -48,8 +74,15 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       localStorage.setItem("lang", event.target.value);
     }
   });
+  problem.on("change", function (event) {
+    updateStorageKey();
+  });
+
   editor.getSession().on("change", function () {
-    code.val(editor.getSession().getValue());
+    var my_code = editor.getSession().getValue();
+    code.val(my_code);
+    if (window.sessionStorage && code_in_storage_key)
+      window.sessionStorage.setItem(code_in_storage_key, my_code);
   });
 }
 

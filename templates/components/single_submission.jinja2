@@ -60,3 +60,15 @@
     </tr>
   </tbody>
 </table>
+
+{% if submission.allow_case_download %}
+  <a class="ui info icon message" href="{{ url('pay_case') }}?sub={{ submission.pk }}">
+    <i class="circle help outline icon"></i>
+    <div class="content">
+      <div class="header">
+        Need some help?
+      </div>
+      <p>Buy judge's data and find out what's wrong.</p>
+    </div>
+  </a>
+{% endif %}

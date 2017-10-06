@@ -1,10 +1,16 @@
+import zipfile
+
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.core.exceptions import PermissionDenied
 from django.views import static
+from os import path
 
 from problem.statistics import get_contest_problem_ac_submit
+from submission.models import SubmissionStatus
+from utils import random_string
+from utils.language import LANG_EXT
 from .models import ContestParticipant
 from .views import BaseContestMixin
 from .statistics import get_contest_rank, get_participant_rank, invalidate_contest, get_first_yes
@@ -107,3 +113,43 @@ class ContestDownloadStandings(BaseContestMixin, View):
             data.append(d)
         file_name = write_csv(data)
         return respond_generate_file(request, file_name, file_name_serve_as="ContestStandings - %s.csv" % self.contest.title)
+
+
+class ContestDownloadCode(BaseContestMixin, View):
+    @staticmethod
+    def slugify_filename(string):
+        for c in r' []/\;,><&*:%=+@!#^()|?^':
+            string = string.replace(c, '_')
+        return string
+
+    def test_func(self):
+        return super().test_func() and self.user.is_authenticated
+
+    def get(self, request, cid):
+        type = request.GET.get('t')
+        if type and 'all' in type and self.privileged:
+            submissions = self.contest.submission_set
+        else:
+            submissions = self.contest.submission_set.filter(author=request.user)
+        if type and 'accepted' in type:
+            submissions = submissions.filter(status=SubmissionStatus.ACCEPTED)
+        submissions = submissions.select_related("author")
+        self.contest.add_contest_problem_to_submissions(submissions)
+        participants = dict(self.contest.contestparticipant_set.values_list('user_id', 'comment'))
+        print(participants)
+
+        file_path = path.join(settings.GENERATE_DIR, random_string())
+        lang_ext_dict = dict(LANG_EXT)
+        with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zip:
+            zip.writestr('/contest.nfo', '')
+            for submission in submissions:
+                user = submission.author.username
+                if participants[submission.author_id]:
+                    user = participants[submission.author_id]
+                user = self.__class__.slugify_filename(user)
+                if hasattr(submission, 'contest_problem'):
+                    zip.writestr("/%s_%s/%s_#%d_%s.%s" % (user, submission.author_id, submission.contest_problem.identifier,
+                                                          submission.pk, submission.get_status_display().replace(' ', '_'),
+                                                          lang_ext_dict.get(submission.lang, 'txt')),
+                                 submission.code)
+        return respond_generate_file(request, file_path, "ContestCode - %s.zip" % self.contest.title)

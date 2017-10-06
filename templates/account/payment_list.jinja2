@@ -26,6 +26,8 @@
               {% endif %}
             {% elif payment.type == "change_username" %}
               Change username to <b>{{ payment.detail.new }}</b>
+            {% elif payment.type == "download_case" %}
+              Case #{{ payment.detail.case_num }} in Submission #{{ payment.detail.submission }} <a href="{{ url('download_case') }}?p={{ payment.pk }}&t=in">input</a> or <a href="{{ url('download_case') }}?p={{ payment.pk }}&t=out">output</a>.
             {% endif %}
           </td>
           <td>{{ payment.credit | round(1) }}</td>

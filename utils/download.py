@@ -4,6 +4,7 @@ import threading
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.http import Http404
 from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
 
@@ -13,19 +14,22 @@ from utils.jinja2.globals import url_encode
 def respond_as_attachment(request, file_path, original_filename, document_root=None):
     if document_root is not None:
         file_path = os.path.join(document_root, file_path)
-    fp = open(file_path, 'rb')
-    response = HttpResponse(fp.read())
-    fp.close()
-    type, encoding = mimetypes.guess_type(original_filename)
-    if type is None:
-        type = 'application/octet-stream'
-    response['Content-Type'] = type
-    response['Content-Length'] = str(os.stat(file_path).st_size)
-    if encoding is not None:
-        response['Content-Encoding'] = encoding
-        url_encode()
-    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % iri_to_uri(original_filename)
-    return response
+    try:
+        fp = open(file_path, 'rb')
+        response = HttpResponse(fp.read())
+        fp.close()
+        type, encoding = mimetypes.guess_type(original_filename)
+        if type is None:
+            type = 'application/octet-stream'
+        response['Content-Type'] = type
+        response['Content-Length'] = str(os.stat(file_path).st_size)
+        if encoding is not None:
+            response['Content-Encoding'] = encoding
+            url_encode()
+        response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % iri_to_uri(original_filename)
+        return response
+    except Exception as e:
+        raise Http404(e)
 
 
 def respond_generate_file(request, file_name, file_name_serve_as=None):

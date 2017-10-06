@@ -13,6 +13,7 @@ import django_comments_xtd.api as comment_xtd_api
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
 from home.views import home_view, faq_view, TestView
+from problem.views import make_payment_for_case_download, case_download_link
 from submission.views import SubmissionRejudgeView
 from tests.views import test_view, test_contest_view
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
@@ -47,6 +48,8 @@ urlpatterns = [
     url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
     url(r'^migrate/$', migrate_view, name='migrate'),
+    url(r'^case/pay/$', make_payment_for_case_download, name='pay_case'),
+    url(r'^case/download/$', case_download_link, name='download_case'),
 ]
 
 
