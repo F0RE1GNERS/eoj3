@@ -88,7 +88,7 @@ class Contest(models.Model):
                                                     default=False)  # Have a standing without specific problems
     standings_public = models.BooleanField('Make standings public even if the contest is private', default=True)
     standings_disabled = models.BooleanField("Users won't be able to see their standings in any case", default=False)
-    case_public = models.BooleanField('Cases can be downloaded if paid.', default=False)
+    case_public = models.BooleanField('Cases can be downloaded if paid', default=False)
 
     system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
 
