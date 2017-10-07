@@ -66,7 +66,7 @@ class ContestSubmissionAPI(BaseContestMixin, View):
         if not request.user.is_authenticated:
             raise PermissionDenied
         submission = get_object_or_404(Submission, contest_id=cid, author=request.user, pk=sid)
-        if not self.contest.case_public and submission.is_judged and \
+        if self.contest.case_public and submission.is_judged and \
                 is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
             submission.allow_case_download = True
         return HttpResponse(
@@ -82,7 +82,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         data['submission'] = submission = get_object_or_404(Submission, contest_id=self.kwargs.get('cid'),
                                                                         pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
-        if not self.contest.case_public and submission.is_judged and \
+        if self.contest.case_public and submission.is_judged and \
                 is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
             submission.allow_case_download = True
         authorized = False
