@@ -80,11 +80,6 @@ class BlogCreate(LoginRequiredMixin, CreateView):
     form_class = BlogEditForm
     template_name = 'blog/blog_add.jinja2'
 
-    def dispatch(self, request, *args, **kwargs):
-        if not (self.request.user.is_authenticated and (is_admin_or_root(self.request.user) or get_accept_problem_count(self.request.user.pk) >= 100)):
-            raise PermissionDenied("Users with less than 100 Accepted record have no permission to post a blog during 19 Da. Sorry~")
-        return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
