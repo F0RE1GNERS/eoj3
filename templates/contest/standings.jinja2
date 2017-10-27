@@ -1,11 +1,9 @@
-{% extends 'base.jinja2' %}
+{% extends 'contest/base.jinja2' %}
 {% from 'components/username_display.jinja2' import username_display %}
 
-{% block title %}Standings - {{ contest.title }} - {% endblock %}
+{% set standings_layout = True %}
 
-{% block page_header %}Standings: {{ contest.title }}{% endblock %}
-
-{% block content %}
+{% block standings_content %}
 
   {% if is_privileged %}
   <div class="ui right floated buttons">
@@ -27,8 +25,14 @@
   </div>
   {% endif %}
 
-  <a href="{{ url('contest:dashboard', contest.pk) }}">Back to dashboard</a>
-  <p>Your standing: {{ my_rank }}</p>
+  <p>
+    {% if time_remaining %}
+    Countdown: <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span><br>
+    {% endif %}
+    Your standing: {{ my_rank }}
+  </p>
+
+  <div class="ui hidden divider"></div>
 
   {% set contest_problem_length = (contest.contest_problem_list | length) %}
   {% if (contest.contest_problem_list | length) > 9 and not contest.standings_without_problem %}

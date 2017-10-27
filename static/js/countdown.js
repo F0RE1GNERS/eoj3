@@ -24,12 +24,14 @@ var timer = setInterval(function() {
     }
 
     var progress = $(this).closest(".ui.progress");
-    var now_progress = 0;
-    if ($(this).data("duration") > 0) {
-      now_progress = 100 - $(this).data('delta-seconds') / $(this).data('duration') * 100;
-      progress.progress({
-        percent: now_progress
-      });
+    if (progress.length > 0) {
+      var now_progress = 0;
+      if ($(this).data("duration") > 0) {
+        now_progress = 100 - $(this).data('delta-seconds') / $(this).data('duration') * 100;
+        progress.progress({
+          percent: now_progress
+        });
+      }
     }
   });
 

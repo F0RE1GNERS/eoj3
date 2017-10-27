@@ -21,115 +21,106 @@
     {% endif %}
   </div>
 
-  <div class="ui grid">
-    <div class="twelve wide column">
-      {% block contest_content %}
-      {% endblock %}
-    </div>
-    <div class="four wide column">
-      <div class="ui segments">
-      {% if contest.always_running %}
-        <div class="ui segment">
-          <div class="ui center aligned header">
-            Always Running
-          </div>
-        </div>
-      {% else %}
-        <div class="ui segment">
-          <div class="ui center aligned header">
-            {% if contest.status == 0 %}
-              Contest Running
-            {% elif contest.status == -1 %}
-              Contest Pending
-            {% elif contest.pending_system_tests %}
-              Pending System Tests
-            {% else %}
-              Contest Ended
-            {% endif %}
-          </div>
-        </div>
-        <div class="ui segment">
-          <div class="ui indicating progress" data-status="{{ contest.status }}">
-            <div class="bar"></div>
-            {% if time_remaining %}
-            <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
-            {% else %}
-            <div class="label">NaN</div>
-            {% endif %}
-          </div>
-        </div>
-      {% endif %}
+  {% if not standings_layout %}
+    <div class="ui grid">
+      <div class="twelve wide column">
+        {% block contest_content %}
+        {% endblock %}
       </div>
-
-      {% if has_permission %}
+      <div class="four wide column">
         <div class="ui segments">
+        {% if contest.always_running %}
           <div class="ui segment">
-            <h3 class="ui center aligned header">Problems</h3>
-          </div>
-          <div class="ui segment">
-            <div class="ui relaxed link list">
-              {% for contest_problem in contest_problem_list %}
-                <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
-                   href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-                    {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
-                </a>
-              {% endfor %}
+            <div class="ui center aligned header">
+              Always Running
             </div>
           </div>
+        {% else %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              {% if contest.status == 0 %}
+                Contest Running
+              {% elif contest.status == -1 %}
+                Contest Pending
+              {% elif contest.pending_system_tests %}
+                Pending System Tests
+              {% else %}
+                Contest Ended
+              {% endif %}
+            </div>
+          </div>
+          <div class="ui segment">
+            <div class="ui indicating progress" data-status="{{ contest.status }}">
+              <div class="bar"></div>
+              {% if time_remaining %}
+              <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
+              {% else %}
+              <div class="label">NaN</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
         </div>
-      {% endif %}
 
-      {% if base_notifications %}
+        {% if has_permission %}
+          <div class="ui segments">
+            <div class="ui segment">
+              <h3 class="ui center aligned header">Problems</h3>
+            </div>
+            <div class="ui segment">
+              <div class="ui relaxed link list">
+                {% for contest_problem in contest_problem_list %}
+                  <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+                     href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                      {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if base_notifications %}
+          <div class="ui segments">
+            <div class="ui segment">
+              <h3 class="ui center aligned header">Notifications</h3>
+            </div>
+            <div class="ui segment">
+              <ul class="ui list">
+                {% for i in base_notifications %}
+                  <li>{{ i.answer }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if contest.description %}
+          <div class="ui segments">
+            <div class="ui segment">
+              <h3 class="ui center aligned header">Description</h3>
+            </div>
+            <div class="ui segment">
+              {{ contest.description | markdown | safe }}
+            </div>
+          </div>
+        {% endif %}
+
         <div class="ui segments">
           <div class="ui segment">
-            <h3 class="ui center aligned header">Notifications</h3>
+            <h3 class="ui center aligned header">Rules</h3>
           </div>
           <div class="ui segment">
-            <ul class="ui list">
-              {% for i in base_notifications %}
-                <li>{{ i.answer }}</li>
-              {% endfor %}
-            </ul>
+            {{ contest_rule(contest) }}
           </div>
         </div>
-      {% endif %}
 
-      {% if contest.description %}
-        <div class="ui segments">
-          <div class="ui segment">
-            <h3 class="ui center aligned header">Description</h3>
-          </div>
-          <div class="ui segment">
-            {{ contest.description | markdown | safe }}
-          </div>
-        </div>
-      {% endif %}
-
-      <div class="ui segments">
-        <div class="ui segment">
-          <h3 class="ui center aligned header">Rules</h3>
-        </div>
-        <div class="ui segment">
-          {{ contest_rule(contest) }}
-        </div>
       </div>
-
     </div>
-  </div>
-
-{#        <div class="contest-progress">#}
-{#          <h4>Contest {{ contest_status }}</h4>#}
-{#          <div class="progress" style="margin-bottom: 2px">#}
-{#            <div class="progress-bar bg-info countdown-progress" role="progressbar" style="width: {{ progress }}%"#}
-{#                 data-status="{{ contest_status }}" data-acc="{{ progress_acc }}" data-all="{{ progress_all }}"#}
-{#                 aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>#}
-{#          </div>#}
-{#          {% if contest_status == 'pending' %}#}
-{#            <p>Before start <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>#}
-{#          {% elif contest_status == 'running' %}#}
-{#            <p>Before close <span class="countdown" data-delta-seconds="{{ time_delta }}">{{ time_delta | minute_filter }}</span></p>#}
-{#          {% endif %}#}
-{#        </div>#}
+  {% else %}
+    {% block standings_content %}
+    {% endblock %}
+  {% endif %}
 
   <div class="ui basic tiny modal" id="refreshNotification">
     <div class="ui icon header">
