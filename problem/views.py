@@ -337,7 +337,8 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
         data['submission'] = submission = get_object_or_404(Submission, pk=self.kwargs.get('sid'),
                                                                         problem_id=self.kwargs.get('pk'),
                                                                         contest__isnull=True)
-        if submission.is_judged and is_case_download_available(self.request.user, self.kwargs.get('pk')):
+        if submission.author == self.request.user and \
+                submission.is_judged and is_case_download_available(self.request.user, self.kwargs.get('pk')):
             submission.allow_case_download = True
         if self.request.user.is_authenticated and (
                             submission.author == self.request.user or

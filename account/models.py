@@ -37,7 +37,7 @@ MAGIC_CHOICE = (
 
 
 class UsernameValidator(UnicodeUsernameValidator):
-    regex = r'^[\w.+-]+$'
+    regex = r'^[\w.+-]{6,}$'
     message = _(
         'Enter a valid username. This value may contain only letters, '
         'numbers, and ./+/-/_ characters.'
