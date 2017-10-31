@@ -35,7 +35,7 @@
           <td class="left aligned">
             <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
             {{ contest_problem.problem.title }}</a>
-            {% if not site_closed and contest_problem.problem.visible %}
+            {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
               <a style="float: right;" data-tooltip="Practice in problemset" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
           </td>
