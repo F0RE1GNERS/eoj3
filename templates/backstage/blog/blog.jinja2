@@ -33,7 +33,7 @@
           </td>
           <td>{{ blog.pk }}</td>
           <td>{{ blog.author.username }}</td>
-          <td><a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></td>
+          <td><a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title[:10] }}</a></td>
           <td>{{ blog.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ blog.edit_time | date('Y-m-d H:i:s') }}</td>
         </tr>
