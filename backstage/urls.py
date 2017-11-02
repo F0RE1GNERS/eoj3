@@ -8,6 +8,7 @@ from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, Pr
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
     ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
+from .blog.views import BlogList, BlogRecommendSwitch, BlogVisibleSwitch
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
@@ -42,4 +43,8 @@ urlpatterns = [
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
     url(r'^migrate/code/(?P<submission_id>\d+)/', OldSubmissionQuery.as_view(), name='migrate_code'),
     url(r'^migrate/rejudge/(?P<submission_id>\d+)/', OldSubmissionRejudge.as_view(), name='migrate_rejudge'),
+
+    url(r'^blog/$', BlogList.as_view(), name='blog'),
+    url(r'^blog/(?P<pk>\d+)/visible/$', BlogVisibleSwitch.as_view(), name='blog_visible_switch'),
+    url(r'^blog/(?P<pk>\d+)/recommend/$', BlogRecommendSwitch.as_view(), name='blog_recommend_switch'),
 ]

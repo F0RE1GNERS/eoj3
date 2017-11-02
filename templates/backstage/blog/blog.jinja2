@@ -1,0 +1,46 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Blogs
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui celled table center aligned">
+    <thead>
+      <tr>
+        <th>Visible</th>
+        <th>Recommend</th>
+        <th>#</th>
+        <th>Author</th>
+        <th>Title</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for blog in blog_list %}
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:blog_visible_switch', blog.id) }}" type="checkbox" {% if blog.visible %}checked{% endif %}>
+            </div>
+          </td>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:blog_recommend_switch', blog.id) }}" type="checkbox" {% if blog.recommend %}checked{% endif %}>
+            </div>
+          </td>
+          <td>{{ blog.pk }}</td>
+          <td>{{ blog.author.username }}</td>
+          <td><a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></td>
+          <td>{{ blog.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ blog.edit_time | date('Y-m-d H:i:s') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+{% endblock %}

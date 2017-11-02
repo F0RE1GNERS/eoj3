@@ -13,9 +13,8 @@ def home_view(request):
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', '')}
         if not is_site_closed():
-            ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related("author").order_by("-create_time").filter(visible=True)[:15]
+            ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related("author").order_by("-create_time").filter(visible=True, recommend=True)[:15]
         return render(request, 'home_logged_in.jinja2', context=ctx)
-
     else:
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14), })
 

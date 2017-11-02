@@ -36,6 +36,7 @@ class Blog(models.Model):
     edit_time = models.DateTimeField('Edit time', auto_now=True)
 
     likes = models.ManyToManyField(User, through='BlogLikes', related_name='blog_user_like')
+    recommend = models.BooleanField(default=False)
 
     objects = BlogQuerySet.as_manager()
 
