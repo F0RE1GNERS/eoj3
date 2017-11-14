@@ -1,7 +1,7 @@
 {% from 'components/username_display.jinja2' import username_display %}
 {% from 'components/modal.jinja2' import modal %}
 
-{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False) %}
+{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False) %}
 
   <table class="ui celled table center aligned compact">
     <thead>
@@ -95,6 +95,9 @@
       {% if rejudge %}
         <th><a class="modal-link" data-target="#rejudge-confirmation">Rejudge</a></th>
       {% endif %}
+      {% if show_ip %}
+        <th>IP</th>
+      {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -131,6 +134,9 @@
           <td>{{ submission.get_time_display() }}</td>
         {% if rejudge %}
           <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>
+        {% endif %}
+        {% if show_ip %}
+          <td>{{ submission.ip }}</td>
         {% endif %}
         </tr>
       {% endfor %}

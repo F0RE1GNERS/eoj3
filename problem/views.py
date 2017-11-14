@@ -13,6 +13,7 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from tagging.models import Tag, TaggedItem, ContentType
+from ipware.ip import get_ip
 
 from account.models import User, Payment
 from account.payment import download_case
@@ -177,7 +178,7 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             lang = request.POST.get('lang', '')
             if lang not in dict(LANG_CHOICE).keys():
                 raise ValueError("Invalid language.")
-            submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang)
+            submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang, ip=get_ip(request))
             judge_submission_on_problem(submission)
             return JsonResponse({"url": reverse('problem:submission_api',
                                                 kwargs={'pk': self.problem.id, 'sid': submission.id})})
@@ -207,7 +208,7 @@ class StatusList(EndlessListView):
             queryset = self.get_selected_from().select_related('problem', 'author').\
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username', 'author__nickname',
                      'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-                     'code_length')
+                     'code_length', 'ip')
             if not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 

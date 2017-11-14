@@ -35,3 +35,4 @@ socketio-client
 django-extensions
 django-comments-xtd==2.0.6
 django-notifications-hq
+django-ipware

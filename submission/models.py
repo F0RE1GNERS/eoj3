@@ -80,6 +80,7 @@ class Submission(models.Model):
     contest = models.ForeignKey(Contest, null=True)
 
     addon_info = models.BooleanField(default=False)
+    ip = models.GenericIPAddressField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.code_length = len(self.code.encode())

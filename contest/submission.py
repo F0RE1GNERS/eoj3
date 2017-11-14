@@ -1,28 +1,24 @@
-from django.http import HttpResponseBadRequest
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, get_list_or_404, HttpResponseRedirect, reverse, HttpResponse
-from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
-from django.views.generic import View, TemplateView
-from django.contrib import messages
+import json
+
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import HttpResponseBadRequest
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, reverse, HttpResponse
+from django.views.generic import View, TemplateView
+from ipware.ip import get_ip
 
-from problem.views import StatusList, ProblemSubmissionAPI
-from problem.tasks import create_submission, judge_submission_on_problem
 from account.permissions import is_volunteer
-from .models import Contest, ContestProblem
-from .views import BaseContestMixin, time_formatter
-from .tasks import judge_submission_on_contest
-from utils.permission import is_contest_manager, is_case_download_available
+from problem.tasks import create_submission
+from problem.views import StatusList
 from submission.models import Submission, SubmissionStatus
 from submission.views import render_submission
-from utils.permission import get_permission_for_submission
-from submission.forms import ContestSubmitForm
-from dispatcher.tasks import submit_code_for_contest
 from utils.language import LANG_CHOICE
-
-import json
+from utils.permission import get_permission_for_submission
+from utils.permission import is_contest_manager, is_case_download_available
+from .models import ContestProblem
+from .tasks import judge_submission_on_contest
+from .views import BaseContestMixin
 
 
 class ContestSubmit(BaseContestMixin, TemplateView):
@@ -49,7 +45,7 @@ class ContestSubmit(BaseContestMixin, TemplateView):
             except ContestProblem.DoesNotExist:
                 raise ValueError("Invalid problem.")
             submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
-                                           contest=self.contest)
+                                           contest=self.contest, ip=get_ip(request))
             contest_participant, _ = self.contest.contestparticipant_set.get_or_create(user=self.user)
             if contest_participant.is_disabled:
                 raise ValueError("You have quitted the contest.")
