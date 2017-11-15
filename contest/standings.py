@@ -105,7 +105,9 @@ class ContestDownloadStandings(BaseContestMixin, View):
                         text = str(detail["score"])
                     elif detail["solved"]:
                         text = "+" + str(detail["attempt"] - 1)
-                        if self.contest.penalty_counts:
+                        if self.contest.always_running:
+                            text += '(%s)' % (detail["pass_time"])
+                        elif self.contest.penalty_counts:
                             text += "(%d)" % (detail["time"] // 60)
                     else:
                         text = "-" + str(detail["attempt"])

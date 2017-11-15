@@ -68,7 +68,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
-                           'waiting': False})
+                           'waiting': False, 'pass_time': ''})
         d = detail[submission.problem_id]
         if not SubmissionStatus.is_judged(submission.status):
             d['waiting'] = True
@@ -79,6 +79,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
         if not contest_problem:  # This problem has been probably deleted
             continue
 
+        pass_time = str(submission.create_time.strftime('%Y-%m-%d %H:%M:%S'))
         time = get_penalty(contest.start_time, submission.create_time)
         score = 0
         if contest.scoring_method == 'oi':
@@ -93,7 +94,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
             continue
 
         d['attempt'] += 1
-        d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time)
+        d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time, pass_time=pass_time)
         if first_yes[submission.problem_id] and first_yes[submission.problem_id]['author'] == submission.author_id:
             d['first_blood'] = True
 
