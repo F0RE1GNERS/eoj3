@@ -186,14 +186,14 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             return HttpResponseBadRequest(str(e).encode())
 
 
-class StatusList(EndlessListView):
+class StatusList(ListView):
 
     template_name = 'problem/status.jinja2'
     paginate_by = 50
     context_object_name = 'submission_list'
     allow_problem_query = True
     allow_verdict_query = True
-    query_number = None
+    query_number = 5000
     distinct_by_author = False  # query number should not be too large when this is true
     contest_submission_visible = False
 
@@ -232,7 +232,7 @@ class StatusList(EndlessListView):
                             break
                 return res
             else:
-                return queryset.all()
+                return queryset.all()[:self.query_number]
         except Exception as e:
             raise Http404(e)
 
