@@ -27,7 +27,7 @@
           <td>{{ participant.comment }}</td>
           <td>{{ participant.hidden_comment }}</td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
-          <td><a class="modal-link" data-url="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>
+          <td><a class="modal-link" data-action="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_account_disable', contest.pk, participant.pk) }}">{{ participant.is_disabled }}</a></td>
         </tr>
       {% endfor %}
@@ -36,7 +36,7 @@
 
   {{ my_paginator() }}
 
-  {% call modal(title="Comment a user", id="commentUser") %}
+  {% call modal(title="Comment a user", id="commentUser", action="#") %}
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.path }}">
     <div class="field">
