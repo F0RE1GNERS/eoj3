@@ -465,7 +465,7 @@ class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
                         + '\n' +
                         previous_code)
             code_digest[hsh] = (submission.id, submission.author_id, submission.code)
-            print(error)
+            # print(error)
             if error:
                 submission.cheat_tag = True
                 submission.save(update_fields=['cheat_tag'])
