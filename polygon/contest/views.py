@@ -430,20 +430,20 @@ class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
         for submission in self.contest.submission_set.all():
             error = []
             if submission.ip:  # IP address available
-                if last_address_user.get(submission.ip) != submission.author_id:
+                if submission.ip in last_address_user and last_address_user[submission.ip] != submission.author_id:
                     error.append('Submitted IP address last submitted by a different author'
                                  + '\n' +
                                  'IP: %s' % submission.ip
                                  + '\n' +
-                                 'Last submitted by: %s' % get_author(last_address_user.get(submission.ip))
+                                 'Last submitted by: %s' % get_author(last_address_user[submission.ip])
                                  + '\n' +
                                  'Now submitted by: %s' % get_author(submission.author_id))
-                elif last_user_address.get(submission.author_id) != submission.ip:
+                elif submission.author_id in last_user_address and last_user_address[submission.author_id] != submission.ip:
                     error.append('This author is using a different IP Address'
                                  + '\n' +
                                  'Current IP: %s' % submission.ip
                                  + '\n' +
-                                 'Last IP %s' % last_user_address.get(submission.author_id))
+                                 'Last IP %s' % last_user_address[submission.author_id])
                 last_user_address[submission.author_id] = submission.ip
                 last_address_user[submission.ip] = submission.author_id
             sub_code = re.sub('\s+', '', submission.code).strip()
