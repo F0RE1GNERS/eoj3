@@ -1,7 +1,7 @@
 {% from 'components/username_display.jinja2' import username_display %}
 {% from 'components/modal.jinja2' import modal %}
 
-{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False) %}
+{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False, anti_cheat=False) %}
 
   <table class="ui celled table center aligned compact">
     <thead>
@@ -98,6 +98,9 @@
       {% if show_ip %}
         <th>IP</th>
       {% endif %}
+      {% if anti_cheat %}
+        <th>Cheat</th>
+      {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -137,6 +140,9 @@
         {% endif %}
         {% if show_ip %}
           <td>{{ submission.ip }}</td>
+        {% endif %}
+        {% if anti_cheat %}
+          <td><a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">Report</a></td>
         {% endif %}
         </tr>
       {% endfor %}

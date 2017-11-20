@@ -34,6 +34,8 @@ urlpatterns = [
         name='contest_participant_download'),
     url(r'^(?P<pk>\d+)/status/$', v.ContestStatusBackend.as_view(), name='contest_status'),
     url(r'^(?P<pk>\d+)/rejudge/$', v.RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
-    url(r'^(?P<pk>\d+)/disable/(?P<participant_pk>\d+)/$', v.ContestAccountDisable.as_view(), name='contest_account_disable')
-
+    url(r'^(?P<pk>\d+)/disable/(?P<participant_pk>\d+)/$', v.ContestAccountDisable.as_view(), name='contest_account_disable'),
+    url(r'^(?P<pk>\d+)/anticheat/$', v.ContestAntiCheatStatus.as_view(), name='contest_anti_cheat_status'),
+    url(r'^(?P<pk>\d+)/anticheat/start/$', v.ContestAntiCheatAnalysisStart.as_view(), name='contest_anti_cheat_start'),
+    url(r'^(?P<pk>\d+)/anticheat/report/(?P<submission_pk>\d+)/$', v.ContestAntiCheatReport.as_view(), name='contest_anti_cheat_report'),
 ]

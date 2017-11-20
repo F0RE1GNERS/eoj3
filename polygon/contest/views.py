@@ -1,11 +1,14 @@
 import json
 import random
+from threading import Thread
 
 import names
 import shortuuid
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
@@ -15,6 +18,7 @@ from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from os import path
 
 from account.models import User, MAGIC_CHOICE
 from account.permissions import is_admin_or_root
@@ -383,3 +387,109 @@ class ContestAccountDisable(PolygonContestMixin, View):
         contest_participant.is_disabled = not contest_participant.is_disabled
         contest_participant.save(update_fields=['is_disabled'])
         return JsonResponse({})
+
+
+class ContestAntiCheatStatus(PolygonContestMixin, StatusList):
+    template_name = 'polygon/contest/anticheat.jinja2'
+    contest_submission_visible = True
+
+    def get_selected_from(self):
+        return self.contest.submission_set.filter(cheat_tag=True)
+
+    def reinterpret_problem_identifier(self, value):
+        return self.contest.contestproblem_set.get(identifier=value).problem_id
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestAntiCheatStatus, self).get_context_data(**kwargs)
+        self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        data['running_status'] = cache.get('ANTI_CHEAT_CHECK_%d' % self.contest.id)
+        return data
+
+
+class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
+
+    def solve(self):
+        last_user_address = {}
+        last_address_user = {}
+        code_digest = {}
+        author_set = {int(x.user_id): (x.user.username, x.comment) for x in
+                      self.contest.contestparticipant_set.select_related('user').all()}
+
+        def get_author(id):
+            if int(id) in author_set:
+                username, comment = author_set[int(id)]
+                return '%s (%s) (%s)' % (username, comment, id)
+            return 'Unregistered (%s)' % id
+
+        import hashlib
+        import re
+
+        total_count = self.contest.submission_set.count()
+        pass_count = 0
+
+        for submission in self.contest.submission_set.all():
+            error = []
+            if submission.ip:  # IP address available
+                if last_address_user.get(submission.ip) != submission.author_id:
+                    error.append('Submitted IP address last submitted by a different author'
+                                 + '\n' +
+                                 'IP: %s' % submission.ip
+                                 + '\n' +
+                                 'Last submitted by: %s' % get_author(last_address_user.get(submission.ip))
+                                 + '\n' +
+                                 'Now submitted by: %s' % get_author(submission.author_id))
+                elif last_user_address.get(submission.author_id) != submission.ip:
+                    error.append('This author is using a different IP Address'
+                                 + '\n' +
+                                 'Current IP: %s' % submission.ip
+                                 + '\n' +
+                                 'Last IP %s' % last_user_address.get(submission.author_id))
+                last_user_address[submission.author_id] = submission.ip
+                last_address_user[submission.ip] = submission.author_id
+            sub_code = re.sub('\s+', '', submission.code).strip()
+            hsh = hashlib.sha256(sub_code.encode()).hexdigest()
+            if hsh in code_digest:
+                previous_id, previous_author, previous_code = code_digest[hsh]
+                if submission.author_id != previous_author:
+                    error.append(
+                        'Submission #%d almost identical to previous submission #%d' % (submission.id, previous_id)
+                        + '\n' +
+                        'This code (#%d)' % submission.id
+                        + '\n' +
+                        'Author: ' +  get_author(submission.author_id)
+                        + '\n' +
+                        submission.code + '\n----------\n' +
+                        'Last code (#%d)' % previous_id
+                        + '\n' +
+                        'Author: ' + get_author(previous_author)
+                        + '\n' +
+                        previous_code)
+            code_digest[hsh] = (submission.id, submission.author_id, submission.code)
+            print(error)
+            if error:
+                submission.cheat_tag = True
+                submission.save(update_fields=['cheat_tag'])
+                with open(path.join(settings.GENERATE_DIR, 'anti-cheat-%d' % submission.id), 'w') as gen_file:
+                    for err in error:
+                        print(err, file=gen_file)
+                        print('\n===========\n', file=gen_file)
+            elif submission.cheat_tag:
+                submission.cheat_tag = False
+                submission.save(update_fields=['cheat_tag'])
+            pass_count += 1
+            cache.set('ANTI_CHEAT_CHECK_%d' % self.contest.id, '%d / %d' % (pass_count, total_count), 60)
+
+    def post(self, request, *args, **kwargs):
+        Thread(target=ContestAntiCheatAnalysisStart.solve, args=(self,)).start()
+        return HttpResponse()
+
+
+class ContestAntiCheatReport(PolygonContestMixin, View):
+
+    def get(self, request, pk, submission_pk):
+        try:
+            _ = self.contest.submission_set.get(pk=submission_pk)
+            with open(path.join(settings.GENERATE_DIR, 'anti-cheat-%s' % submission_pk), 'r') as inf:
+                return HttpResponse(inf.read(), content_type='text/plain')
+        except:
+            return HttpResponse('', content_type='text/plain')

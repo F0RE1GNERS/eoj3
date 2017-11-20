@@ -40,11 +40,12 @@ def respond_generate_file(request, file_name, file_name_serve_as=None):
 
 
 def clean_outdated_generated_files():
-    for file in os.listdir(settings.GENERATE_DIR):
-        file_path = os.path.join(settings.GENERATE_DIR, file)
-        if datetime.now() - datetime.fromtimestamp(os.stat(file_path).st_mtime) > timedelta(hours=24):
-            # It has not been modified for 24 hours
-            try:
-                os.remove(file_path)
-            except OSError:
-                pass
+    pass  # disable cleaning
+    # for file in os.listdir(settings.GENERATE_DIR):
+    #     file_path = os.path.join(settings.GENERATE_DIR, file)
+    #     if datetime.now() - datetime.fromtimestamp(os.stat(file_path).st_mtime) > timedelta(hours=24):
+    #         # It has not been modified for 24 hours
+    #         try:
+    #             os.remove(file_path)
+    #         except OSError:
+    #             pass

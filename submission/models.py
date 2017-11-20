@@ -81,6 +81,7 @@ class Submission(models.Model):
 
     addon_info = models.BooleanField(default=False)
     ip = models.GenericIPAddressField(blank=True, null=True)
+    cheat_tag = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.code_length = len(self.code.encode())

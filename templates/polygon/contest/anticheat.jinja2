@@ -1,0 +1,13 @@
+{% extends 'polygon/contest/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_content %}
+
+  <p>
+    <a data-link="{{ url('polygon:contest_anti_cheat_start', contest.pk) }}" class="post-link">Start Analysis</a>
+    {% if running_status %}({{ running_status }}){% endif %}
+  </p>
+
+  {{ status(rejudge=True, show_ip=True, anti_cheat=True) }}
+
+{% endblock %}
