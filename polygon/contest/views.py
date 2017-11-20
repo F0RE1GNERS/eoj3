@@ -489,7 +489,7 @@ class ContestAntiCheatReport(PolygonContestMixin, View):
     def get(self, request, pk, submission_pk):
         try:
             _ = self.contest.submission_set.get(pk=submission_pk)
-            with open(path.join(settings.GENERATE_DIR, 'anti-cheat-%s' % submission_pk), 'r') as inf:
-                return HttpResponse(inf.read(), content_type='text/plain', charset='utf-8')
+            with open(path.join(settings.GENERATE_DIR, 'anti-cheat-%s' % submission_pk), 'rb') as inf:
+                return HttpResponse(inf.read(), content_type='text/plain; charset=utf-8')
         except:
-            return HttpResponse('', content_type='text/plain', charset='utf-8')
+            return HttpResponse()
