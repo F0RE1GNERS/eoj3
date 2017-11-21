@@ -394,7 +394,7 @@ class ContestAntiCheatStatus(PolygonContestMixin, StatusList):
     contest_submission_visible = True
 
     def get_selected_from(self):
-        return self.contest.submission_set.filter(cheat_tag=True)
+        return self.contest.submission_set.filter(cheat_tag__gt=0)
 
     def reinterpret_problem_identifier(self, value):
         return self.contest.contestproblem_set.get(identifier=value).problem_id
