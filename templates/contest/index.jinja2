@@ -39,8 +39,10 @@
               <a style="float: right;" data-tooltip="Practice in problemset" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
           </td>
-          <td class="{% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}attempted{% endif %}">
-            <i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.accept_count }}
+          <td class="selectable {% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}attempted{% endif %}">
+            <a href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">
+              <i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.accept_count }}
+            </a>
           </td>
         </tr>
       {% endfor %}

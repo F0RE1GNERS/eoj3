@@ -13,7 +13,7 @@
     <a class="item {{ active('polygon:contest_participant') }}" href="{{ url('polygon:contest_participant', contest.id) }}">Participants</a>
     <a class="item {{ active('polygon:contest_status') }}" href="{{ url('polygon:contest_status', contest.id) }}">Submissions</a>
     <a class="item {{ active('polygon:contest_anti_cheat_status') }}" href="{{ url('polygon:contest_anti_cheat_status', contest.id) }}">Anti-Cheat</a>
-    <a class="item" href="{{ url('contest:standings', contest.id) }}?privilege=true" target="_blank">Standings</a>
+    <a class="item" href="{{ url('contest:dashboard', contest.id) }}">Dashboard</a>
   </div>
 
   {% block contest_content %}
