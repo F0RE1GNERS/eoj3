@@ -402,6 +402,9 @@ class ContestAntiCheatStatus(PolygonContestMixin, StatusList):
     def get_context_data(self, **kwargs):
         data = super(ContestAntiCheatStatus, self).get_context_data(**kwargs)
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        for submission in data['submission_list']:
+            submission.cheat_tag_ip = bool(submission.cheat_tag & 1) or bool(submission.cheat_tag & 2)
+            submission.cheat_tag_dup = bool(submission.cheat_tag & 4)
         data['running_status'] = cache.get('ANTI_CHEAT_CHECK_%d' % self.contest.id)
         return data
 
@@ -428,7 +431,7 @@ class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
         pass_count = 0
 
         for submission in self.contest.submission_set.all():
-            error = []
+            error, error_id = [], 0
             if submission.ip:  # IP address available
                 if submission.ip in last_address_user and last_address_user[submission.ip] != submission.author_id:
                     error.append('Submitted IP address last submitted by a different author'
@@ -438,12 +441,14 @@ class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
                                  'Last submitted by: %s' % get_author(last_address_user[submission.ip])
                                  + '\n' +
                                  'Now submitted by: %s' % get_author(submission.author_id))
+                    error_id |= 1
                 elif submission.author_id in last_user_address and last_user_address[submission.author_id] != submission.ip:
                     error.append('This author is using a different IP Address'
                                  + '\n' +
                                  'Current IP: %s' % submission.ip
                                  + '\n' +
                                  'Last IP %s' % last_user_address[submission.author_id])
+                    error_id |= 2
                 last_user_address[submission.author_id] = submission.ip
                 last_address_user[submission.ip] = submission.author_id
             sub_code = re.sub('\s+', '', submission.code).strip()
@@ -464,17 +469,18 @@ class ContestAntiCheatAnalysisStart(PolygonContestMixin, View):
                         'Author: ' + get_author(previous_author)
                         + '\n' +
                         previous_code)
+                    error_id |= 4
             code_digest[hsh] = (submission.id, submission.author_id, submission.code)
             # print(error)
             if error:
-                submission.cheat_tag = True
+                submission.cheat_tag = error_id
                 submission.save(update_fields=['cheat_tag'])
                 with open(path.join(settings.GENERATE_DIR, 'anti-cheat-%d' % submission.id), 'w') as gen_file:
                     for err in error:
                         print(err, file=gen_file)
                         print('\n===========\n', file=gen_file)
             elif submission.cheat_tag:
-                submission.cheat_tag = False
+                submission.cheat_tag = 0
                 submission.save(update_fields=['cheat_tag'])
             pass_count += 1
             cache.set('ANTI_CHEAT_CHECK_%d' % self.contest.id, '%d / %d' % (pass_count, total_count), 60)

@@ -79,7 +79,7 @@ class Submission(models.Model):
     # if contest is null, then it is visible outside
     contest = models.ForeignKey(Contest, null=True)
 
-    addon_info = models.BooleanField(default=False)
+    addon_info = models.BooleanField(default=False)   # balloon
     ip = models.GenericIPAddressField(blank=True, null=True)
     cheat_tag = models.IntegerField(default=0)
 

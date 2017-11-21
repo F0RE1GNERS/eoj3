@@ -99,7 +99,8 @@
         <th>IP</th>
       {% endif %}
       {% if anti_cheat %}
-        <th>Cheat</th>
+        <th>Cheat (IP)</th>
+        <th>Cheat (Dup)</th>
       {% endif %}
       </tr>
     </thead>
@@ -142,7 +143,12 @@
           <td>{{ submission.ip }}</td>
         {% endif %}
         {% if anti_cheat %}
-          <td><a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">Report</a></td>
+          <td>{% if submission.cheat_tag_ip %}
+            <a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">Report</a>
+          {% else %}No{% endif %}</td>
+          <td>{% if submission.cheat_tag_dup %}
+            <a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">Report</a>
+          {% else %}No{% endif %}</td>
         {% endif %}
         </tr>
       {% endfor %}
