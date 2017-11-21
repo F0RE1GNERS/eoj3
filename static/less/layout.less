@@ -1,3 +1,14 @@
+#navbar-small {
+  @media only screen and (min-width: 768px) {
+    display: none;
+  }
+}
+#navbar-large {
+  @media only screen and (max-width: 767px) {
+    display: none;
+  }
+}
+
 .main.container {
   margin-top: 7em;
 }
@@ -33,4 +44,16 @@
 
 #past-submissions {
   margin-top: 3em;
+}
+
+#sub-heatmap {
+  @media only screen and (max-width: 767px) {
+    display: none;
+  }
+}
+
+.hidden-on-small {
+  @media only screen and (max-width: 767px) {
+    display: none;
+  }
 }

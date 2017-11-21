@@ -1,8 +1,7 @@
-// ui
 $('.ui.checkbox:not(.vue)')
   .checkbox()
 ;
-$('.ui.selection.dropdown, select.ui.selection')
+$('.ui.selection.dropdown, select.ui.selection, #navbar-small>.dropdown')
   .dropdown()
 ;
 $('.ui.selection.dropdown.maximum-5')

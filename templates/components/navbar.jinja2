@@ -1,5 +1,57 @@
+{% macro username_dropdown() %}
+  {% if user.is_authenticated %}
+    <a class="item" href="{{ url('notification:list') }}">
+      <i class="alarm icon" id="notification-alarm"></i>
+    </a>
+    <div class="ui dropdown simple item">
+      <div class="text">{{ request.user.username }}</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <a class="item" href="{{ url('generic', request.user.pk) }}">Blog</a>
+        <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">Submissions</a>
+        <a class="item" href="{{ url('account:profile') }}">Settings</a>
+        <a class="item" href="{{ url('account:payment') }}">Payment</a>
+        <a class="item" href="{{ url('migrate') }}">Migrate</a>
+        <a class="item" href="{{ url('feedback') }}">Feedback</a>
+      {% if user is admin %}
+        <a class="item" href="{{ url('backstage:index') }}">Backstage</a>
+      {% endif %}
+        <a class="item" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">Login</a></div>
+  {% endif %}
+{% endmacro %}
+
+
 <div class="ui top fixed menu" id="navbar">
-  <div class="ui container">
+
+  <div class="ui container" id="navbar-small">
+    <div class="ui pointing dropdown link item">
+      <i class="content icon"></i>
+      <span class="text"><b>EOJ</b></span>
+      <div class="menu">
+        <a class="item" href="{{ url('home') }}">Homepage</a>
+        <div class="divider"></div>
+        <div class="header">Problemset</div>
+        <a class="item" href="{{ url('problem:list') }}">Problem</a>
+        <a class="item" href="{{ url('problem:source') }}">Source</a>
+        <a class="item" href="{{ url('problem:millionaire') }}">Millionaire</a>
+        <a class="item" href="{{ url('problem:status') }}">Status</a>
+        <div class="divider"></div>
+        <div class="header">Contests</div>
+        <a class="item" href="{{ url('contest:list') }}">Regular</a>
+        <a class="item" href="{{ url('contest:gym') }}">Gym</a>
+      </div>
+    </div>
+
+    <div class="right menu">
+      {{ username_dropdown() }}
+    </div>
+  </div>
+
+  <div class="ui container" id="navbar-large">
     <a class="{{ active('home') }} item" href="{{ url('home') }}">Home</a>
     <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}">Problems</a>
     <a class="item {{ active('contest:*') }}" href="{{ url('contest:list') }}">Contests</a>
@@ -11,29 +63,7 @@
         </div>
         <div class="results"></div>
       </div>
-      {% if user.is_authenticated %}
-        <a class="item" href="{{ url('notification:list') }}">
-          <i class="alarm icon" id="notification-alarm"></i>
-        </a>
-        <div class="ui dropdown simple item">
-          <div class="text">{{ request.user.username }}</div>
-          <i class="dropdown icon"></i>
-          <div class="menu">
-            <a class="item" href="{{ url('generic', request.user.pk) }}">Blog</a>
-            <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">Submissions</a>
-            <a class="item" href="{{ url('account:profile') }}">Settings</a>
-            <a class="item" href="{{ url('account:payment') }}">Payment</a>
-            <a class="item" href="{{ url('migrate') }}">Migrate</a>
-            <a class="item" href="{{ url('feedback') }}">Feedback</a>
-          {% if user is admin %}
-            <a class="item" href="{{ url('backstage:index') }}">Backstage</a>
-          {% endif %}
-            <a class="item" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
-          </div>
-        </div>
-      {% else %}
-        <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">Login</a></div>
-      {% endif %}
+      {{ username_dropdown() }}
     </div>
   </div>
 </div>

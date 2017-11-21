@@ -7,7 +7,7 @@
 
 {% block content %}
 
-  <div class="ui text menu">
+  <div class="ui text stackable menu">
     <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">Dashboard</a>
     <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}
       {%- if contest_problem %}?problem={{ contest_problem.identifier | urlencode }}{% endif %}">Submit</a>
@@ -25,7 +25,7 @@
   </div>
 
   {% if not standings_layout %}
-    <div class="ui grid">
+    <div class="ui stackable grid">
       <div class="twelve wide column">
         {% block contest_content %}
         {% endblock %}

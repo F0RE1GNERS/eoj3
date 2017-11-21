@@ -20,7 +20,7 @@
   {% endif %}
 
   {% if has_permission %}
-    <table class="ui celled table">
+    <table class="ui unstackable celled table">
       <thead>
         <tr class="center aligned">
           <th class="two wide">#</th>
@@ -71,8 +71,12 @@
         <tr>
           <td class="center aligned collapsing">{{ clarification.time | date('Y-m-d H:i:s') }}</td>
           <td class="center aligned collapsing">{{ username_display(clarification.author, tiny=True) }}</td>
+          {% if clarification.text %}
           <td>{{ clarification.text }}</td>
           <td>
+          {% else %}
+          <td colspan="2">
+          {% endif %}
             {{ clarification.answer }}
             {% if is_privileged %}
               <i class="icon link edit modal-link" data-target="#clarificationAnswerModal"
@@ -85,7 +89,7 @@
       <tfoot>
         <tr>
           <th colspan="4">
-            <button class="ui primary labeled icon right floated button modal-link" data-target="#clarificationModal">
+            <button class="ui primary labeled icon right floated small button modal-link" data-target="#clarificationModal">
               <i class="icon add"></i> {{ clarification_modal_name }}
             </button>
           </th>

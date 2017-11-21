@@ -14,7 +14,7 @@
   <table class="ui celled table">
     <thead>
       <tr class="center aligned">
-        <th class="left aligned">Name</th>
+        <th>Name</th>
         <th>Start</th>
         <th>Length</th>
         <th class="collapsing">Public</th>
@@ -25,7 +25,7 @@
     <tbody>
       {% for contest in contest_list %}
         <tr class="center aligned">
-          <td class="left aligned {% if not contest.visible %}deleted{% endif %}"><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
+          <td class="{% if not contest.visible %}deleted{% endif %}"><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.length | timedelta }}</td>
           <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>

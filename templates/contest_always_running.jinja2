@@ -13,8 +13,7 @@
 
   <table class="ui celled table">
     <thead>
-      <tr  class="center aligned">
-        <th class="collapsing">#</th>
+      <tr class="center aligned">
         <th>Name</th>
         <th class="collapsing">Public</th>
         <th class="collapsing">Standings</th>
@@ -23,7 +22,6 @@
     <tbody>
       {% for contest in contest_list %}
         <tr class="center aligned">
-          <td class="semi-bold {% if not contest.visible %}deleted{% endif %}">{{ contest.pk }}</>
           <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
           <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participant_size }}</a></td>

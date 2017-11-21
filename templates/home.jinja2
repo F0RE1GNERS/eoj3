@@ -13,8 +13,8 @@
       <div class="ui large secondary inverted pointing menu">
         <a class="active item">Home</a>
         <a class="item" href="{{ url('problem:list') }}">Problems</a>
-        <a class="item" href="{{ url('contest:list') }}">Contests</a>
-        <a class="item" href="{{ url('faq') }}">Help</a>
+        <a class="item hidden-on-large" href="{{ url('contest:list') }}">Contests</a>
+        <a class="item hidden-on-large" href="{{ url('faq') }}">Help</a>
         <div class="right item">
           {% if request.user.is_authenticated %}
           <a class="ui inverted button" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
