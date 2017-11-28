@@ -43,29 +43,6 @@
 <script src="/static/js/input.file.js?v={{ static_file_version }}"></script>
 <script src="/static/js/app.js?v={{ static_file_version }}"></script>
 <script src="/static/js/submit.js?v={{ static_file_version }}"></script>
-{% if request.user.is_authenticated %}
-<script>
-  var alarmIcon = $("#notification-alarm");
-  var alarmShaker = null;
-  if (alarmIcon.length > 0) {
-    longPollUntilForever("/notification/api/hot/", function (data) {
-      if (data["unread_count"] > 0) {
-        alarmIcon.addClass("orange");
-        if (!alarmShaker) {
-          alarmIcon.transition('shake');
-          alarmShaker = setInterval(function () {
-            alarmIcon.transition('shake');
-          }, 2000);
-        }
-      } else {
-        alarmIcon.removeClass("orange");
-        if (alarmShaker)
-          clearInterval(alarmShaker);
-      }
-    }, 60000);
-  }
-</script>
-{% endif %}
 {% block script %}
 {% endblock %}
 

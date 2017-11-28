@@ -1,3 +1,6 @@
+from threading import Thread
+from time import sleep
+
 from submission.models import SubmissionStatus, Submission
 from .models import Contest, ContestParticipant
 from account.models import User
@@ -206,13 +209,20 @@ def get_first_yes(contest: Contest):
             else:
                 first_accepted = None
             t[contest_problem.problem_id] = first_accepted
-        cache.set(cache_name, t)  # by default 300 seconds
+        cache.set(cache_name, t, 60)  # 60 seconds
     return t
 
 
 def invalidate_contest_participant(contest: Contest, user_id):
-    cache.delete(PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=user_id))
-    cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
+    def invalidate_process(timeout):
+        if timeout > 0:
+            sleep(timeout)
+        cache.delete(PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=user_id))
+        cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
+
+    invalidate_process(0)
+    Thread(target=invalidate_process, args=(60, )).start()
+    # refresh after one minute to recalculate for possible mistake due to lack of locks
 
 
 def invalidate_contest(contest: Contest):

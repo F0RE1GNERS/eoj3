@@ -17,6 +17,9 @@ $('.message .close')
       .closest('.message')
       .transition('fade')
     ;
+    $.post($(this).data('close-action'), {
+      'csrfmiddlewaretoken': Cookies.get('csrftoken')
+    });
   })
 ;
 $(".ui.file.input").inputFile();

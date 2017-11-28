@@ -23,9 +23,12 @@ class NotificationMarkAllAsRead(LoginRequiredMixin, APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class NotificationLiveUpdater(LoginRequiredMixin, APIView):
+class NotificationMarkAsRead(LoginRequiredMixin, APIView):
 
-    def get(self, request):
-        return Response({
-            'unread_count': request.user.notifications.unread().count()
-        })
+    def post(self, request, pk):
+        try:
+            request.user.notifications.get(pk=pk).mark_as_read()
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            print(repr(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST)

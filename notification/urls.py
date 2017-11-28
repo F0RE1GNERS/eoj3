@@ -4,6 +4,6 @@ import notification.views as v
 
 urlpatterns = [
     url(r'^$', v.NotificationListView.as_view(), name='list'),
+    url(r'^api/notified/(?P<pk>\d+)/$', v.NotificationMarkAsRead.as_view(), name='notified'),
     url(r'^api/mark_all_as_read/$', v.NotificationMarkAllAsRead.as_view(), name='mark_all_as_read'),
-    url(r'^api/hot/$', v.NotificationLiveUpdater.as_view(), name='hot'),
 ]

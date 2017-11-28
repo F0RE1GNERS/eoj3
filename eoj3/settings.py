@@ -113,6 +113,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 "django.template.context_processors.i18n",
+                'notification.context_processors.notification_processor.notification_processor',
             ],
             "globals": {
                 "myGlobal": "utils.jinja2.globals.is_active",

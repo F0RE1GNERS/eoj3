@@ -1,8 +1,5 @@
 {% macro username_dropdown() %}
   {% if user.is_authenticated %}
-    <a class="item" href="{{ url('notification:list') }}">
-      <i class="alarm icon" id="notification-alarm"></i>
-    </a>
     <div class="ui dropdown simple item">
       <div class="text">{{ request.user.username }}</div>
       <i class="dropdown icon"></i>

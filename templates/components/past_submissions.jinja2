@@ -25,10 +25,10 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
-        {% if not contest %}
+        {% if not submission.contest_id %}
           <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a></td>
         {% else %}
-          <td><a href="{{ url('contest:submission', contest.id, submission.id) }}">{{ submission.id }}</a></td>
+          <td><a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}</a></td>
         {% endif %}
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
