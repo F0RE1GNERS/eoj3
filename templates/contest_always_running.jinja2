@@ -24,7 +24,7 @@
         <tr class="center aligned">
           <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
-          <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participant_size }}</a></td>
+          <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>
         </tr>
       {% endfor %}
     </tbody>
