@@ -92,6 +92,7 @@ class ContestEdit(PolygonContestMixin, UpdateView):
     def get_context_data(self, **kwargs):
         data = super(ContestEdit, self).get_context_data(**kwargs)
         data['admin_list'] = self.contest.managers.all()
+        data['author_list'] = self.contest.authors.all()
         return data
 
     def form_valid(self, form):
@@ -127,6 +128,19 @@ class ContestAccessManage(PolygonContestMixin, View):
                 record.delete()
         for key in upload_permission_set:
             self.contest.managers.add(User.objects.get(pk=key))
+        return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
+
+
+class ContestAuthorsManage(PolygonContestMixin, View):
+    def post(self, request, pk):
+        upload_permission_set = set(map(int, filter(lambda x: x, request.POST['author'].split(','))))
+        for record in self.contest.authors.all():
+            if record.id in upload_permission_set:
+                upload_permission_set.remove(record.id)
+            else:
+                record.delete()
+        for key in upload_permission_set:
+            self.contest.authors.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
 

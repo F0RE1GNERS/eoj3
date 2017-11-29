@@ -37,7 +37,6 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
             self.registered = True
         else:
             self.registered = False
-        self.important_clarifications = self.contest.contestclarification_set.filter(important=True)
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
@@ -74,7 +73,6 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
-        data['base_notifications'] = self.important_clarifications
         data['site_closed'] = is_site_closed() and not self.privileged
 
         return data

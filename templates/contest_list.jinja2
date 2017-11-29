@@ -17,6 +17,7 @@
         <th>Name</th>
         <th>Start</th>
         <th>Length</th>
+        <th>Author</th>
         <th class="collapsing">Public</th>
         <th class="collapsing">Status</th>
         <th class="collapsing">Standings</th>
@@ -28,8 +29,13 @@
           <td class="{% if not contest.visible %}deleted{% endif %}"><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.length | timedelta }}</td>
-          <td>{% if contest.public %}Public{% else %}Private{% endif %}</td>
-          <td style="text-transform: capitalize;">
+          <td><div class="ui list">
+            {% for author in contest.authors.all() %}
+              <div class="item">{{ username_display(author, tiny=True) }}</div>
+            {% endfor %}
+          </div></td>
+          <td>{% if contest.public %}<h5 class="ui header blue">Public</h5>{% else %}Private{% endif %}</td>
+          <td>
           {% if contest.status == 0 %}
             <h5 class="ui header red">Running</h5>
           {% elif contest.status == -1 %}
@@ -38,7 +44,7 @@
             Ended
           {% endif %}
           </td>
-          <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participant_size }}</a></td>
+          <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>
         </tr>
       {% endfor %}
     </tbody>

@@ -1,5 +1,6 @@
 import shortuuid
 from django.db import models
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,7 +27,8 @@ class ContestManager(models.Manager):
                 q |= models.Q(managers=filter_user)
         if always_running is not None:
             q &= models.Q(always_running=always_running)
-        contest_list = self.get_queryset().filter(q)
+        contest_list = self.get_queryset().prefetch_related('authors', 'participants').\
+            annotate(Count('participants')).filter(q)
 
         if sorting_by_id:
             contest_list = contest_list.order_by("-pk").distinct()
@@ -34,8 +36,6 @@ class ContestManager(models.Manager):
             contest_list = contest_list.order_by("-start_time").distinct()
             for contest in contest_list:
                 contest.length = contest.end_time - contest.start_time
-        for contest in contest_list:
-            contest.participant_size = contest.participants.count()
         return contest_list
 
 
@@ -100,6 +100,7 @@ class Contest(models.Model):
 
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')
+    authors = models.ManyToManyField(User, related_name='written_contests')
 
     class Meta:
         ordering = ['-pk']

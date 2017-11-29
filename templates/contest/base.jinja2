@@ -53,7 +53,7 @@
             </div>
           </div>
           <div class="ui segment">
-            <div class="ui indicating progress" data-status="{{ contest.status }}">
+            <div class="ui blue progress" data-status="{{ contest.status }}">
               <div class="bar"></div>
               {% if time_remaining %}
               <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
@@ -83,25 +83,10 @@
           </div>
         {% endif %}
 
-        {% if base_notifications %}
-          <div class="ui segments">
-            <div class="ui segment">
-              <h3 class="ui center aligned header">Notifications</h3>
-            </div>
-            <div class="ui segment">
-              <ul class="ui list">
-                {% for i in base_notifications %}
-                  <li>{{ i.answer }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-        {% endif %}
-
         {% if contest.description %}
           <div class="ui segments">
             <div class="ui segment">
-              <h3 class="ui center aligned header">Description</h3>
+              <h3 class="ui center aligned header">Announcement</h3>
             </div>
             <div class="ui segment">
               {{ contest.description | markdown | safe }}

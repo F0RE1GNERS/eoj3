@@ -23,14 +23,16 @@ class ContestClarificationView(BaseContestMixin, View):
                         recipient=list(map(lambda x: x.user, self.contest.contestparticipant_set.select_related("user").all())),
                         verb="posted a notification in",
                         level="warning",
-                        target=self.contest)
+                        target=self.contest,
+                        description=text)
         else:
             ContestClarification.objects.create(contest=self.contest, author=request.user, text=text)
             notify.send(sender=request.user,
                         recipient=self.contest.managers.all(),
                         verb="asked a question in",
                         level="warning",
-                        target=self.contest)
+                        target=self.contest,
+                        description=text)
         return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
 
 
@@ -43,8 +45,9 @@ class ContestClarificationAnswer(BaseContestMixin, View):
             clarification.save(update_fields=["answer"])
             notify.send(sender=request.user,
                         recipient=[clarification.author],
-                        verb="answered a question in",
+                        verb="answered your question in",
                         level="warning",
-                        target=self.contest)
+                        target=self.contest,
+                        description=clarification.answer)
             return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
         raise PermissionDenied

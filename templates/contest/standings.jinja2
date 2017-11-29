@@ -57,9 +57,15 @@
         <th class="one wide">Penalty</th>
       {% endif %}
       {% if not contest.standings_without_problem %}
-        {% for problem in contest.contest_problem_list %}
-          <th class="{{ column_style }}">{{ problem.identifier }}</th>
-        {% endfor %}
+        {% if contest.scoring_method == "acm" %}
+          {% for problem in contest.contest_problem_list %}
+            <th class="{{ column_style }}">{{ problem.identifier }}</th>
+          {% endfor %}
+        {% else %}
+          {% for problem in contest.contest_problem_list %}
+            <th class="{{ column_style }}">{{ problem.identifier }}<br>{{ problem.weight }}</th>
+          {% endfor %}
+        {% endif %}
       {% endif %}
       </tr>
     </thead>
