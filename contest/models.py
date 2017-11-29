@@ -27,7 +27,7 @@ class ContestManager(models.Manager):
                 q |= models.Q(managers=filter_user)
         if always_running is not None:
             q &= models.Q(always_running=always_running)
-        contest_list = self.get_queryset().prefetch_related('authors', 'participants').\
+        contest_list = self.get_queryset().prefetch_related('authors').\
             annotate(Count('participants')).filter(q)
 
         if sorting_by_id:
