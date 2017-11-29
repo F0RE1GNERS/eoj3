@@ -31,7 +31,7 @@
           <td>{{ contest.length | timedelta }}</td>
           <td><div class="ui list">
             {% for author in contest.authors.all() %}
-              <div class="item">{{ username_display(author, tiny=True) }}</div>
+              <div class="item">{{ username_display(author) }}</div>
             {% endfor %}
           </div></td>
           <td>{% if contest.public %}<h5 class="ui header blue">Public</h5>{% else %}Private{% endif %}</td>

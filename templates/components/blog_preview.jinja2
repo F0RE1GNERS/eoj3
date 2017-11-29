@@ -1,5 +1,3 @@
-{% from 'components/username_display.jinja2' import username_display with context %}
-
 {% macro blog_preview(blog) %}
   {# overflow hidden (temporary) #}
   <div class="event" style="overflow-x: hidden;">
@@ -8,7 +6,7 @@
     </div>
     <div class="content">
       <div class="summary">
-        {{ username_display(blog.author, tiny=True) }} posted {{ blog.title }}
+        {{ username_display(blog.author) }} posted {{ blog.title }}
         <div class="date">
           {{ blog.edit_time | naturaltime }}
         </div>

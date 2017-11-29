@@ -1,7 +1,1 @@
-{% macro username_display(user, tag_name='h5', tiny=False, additional_class="") %}
-  {% if tiny %}
-    <a class="user text semi-bold {{ additional_class }} {{ user.magic }}" href="{{ url('generic', user.pk) }}">{{ user.username }}</a>
-  {% else %}
-    <a class="user ui header {{ additional_class }} {{ user.magic }}" href="{{ url('generic', user.pk) }}">{{ user.username }}</a>
-  {% endif %}
-{% endmacro %}
+<a class="user text semi-bold {{ color }} {{ additional_class }}" href="{{ url('generic', user_id) }}">{{ username }}</a>

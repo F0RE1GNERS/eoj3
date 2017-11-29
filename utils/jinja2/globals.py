@@ -229,3 +229,15 @@ def static_file_modify():
         t = max(map(get_modified_time, [os.path.join(settings.STATIC_DIR, "css"), os.path.join(settings.STATIC_DIR, "js")]))
         cache.set("STATIC_FILE_MODIFIED_TIME", t)
     return t
+
+
+@library.global_function(name='username_display')
+@jinja2.contextfunction
+@library.render_with("components/username_display.jinja2")
+def username_display(context, user, *args, **kwargs):
+    return {
+        'color': user.magic,
+        'user_id': user.pk,
+        'username': user.username,
+        'additional_class': kwargs.pop('additional_class', '')
+    }

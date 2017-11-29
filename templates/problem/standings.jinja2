@@ -1,5 +1,4 @@
 {% extends 'problem/base.jinja2' %}
-{% from 'components/username_display.jinja2' import username_display %}
 
 {% block title %}Millionaires - {% endblock %}
 
@@ -19,7 +18,7 @@
       {% for rank in rank_list %}
         <tr class="ui center aligned">
           <td scope="row">{{ page_obj.start_index() + loop.index0 }}</td>
-          <td>{{ username_display(rank, tiny=True) }}</td>
+          <td>{{ username_display(rank) }}</td>
           <td>{{ rank.score | round(1) }}</td>
         </tr>
       {% endfor %}

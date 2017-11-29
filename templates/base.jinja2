@@ -1,5 +1,4 @@
 {% extends 'html_base.jinja2' %}
-{% from 'components/username_display.jinja2' import username_display %}
 
 {% block _content %}
 
@@ -13,7 +12,7 @@
       {% for item in notifications %}
         <div class="ui message">
           <i class="close icon" data-close-action="{{ url('notification:notified', item.pk) }}"></i>
-          {{ username_display(item.actor, tiny=True) }} {{ item.verb }}
+          {{ username_display(item.actor) }} {{ item.verb }}
           {% if item.target.__class__.__name__ == 'Contest' %}
             <a href="{{ url('contest:dashboard', item.target.pk) }}">{{ item.target.title }}</a>
             {% if item.description %}

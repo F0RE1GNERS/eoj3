@@ -123,6 +123,7 @@ TEMPLATES = [
                 "myGlobal5": "utils.jinja2.globals.static_file_modify",
                 "myGlobal6": "utils.jinja2.globals.render_comment_tree",
                 "myGlobal7": "utils.jinja2.globals.url_encode",
+                "myGlobal8": "utils.jinja2.globals.username_display",
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",
