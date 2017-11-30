@@ -133,6 +133,10 @@ class ContestStatus(BaseContestMixin, StatusList):
         return data
 
 
+class ContestPenaltyDetail(ContestStatus):
+    template_name = 'contest/standings_penalty_detail.jinja2'
+
+
 class ContestMyStatus(ContestStatus):
     template_name = 'contest/my_status.jinja2'
 

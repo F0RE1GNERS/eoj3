@@ -235,9 +235,21 @@ def static_file_modify():
 @jinja2.contextfunction
 @library.render_with("components/username_display.jinja2")
 def username_display(context, user, *args, **kwargs):
+    legend = in_contest = False
+    username = user.username
+    if '#' in username:
+        if username.endswith('old'):
+            legend = True
+            username = username[:-4]
+        elif username.startswith('c'):
+            pos = username.find('#')
+            in_contest = username[1:pos]
+            username = username[pos+1:]
     return {
         'color': user.magic,
         'user_id': user.pk,
-        'username': user.username,
+        'username': username,
+        'legend': legend,
+        'in_contest': in_contest,
         'additional_class': kwargs.pop('additional_class', '')
     }

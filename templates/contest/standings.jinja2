@@ -58,11 +58,11 @@
       {% if not contest.standings_without_problem %}
         {% if contest.scoring_method == "acm" %}
           {% for problem in contest.contest_problem_list %}
-            <th class="{{ column_style }}">{{ problem.identifier }}</th>
+            <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
           {% endfor %}
         {% else %}
           {% for problem in contest.contest_problem_list %}
-            <th class="{{ column_style }}">{{ problem.identifier }}<br>{{ problem.weight }}</th>
+            <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a><br>{{ problem.weight }}</th>
           {% endfor %}
         {% endif %}
       {% endif %}
@@ -89,11 +89,12 @@
         {% if not contest.standings_without_problem %}
           {% for problem in contest.contest_problem_list %}
             {% set d = rank.detail[problem.problem_id] %}
+            {% set url_param = '?user=%d&problem=%s' % (rank.user.user.pk, problem.identifier) %}
             {% if d %}
               {% if d.waiting %}
-                <td><span class="score text blue"><i class="help icon"></i></td>
+                <td class="penalty-box" data-param="{{ url_param }}"><span class="score text blue"><i class="help icon"></i></td>
               {% elif d.attempt %}
-                <td class="{% if d.first_blood %}accepted{% endif %}">
+                <td class="penalty-box {% if d.first_blood %}accepted{% endif %}" data-param="{{ url_param }}">
                   {% if d.solved %}
                     <span class="score text green">
                       {% if contest.scoring_method == 'acm' %}
@@ -156,6 +157,11 @@
   {% if paginator %}
     {{ my_paginator() }}
   {% endif %}
+
+  <div id="penalty-detail-modal" class="ui small modal" data-api="{{ url('contest:penalty_detail', contest.pk) }}">
+    <div class="content">
+    </div>
+  </div>
 
 {% endblock %}
 

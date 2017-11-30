@@ -1,1 +1,1 @@
-<a class="user text semi-bold {{ color }} {{ additional_class }}" href="{{ url('generic', user_id) }}">{{ username }}</a>
+<a class="user text semi-bold {{ color }} {{ additional_class }}" href="{{ url('generic', user_id) }}">{{ username }} {% if in_contest %}<a class="ui grey empty circular label no-margin" href="{{ url('contest:dashboard', in_contest) }}" data-inverted="" data-tooltip="Contestant"></a>{% elif legend %}<span class="ui {{ color }} circular tiny label no-margin" data-inverted="" data-tooltip="Legend User">L</span>{% endif %}</a>

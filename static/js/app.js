@@ -243,6 +243,19 @@ $(".ui.checkbox.immediate")
     }
   });
 
+$(".penalty-box").on('dblclick', function (e) {
+  var penaltyModal = $("#penalty-detail-modal");
+  penaltyModal.modal({
+    observeChanges: true
+  }).modal('show');
+  var content = penaltyModal.find(".content");
+  content.html('');
+  $.get(penaltyModal.data('api') + $(e.currentTarget).data('param'), function (data) {
+    content.html(data);
+    $.parseStatusDisplay();
+  });
+});
+
 // status string
 window.STATUS = {};
 window.STATUS[-4] = 'Submitted';

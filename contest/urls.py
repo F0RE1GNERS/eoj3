@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList
-from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch, ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI
+from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch, ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
 from .clarification import ContestClarificationView, ContestClarificationAnswer
 
@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/clarification/$', ContestClarificationView.as_view(), name='clarification'),
     url(r'^(?P<cid>\d+)/clarification/(?P<pk>\d+)/answer/$', ContestClarificationAnswer.as_view(), name='clarification_answer'),
     url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation'),
+    url(r'^(?P<cid>\d+)/standings/penalty/$', ContestPenaltyDetail.as_view(), name='penalty_detail'),
     url(r'^(?P<cid>\d+)/standings/update/$', ContestUpdateStandings.as_view(), name='update_standings'),
     url(r'^(?P<cid>\d+)/standings/download/$', ContestDownloadStandings.as_view(), name='download_standings'),
     url(r'^(?P<cid>\d+)/balloon/$', ContestBalloon.as_view(), name='balloon'),
