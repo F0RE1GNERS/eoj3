@@ -217,7 +217,7 @@ USE_I18N = False
 
 STATIC_ROOT = STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = []
 
 # my settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
