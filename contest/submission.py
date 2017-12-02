@@ -12,7 +12,7 @@ from account.permissions import is_volunteer
 from problem.tasks import create_submission
 from problem.views import StatusList
 from submission.models import Submission, SubmissionStatus
-from submission.views import render_submission
+from submission.views import render_submission, render_submission_report
 from utils.language import LANG_CHOICE
 from utils.permission import get_permission_for_submission
 from utils.permission import is_contest_manager, is_case_download_available
@@ -94,9 +94,14 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                 self.contest.status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
         if authorized:
+            permission = get_permission_for_submission(self.request.user, submission)
             data['submission_block'] = render_submission(submission,
-                                                         permission=get_permission_for_submission(self.request.user, submission),
+                                                         permission=permission,
                                                          show_percent=(self.contest.scoring_method == 'oi'))
+            if permission == 2 or (self.request.user == submission.author and submission.report_paid):
+                data['report_block'] = render_submission_report(submission.pk)
+            else:
+                data['report_block'] = ''
         else:
             raise PermissionDenied
         return data

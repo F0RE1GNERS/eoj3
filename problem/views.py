@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
+from django.conf import settings
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
@@ -12,14 +13,15 @@ from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from os import path
 from tagging.models import Tag, TaggedItem, ContentType
 from ipware.ip import get_ip
 
 from account.models import User, Payment
-from account.payment import download_case
+from account.payment import download_case, view_report
 from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
-from submission.views import render_submission
+from submission.views import render_submission, render_submission_report
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from utils.comment import CommentForm
 from utils.download import respond_as_attachment
@@ -348,9 +350,12 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
                         status=SubmissionStatus.ACCEPTED).exists()):
-            data['submission_block'] = render_submission(submission, permission=get_permission_for_submission(self.request.user,
-                                                                                                      submission,
-                                                                                                      special_permission=True))
+            permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
+            data['submission_block'] = render_submission(submission, permission=permission)
+            if permission == 2 or (self.request.user == submission.author and submission.report_paid):
+                data['report_block'] = render_submission_report(submission.pk)
+            else:
+                data['report_block'] = ''
         else:
             raise PermissionDenied("Code is not public for users who have not got accepted yet.")
         data['problem'] = submission.problem
@@ -413,13 +418,7 @@ class ArchiveList(TemplateView):
 
 
 @login_required
-def make_payment_for_case_download(request):
-    def find_index(func, iter):
-        try:
-            return next((idx, x) for idx, x in enumerate(iter) if func(x))[0]
-        except StopIteration:
-            return -1  # fail
-
+def make_payment_for_full_report(request):
     try:
         submission = get_object_or_404(Submission, author_id=request.user.pk, pk=request.POST.get('sub', request.GET['sub']))
         if not is_admin_or_root(request.user):
@@ -427,21 +426,18 @@ def make_payment_for_case_download(request):
                 raise PermissionDenied("This submission does not belong to you.")
             if submission.contest_id and not submission.contest.case_public:
                 raise PermissionDenied("Case is not public in this contest.")
-        price = 10 if submission.contest_id else get_problem_difficulty(submission.problem_id)
+        price = 9.9 if submission.contest_id else get_problem_difficulty(submission.problem_id)
+        if not path.exists(path.join(settings.GENERATE_DIR, 'submission-%d' % submission.pk)):
+            raise PermissionDenied("Case report is not available. Resubmit if necessary.")
         if request.method == 'POST':
-            try:
-                num = int(request.POST['num'])
-                fingerprint = submission.problem.case_list[num - 1]
-                download_case(request.user, price, fingerprint, num, submission.pk)
-            except IndexError:
-                raise PermissionDenied("The case you selected no longer exists. Try to resubmit.")
+            view_report(request.user, price, submission.pk, submission.problem_id, submission.contest_id)
+            submission.report_paid = 1
+            submission.save(update_fields=['report_paid'])
             return redirect('account:payment')
         else:
-            return render(request, 'case_download.jinja2', context={
+            return render(request, 'report_download.jinja2', context={
                 'submission': submission.pk,
                 'price': price,
-                'num_init': find_index(lambda x: x.get('verdict') != 0, submission.status_detail_list) + 1,
-                'old': submission.judge_end_time < submission.problem.update_time
             })
     except (ValueError, KeyError):
         raise Http404

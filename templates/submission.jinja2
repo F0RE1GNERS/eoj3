@@ -23,6 +23,8 @@
     <div>{{ submission.code_as_html | safe }}</div>
   </div>
 
+  {{ report_block }}
+
   {% if submission.author == request.user %}
     {% if contest %}
       <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id) }}"></div>

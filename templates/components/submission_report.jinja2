@@ -1,0 +1,33 @@
+<div class="ui header">
+  <i class="ordered list icon"></i>
+  <div class="content">
+    Judge Protocol
+    <div class="sub header">At most 512 bytes are displayed.</div>
+  </div>
+</div>
+
+<div class="submission-report">
+  <div class="passage examples">
+  {% for case in testcases %}
+    <div class="indicator"><b>Test #{{ loop.index }}: {{ case.meta }}</b></div>
+    <div class="example">
+      <div class="input">
+        <div class="title">Input</div>
+        <pre>{{ case.input }}</pre>
+      </div>
+      <div class="output">
+        <div class="title">Output</div>
+        <pre>{{ case.output }}</pre>
+      </div>
+      <div class="answer">
+        <div class="title">Answer</div>
+        <pre>{{ case.answer }}</pre>
+      </div>
+      <div class="checker">
+        <div class="title">Checker's comment</div>
+        <pre>{{ case.answer }}</pre>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>

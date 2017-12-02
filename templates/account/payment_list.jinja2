@@ -28,6 +28,8 @@
               Change username to <b>{{ payment.detail.new }}</b>
             {% elif payment.type == "download_case" %}
               Case #{{ payment.detail.case_num }} in Submission #{{ payment.detail.submission }} <a href="{{ url('download_case') }}?p={{ payment.pk }}&t=in">input</a> or <a href="{{ url('download_case') }}?p={{ payment.pk }}&t=out">output</a>.
+            {% elif payment.type == "view_report" %}
+              Submission #{{ payment.detail.id }} full report {% if payment.detail.contest %}<a href="{{ url('contest:submission', payment.detail.contest, payment.detail.id) }}">{% else %}<a href="{{ url('problem:submission', payment.detail.problem, payment.detail.id) }}">{% endif %}here</a>.
             {% endif %}
           </td>
           <td>{{ payment.credit | round(1) }}</td>

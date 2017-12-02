@@ -93,6 +93,7 @@ class Payment(models.Model):
     DOWNLOAD_CASE = 'download_case'
     REWARD = 'reward'
     TRANSFER = 'transfer'
+    VIEW_REPORT = 'view_report'
 
     TYPE_CHOICES = (
         (CHANGE_USERNAME, _('Change Username')),

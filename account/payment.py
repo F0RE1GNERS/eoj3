@@ -56,6 +56,15 @@ def download_case(user, amount, case_fingerprint, case_num, submission):
                                                               "fingerprint": case_fingerprint})
 
 
+def view_report(user, amount, id, problem, contest):
+    with transaction.atomic():
+        create_payment(user, -amount, Payment.VIEW_REPORT, {
+            "id": id,
+            "problem": problem,
+            "contest": contest
+        })
+
+
 class PaymentList(LoginRequiredMixin, ListView):
     paginate_by = 20
     template_name = 'account/payment_list.jinja2'
