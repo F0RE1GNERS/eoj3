@@ -1,8 +1,10 @@
 from datetime import datetime
 from threading import Thread
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from os import path
 
 from account.models import User
 from account.payment import reward_problem_ac, reward_contest_ac
@@ -34,7 +36,8 @@ def upload_problem_to_judge_server(problem, server):
 def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip=''):
     if not 6 <= len(code) <= 65536:
         raise ValueError("Code is too short or too long.")
-    if author.submission_set.exists() and (datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
+    if author.submission_set.exists() and (
+        datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
         raise ValueError("Please don't resubmit in 10 seconds.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
@@ -107,7 +110,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
                     if not submission.rewarded and \
-                            not Submission.objects.filter(author_id=submission.author_id, problem_id=submission.problem_id,
+                            not Submission.objects.filter(author_id=submission.author_id,
+                                                          problem_id=submission.problem_id,
                                                           status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
                         if submission.contest_id:
                             reward_contest_ac(submission.author, get_problem_difficulty(submission.problem_id),
@@ -132,7 +136,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         Thread(target=send_judge_through_watch, args=(server, submission.code, submission.lang, problem.time_limit,
                                                       problem.memory_limit, kwargs.get('run_until_complete', False),
                                                       problem.case_list, problem.checker, problem.interactor,
-                                                      on_receive_data)) \
+                                                      on_receive_data),
+               kwargs={'report_file_path': path.join(settings.GENERATE_DIR,
+                                                     'submission-%d' % submission.pk)}) \
             .start()
     except:
         on_receive_data(response_fail_with_timestamp())

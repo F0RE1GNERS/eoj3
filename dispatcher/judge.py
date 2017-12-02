@@ -22,7 +22,7 @@ def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_
 
 
 def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                             interactor, callback, timeout=600, fallback=True):
+                             interactor, callback, timeout=600, fallback=True, report_file_path=None):
     """
     :param interactor: None or '' if there is no interactor
     :param callback: function, to call when something is returned (possibly preliminary results)
@@ -52,8 +52,10 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
             response = add_timestamp_to_reply(requests.get(watch_url, json={'fingerprint': data['fingerprint']},
                                               auth=(DEFAULT_USERNAME, server.token), timeout=timeout).json())
             if callback(response):
-                print(requests.get(watch_report, json={'fingerprint': data['fingerprint']},
-                                   auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text)
+                if report_file_path:
+                    with open(report_file_path, 'w') as handler:
+                        handler.write(requests.get(watch_report, json={'fingerprint': data['fingerprint']},
+                                                   auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text)
                 break
             timeout_count += interval
         if timeout_count >= timeout:
