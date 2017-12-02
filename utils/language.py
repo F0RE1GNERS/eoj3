@@ -26,6 +26,7 @@ LANG_REGULAR_NAME = (
     ('cs', 'csharp'),
     ('py2', 'python'),
     ('pas', 'pascal'),
+    ('rs', 'rust'),
 )
 
 
