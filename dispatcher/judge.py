@@ -32,8 +32,10 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     :param fallback: this method automatically provides a fallback called send_judge_through_http, in case it fails.
                      setting fallback to False will disable such fallback
     """
-    server.last_seen_time = datetime.now()
-    server.save(update_fields=['last_seen_time'])
+
+    # server.last_seen_time = datetime.now()
+    # server.save(update_fields=['last_seen_time'])
+
     data = _prepare_judge_json_data(code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
     data.update(hold=False)
     judge_url = server.http_address + '/judge'

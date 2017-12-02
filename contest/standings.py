@@ -138,7 +138,6 @@ class ContestDownloadCode(BaseContestMixin, View):
         submissions = submissions.select_related("author")
         self.contest.add_contest_problem_to_submissions(submissions)
         participants = dict(self.contest.contestparticipant_set.values_list('user_id', 'comment'))
-        print(participants)
 
         file_path = path.join(settings.GENERATE_DIR, random_string())
         lang_ext_dict = dict(LANG_EXT)

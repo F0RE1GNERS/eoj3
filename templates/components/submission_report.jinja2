@@ -11,22 +11,30 @@
   {% for case in testcases %}
     <div class="indicator"><b>Test #{{ loop.index }}: {{ case.meta }}</b></div>
     <div class="example">
+      {% if case.input %}
       <div class="input">
         <div class="title">Input</div>
         <pre>{{ case.input }}</pre>
       </div>
+      {% endif %}
+      {% if case.output %}
       <div class="output">
         <div class="title">Output</div>
         <pre>{{ case.output }}</pre>
       </div>
+      {% endif %}
+      {% if case.answer %}
       <div class="answer">
         <div class="title">Answer</div>
         <pre>{{ case.answer }}</pre>
       </div>
+      {% endif %}
+      {% if case.checker %}
       <div class="checker">
         <div class="title">Checker's comment</div>
         <pre>{{ case.checker }}</pre>
       </div>
+      {% endif %}
     </div>
   {% endfor %}
   </div>
