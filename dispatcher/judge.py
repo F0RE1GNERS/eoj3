@@ -38,6 +38,7 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     data.update(hold=False)
     judge_url = server.http_address + '/judge'
     watch_url = server.http_address + '/query'
+    watch_report = server.http_address + '/query/report'
     timeout_count = 0
 
     try:
@@ -51,6 +52,8 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
             response = add_timestamp_to_reply(requests.get(watch_url, json={'fingerprint': data['fingerprint']},
                                               auth=(DEFAULT_USERNAME, server.token), timeout=timeout).json())
             if callback(response):
+                print(requests.get(watch_report, json={'fingerprint': data['fingerprint']},
+                                   auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text)
                 break
             timeout_count += interval
         if timeout_count >= timeout:
