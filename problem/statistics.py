@@ -141,8 +141,8 @@ def invalidate_problems(problem_ids, contest_id=0):
             accept_user_ratio = accept_user_count / all_user_count * 100
         else:
             accept_ratio = accept_user_ratio = 0
-        difficulty = max(min(.02 * (100 - accept_ratio) + .03 * (100 - accept_user_ratio) + max(
-            6 - 2 * log10(accept_user_count + 1), 0), 9.9), 0.1)
+        difficulty = max(min(5 - (.02 * accept_ratio - .03 * accept_user_ratio) * min(log10(accept_user_count + 1), 1.2)
+                             + max(6 - 2 * log10(accept_user_count + 1), 0), 9.9), 0.1)
         cache_res.update({
             PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest_id): all_count[problem_id],
             PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest_id): accept_count[problem_id],
