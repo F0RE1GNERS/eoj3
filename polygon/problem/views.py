@@ -55,7 +55,6 @@ class ProblemCreate(PolygonBaseMixin, View):
         problem = Problem.objects.create()
         problem.title = 'Problem #%d' % problem.id
         problem.alias = 'p%d' % problem.id
-        problem.checker = SpecialProgram.objects.filter(filename='fcmp.cpp', builtin=True).first().fingerprint
         problem.save(update_fields=['title', 'alias', 'checker'])
         problem.managers.add(request.user)
         return HttpResponse()

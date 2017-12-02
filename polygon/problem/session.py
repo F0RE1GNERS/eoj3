@@ -227,7 +227,10 @@ def push_session(session):
         if v.get('sample'):
             sample_list.append(k)
         case_order[k] = v['order']
-    cases, points = zip(*sorted(case_list, key=lambda x: case_order[x[0]]))
+    if case_list:
+        cases, points = zip(*sorted(case_list, key=lambda x: case_order[x[0]]))
+    else:
+        cases, points = [], []
     pretest_list.sort(key=lambda x: case_order[x])
     sample_list.sort(key=lambda x: case_order[x])
     problem.cases = ','.join(cases)

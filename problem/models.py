@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
 from os import path
@@ -7,9 +8,18 @@ from utils.language import LANG_CHOICE
 from django.utils.translation import ugettext_lazy as _
 
 
+class AliasValidator(RegexValidator):
+    regex = r'^[a-z0-9]{2,30}$'
+    message = _(
+        'Enter a valid alias. Use letters and digits only.'
+    )
+
+
 class Problem(models.Model):
 
-    alias = models.CharField(_('Alias'), max_length=64, blank=True)
+    alias_validator = AliasValidator()
+
+    alias = models.CharField(_('Alias'), max_length=64, blank=True, validators=[alias_validator])
     title = models.CharField(_('Title'), max_length=192, blank=True)
     description = models.TextField(_('Description'), blank=True)
     input = models.TextField(_('Input'), blank=True)
