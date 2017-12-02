@@ -57,7 +57,7 @@ class ServerEnableOrDisable(BaseBackstageMixin, View):
 
     def post(self, request, pk):
         server = Server.objects.get(pk=pk)
-        server.enabled = request.POST.get('checked') == 'true'
+        server.enabled = not server.enabled
         server.save(update_fields=['enabled'])
         return HttpResponseRedirect(reverse('backstage:server'))
 
