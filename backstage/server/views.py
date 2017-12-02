@@ -40,6 +40,7 @@ class ServerList(BaseBackstageMixin, ListView):
 
     def get_context_data(self, **kwargs):
         data = super(ServerList, self).get_context_data(**kwargs)
+        data['server_synchronize_status_detail'] = cache.get('server_synchronize_status_detail', '')
         data['server_synchronize_status'] = cache.get('server_synchronize_status', 0)
         return data
 
@@ -92,13 +93,12 @@ class ServerSynchronize(BaseBackstageMixin, View):
     def post(self, request, pk):
 
         def synchronize_func(server):
-            count, idx = Problem.objects.all().count(), 0
-            for problem in Problem.objects.all():
+            count = Problem.objects.all().count()
+            for idx, problem in enumerate(Problem.objects.all(), start=1):
+                cache.set('server_synchronize_status_detail', '%d / %d' % (idx, count), 60)
                 cache.set('server_synchronize_status', idx / count * 100, 60)
-                idx += 1
                 if not upload_problem_to_judge_server(problem, server):
                     return
-            cache.set('server_synchronize_status', 100)
             server.last_synchronize_time = datetime.now()
             server.save(update_fields=['last_synchronize_time'])
 
