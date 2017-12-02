@@ -12,14 +12,14 @@ import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
-from home.views import home_view, faq_view, TestView
+from home.views import home_view, faq_view, TestView, file_manager
 from problem.views import make_payment_for_full_report, case_download_link
 from submission.views import SubmissionRejudgeView
 from tests.views import test_view, test_contest_view
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
-UPLOAD_ROOT = '/upload/'
-STATIC_ROOT = '/static/'
+UPLOAD_ROOT_DIR = '/upload/'
+STATIC_ROOT_DIR = '/static/'
 
 
 def force_closed():
@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^logout/$', logout, name='logout'),
+    url(r'^filemanager/$', file_manager, name='filemanager'),
 
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('eoj3.api_urls', namespace='api')),
@@ -66,11 +67,11 @@ if DEBUG:
     urlpatterns += [
         url(r'^test/', test_view, name='test'),
         url(r'^test_contest', test_contest_view, name='test_contest'),
-        url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT.lstrip('/')), serve, name='static',
+        url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT_DIR.lstrip('/')), serve, name='static',
             kwargs={'document_root': STATIC_DIR}),
-        url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='upload',
+        url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT_DIR.lstrip('/')), serve, name='upload',
             kwargs={'document_root': UPLOAD_DIR}),
-        # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT.lstrip('/')), serve, name='media',
+        # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT_DIR.lstrip('/')), serve, name='media',
         #     kwargs={'document_root': MEDIA_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^t/', TestView.as_view())

@@ -1,11 +1,50 @@
-from django.db.models import Sum, When, Case, IntegerField
+from datetime import datetime
+
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, reverse
 from random import randint
+from django.conf import settings
 
+from os import path, listdir
+
+from account.permissions import is_admin_or_root
 from blog.models import Blog
 from django.views.generic import TemplateView
 from submission.statistics import get_accept_problem_count
 from utils.site_settings import is_site_closed, site_settings_get
+from utils.upload import save_uploaded_file_to
+
+
+def file_manager(request):
+    def slugify(text, delim='_'):
+        import re
+        from unicodedata import normalize
+
+        _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+        """Generates an slightly worse ASCII-only slug."""
+        result = []
+        for word in _punct_re.split(text.lower()):
+            word = normalize('NFKD', word).encode('ascii', 'ignore')
+            if word:
+                result.append(word.decode())
+        return delim.join(result)
+
+    if not is_admin_or_root(request.user):
+        raise PermissionDenied
+    if request.method == 'POST':
+        try:
+            file = request.FILES['file']
+            save_uploaded_file_to(file, settings.UPLOAD_DIR, filename=slugify(file.name))
+        except Exception as e:
+            raise PermissionDenied(repr(e))
+    return render(request, 'filemanager.jinja2', context={
+        'file_list': list(map(lambda x: {
+            'name': x,
+            'modified_time': datetime.fromtimestamp(path.getmtime(path.join(settings.UPLOAD_DIR, x))).
+                              strftime(settings.DATETIME_FORMAT_TEMPLATE),
+            'size': str(path.getsize(path.join(settings.UPLOAD_DIR, x)) // 1024) + "K"
+        }, filter(lambda x: path.isfile(path.join(settings.UPLOAD_DIR, x)), listdir(settings.UPLOAD_DIR))))
+    })
 
 
 def home_view(request):

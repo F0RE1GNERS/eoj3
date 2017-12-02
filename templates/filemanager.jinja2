@@ -1,0 +1,25 @@
+<html>
+<head>
+  <title>File Manager of /upload</title>
+</head>
+<body>
+  <h1>File Manager of /upload</h1>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="file">Upload a file: </label>
+    <input type="file" name="file">
+    <button type="submit">Submit</button>
+  </form>
+  <table>
+    <tbody>
+    {% for file in file_list %}
+      <tr>
+        <td><a href="/upload/{{ file.name }}">{{ file.name }}</a></td>
+        <td>{{ file.modified_time }}</td>
+        <td>{{ file.size }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
