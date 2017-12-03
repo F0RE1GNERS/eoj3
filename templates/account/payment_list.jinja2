@@ -7,6 +7,7 @@
   <table class="ui center aligned celled table">
     <thead>
       <tr>
+        <th>#</th>
         <th>Time</th>
         <th>Memo</th>
         <th>Credit/Debit</th>
@@ -16,6 +17,7 @@
     <tbody>
       {% for payment in payment_list %}
         <tr>
+          <td>{{ payment.pk }}</td>
           <td>{{ payment.create_time | date('Y-m-d H:i:s') }}</td>
           <td>
             {% if payment.type == "reward" %}
