@@ -534,6 +534,7 @@ def get_session_dir(session):
 
 def _get_program_file_path(session, filename):
     program_dir = path.join(get_session_dir(session), PROGRAM_DIR)
+    makedirs(program_dir, exist_ok=True)
     if not normal_regex_check(filename):
         raise ValueError("Invalid filename")
     return path.join(program_dir, filename)

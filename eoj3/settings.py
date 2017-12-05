@@ -216,7 +216,7 @@ USE_I18N = False
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_ROOT = STATIC_DIR = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+STATIC_URL = '/fake/static/'
 STATICFILES_DIRS = []
 
 # my settings

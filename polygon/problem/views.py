@@ -81,7 +81,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
         data = super(PolygonProblemMixin, self).get_context_data(**kwargs)
         data['problem'] = self.problem
         data['lang_choices'] = LANG_CHOICE
-        data['builtin_program_choices'] = SpecialProgram.objects.filter(builtin=True).all()
+        data['builtin_program_choices'] = SpecialProgram.objects.filter(builtin=True).all().order_by("filename")
         return data
 
 
