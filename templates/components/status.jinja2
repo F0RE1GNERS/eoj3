@@ -141,11 +141,11 @@
         {% if rejudge %}
           <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>
         {% endif %}
-        {% if show_ip %}
-          <td>{{ submission.ip }}</td>
-        {% endif %}
         {% if judge_server %}
           <td>{{ submission.judge_server }}</td>
+        {% endif %}
+        {% if show_ip %}
+          <td>{{ submission.ip }}</td>
         {% endif %}
         {% if anti_cheat %}
           <td>{% if submission.cheat_tag_ip %}
