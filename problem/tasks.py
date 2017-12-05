@@ -135,8 +135,6 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     try:
         servers = Server.objects.filter(enabled=True)
         server = random.choice(servers)
-        submission.judge_server = server.name
-        submission.save(update_fields=['judge_server'])
         Thread(target=send_judge_through_watch, args=(server, submission.code, submission.lang, problem.time_limit,
                                                       problem.memory_limit, kwargs.get('run_until_complete', False),
                                                       problem.case_list, problem.checker, problem.interactor,
