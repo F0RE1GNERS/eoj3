@@ -83,6 +83,7 @@ class Submission(models.Model):
     ip = models.GenericIPAddressField(blank=True, null=True)
     cheat_tag = models.IntegerField(default=0)
     report_paid = models.IntegerField(default=0)
+    judge_server = models.CharField(max_length=30, blank=True)
 
     def save(self, *args, **kwargs):
         self.code_length = len(self.code.encode())

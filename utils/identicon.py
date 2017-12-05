@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw
+import PIL.Image
 from hashlib import md5
 import io
 
