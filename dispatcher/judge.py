@@ -2,10 +2,18 @@ import traceback
 import requests
 import time
 from datetime import datetime
+
+from django.core.mail import send_mail
+
 from utils.detail_formatter import response_fail_with_timestamp, add_timestamp_to_reply
 from utils import random_string
 
 from .manage import DEFAULT_USERNAME
+
+try:
+    from eoj3.local_settings import ADMIN_EMAIL_LIST
+except ImportError:
+    ADMIN_EMAIL_LIST = []
 
 
 def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
@@ -64,8 +72,10 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
             raise RuntimeError("Send judge through socketio timed out.")
     except:
         if fallback:
-            # TODO: send a error traceback to admins
-            traceback.print_exc()
+            msg = traceback.format_exc()
+            send_mail(subject="Submit fail notice", message=msg, from_email=None, recipient_list=ADMIN_EMAIL_LIST,
+                      fail_silently=True)
+            print(msg)
             send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
                                     interactor, callback)
         else:
