@@ -90,7 +90,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
         elif contest.scoring_method == 'acm' and SubmissionStatus.is_accepted(status):
             score = 1
         elif contest.scoring_method == 'cf' and SubmissionStatus.is_accepted(status):
-            score = int(min(contest_problem.weight * 0.3,
+            score = int(max(contest_problem.weight * 0.3,
                             contest_problem.weight * (1 - 0.5 * time / contest_length) - d['attempt'] * 50))
         if not contest.last_counts and (d['solved'] or (d['score'] > 0 and d['score'] >= score)):
             # We have to tell whether this is the best
