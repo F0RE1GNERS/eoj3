@@ -94,7 +94,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                 self.contest.status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
         if authorized:
-            permission = get_permission_for_submission(self.request.user, submission)
+            permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
+            # it is already authorized thus requires special permission to open it
             data['submission_block'] = render_submission(submission,
                                                          permission=permission,
                                                          show_percent=(self.contest.scoring_method == 'oi'))
