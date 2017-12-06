@@ -157,6 +157,7 @@ class ProblemEdit(PolygonProblemMixin, UpdateView):
 
 class ProblemStatus(PolygonProblemMixin, StatusList):
     template_name = 'polygon/problem/status.jinja2'
+    privileged = True
 
     def get_selected_from(self):
         return Submission.objects.filter(problem_id=self.problem.id)

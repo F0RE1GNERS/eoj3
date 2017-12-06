@@ -219,6 +219,14 @@ class ContestProblemChangeWeight(PolygonContestMixin, View):
         return HttpResponse()
 
 
+class ContestProblemChangeIdentifier(PolygonContestMixin, View):
+    def post(self, request, pk):
+        problem = self.contest.contestproblem_set.get(id=request.POST['pid'])
+        problem.identifier = request.POST['identifier'].strip()
+        problem.save(update_fields=['identifier'])
+        return HttpResponse()
+
+
 class ContestInvitationList(PolygonContestMixin, ListView):
     template_name = 'polygon/contest/invitation.jinja2'
     paginate_by = 100
@@ -362,9 +370,9 @@ class RejudgeContestProblemSubmission(PolygonContestMixin, View):
 
 
 class ContestStatusBackend(PolygonContestMixin, StatusList):
-
     template_name = 'polygon/contest/status.jinja2'
     contest_submission_visible = True
+    privileged = True
 
     def get_selected_from(self):
         return self.contest.submission_set.all()

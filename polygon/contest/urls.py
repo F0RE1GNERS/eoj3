@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/problems/reorder/$', v.ContestProblemReorder.as_view(), name='contest_problem_reorder'),
     url(r'^(?P<pk>\d+)/problems/readjust/$', v.ContestProblemChangeWeight.as_view(),
         name='contest_problem_readjust_point'),
+    url(r'^(?P<pk>\d+)/problems/identifier/change/$', v.ContestProblemChangeIdentifier.as_view(),
+        name='contest_problem_readjust_identifier'),
     url(r'^(?P<pk>\d+)/problems/delete/$', v.ContestProblemDelete.as_view(), name='contest_problem_delete'),
     url(r'^(?P<pk>\d+)/invitation/$', v.ContestInvitationList.as_view(), name='contest_invitation'),
     url(r'^(?P<pk>\d+)/invitation/create/$', v.ContestInvitationCreate.as_view(),

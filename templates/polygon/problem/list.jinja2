@@ -7,13 +7,14 @@
   <table class="ui celled table center aligned">
     <thead class="full-width">
       <tr>
-        <th colspan="5">
+        <th colspan="6">
           <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Problem
           </button>
         </th>
       </tr>
       <tr>
+        <th>#</th>
         <th>Title</th>
         <th class="collapsing">Alias</th>
         <th class="collapsing">Created</th>
@@ -24,6 +25,7 @@
     <tbody>
       {% for problem in problem_list %}
         <tr>
+          <td>{{ problem.pk }}</td>
           <td><a href="{{ url('polygon:problem_preview', problem.pk) }}">{{ problem.title }}</a></td>
           <td>{{ problem.alias }}</td>
           <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>

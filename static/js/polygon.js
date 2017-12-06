@@ -302,6 +302,21 @@ if ($("#contest-problem-app").length > 0) {
           }.bind(this)
         }).modal('show');
       },
+      readjustProblemIdentifier: function (e) {
+        var modal = $("#problem-identifier-modal");
+        var form = modal.find("form");
+        var problem = $(e.currentTarget).data("id");
+        modal.modal({
+          onApprove: function () {
+            $.post(form.attr("action"), this.addCsrfToken({
+              'pid': problem,
+              'identifier': form.find("input[name='identifier']").val()
+            }), function (data) {
+              this.updateConfig();
+            }.bind(this));
+          }.bind(this)
+        }).modal('show');
+      },
       deleteConfirmation: function (e) {
         var button = $(e.currentTarget);
         $("#delete-confirmation")
