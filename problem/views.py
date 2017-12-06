@@ -144,8 +144,6 @@ class ProblemView(ProblemDetailMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
-        if not is_admin_or_root(self.request.user) and not self.problem.visible:
-            raise PermissionDenied("You don't have the access.")
         data['problem'] = self.problem
 
         show_tags = True
