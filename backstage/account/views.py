@@ -69,3 +69,12 @@ class AccountPolygonSwitch(BaseBackstageMixin, View):
             instance.polygon_enabled = not instance.polygon_enabled
             instance.save(update_fields=["polygon_enabled"])
         return HttpResponse()
+
+
+class AccountActiveSwitch(BaseBackstageMixin, View):
+    def post(self, request, pk):
+        with transaction.atomic():
+            instance = User.objects.select_for_update().get(pk=pk)
+            instance.is_active = not instance.is_active
+            instance.save(update_fields=["is_active"])
+        return HttpResponse()

@@ -1,0 +1,23 @@
+{% extends 'backstage/base.jinja2' %}
+{% from 'components/post_link.jinja2' import post_link %}
+{% block content_header %}
+  Contest Invitations
+{% endblock %}
+
+{% block backstage_content %}
+
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <h4 class="ui dividing header">Send invitation letters to all users</h4>
+    <div class="field">
+      <label>Subject</label>
+      <input type="text" name="head">
+    </div>
+    <div class="field">
+      <label>Message</label>
+      <textarea name="msg"></textarea>
+    </div>
+    <button class="ui positive button" type="submit">Submit</button>
+  </form>
+
+{% endblock %}

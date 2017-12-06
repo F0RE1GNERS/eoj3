@@ -43,7 +43,7 @@
             </div>
           </td>
           <td>{{ problem.pk }}</td>
-          <td>{{ problem.title }}</td>
+          <td><a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a></td>
           <td>{{ problem.alias }}</td>
           <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch
+from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch, AccountActiveSwitch
 from .base_views import Index
 from .contest.views import ContestList, ContestSendInvitationMail
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, ProblemTagCreate, ProblemTagEdit, \
@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^account/privilege/(?P<pk>\d+)/$', AccountPrivilegeSwitch.as_view(), name='account_privilege_switch'),
     url(r'^account/polygon/(?P<pk>\d+)/$', AccountPolygonSwitch.as_view(), name='account_polygon_switch'),
     url(r'^account/password/(?P<pk>\d+)/$', AccountPasswordChange.as_view(), name='account_password_change'),
+    url(r'^account/active/(?P<pk>\d+)/$', AccountActiveSwitch.as_view(), name='account_active_switch'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
     url(r'^problem/(?P<pk>\d+)/visible/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),
@@ -28,7 +29,7 @@ urlpatterns = [
     url(r'^archive/(?P<pk>\d+)/edit/$', ProblemArchiveEdit.as_view(), name='archive_edit'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
-    url(r'^contest/(?P<pk>\d+)/send/invitation/$', ContestSendInvitationMail.as_view(), name='contest_send_invitation'),
+    url(r'^contest/send/invitation/$', ContestSendInvitationMail.as_view(), name='contest_send_invitation'),
 
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/$', ServerCreate.as_view(), name='server_create'),

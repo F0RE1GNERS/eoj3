@@ -8,6 +8,8 @@
 
   {% include 'components/message.jinja2' %}
 
+  <a href="{{ url('backstage:contest_send_invitation') }}">Send invitation letters</a>
+
   <table class="ui center aligned table">
     <thead>
       <tr>
@@ -16,18 +18,16 @@
         <th>Start time</th>
         <th>End time</th>
         <th>Public</th>
-        <th>Send Invitation</th>
       </tr>
     </thead>
     <tbody>
       {% for contest in contest_list %}
         <tr>
           <td scope="row">{{ contest.pk }}</td>
-          <td>{{ contest.title }}</td>
+          <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
           <td>{{ contest.public }}</td>
-          <td><a class="send-mail post-link" data-link="{{ url('backstage:contest_send_invitation', contest.pk) }}">Send Email</a></td>
           {# NOTE: Contest cannot be deleted once created #}
         </tr>
       {% endfor %}
