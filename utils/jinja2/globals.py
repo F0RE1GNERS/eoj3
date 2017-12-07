@@ -244,7 +244,7 @@ def username_display(context, user, *args, **kwargs):
         elif username.startswith('c'):
             pos = username.find('#')
             in_contest = username[1:pos]
-            username = username[pos+1:]
+            username = "Contestant " + username[pos+1:]
     return {
         'color': user.magic,
         'user_id': user.pk,

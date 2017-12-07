@@ -142,6 +142,11 @@ class ContestStatus(BaseContestMixin, StatusList):
 class ContestPenaltyDetail(ContestStatus):
     template_name = 'contest/standings_penalty_detail.jinja2'
 
+    def get_context_data(self, **kwargs):
+        if 'user' not in self.request.GET or 'problem' not in self.request.GET:
+            raise PermissionDenied
+        return super().get_context_data(**kwargs)
+
 
 class ContestMyStatus(ContestStatus):
     template_name = 'contest/my_status.jinja2'
