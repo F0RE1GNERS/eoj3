@@ -400,7 +400,7 @@ class SessionPreviewCase(BaseSessionMixin, View):
 
 class SessionReformCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
+        case = list(filter(lambda x: x, request.POST['id'].split(',')))
         inputOnly = request.POST.get('inputOnly') == 'on'
         for c in case:
             reform_case(self.session, c, only_input=inputOnly)
@@ -409,7 +409,7 @@ class SessionReformCase(BaseSessionMixin, View):
 
 class SessionValidateCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
+        case = list(filter(lambda x: x, request.POST['id'].split(',')))
         validator = request.POST['program']
         validate_case("Validate", self.session, validator, case)
         return HttpResponse()
@@ -417,7 +417,7 @@ class SessionValidateCase(BaseSessionMixin, View):
 
 class SessionOutputCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
+        case = list(filter(lambda x: x, request.POST['id'].split(',')))
         model = request.POST['program']
         get_case_output("Output", self.session, model, case)
         return HttpResponse()
@@ -426,14 +426,14 @@ class SessionOutputCase(BaseSessionMixin, View):
 class SessionDeleteCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
         case = request.POST['id']
-        for c in case.split(','):
+        for c in filter(lambda x: x, case.split(',')):
             delete_case(self.session, c)
         return HttpResponse()
 
 
 class SessionCheckCase(BaseSessionMixin, View):
     def post(self, request, *args, **kwargs):
-        case = request.POST['id'].split(',')
+        case = list(filter(lambda x: x, request.POST['id'].split(',')))
         submission = request.POST['program']
         checker = request.POST['checker']
         check_case("Check", self.session, submission, checker, case)
