@@ -414,6 +414,7 @@ class ContestAccountDisable(PolygonContestMixin, View):
 class ContestAntiCheatStatus(PolygonContestMixin, StatusList):
     template_name = 'polygon/contest/anticheat.jinja2'
     contest_submission_visible = True
+    paginate_by = 500
 
     def get_selected_from(self):
         return self.contest.submission_set.filter(cheat_tag__gt=0)
