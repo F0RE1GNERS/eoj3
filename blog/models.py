@@ -31,7 +31,7 @@ class Blog(models.Model):
     text = models.TextField('Text')
     author = models.ForeignKey(User)
 
-    visible = models.BooleanField('Visible', default=False)
+    visible = models.BooleanField('Visible', default=True)
     create_time = models.DateTimeField('Created time', auto_now_add=True)
     edit_time = models.DateTimeField('Edit time', auto_now=True)
 

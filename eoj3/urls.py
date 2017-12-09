@@ -14,8 +14,6 @@ from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
 from home.views import home_view, faq_view, TestView, file_manager
 from problem.views import make_payment_for_full_report, case_download_link
-from submission.views import SubmissionRejudgeView
-from tests.views import test_view, test_contest_view
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
 UPLOAD_ROOT_DIR = '/upload/'
@@ -33,13 +31,11 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls')),
     url(r'^logout/$', logout, name='logout'),
     url(r'^filemanager/$', file_manager, name='filemanager'),
-
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('eoj3.api_urls', namespace='api')),
     url(r'^$', home_view, name='home'),
     url(r'^faq/$', faq_view, name='faq'),
     url(r'^problem/', include('problem.urls', namespace='problem'), kwargs=force_closed()),
-    url(r'^rejudge/(?P<pk>\d+)/$', SubmissionRejudgeView.as_view(), name='rejudge'),
     url(r'^register/$', RegisterView.as_view(), name='register'),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^generic/(?P<pk>\d+)/$', GenericView.as_view(), name='generic', kwargs=force_closed()),
@@ -65,8 +61,6 @@ urlpatterns += [
 if DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^test/', test_view, name='test'),
-        url(r'^test_contest', test_contest_view, name='test_contest'),
         url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT_DIR.lstrip('/')), serve, name='static',
             kwargs={'document_root': STATIC_DIR}),
         url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT_DIR.lstrip('/')), serve, name='upload',

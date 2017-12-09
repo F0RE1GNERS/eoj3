@@ -1,8 +1,11 @@
 import threading
+import traceback
 from hashlib import sha1
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.forms import ValidationError
 from django.db import transaction
 from django.shortcuts import render
@@ -58,34 +61,40 @@ class MigrationThread(threading.Thread):
         self.new_user = new_user
 
     def run(self):
-        with transaction.atomic():
-            for submission in Submission.objects.filter(author=self.old_user).order_by("create_time").all():
-                if submission.contest_id:
-                    # Clone one
-                    s = Submission.objects.create(lang=submission.lang,
-                                                  code=submission.code,
-                                                  problem_id=submission.problem_id,
-                                                  author=self.new_user,
-                                                  judge_end_time=submission.judge_end_time,
-                                                  status=submission.status,
-                                                  status_private=submission.status,
-                                                  status_percent=submission.status_percent,
-                                                  status_detail=submission.status_detail,
-                                                  status_time=submission.status_time / 1000)
-                    s.create_time = submission.create_time
-                    s.save(update_fields=["create_time"])
-                else:
-                    s = submission
-                    s.author = self.new_user
-                    s.save(update_fields=["author_id"])
+        try:
+            with transaction.atomic():
+                for submission in Submission.objects.filter(author=self.old_user).order_by("create_time").all():
+                    if submission.contest_id:
+                        # Clone one
+                        s = Submission.objects.create(lang=submission.lang,
+                                                      code=submission.code,
+                                                      problem_id=submission.problem_id,
+                                                      author=self.new_user,
+                                                      judge_end_time=submission.judge_end_time,
+                                                      status=submission.status,
+                                                      status_private=submission.status,
+                                                      status_percent=submission.status_percent,
+                                                      status_detail=submission.status_detail,
+                                                      status_time=submission.status_time / 1000)
+                        s.create_time = submission.create_time
+                        s.save(update_fields=["create_time"])
+                    else:
+                        s = submission
+                        s.author = self.new_user
+                        s.save(update_fields=["author_id"])
 
-                if s.status == SubmissionStatus.ACCEPTED and not \
-                        Submission.objects.filter(author_id=s.author_id, problem_id=s.problem_id, contest__isnull=True,
-                                                  status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
-                    reward_problem_ac(self.new_user, get_problem_difficulty(s.problem_id), s.problem_id)
-                    s.rewarded = True
-                    s.save(update_fields=["rewarded"])
+                    if s.status == SubmissionStatus.ACCEPTED and not \
+                            Submission.objects.filter(author_id=s.author_id, problem_id=s.problem_id, contest__isnull=True,
+                                                      status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
+                        reward_problem_ac(self.new_user, get_problem_difficulty(s.problem_id), s.problem_id)
+                        s.rewarded = True
+                        s.save(update_fields=["rewarded"])
 
-            self.old_user.is_active = False
-            self.old_user.save(update_fields=['is_active'])
+                self.old_user.is_active = False
+                self.old_user.save(update_fields=['is_active'])
+        except:
+            msg = traceback.format_exc()
+            print(msg)
+            send_mail(subject="Migrate fail notice", message=msg, from_email=None,
+                      recipient_list=settings.ADMIN_EMAIL_LIST, fail_silently=True)
 

@@ -37,6 +37,7 @@ except ImportError:
         }
     }
     SITE_ID = 1
+    ADMIN_LIST = []
 
 
 ALLOWED_HOSTS = ['*']

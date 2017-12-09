@@ -19,7 +19,6 @@ from pygments.lexers import get_lexer_by_name
 from account.models import User
 from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
-from dispatcher.tasks import send_rejudge
 from utils.permission import get_permission_for_submission
 from .models import Submission, SubmissionStatus
 
@@ -62,18 +61,6 @@ def render_submission_report(pk):
         return t.render(Context({'testcases': ans}))
     except (FileNotFoundError, ValueError):
         return ''
-
-
-class SubmissionRejudgeView(UserPassesTestMixin, View):
-    def test_func(self):
-        if not is_admin_or_root(self.request.user):
-            self.permission_denied_message = "You don't have the access."
-            return False
-        return True
-
-    def get(self, request, pk):
-        send_rejudge(pk)
-        return HttpResponseRedirect(reverse('submission', kwargs={'pk': pk}))
 
 
 def submission_count_api(request, name):
