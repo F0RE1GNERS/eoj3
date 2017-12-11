@@ -12,7 +12,7 @@ import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
-from home.views import home_view, faq_view, TestView, file_manager
+from home.views import home_view, faq_view, TestView, file_manager, proxy_file_downloader
 from problem.views import make_payment_for_full_report, case_download_link
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls')),
     url(r'^logout/$', logout, name='logout'),
     url(r'^filemanager/$', file_manager, name='filemanager'),
+    url(r'^filemanager/download/$', proxy_file_downloader, name='filemanager_downloader'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('eoj3.api_urls', namespace='api')),
     url(r'^$', home_view, name='home'),

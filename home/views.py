@@ -1,7 +1,9 @@
 from datetime import datetime
+from threading import Thread
 
+import requests
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, redirect
 from random import randint
 from django.conf import settings
 
@@ -11,23 +13,15 @@ from account.permissions import is_admin_or_root
 from blog.models import Blog
 from django.views.generic import TemplateView
 from submission.statistics import get_accept_problem_count
+from utils import random_string
 from utils.site_settings import is_site_closed, site_settings_get
 from utils.upload import save_uploaded_file_to
 
 
 def file_manager(request):
-    def slugify(text, delim='_'):
+    def slugify(text):
         import re
-        from unicodedata import normalize
-
-        _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
-        """Generates an slightly worse ASCII-only slug."""
-        result = []
-        for word in _punct_re.split(text.lower()):
-            word = normalize('NFKD', word).encode('ascii', 'ignore')
-            if word:
-                result.append(word.decode())
-        return delim.join(result)
+        return re.sub(r'[ /"#!:]+', '_', text)
 
     if not is_admin_or_root(request.user):
         raise PermissionDenied
@@ -45,6 +39,29 @@ def file_manager(request):
             'size': str(path.getsize(path.join(settings.UPLOAD_DIR, x)) // 1024) + "K"
         }, filter(lambda x: path.isfile(path.join(settings.UPLOAD_DIR, x)), listdir(settings.UPLOAD_DIR))))
     })
+
+
+def proxy_file_downloader(request):
+    if not is_admin_or_root(request.user):
+        raise PermissionDenied
+
+    def download_file(url):
+        local_filename = url.split('/')[-1]
+        if local_filename == '':
+            local_filename = random_string()
+        r = requests.get(url, stream=True, timeout=30)
+        with open(path.join(settings.UPLOAD_DIR, local_filename), 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
+    if request.method == 'POST':
+        try:
+            url = request.POST['url']
+            Thread(target=download_file, args=(url,)).start()
+        except Exception as e:
+            raise PermissionDenied(repr(e))
+    return redirect(reverse('filemanager'))
 
 
 def home_view(request):

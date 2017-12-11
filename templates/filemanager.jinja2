@@ -4,6 +4,12 @@
 </head>
 <body>
   <h1>File Manager of /upload</h1>
+  <form method="POST" action="{{ url('filemanager_downloader') }}">
+    {% csrf_token %}
+    <label for="url">Download from URL:</label>
+    <input type="text" name="url">
+    <button type="submit">Submit</button>
+  </form>
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="file">Upload a file: </label>
