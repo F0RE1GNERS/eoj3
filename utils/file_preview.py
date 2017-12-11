@@ -25,7 +25,7 @@ def sort_data_list_from_directory(directory):
         file_set = set(raw_namelist)
         patterns = {r'(.*)\.in$': [r'\1.out', r'\1.ans'], r'(.*)\.IN$': [r'\1.OUT', r'\1.ANS'],
                     r'input(.*)': [r'output\1', r'answer\1'], r'INPUT(.*)': [r'OUTPUT\1', r'ANSWER\1'],
-                    r'(\d+)': [r'\1.a']}
+                    r'(\d+)': [r'\1.a'], r'(.*)\.in(.*)$': [r'\1.out\2', r'\1.ans\2'],}
 
         for file in raw_namelist:
             for pattern_in, pattern_out in patterns.items():
