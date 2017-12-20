@@ -41,6 +41,34 @@
           <button type="submit" class="ui button">Go to</button>
         </div>
       </form>
+
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Recent Actions</div>
+        </div>
+        <div class="content">
+          <div class="ui small feed">
+            {% for comment in comment_list %}
+            <div class="event">
+              <div class="content">
+                {% if comment.__class__.__name__ == "Blog" %}
+                  {{ username_display(comment.author) }} posted a blog <a href="{{ url('blog:detail', comment.pk) }}">{{ comment.title }}</a>. <span class="date">{{ comment.create_time | naturaltime }}</span>
+                {% elif comment.__class__.__name__ == "XtdComment" %}
+                  {% if comment.content_type.model == "problem" %}
+                    {{ username_display(comment.user) }} posted a discussion in
+                    <a href="{{ url('problem:discussion', comment.object_pk) }}">Problem #{{ comment.object_pk }}</a>: {{ comment.comment }}. <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                  {% elif comment.content_type.model == "blog" %}
+                    {{ username_display(comment.user) }} added a <a href="{{ url('blog:detail', comment.object_pk) }}">comment in
+                    blog</a>: {{ comment.comment }}. <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
