@@ -75,7 +75,7 @@ def home_view(request):
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
                 "author").order_by("-create_time").filter(visible=True, recommend=True)[:LIMIT]
             comment_list, blog_list = XtdComment.objects.order_by("-submit_date").select_related("user", "content_type").all()[:LIMIT],\
-                                      Blog.objects.order_by("-create_time").select_related("author").all()[:LIMIT]
+                                      Blog.objects.order_by("-create_time").select_related("author").filter(visible=True)[:LIMIT]
             ctx['comment_list'] = []
             i, j = 0, 0
             for k in range(LIMIT):
