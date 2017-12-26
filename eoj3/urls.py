@@ -16,9 +16,6 @@ from home.views import home_view, faq_view, TestView, file_manager, proxy_file_d
 from problem.views import make_payment_for_full_report, case_download_link
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
-UPLOAD_ROOT_DIR = '/upload/'
-STATIC_ROOT_DIR = '/static/'
-
 
 def force_closed():
     return {"force_closed": True}
@@ -62,12 +59,8 @@ urlpatterns += [
 if DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^%s(?P<path>.*)$' % re.escape(STATIC_ROOT_DIR.lstrip('/')), serve, name='static',
-            kwargs={'document_root': STATIC_DIR}),
-        url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT_DIR.lstrip('/')), serve, name='upload',
-            kwargs={'document_root': UPLOAD_DIR}),
-        # url(r'^%s(?P<path>.*)$' % re.escape(UPLOAD_ROOT_DIR.lstrip('/')), serve, name='media',
-        #     kwargs={'document_root': MEDIA_DIR}),
+        url(r'^static/(?P<path>.*)$', serve, name='static', kwargs={'document_root': STATIC_DIR}),
+        url(r'^upload/(?P<path>.*)$', serve, name='upload', kwargs={'document_root': UPLOAD_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^t/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
