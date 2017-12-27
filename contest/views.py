@@ -104,6 +104,13 @@ class DashboardView(BaseContestMixin, TemplateView):
                         problem.personal_label = 1
                     elif problem.problem_id in attempt_list:
                         problem.personal_label = -1
+                    else:
+                        problem.personal_label = 0
+                if self.contest.always_running:
+                    all_accept_list = set(get_accept_problem_list(self.request.user.id))
+                    for problem in data['contest_problem_list']:
+                        if problem.problem_id in all_accept_list and problem.personal_label <= 0:
+                            problem.personal_label = 2
                 if self.privileged:
                     clarifications = self.contest.contestclarification_set.all()
                 else:

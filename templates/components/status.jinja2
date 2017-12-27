@@ -2,7 +2,7 @@
 
 {% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False, anti_cheat=False) %}
 
-  <table class="ui celled table center aligned compact">
+  <table class="ui celled table center aligned compact status">
     <thead>
       <tr>
         <th>#</th>
@@ -105,7 +105,7 @@
     </thead>
     <tbody>
       {% for submission in submission_list %}
-        <tr>
+        <tr class="{% if (contest and not submission.contest_id) or (not contest and submission.contest_id) %}disabled{% endif %}">
         {% if not submission.contest_id %}
           <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a></td>
         {% else %}

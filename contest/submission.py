@@ -157,12 +157,18 @@ class ContestMyStatus(ContestStatus):
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
-        return self.contest.submission_set.filter(author=self.user).all()
+        if not self.contest.always_running:
+            return self.contest.submission_set.filter(author=self.user).all()
+        else:
+            return self.user.submission_set.filter(problem_id__in=self.contest.contestproblem_set.values_list("problem_id", flat=True)).all()
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data.update(hide_users=True)
         return data
+
+
+
 
 
 class ContestBalloon(BaseContestMixin, View):
