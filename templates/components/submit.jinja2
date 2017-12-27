@@ -1,8 +1,12 @@
-{% macro submit_view(submit_action="", hide_submit=False) %}
+{% macro submit_view(submit_action="", hide_submit=False, running_complete=False) %}
 
   {% include 'components/message.jinja2' %}
 
   <form class="ui form" action="{{ submit_action }}" method="post">
+
+  {% if running_complete %}
+    <input type="hidden" name="complete" value="yes">
+  {% endif %}
 
     <div class="ui error message">
       <div class="header">Should check something!</div>

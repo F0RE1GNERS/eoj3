@@ -7,6 +7,6 @@
   {{ problem_view(problem.title, False) }}
 
   <h3 class="ui header" style="margin-top: 4em;">Submit your code here</h3>
-  {{ submit_view(submit_action=url('problem:submit', problem.id)) }}
+  {{ submit_view(submit_action=url('problem:submit', problem.id), running_complete=True) }}
 
 {% endblock %}
