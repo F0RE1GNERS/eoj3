@@ -9,9 +9,14 @@
       Download All
     </a>
     <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my_accepted" target="_blank">
-      Only Accepted
+      Download Accepted
+    </a>
+    <a class="item post-link" data-link="{{ url('contest:my_claim', contest.pk) }}">
+      Claim Accepted
     </a>
   </div>
+
+  {% include 'components/message.jinja2' %}
 
   {{ status() }}
 

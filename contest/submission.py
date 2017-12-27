@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponseBadRequest
@@ -56,8 +57,37 @@ class ContestSubmit(BaseContestMixin, TemplateView):
             return HttpResponseBadRequest(str(e).encode())
 
 
-class ContestSubmissionAPI(BaseContestMixin, View):
+class ContestSubmissionClaim(BaseContestMixin, View):
+    def test_func(self):
+        return self.contest.always_running and super().test_func() and self.user.is_authenticated
 
+    def prepare_submissions(self):
+        contest_already_accept = set()
+        self.submissions = []
+        for submission in self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED, author=self.user).\
+                defer("code", "status_detail", "status_message"):
+            contest_already_accept.add(submission.problem_id)
+        aiming_problems = list(filter(lambda x: x not in contest_already_accept,
+                                      self.contest.contestproblem_set.values_list("problem_id", flat=True)))
+        for submission in self.user.submission_set.filter(
+                problem_id__in=aiming_problems, status=SubmissionStatus.ACCEPTED).all():
+            if submission.problem_id not in contest_already_accept and submission.lang in self.contest.allowed_lang:
+                self.submissions.append(submission)
+                contest_already_accept.add(submission.problem_id)
+
+    def post(self, request, cid):
+        contest_participant, _ = self.contest.contestparticipant_set.get_or_create(user=self.user)
+        self.prepare_submissions()
+        if len(self.submissions) > 0:
+            for submission in self.submissions:
+                submission.pk = None
+                submission.contest = self.contest
+            Submission.objects.bulk_create(self.submissions)
+            messages.add_message(request, messages.SUCCESS, "%d submissions successfully migrated." % len(self.submissions))
+        return HttpResponse()
+
+
+class ContestSubmissionAPI(BaseContestMixin, View):
     def get(self, request, cid, sid):
         if not request.user.is_authenticated:
             raise PermissionDenied
@@ -76,7 +106,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ContestSubmissionView, self).get_context_data(**kwargs)
         data['submission'] = submission = get_object_or_404(Submission, contest_id=self.kwargs.get('cid'),
-                                                                        pk=self.kwargs.get('sid'))
+                                                            pk=self.kwargs.get('sid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
         if submission.author == self.request.user and self.contest.case_public and submission.is_judged and \
                 is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
@@ -117,7 +147,7 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
                                                                    "status_private", "create_time", "contest_id",
                                                                    "author_id", "author__username",
                                                                    "author__nickname", "author__magic"). \
-            filter(author_id=self.request.user.pk)[:20]
+                                      filter(author_id=self.request.user.pk)[:20]
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
         data['view_more'] = True
         return data
@@ -160,15 +190,13 @@ class ContestMyStatus(ContestStatus):
         if not self.contest.always_running:
             return self.contest.submission_set.filter(author=self.user).all()
         else:
-            return self.user.submission_set.filter(problem_id__in=self.contest.contestproblem_set.values_list("problem_id", flat=True)).all()
+            return self.user.submission_set.filter(
+                problem_id__in=self.contest.contestproblem_set.values_list("problem_id", flat=True)).all()
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data.update(hide_users=True)
         return data
-
-
-
 
 
 class ContestBalloon(BaseContestMixin, View):
