@@ -287,6 +287,7 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         data['tags'] = edit_string_for_tags(self.problem.tags)
         data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
         data['public_edit_access'] = is_problem_accepted(self.request.user, self.problem)
+        data['all_valid'] = True
         return data
 
 
