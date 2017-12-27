@@ -105,7 +105,7 @@
     </thead>
     <tbody>
       {% for submission in submission_list %}
-        <tr class="{% if (contest and not submission.contest_id) or (not contest and submission.contest_id) %}disabled{% endif %}">
+        <tr class="{% if (contest and submission.contest_id != contest.pk) or (not contest and submission.contest_id) %}disabled{% endif %}">
         {% if not submission.contest_id %}
           <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a></td>
         {% else %}
