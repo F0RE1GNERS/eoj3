@@ -60,12 +60,12 @@
         <i class="flag checkered icon"></i>
       </div>
       <div class="content">
-        <a href="{{ url('contest:index', ret.pk) }}" class="summary">
-          Contest/Gym: {{ contest.title }}
+        <a href="{{ url('contest:dashboard', ret.pk) }}" class="summary">
+          Contest/Gym: {{ ret.title }}
         </a>
         {% if not ret.always_running %}
-          <div class="meta">
-            Start: {{ contest.start_time | naturaltime }}
+          <div class="extra text">
+            Start: {{ ret.start_time | naturaltime }}
           </div>
         {% endif %}
       </div>
