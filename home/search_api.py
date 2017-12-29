@@ -54,6 +54,10 @@ class SearchAPI(APIView):
         if kw:
             results['user'] = query_user(kw)
             results['problem'] = query_problem(kw, all=is_admin_or_root(request.user))
+            return Response(dict(results=results, action={
+                "url": reverse('search'),
+                "text": "View all results"
+            }))
         return Response(dict(results=results))
 
 

@@ -1,0 +1,69 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Search - {% endblock %}
+
+{% block page_header %}Cows, Pandas, Sheep, Rabbits...{% endblock %}
+
+{% block content %}
+
+  <form class="ui form">
+    <div class="ui icon input">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search...">
+      <i class="search icon"></i>
+    </div>
+    <input type="submit" style="display: none;">
+  </form>
+
+  <div class="ui big feed">
+  {% for ret in search_list %}
+    <div class="event">
+    {% if ret.__class__.__name__ == 'Problem' %}
+      <div class="label">
+        <i class="puzzle icon"></i>
+      </div>
+      <div class="content">
+        <a href="{{ url('problem:detail', ret.pk) }}" class="summary">
+          Problem #{{ ret.pk }}: {{ ret.title }}
+{#          <div class="date">#}
+{#            3 days ago#}
+{#          </div>#}
+        </a>
+        <div class="extra text">
+          {% cache 3600 'problem_preview#' + ret.pk.__str__() + '#' + ret.update_time.__str__() %}
+            {{ ret.description | markdown | get_intro }}
+          {% endcache %}
+        </div>
+        {% if ret.source %}
+          <a class="meta" href="{{ url('problem:list') }}?source={{ ret.source }}">
+            Source: {{ ret.source }}
+          </a>
+        {% endif %}
+      </div>
+{#    {% elif ret.__class__.__name__ == 'User' %}#}
+{#      <div class="label">#}
+{#        <a href="{{ url('generic', ret.pk) }}"><img src="{{ ret.avatar_small.url }}"></a>#}
+{#      </div>#}
+{#      <div class="content">#}
+{#        <a href="{{ url('problem:detail', ret.pk) }}" class="summary">#}
+{#          Problem #{{ ret.pk }}: {{ ret.title }}#}
+{#          <div class="date">#}
+{#            3 days ago#}
+{#          </div>#}
+{#        </a>#}
+{#        <div class="extra text">#}
+{#          {% cache 3600 'problem_preview#' + ret.pk.__str__() + '#' + ret.update_time.__str__() %}#}
+{#            {{ ret.description | markdown | get_intro }}#}
+{#          {% endcache %}#}
+{#        </div>#}
+{#        {% if ret.source %}#}
+{#          <a class="meta" href="{{ url('problem:list') }}?source={{ ret.source }}">#}
+{#            Source: {{ ret.source }}#}
+{#          </a>#}
+{#        {% endif %}#}
+{#      </div>#}
+    {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+
+{% endblock %}

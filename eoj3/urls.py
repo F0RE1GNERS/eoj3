@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.static import serve
 
+from home.search import search_view
 from migrate.views import migrate_view
 from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
@@ -27,6 +28,7 @@ urlpatterns = [
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^logout/$', logout, name='logout'),
+    url(r'^search/$', search_view, name='search'),
     url(r'^filemanager/$', file_manager, name='filemanager'),
     url(r'^filemanager/download/$', proxy_file_downloader, name='filemanager_downloader'),
     url(r'^admin/', admin.site.urls),
