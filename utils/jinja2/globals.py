@@ -226,8 +226,8 @@ def static_file_modify():
         return max(map(lambda x: int(os.path.getmtime(x[0])), os.walk(path)))
     t = cache.get("STATIC_FILE_MODIFIED_TIME")
     if t is None:
-        t = max(map(get_modified_time, [os.path.join(settings.STATIC_DIR, "css", "app.min.css"), os.path.join(settings.STATIC_DIR, "js")]))
-        cache.set("STATIC_FILE_MODIFIED_TIME", t)
+        t = max(map(get_modified_time, [os.path.join(settings.STATIC_DIR, "css"), os.path.join(settings.STATIC_DIR, "js")]))
+        cache.set("STATIC_FILE_MODIFIED_TIME", 1234567890123)
     return t
 
 
