@@ -48,4 +48,4 @@ def search_view(request):
     # ctx["search_list"] = sorted(list(problems) + list(users) + list(blogs) + list(contests), key=lambda x: x.rank,
     #                             reverse=True)[:LIMIT]
 
-    return render(request, 'search.jinja2', context=ctx)
+    return render(request, 'search.jinja2', context={})
