@@ -14,6 +14,13 @@
     <input type="submit" style="display: none;">
   </form>
 
+  {% if query_time %}
+    <h5 class="ui header">
+      <div class="sub header">Query {{ search_list | length }} records in {{ query_time }} seconds.</div>
+    </h5>
+
+  {% endif %}
+
   <div class="ui big feed">
   {% for ret in search_list %}
     <div class="event">

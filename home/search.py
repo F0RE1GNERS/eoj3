@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 
 from django.db.models import Q
 from django.shortcuts import render
@@ -17,6 +18,8 @@ def search_view(request):
     ctx = {"q": q}
     LIMIT = 50
 
+    start_time = time.time()
+
     # query problems
     query = Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
         output__icontains=q)
@@ -32,10 +35,13 @@ def search_view(request):
                 problem.rank += weight_dict[attr]
 
     # query username
-    users = User.objects.filter(username__icontains=q)[:LIMIT // 2]
+    users = User.objects.filter(username__icontains=q, is_active=True)[:LIMIT // 2]
     for user in users:
-        user.rank = 0.7 * (user.last_login - user.date_joined).total_seconds() / (
-        datetime.now() - user.date_joined).total_seconds()
+        if user.last_login:
+            user.rank = 0.7 * (user.last_login - user.date_joined).total_seconds() / (
+            datetime.now() - user.date_joined).total_seconds()
+        else:
+            user.rank = 0.0
 
     # query blogs
     query = Q(title__icontains=q) | Q(text__icontains=q)
@@ -54,5 +60,8 @@ def search_view(request):
 
     ctx["search_list"] = sorted(list(problems) + list(users) + list(blogs) + list(contests), key=lambda x: x.rank,
                                 reverse=True)[:LIMIT]
+
+    stop_time = time.time()
+    ctx["query_time"] = '%.3f' % (stop_time - start_time)
 
     return render(request, 'search.jinja2', context=ctx)
