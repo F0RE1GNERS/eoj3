@@ -24,9 +24,6 @@
       <div class="content">
         <a href="{{ url('problem:detail', ret.pk) }}" class="summary">
           Problem #{{ ret.pk }}: {{ ret.title }}
-{#          <div class="date">#}
-{#            3 days ago#}
-{#          </div>#}
         </a>
         <div class="extra text">
           {% cache 3600 'problem_preview#' + ret.pk.__str__() + '#' + ret.update_time.__str__() %}
@@ -39,28 +36,49 @@
           </a>
         {% endif %}
       </div>
-{#    {% elif ret.__class__.__name__ == 'User' %}#}
-{#      <div class="label">#}
-{#        <a href="{{ url('generic', ret.pk) }}"><img src="{{ ret.avatar_small.url }}"></a>#}
-{#      </div>#}
-{#      <div class="content">#}
-{#        <a href="{{ url('problem:detail', ret.pk) }}" class="summary">#}
-{#          Problem #{{ ret.pk }}: {{ ret.title }}#}
-{#          <div class="date">#}
-{#            3 days ago#}
-{#          </div>#}
-{#        </a>#}
-{#        <div class="extra text">#}
-{#          {% cache 3600 'problem_preview#' + ret.pk.__str__() + '#' + ret.update_time.__str__() %}#}
-{#            {{ ret.description | markdown | get_intro }}#}
-{#          {% endcache %}#}
-{#        </div>#}
-{#        {% if ret.source %}#}
-{#          <a class="meta" href="{{ url('problem:list') }}?source={{ ret.source }}">#}
-{#            Source: {{ ret.source }}#}
-{#          </a>#}
-{#        {% endif %}#}
-{#      </div>#}
+    {% elif ret.__class__.__name__ == 'User' %}
+      <div class="label">
+        <a href="{{ url('generic', ret.pk) }}"><img src="{{ ret.avatar_small.url }}"></a>
+      </div>
+      <div class="content">
+        <div class="summary">
+          {{ username_display(ret) }}
+        </div>
+        <div class="meta">
+          Last login: {{ ret.last_login | naturaltime }}
+        </div>
+      </div>
+    {% elif ret.__class__.__name__ == 'Contest' %}
+      <div class="label">
+        <i class="flag checkered icon"></i>
+      </div>
+      <div class="content">
+        <a href="{{ url('contest:index', ret.pk) }}" class="summary">
+          Contest/Gym: {{ contest.title }}
+        </a>
+        {% if not ret.always_running %}
+          <div class="meta">
+            Start: {{ contest.start_time | naturaltime }}
+          </div>
+        {% endif %}
+      </div>
+    {% elif ret.__class__.__name__ == 'Blog' %}
+      <div class="label">
+        <i class="edit icon"></i>
+      </div>
+      <div class="content">
+        <a class="summary">
+          Blog: <a href="{{ url('blog:detail', ret.pk) }}">{{ ret.title }}</a> by {{ username_display(ret.author) }}
+        </a>
+        <div class="extra text">
+          {% cache 3600 'blog_preview#' + ret.pk.__str__() + '#' + ret.edit_time.__str__() %}
+            {{ ret.text | markdown | get_intro }}
+          {% endcache %}
+        </div>
+        <div class="meta">
+          Edited {{ ret.edit_time | naturaltime }}
+        </div>
+      </div>
     {% endif %}
     </div>
   {% endfor %}

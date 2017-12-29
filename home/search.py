@@ -1,4 +1,6 @@
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from datetime import datetime
+
+from django.db.models import Q
 from django.shortcuts import render
 
 from account.models import User
@@ -9,43 +11,48 @@ from problem.models import Problem
 
 
 def search_view(request):
-    # q = request.GET.get('q', '')
-    # if not q:
-    #     return render(request, 'search.jinja2')
-    # ctx = {"q": q}
-    # LIMIT = 50
-    #
-    # # query problems
-    # vector = SearchVector('title', weight='A') + SearchVector('description', weight='B') + \
-    #          SearchVector('source', weight='B') + SearchVector('input', weight='C') + \
-    #          SearchVector('output', weight='C')
-    # query = SearchQuery(q)
-    # weights = [0.1, 0.2, 0.4, 1.0]
-    # if is_admin_or_root(request.user):
-    #     problems = Problem.objects.annotate(rank=SearchRank(vector, query, weights=weights)). \
-    #                    filter(rank__gte=0.2, visible=True).order_by('-rank')[:LIMIT]
-    # else:
-    #     problems = Problem.objects.annotate(rank=SearchRank(vector, query, weights=weights)). \
-    #                    filter(rank__gte=0.2).order_by('-rank')[:LIMIT]
-    # # problems = [Problem.objects.get(pk=1)]
-    # # problems[0].rank = 0.9
-    #
-    # # query username
-    # users = User.objects.filter(username__icontains=q).extra(select={"rank": 0.8})[:LIMIT // 2]
-    #
-    # # query blogs
-    # vector = SearchVector('title', weight='A') + SearchVector('text', weight='B')
-    # blogs = Blog.objects.annotate(rank=SearchRank(vector, query, weights=[0.1, 0.2, 0.6, 1.0])). \
-    #             filter(rank__gte=0.2, visible=True).order_by('-rank')[:LIMIT]
-    # # blogs = [Blog.objects.get(pk=1)]
-    # # blogs[0].rank = 1.0
-    #
-    # # query contests
-    # contests = Contest.objects.filter(title__icontains=q).extra(select={"rank": 0.7})[:LIMIT]
-    #
-    # LIMIT *= 2
-    #
-    # ctx["search_list"] = sorted(list(problems) + list(users) + list(blogs) + list(contests), key=lambda x: x.rank,
-    #                             reverse=True)[:LIMIT]
+    q = request.GET.get('q', '')
+    if not q:
+        return render(request, 'search.jinja2')
+    ctx = {"q": q}
+    LIMIT = 50
 
-    return render(request, 'search.jinja2', context={})
+    # query problems
+    query = Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
+        output__icontains=q)
+    if is_admin_or_root(request.user):
+        problems = Problem.objects.filter(query)
+    else:
+        problems = Problem.objects.filter(query, visible=True)
+    weight_dict = {"title": 1.0, "description": 0.5, "source": 0.9, "input": 0.2, "output": 0.2}
+    for problem in problems:
+        problem.rank = 0.0
+        for attr in weight_dict:
+            if q in getattr(problem, attr):
+                problem.rank += weight_dict[attr]
+
+    # query username
+    users = User.objects.filter(username__icontains=q)[:LIMIT // 2]
+    for user in users:
+        user.rank = 0.7 * (user.last_login - user.date_joined).total_seconds() / (
+        datetime.now() - user.date_joined).total_seconds()
+
+    # query blogs
+    query = Q(title__icontains=q) | Q(text__icontains=q)
+    blogs = Blog.objects.filter(query, visible=True).select_related("author")
+    weight_dict = {"title": 1.0, "text": 0.6}
+    for blog in blogs:
+        blog.rank = 0.0
+        for attr in weight_dict:
+            if q in getattr(blog, attr):
+                blog.rank += weight_dict[attr]
+
+    # query contests
+    contests = Contest.objects.filter(title__icontains=q).extra(select={"rank": 0.7})[:LIMIT]
+
+    LIMIT *= 2
+
+    ctx["search_list"] = sorted(list(problems) + list(users) + list(blogs) + list(contests), key=lambda x: x.rank,
+                                reverse=True)[:LIMIT]
+
+    return render(request, 'search.jinja2', context=ctx)
