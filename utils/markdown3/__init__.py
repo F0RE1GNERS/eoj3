@@ -11,8 +11,10 @@ def convert(text):
                     mdx_math.makeExtension(enable_dollar_delimiter=True, add_preview=False),
                     'fenced_code',
                     'codehilite',
+                    'markdown.extensions.attr_list',
                     'nl2br',
                     'tables',
+                    'markdown.extensions.smarty'
                     ]
     )
     return semantic.semantic_processor(md.convert(text))
