@@ -14,6 +14,8 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from os import path
+
+from django_comments_xtd.models import XtdComment
 from tagging.models import Tag, TaggedItem, ContentType
 from ipware.ip import get_ip
 
@@ -119,6 +121,12 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
         data['problem'] = self.problem
         data['is_privileged'] = self.privileged
+        data['discussion_count'] = XtdComment.objects.filter(content_type=ContentType.objects.get_for_model(Problem),
+                                                             object_pk=self.problem.pk,
+                                                             site__pk=settings.SITE_ID,
+                                                             is_public=True,
+                                                             is_removed=False,
+                                                             level=0).count()
         return data
 
 
