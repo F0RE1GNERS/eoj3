@@ -54,7 +54,7 @@ def query_problem(kw, all=False):
 def query_blog(kw):
     results = list()
     if kw:
-        for blog in Blog.objects.filter(title__icontains=kw).all()[:5]:
+        for blog in Blog.objects.filter(title__icontains=kw, visible=True).all()[:5]:
             results.append(dict(title=escape(blog.title), url=reverse('blog:detail', kwargs={"pk": blog.pk})))
     return dict(name='Blog', results=results)
 
@@ -62,7 +62,7 @@ def query_blog(kw):
 def query_contest(kw):
     results = list()
     if kw:
-        for contest in Contest.objects.filter(title__icontains=kw).all()[:5]:
+        for contest in Contest.objects.filter(title__icontains=kw, visible=True).all()[:5]:
             results.append(
                 dict(title=escape(contest.title), url=reverse('contest:dashboard', kwargs={"cid": contest.pk})))
     return dict(name='Contest', results=results)
