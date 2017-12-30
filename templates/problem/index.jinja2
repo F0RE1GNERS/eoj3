@@ -139,8 +139,12 @@
           .position('x*y')
           .color('tag')
           .shape('cloud')
-          .tooltip('tag*count');
+          .tooltip(false); // 'tag*count'
+
       chart.render();
+      chart.on('point:click', ev => {
+          location.href = "?tag=" + encodeURI(ev.data._origin['text'])
+      });
 
   </script>
 {% endblock %}
