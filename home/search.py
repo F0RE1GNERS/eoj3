@@ -3,6 +3,7 @@ import time
 
 from django.db.models import Q
 from django.shortcuts import render
+from tagging.models import TaggedItem, Tag
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -12,7 +13,7 @@ from problem.models import Problem
 
 
 def search_view(request):
-    q = request.GET.get('q', '')
+    q = request.GET.get('q', '').strip()
     if not q:
         return render(request, 'search.jinja2')
     ctx = {"q": q}
@@ -21,7 +22,7 @@ def search_view(request):
     start_time = time.time()
 
     # query problems
-    query = Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
+    query = Q(pk__exact=q) | Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
         output__icontains=q)
     if is_admin_or_root(request.user):
         problems = Problem.objects.filter(query)
@@ -31,7 +32,10 @@ def search_view(request):
     for problem in problems:
         problem.rank = 0.0
         for attr in weight_dict:
-            if q in getattr(problem, attr):
+            if attr == "pk":
+                if q == str(problem.pk):
+                    problem.rank += 5.0
+            elif q in getattr(problem, attr):
                 problem.rank += weight_dict[attr]
 
     # query username
@@ -54,7 +58,7 @@ def search_view(request):
                 blog.rank += weight_dict[attr]
 
     # query contests
-    contests = Contest.objects.filter(title__icontains=q).extra(select={"rank": 0.7})[:LIMIT]
+    contests = Contest.objects.filter(title__icontains=q, visible=True).extra(select={"rank": 0.7})[:LIMIT]
 
     LIMIT *= 2
 
