@@ -3,46 +3,67 @@
 {% block title %}Problem Set - {% endblock %}
 
 {% block problem_content %}
-
-<table class="ui celled unstackable table">
-  <thead>
-    <tr>
-      <th class="center aligned one wide">#</th>
-      <th>Name</th>
-      <th class="center aligned collapsing hidden-on-small">Reward</th>
-      <th class="center aligned two wide">Solved</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for problem in problem_list %}
-      <tr class="center aligned middle aligned">
-        <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
-        <td class="left aligned middle aligned">
-          <div style="float:right">
-          {% for tag in problem.my_tags %}
-            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
-          {% endfor %}
-          </div>
-          <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
-        </td>
-        <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
-        <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
-          <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
-        </td>
+<div class="ui stackable grid">
+<div class="twelve wide column">
+  <table class="ui celled unstackable table">
+    <thead>
+      <tr>
+        <th class="center aligned one wide">#</th>
+        <th>Name</th>
+        <th class="center aligned collapsing hidden-on-small">Reward</th>
+        <th class="center aligned two wide">Solved</th>
       </tr>
-    {% endfor %}
-  </tbody>
-  <tfoot>
-    <tr>
-      <th colspan="4" class="right aligned">
-        <div class="ui checkbox">
-          <input type="checkbox" name="showTags" checked>
-          <label>Show tags</label>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
+        <tr class="center aligned middle aligned">
+          <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
+          <td class="left aligned middle aligned">
+            <div style="float:right">
+            {% for tag in problem.my_tags %}
+              <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
+            {% endfor %}
+            </div>
+            <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+          </td>
+          <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
+          <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
+            <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4" class="right aligned">
+          <div class="ui checkbox">
+            <input type="checkbox" name="showTags" checked>
+            <label>Show tags</label>
+          </div>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="four wide column">
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">Tags</div>
+      </div>
+      <div class="content">
+        <div class="ui labels">
+            {% for name, count in tags.items() %}
+              <a class="ui label problem-tag" href="?{{ url_replace(request, 'tag', name) }}">
+                {{- name -}}
+                <div class="detail">{{ count }}</div>
+              </a>
+            {% endfor %}
         </div>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+      </div>
+    </div>
+</div>
+</div>
 
   {{ my_paginator() }}
 
