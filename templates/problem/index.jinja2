@@ -52,14 +52,7 @@
         <div class="header">Tags</div>
       </div>
       <div class="content">
-        <div class="ui labels">
-            {% for name, count in tags.items() %}
-              <a class="ui label problem-tag" href="?{{ url_replace(request, 'tag', name) }}">
-                {{- name -}}
-                <div class="detail">{{ count }}</div>
-              </a>
-            {% endfor %}
-        </div>
+        <div id="word-cloud"></div>
       </div>
     </div>
 </div>
@@ -67,4 +60,87 @@
 
   {{ my_paginator() }}
 
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script type="text/javascript">
+    const HEIGHT = 300;
+    const MAX_SIZE = 40, MIN_SIZE = 20;
+
+    function getTextAttrs(cfg) {
+          return _.assign({}, {
+              fillOpacity: cfg.opacity,
+              fontSize: cfg.origin._origin.size,
+              rotate: cfg.origin._origin.rotate,
+              text: cfg.origin._origin.text,
+              textAlign: 'center',
+              fontFamily: cfg.origin._origin.font,
+              fill: cfg.color,
+              textBaseline: 'Alphabetic'
+          }, cfg.style);
+      }
+
+      G2.Shape.registerShape('point', 'cloud', {
+          drawShape(cfg, container) {
+              const attrs = getTextAttrs(cfg);
+              return container.addShape('text', {
+                  attrs: _.assign(attrs, {
+                      x: cfg.x,
+                      y: cfg.y
+                  })
+              });
+          }
+      });
+
+      const data = [
+          {% for tag in tags %}
+              {
+                  tag: "{{ tag.name }}",
+                  count: {{ tag.count }}
+              }{% if not loop.last %},{% endif %}
+          {% endfor %}
+      ];
+
+      const dv = new DataSet.View().source(data);
+      const range = dv.range('count');
+      const min = range[0];
+      const max = range[1];
+      dv.transform({
+          type: 'tag-cloud',
+          fields: ['tag', 'count'],
+          font: 'Verdana',
+          forceFit: true,
+          size: [$("#word-cloud").width(), HEIGHT],
+          padding: 0,
+          timeInterval: 5000, // max execute time
+          rotate() {
+              return 0;
+          },
+          fontSize(d) {
+              return ((d.count - min) / (max - min)) * (MAX_SIZE - MIN_SIZE) + MIN_SIZE;
+          }
+      });
+      const chart = new G2.Chart({
+          container: 'word-cloud',
+          forceFit: true,
+          height: HEIGHT,
+          padding: 0,
+      });
+      chart.source(dv);
+      chart.legend(false);
+      chart.axis(false);
+      chart.tooltip({
+          showTitle: false
+      });
+      chart.coord().reflect();
+      chart.point()
+          .position('x*y')
+          .color('tag')
+          .shape('cloud')
+          .tooltip('tag*count');
+      chart.render();
+
+  </script>
 {% endblock %}
