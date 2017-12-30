@@ -5,6 +5,34 @@
 .masthead.segment {
   min-height: 700px;
   padding: 1em 0;
+  background: rgba(0, 0, 0, 0.3) !important;
+  //background-size: cover !important;
+  //background-repeat: no-repeat !important;
+  //background-position: center center !important;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  img {
+    z-index: -1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: auto;
+    height: auto;
+
+    max-height: none;
+    max-width: none;
+
+    min-height: 100%;
+    min-width: 100%;
+
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+  }
+  img.inactive {
+    z-index: -3;
+  }
   .logo.item img {
     margin-right: 1em;
   }
@@ -23,6 +51,9 @@
   }
   .secondary.pointing.menu .toc.item {
     display: none;
+  }
+  .ui.secondary.pointing.menu {
+    border-width: 0;
   }
 }
 

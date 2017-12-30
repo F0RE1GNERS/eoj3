@@ -71,15 +71,18 @@ def home_view(request):
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', '')}
         if not is_site_closed():
-            LIMIT = 15
+            LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
-                "author").order_by("-create_time").filter(visible=True, recommend=True)[:LIMIT]
-            comment_list, blog_list = XtdComment.objects.order_by("-submit_date").select_related("user", "content_type").all()[:LIMIT],\
-                                      Blog.objects.order_by("-create_time").select_related("author").filter(visible=True)[:LIMIT]
+                "author").order_by("-create_time").filter(visible=True, recommend=True)[:LIMIT_BLOG]
+            comment_list, blog_list = XtdComment.objects.filter(is_public=True, is_removed=False).order_by(
+                "-submit_date").select_related("user", "content_type").all()[:LIMIT], \
+                                      Blog.objects.order_by("-create_time").select_related("author").filter(
+                                          visible=True)[:LIMIT]
             ctx['comment_list'] = []
             i, j = 0, 0
             for k in range(LIMIT):
-                if i < len(comment_list) and comment_list[i].submit_date > blog_list[j].create_time:
+                if i < len(comment_list) and (j == len(blog_list) or (
+                        j < len(blog_list) and comment_list[i].submit_date > blog_list[j].create_time)):
                     ctx['comment_list'].append(comment_list[i])
                     i += 1
                 elif j < len(blog_list):

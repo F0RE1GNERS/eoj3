@@ -187,7 +187,8 @@ class ProblemSubmitView(ProblemDetailMixin, TemplateView):
             if lang not in dict(LANG_CHOICE).keys():
                 raise ValueError("Invalid language.")
             submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang, ip=get_ip(request))
-            judge_submission_on_problem(submission)
+            running_complete = bool(is_problem_manager(self.user, self.problem) and request.POST.get('complete'))
+            judge_submission_on_problem(submission, run_until_complete=running_complete)
             return JsonResponse({"url": reverse('problem:submission_api',
                                                 kwargs={'pk': self.problem.id, 'sid': submission.id})})
         except Exception as e:
@@ -295,6 +296,7 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         data['tags'] = edit_string_for_tags(self.problem.tags)
         data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
         data['public_edit_access'] = is_problem_accepted(self.request.user, self.problem)
+        data['all_valid'] = True
         return data
 
 

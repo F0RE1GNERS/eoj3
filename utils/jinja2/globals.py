@@ -223,7 +223,7 @@ def url_encode(d):
 @library.global_function(name='static_file_modify')
 def static_file_modify():
     def get_modified_time(path):
-        return max(map(lambda x: int(os.path.getmtime(x[0])), os.walk(path)))
+        return max(map(lambda x: int(os.path.getmtime(os.path.join(path, x))), os.listdir(path)))
     t = cache.get("STATIC_FILE_MODIFIED_TIME")
     if t is None:
         t = max(map(get_modified_time, [os.path.join(settings.STATIC_DIR, "css"), os.path.join(settings.STATIC_DIR, "js")]))

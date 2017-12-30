@@ -7,7 +7,15 @@
 {% include 'components/navbar.jinja2' %}
 
 <div class="pusher">
-  <div class="ui inverted vertical masthead center aligned segment">
+  <div id="advertisement" class="ui inverted vertical masthead center aligned segment">
+
+    <img src="/static/image/bg/1.jpg">
+    <img src="/static/image/bg/2.jpg" class="inactive">
+    <img src="/static/image/bg/3.jpg" class="inactive">
+    <img src="/static/image/bg/4.jpg" class="inactive">
+    <img src="/static/image/bg/5.jpg" class="inactive">
+    <img src="/static/image/bg/6.jpg" class="inactive">
+    <img src="/static/image/bg/7.jpg" class="inactive">
 
     <div class="ui container">
       <div class="ui large secondary inverted pointing menu">
@@ -108,7 +116,39 @@
         }
       });
       $('#navbar').hide();
+
+      var imagesBox = $("#advertisement").find("img");
+
+      function fitBackground() {
+        imagesBox.each(function () {
+          var width = this.naturalWidth, height = this.naturalHeight;
+          var parentWidth = $(this).parent().width(), parentHeight = $(this).parent().height();
+          if (width / parentWidth * parentHeight < height) {
+            $(this).width(parentWidth); $(this).height("auto");
+          } else {
+            $(this).height(parentHeight); $(this).width("auto");
+          }
+        });
+      }
+      window.onresize = fitBackground;
+      fitBackground();
+
+      var index = 0, interval = 4500;
+      function changeBg() {
+        console.log(index);
+        var active = $(imagesBox[index]);
+        index = (index + 1) % imagesBox.length;
+        var next = $(imagesBox[index]);
+        next.css('z-index', -2);
+        active.fadeOut(1500, function() {
+          active.css('z-index', -3).show();
+          next.css('z-index', -1);
+        });
+        setTimeout(changeBg, interval);
+      }
+      setTimeout(changeBg, interval);
     });
+
 
   </script>
 {% endblock %}
