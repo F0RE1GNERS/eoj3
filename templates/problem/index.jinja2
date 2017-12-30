@@ -3,47 +3,148 @@
 {% block title %}Problem Set - {% endblock %}
 
 {% block problem_content %}
-
-<table class="ui celled unstackable table">
-  <thead>
-    <tr>
-      <th class="center aligned one wide">#</th>
-      <th>Name</th>
-      <th class="center aligned collapsing hidden-on-small">Reward</th>
-      <th class="center aligned two wide">Solved</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for problem in problem_list %}
-      <tr class="center aligned middle aligned">
-        <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
-        <td class="left aligned middle aligned">
-          <div style="float:right">
-          {% for tag in problem.my_tags %}
-            <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
-          {% endfor %}
-          </div>
-          <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
-        </td>
-        <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
-        <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
-          <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
-        </td>
+<div class="ui stackable grid">
+<div class="twelve wide column">
+  <table class="ui celled unstackable table">
+    <thead>
+      <tr>
+        <th class="center aligned one wide">#</th>
+        <th>Name</th>
+        <th class="center aligned collapsing hidden-on-small">Reward</th>
+        <th class="center aligned two wide">Solved</th>
       </tr>
-    {% endfor %}
-  </tbody>
-  <tfoot>
-    <tr>
-      <th colspan="4" class="right aligned">
-        <div class="ui checkbox">
-          <input type="checkbox" name="showTags" checked>
-          <label>Show tags</label>
-        </div>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
+        <tr class="center aligned middle aligned">
+          <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
+          <td class="left aligned middle aligned">
+            <div style="float:right">
+            {% for tag in problem.my_tags %}
+              <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
+            {% endfor %}
+            </div>
+            <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+          </td>
+          <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
+          <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
+            <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4" class="right aligned">
+          <div class="ui checkbox">
+            <input type="checkbox" name="showTags" checked>
+            <label>Show tags</label>
+          </div>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="four wide column">
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">Tags</div>
+      </div>
+      <div class="content">
+        <div id="word-cloud"></div>
+      </div>
+    </div>
+</div>
+</div>
 
   {{ my_paginator() }}
 
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script type="text/javascript">
+    const HEIGHT = 300;
+    const MAX_SIZE = 40, MIN_SIZE = 20;
+
+    function getTextAttrs(cfg) {
+          return _.assign({}, {
+              fillOpacity: cfg.opacity,
+              fontSize: cfg.origin._origin.size,
+              rotate: cfg.origin._origin.rotate,
+              text: cfg.origin._origin.text,
+              textAlign: 'center',
+              fontFamily: cfg.origin._origin.font,
+              fill: cfg.color,
+              textBaseline: 'Alphabetic'
+          }, cfg.style);
+      }
+
+      G2.Shape.registerShape('point', 'cloud', {
+          drawShape(cfg, container) {
+              const attrs = getTextAttrs(cfg);
+              return container.addShape('text', {
+                  attrs: _.assign(attrs, {
+                      x: cfg.x,
+                      y: cfg.y
+                  })
+              });
+          }
+      });
+
+      const data = [
+          {% for tag in tags %}
+              {
+                  tag: "{{ tag.name }}",
+                  count: {{ tag.count }}
+              }{% if not loop.last %},{% endif %}
+          {% endfor %}
+      ];
+
+      const dv = new DataSet.View().source(data);
+      const range = dv.range('count');
+      const min = range[0];
+      const max = range[1];
+      dv.transform({
+          type: 'tag-cloud',
+          fields: ['tag', 'count'],
+          font: 'Verdana',
+          forceFit: true,
+          size: [$("#word-cloud").width(), HEIGHT],
+          padding: 0,
+          timeInterval: 5000, // max execute time
+          rotate() {
+              return 0;
+          },
+          fontSize(d) {
+              return ((d.count - min) / (max - min)) * (MAX_SIZE - MIN_SIZE) + MIN_SIZE;
+          }
+      });
+      const chart = new G2.Chart({
+          container: 'word-cloud',
+          forceFit: true,
+          height: HEIGHT,
+          padding: 0,
+      });
+      chart.source(dv);
+      chart.legend(false);
+      chart.axis(false);
+      chart.tooltip({
+          showTitle: false
+      });
+      chart.coord().reflect();
+      chart.point()
+          .position('x*y')
+          .color('tag')
+          .shape('cloud')
+          .tooltip(false); // 'tag*count'
+
+      chart.render();
+      chart.on('point:click', ev => {
+          location.href = "?tag=" + encodeURI(ev.data._origin['text'])
+      });
+
+  </script>
 {% endblock %}

@@ -102,6 +102,8 @@ class ProblemList(ListView):
             if items:
                 problem.my_tags = map(lambda x: x.tag.name, items)
 
+        data['tags'] = Tag.objects.usage_for_model(Problem, counts=True)
+
         return data
 
 
