@@ -53,7 +53,10 @@ class UsernameLengthValidator(BaseValidator):
         return a < b
 
     def clean(self, x):
-        return len(x.encode("GBK"))
+        try:
+            return len(x.encode("GBK"))
+        except UnicodeEncodeError:
+            return len(x)
 
 
 class User(AbstractUser):
