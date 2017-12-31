@@ -21,8 +21,8 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ['email', 'username']
         help_texts = {
-            'email': _('Email cannot be changed once created'),
-            'username': _('Username cannot be changed once created')
+            'email': _('Email can be changed later.'),
+            'username': _('Username can be changed later.')
         }
         error_messages = {
             'username': {
