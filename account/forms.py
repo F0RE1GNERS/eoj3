@@ -41,14 +41,6 @@ class RegisterForm(forms.ModelForm):
         instance.save()
         return instance
 
-    def clean_username(self):
-        data = self.cleaned_data.get('username')
-        if len(data) < 6:
-            raise forms.ValidationError(_("Username should contain at least 6 characters."))
-        if '#' in data:
-            raise forms.ValidationError(_("Please do not use # in username."))
-        return data
-
     def clean(self):
         data = super(RegisterForm, self).clean()
         if data.get('password') != data.get('repeat_password'):

@@ -2,6 +2,7 @@ import json
 import html
 
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import BaseValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from utils.language import LANG_CHOICE
@@ -37,18 +38,29 @@ MAGIC_CHOICE = (
 
 
 class UsernameValidator(UnicodeUsernameValidator):
-    regex = r'^[\w.+-]{6,}$'
+    regex = r'^[\w.+-]+$'
     message = _(
         'Enter a valid username. This value may contain only letters, '
         'numbers, and ./+/-/_ characters.'
     )
 
 
+class UsernameLengthValidator(BaseValidator):
+    message = _("Username should contain at least 6 characters.")
+    code = 'min_length'
+
+    def compare(self, a, b):
+        return a < b
+
+    def clean(self, x):
+        return len(x.encode("GBK"))
+
+
 class User(AbstractUser):
-    username_validator = UsernameValidator()
+    username_validators = [UsernameValidator(), UsernameLengthValidator(6)]
 
     username = models.CharField(_('username'), max_length=30, unique=True,
-                                validators=[username_validator],
+                                validators=username_validators,
                                 error_messages={
                                     'unique': _("A user with that username already exists.")}
                                 )
