@@ -52,14 +52,12 @@
             <div class="event">
               <div class="content">
                 {% if comment.__class__.__name__ == "Blog" %}
-                  {{ username_display(comment.author) }} posted a blog <a href="{{ url('blog:detail', comment.pk) }}">{{ comment.title }}</a>. <span class="date">{{ comment.create_time | naturaltime }}</span>
+                  {{ username_display(comment.author) }}: <a href="{{ url('blog:detail', comment.pk) }}">{{ comment.title }}</a> <span data-tooltip="Blog" data-inverted=""><i class="icon idea"></i></span> <span class="date">{{ comment.create_time | naturaltime }}</span>
                 {% elif comment.__class__.__name__ == "XtdComment" %}
                   {% if comment.content_type.model == "problem" %}
-                    {{ username_display(comment.user) }} posted a discussion in
-                    <a href="{{ url('problem:discussion', comment.object_pk) }}">Problem #{{ comment.object_pk }}</a>: {{ comment.comment }}. <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                    {{ username_display(comment.user) }}: {{ comment.comment }} &mdash; <a href="{{ url('problem:discussion', comment.object_pk) }}">Problem #{{ comment.object_pk }}</a> <span data-tooltip="Discussion" data-inverted=""><i class="icon comments"></i></span> <span class="date">{{ comment.submit_date | naturaltime }}</span>
                   {% elif comment.content_type.model == "blog" %}
-                    {{ username_display(comment.user) }} added a <a href="{{ url('blog:detail', comment.object_pk) }}">comment in
-                    blog</a>: {{ comment.comment }}. <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                    {{ username_display(comment.user) }}: {{ comment.comment }} &mdash; <a href="{{ url('blog:detail', comment.object_pk) }}">Detail</a> <span data-tooltip="Comment in a blog" data-inverted=""><i class="icon reply"></i></span> <span class="date">{{ comment.submit_date | naturaltime }}</span>
                   {% endif %}
                 {% endif %}
               </div>

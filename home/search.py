@@ -22,8 +22,10 @@ def search_view(request):
     start_time = time.time()
 
     # query problems
-    query = Q(pk__exact=q) | Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
+    query = Q(title__icontains=q) | Q(description__icontains=q) | Q(source__icontains=q) | Q(input__icontains=q) | Q(
         output__icontains=q)
+    if q.isdigit():
+        query |= Q(pk__exact=q)
     if is_admin_or_root(request.user):
         problems = Problem.objects.filter(query)
     else:

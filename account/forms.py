@@ -21,8 +21,8 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ['email', 'username']
         help_texts = {
-            'email': _('Email cannot be changed once created'),
-            'username': _('Username cannot be changed once created')
+            'email': _('Email can be changed later.'),
+            'username': _('Username can be changed later.')
         }
         error_messages = {
             'username': {
@@ -40,14 +40,6 @@ class RegisterForm(forms.ModelForm):
             instance.privilege = Privilege.ROOT
         instance.save()
         return instance
-
-    def clean_username(self):
-        data = self.cleaned_data.get('username')
-        if len(data) < 6:
-            raise forms.ValidationError(_("Username should contain at least 6 characters."))
-        if '#' in data:
-            raise forms.ValidationError(_("Please do not use # in username."))
-        return data
 
     def clean(self):
         data = super(RegisterForm, self).clean()
