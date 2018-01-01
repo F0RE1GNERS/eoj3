@@ -19,6 +19,7 @@ LANG_CHOICE = (
     ('pypy', 'PyPy'),
     ('pas', 'Pascal'),
     ('rs', 'Rust'),
+    ('scala', 'Scala')
 )
 
 LANG_REGULAR_NAME = (
@@ -45,7 +46,8 @@ LANG_EXT = (
     ('ocaml', 'ml'),
     ('pypy', 'py'),
     ('pas', 'pas'),
-    ('rs', 'rs')
+    ('rs', 'rs'),
+    ('scala', 'scala'),
 )
 
 
