@@ -90,6 +90,7 @@ class ProblemList(ListView):
             recent_submission = Submission.objects.filter(author_id=self.request.user.id).exclude(status=0)[:100]
             unsolved_submissions = list()
             unsolved_problem_set = set()
+            counter = 0
             for s in recent_submission:
                 if s.problem_id not in accept_list and s.problem_id not in unsolved_problem_set:
                     if not s.contest_id or s.contest.always_running:
@@ -97,6 +98,9 @@ class ProblemList(ListView):
                             s.contest.add_contest_problem_to_submissions([s])
                         unsolved_problem_set.add(s.problem_id)
                         unsolved_submissions.append(s)
+                        counter += 1
+                        if counter >= 5:
+                            break
             data['unsolved_submissions'] = unsolved_submissions
 
         # Get Accepted of all users
