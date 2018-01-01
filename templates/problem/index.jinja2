@@ -55,6 +55,43 @@
         <div id="word-cloud"></div>
       </div>
     </div>
+  {% if unsolved_submissions %}
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">Recent unsolved</div>
+      </div>
+{#      <div class="content">#}
+        <table class="ui small table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Problem</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in unsolved_submissions %}
+              <tr>
+                  {% if not s.contest_id %}
+                    <td><a href="{{ url('problem:submission', s.problem_id, s.id) }}">{{ s.id }}</a></td>
+                  {% else %}
+                    <td><a href="{{ url('contest:submission', s.contest_id, s.id) }}">{{ s.id }}</a></td>
+                  {% endif %}
+
+                  {% if s.contest_problem %}
+                    <td><a href="{{ url('contest:problem', s.contest_id, s.contest_problem.identifier) }}">{{ s.contest_problem }}</a></td>
+                  {% else %}
+                    <td><a href="{{ url('problem:detail', s.problem_id) }}">{{ s.problem }}</a></td>
+                  {% endif %}
+
+                  <td>{{ s.create_time | naturaltime }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+{#    </div>#}
+  {% endif %}
 </div>
 </div>
 

@@ -86,6 +86,19 @@ class ProblemList(ListView):
                 elif problem.id in attempt_list:
                     problem.personal_label = -1
 
+            # get recent unsolved problems
+            recent_submission = Submission.objects.filter(author_id=self.request.user.id).exclude(status=0)[:100]
+            unsolved_submissions = list()
+            unsolved_problem_set = set()
+            for s in recent_submission:
+                if s.problem_id not in accept_list and s.problem_id not in unsolved_problem_set:
+                    if not s.contest_id or s.contest.always_running:
+                        if s.contest_id:
+                            s.contest.add_contest_problem_to_submissions([s])
+                        unsolved_problem_set.add(s.problem_id)
+                        unsolved_submissions.append(s)
+            data['unsolved_submissions'] = unsolved_submissions
+
         # Get Accepted of all users
         problem_ids = list(map(lambda x: x.id, data['problem_list']))
         accept_count = get_many_problem_accept_count(problem_ids)
