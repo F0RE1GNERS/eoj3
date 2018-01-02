@@ -30,8 +30,12 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     'rust': 'rust',
     'r': 'r'
   };
-  if (window.localStorage) {
-    $('.ui.search.dropdown.language').dropdown('set selected', localStorage.getItem('lang') || 'cpp');
+  const ele = $('.ui.search.dropdown.language');
+  const all_lang = ele.find('.item').map(function() { return $(this).data('value'); }).get();
+  if (window.localStorage && all_lang.indexOf(localStorage.getItem('lang')) >= 0) {
+    ele.dropdown('set selected', localStorage.getItem('lang'));
+  } else {
+    ele.dropdown('set selected', all_lang[0]);
   }
   var editor = ace.edit("editor");
   var lang = $("#id_lang");

@@ -166,6 +166,9 @@ class Contest(models.Model):
             self._contest_user_ids = list(self.contestparticipant_set.order_by().values_list("user_id", flat=True))
         return self._contest_user_ids
 
+    def __str__(self):
+        return self.title
+
 
 class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem)
