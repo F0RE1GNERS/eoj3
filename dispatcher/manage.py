@@ -11,6 +11,16 @@ DEFAULT_USERNAME = 'ejudge'
 # TODO: missing exception handling
 
 
+def ping(server):
+    url = server.http_address + '/ping'
+    try:
+        if requests.get(url).text == "pong":
+            return True
+        return False
+    except:
+        return False
+
+
 def update_token(server, new_password):
     """
     :type server: Server

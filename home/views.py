@@ -3,6 +3,8 @@ from threading import Thread
 
 import requests
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.shortcuts import render, reverse, redirect
 from random import randint
 from django.conf import settings
@@ -16,6 +18,8 @@ from account.permissions import is_admin_or_root
 from blog.models import Blog
 from django.views.generic import TemplateView
 
+from dispatcher.manage import ping
+from dispatcher.models import Server
 from problem.models import Problem
 from submission.models import Submission
 from submission.statistics import get_accept_problem_count
@@ -130,6 +134,16 @@ def museum_view(request):
     ctx['submission_count_1'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=1)).count()
     ctx['submission_count_7'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=7)).count()
     ctx['submission_count_30'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=30)).count()
+
+    ctx['submission_stat'] = Submission.objects.filter(create_time__gt=datetime.today() - timedelta(days=30)).annotate(month=TruncDate('create_time')).values('date').\
+        annotate(count=Count('id')).values('date', 'count').order_by()
+
+    print(ctx['submission_stat'])
+
+    ctx['servers'] = servers = Server.objects.filter(enabled=True)
+    for server in servers:
+        server.status = ping(server)
+
     return render(request, 'museum.jinja2', context=ctx)
 
 
