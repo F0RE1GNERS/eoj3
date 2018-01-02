@@ -27,7 +27,7 @@
     {% endif %}
 
     {% if not endless %}
-    <a class="icon item" href="?page={{ page_obj.paginator.num_pages }}"><i class="angle double right icon"></i></a>
+    <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.paginator.num_pages) }}"><i class="angle double right icon"></i></a>
     {% endif %}
   </div>
 </div>
