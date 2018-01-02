@@ -101,6 +101,7 @@
         <div class="label">30 days</div>
       </div>
     </div>
+    <div id="recent-submissions"></div>
     <h4 class="ui horizontal divider small header">ONLINE JUDGE SERVERS</h4>
     <table class="ui two column very basic celled center aligned table">
       <thead>
@@ -119,4 +120,23 @@
     </table>
 
   </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/raphael/raphael.min.js"></script>
+  <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  <script type="text/javascript">
+    Morris.Area({
+      element: 'recent-submissions',
+      data: [
+        {% for s in submission_stat %}
+        { date: '{{ s.date | date('Y-m-d') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count']
+    });
+  </script>
 {% endblock %}

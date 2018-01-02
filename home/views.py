@@ -135,7 +135,8 @@ def museum_view(request):
     ctx['submission_count_7'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=7)).count()
     ctx['submission_count_30'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=30)).count()
 
-    ctx['submission_stat'] = Submission.objects.filter(create_time__gt=datetime.today() - timedelta(days=30)).annotate(month=TruncDate('create_time')).values('date').\
+    ctx['submission_stat'] = Submission.objects.filter(create_time__gt=datetime.today() - timedelta(days=30)).\
+        annotate(date=TruncDate('create_time')).values('date').\
         annotate(count=Count('id')).values('date', 'count').order_by()
 
     print(ctx['submission_stat'])
