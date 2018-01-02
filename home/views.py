@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 
 import requests
@@ -11,9 +11,13 @@ from os import path, listdir
 
 from django_comments_xtd.models import XtdComment
 
+from account.models import User
 from account.permissions import is_admin_or_root
 from blog.models import Blog
 from django.views.generic import TemplateView
+
+from problem.models import Problem
+from submission.models import Submission
 from submission.statistics import get_accept_problem_count
 from utils import random_string
 from utils.site_settings import is_site_closed, site_settings_get
@@ -96,6 +100,37 @@ def home_view(request):
         return render(request, 'home_logged_in.jinja2', context=ctx)
     else:
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14), })
+
+
+def museum_view(request):
+    def convert_timedelta(td):
+        return {
+            'year': td.days // 365,
+            'day': td.days % 365,
+            'hour': td.seconds // 3600,
+            'minute': (td.seconds % 3600) // 60,
+            'second': td.seconds % 60
+        }
+
+    ctx = {}
+    ctx['total_problem_count'] = Problem.objects.count()
+    ctx['total_submission_count'] = Submission.objects.count()
+    ctx['total_user_count'] = User.objects.filter(is_active=True).count()
+    # TODO: catch no submission error
+    first_submission = Submission.objects.last()
+    ctx['first_submission_time'] = first_submission.create_time
+    ctx['first_submission_duration'] = convert_timedelta(datetime.now() - ctx['first_submission_time'])
+    ctx['first_submission_author'] = first_submission.author
+
+    from uptime import uptime
+    ctx['uptime'] = convert_timedelta(timedelta(seconds=uptime()))
+    ctx['server_time'] = datetime.now()
+    ctx['eoj3_create_duration'] = convert_timedelta(datetime.now() - datetime(2017, 3, 11, 18, 32))
+
+    ctx['submission_count_1'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=1)).count()
+    ctx['submission_count_7'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=7)).count()
+    ctx['submission_count_30'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=30)).count()
+    return render(request, 'museum.jinja2', context=ctx)
 
 
 def forbidden_view(request, exception):
