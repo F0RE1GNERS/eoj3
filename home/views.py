@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncMonth
 from django.shortcuts import render, reverse, redirect
 from random import randint
 from django.conf import settings
@@ -138,10 +139,14 @@ def museum_view(request):
     ctx['submission_stat'] = Submission.objects.filter(create_time__gt=datetime.today() - timedelta(days=30)).\
         annotate(date=TruncDate('create_time')).values('date').\
         annotate(count=Count('id')).values('date', 'count').order_by()
-
-    print(ctx['submission_stat'])
+    ctx['user_stat'] = User.objects.filter(is_active=True).annotate(month=TruncMonth('create_time')).values('month').\
+        annotate(count=Count('id')).values('month', 'count').order_by()
+    for idx, user in enumerate(ctx['user_stat']):
+        if idx == 0: continue
+        user['count'] += ctx['user_stat'][idx - 1]['count']
 
     ctx['servers'] = servers = Server.objects.filter(enabled=True)
+
     for server in servers:
         server.status = ping(server)
 
