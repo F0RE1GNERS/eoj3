@@ -75,21 +75,16 @@
   </div>
   <div class="ui hidden divider" style="clear: both;"></div>
 
-  {% if show_sub_growth %}
-  <div class="ui header">Accepted Submission Growth</div>
-  <div id="accepted-submission-growth"></div>
-  {% endif %}
-
-  {% if show_runtime_dist %}
-  <div class="ui header">Run time distribution</div>
+  <div class="ui header">Run Time Distribution</div>
   <div id="runtime-distribution"></div>
-  {% endif %}
 
 {% endblock %}
 
 {% block script %}
   <script src="/static/node_modules/raphael/raphael.min.js"></script>
   <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
   <script type="text/javascript">
     {% if all_count > 0 %}
     Morris.Donut({
@@ -104,52 +99,61 @@
     });
     {% endif %}
 
-    {% if show_sub_growth %}
-    Morris.Area({
-      element: 'accepted-submission-growth',
-      data: [
-        {% for s in sub_growth %}
-        { date: '{{ s.date | date('Y-m-d') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
-        {% endfor %}
-      ],
-      hideHover: 'always',
-      xkey: 'date',
-      ykeys: ['count'],
-      lineColors: ['#2185D0'],
-      pointFillColors: ['#2185D0'],
-      goalLineColors: ['#2075bb'],
-      fillOpacity: 0.6,
-      lineWidth: 2,
-      pointSize: 3
+    var myFontFamily = "Open Sans";
+    var data = [{% for s in runtime_dist %}{ runtime: {{ s.runtime }}, lang: "{{ s.lang }}" },{% endfor %}];
+    const ds = new DataSet();
+    const dv = ds.createView().source(data);
+    dv.transform({
+      type: 'bin.histogram',
+      field: 'runtime',
+      binWidth: {{ runtime_band_width }},
+      groupBy: [ 'lang' ],
+      as: [ 'runtime', 'count' ]
     });
-    {% endif %}
-
-    var data = [
-      {% for s in runtime_dist %}
-      { {% for key, val in s.items() %}"{{ key }}": {{ val }}, {% endfor %} },
-      {% endfor %}
-    ];
-
-    var ykeys = [{% for lang in runtime_lang_set %}"{{ lang }}",{% endfor %}];
-    var barColors = ["#DB2828", "#F2711C", "#FBBD08", "#21BA45", "#2185D0"];
-
-    for (var i = barColors.length - 1; i > 0; i -= 1) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = barColors[i];
-      barColors[i] = barColors[j];
-      barColors[j] = temp;
-    }
-
-    Morris.Bar({
-      element: 'runtime-distribution',
-      data: data,
-      xkey: 'runtime',
-      ykeys: ykeys,
-      labels: ykeys,
-      gridTextColor: '#898992',
-      barColors: barColors,
-      stacked: true
+    const chart = new G2.Chart({
+      container: 'runtime-distribution',
+      forceFit: true,
+      height: 400,
+      padding: [20, "auto", "auto", "auto"]
     });
+    const defs = {
+      "runtime": {
+        min: 0,
+        max: {{ runtime_band_maximum }}
+      }
+    };
+    chart.source(dv, defs);
+    chart.axis('runtime', {
+      label: {
+        textStyle: {
+          fontFamily: myFontFamily
+        }
+      }
+    }).axis('count', {
+      label: {
+        textStyle: {
+          fontFamily: myFontFamily
+        }
+      }
+    });
+    chart.legend('lang', {
+      textStyle: {
+        fontFamily: myFontFamily
+      },
+      position: "right"
+    });
+    chart.tooltip({
+      crosshairs: false,
+      position: 'top',
+      inPlot: false,
+      "g2-tooltip": {
+        fontFamily: myFontFamily
+      }
+    });
+    chart.intervalStack()
+      .position('runtime*count')
+      .color('lang', ["#00b5ad", "#2185d0", "#a333c8", "#6435c9", "#b5cc18", "#fbbd08"]);
+    chart.render();
 
   </script>
 {% endblock %}

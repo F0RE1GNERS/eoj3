@@ -328,39 +328,14 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         else:
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
-    def get_sub_growth(self):
-        if not self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).exists():
-            return
-        first_accepted_time = self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).last().create_time
-        if datetime.now() - first_accepted_time > timedelta(days=365): function = TruncYear
-        elif datetime.now() - first_accepted_time > timedelta(days=30): function = TruncMonth
-        else: function = TruncDate
-        self.ctx['sub_growth'] = self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).\
-            annotate(date=function('create_time')).values('date'). \
-            annotate(count=Count('id')).values('date', 'count').order_by("date")
-        if len(self.ctx['sub_growth']) > 1:
-            self.ctx['show_sub_growth'] = True
-        for idx, count in enumerate(self.ctx['sub_growth']):
-            if idx == 0: continue
-            count['count'] += self.ctx['sub_growth'][idx - 1]['count']
-
     def get_runtime_distribution(self):
-        ret = {}
-        lang_set = set()
-        time_interval = self.problem.time_limit / 1000 / 25
-        for i in range(0, 25):
-            ret.setdefault(i * time_interval, {"runtime": i * time_interval})
-        for submission in self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("id", "lang", "status_time").all():
-            time, lang = int(submission.status_time / time_interval) * time_interval, submission.get_lang_display()
-            ret.setdefault(time, {"runtime": time})
-            ret[time].setdefault(lang, 0)
-            ret[time][lang] += 1
-            lang_set.add(lang)
-
-        self.ctx["runtime_dist"] = sorted(ret.values(), key=lambda x: x["runtime"])
-        self.ctx["runtime_lang_set"] = list(lang_set)
-        if self.ctx["runtime_dist"]:
-            self.ctx["show_runtime_dist"] = True
+        self.ctx["runtime_dist"] = list(map(
+            lambda x: {"runtime": x.status_time, "lang": x.get_lang_display()},
+            self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("id", "lang", "status")
+        ))
+        self.ctx["runtime_band_width"] = self.problem.time_limit / 1000 / 25
+        self.ctx["runtime_band_maximum"] = max(self.problem.time_limit / 1000, max(map(lambda x: x["runtime"],
+                                                                                       self.ctx["runtime_dist"])))
 
     def get_context_data(self, **kwargs):
         self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
@@ -377,7 +352,6 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
         data['public_edit_access'] = is_problem_accepted(self.request.user, self.problem)
         data['all_valid'] = True
-        self.get_sub_growth()
         self.get_runtime_distribution()
 
         return data
