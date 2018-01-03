@@ -109,7 +109,7 @@
       element: 'accepted-submission-growth',
       data: [
         {% for s in sub_growth %}
-        { date: '{{ s.date | date('Y-m') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        { date: '{{ s.date | date('Y-m-d') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
         {% endfor %}
       ],
       hideHover: 'always',
