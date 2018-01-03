@@ -73,7 +73,9 @@
 
   <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
 
+  {% if request.user.is_authenticated %}
   {{ submit_view(submit_action=url('problem:submit', problem.pk), margin_top=True) }}
+  {% endif %}
 
 {% endblock %}
 
