@@ -104,6 +104,8 @@
     <div id="recent-submissions"></div>
     <h4 class="ui horizontal divider small header">USER GROWTH</h4>
     <div id="recent-users"></div>
+    <h4 class="ui horizontal divider small header">PROBLEM GROWTH</h4>
+    <div id="recent-problems"></div>
     <h4 class="ui horizontal divider small header">ONLINE JUDGE SERVERS</h4>
     <table class="ui two column very basic celled center aligned table">
       <thead>
@@ -150,7 +152,7 @@
       element: 'recent-users',
       data: [
         {% for s in user_stat %}
-        { date: '{{ s.month | date('Y-m') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        { date: '{{ s.date | date('Y') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
         {% endfor %}
       ],
       hideHover: 'always',
@@ -159,6 +161,23 @@
       lineColors: ['#F2711C'],
       pointFillColors: ['#F2711C'],
       goalLineColors: ['#cc5f18'],
+      fillOpacity: 0.6,
+      lineWidth: 2,
+      pointSize: 3
+    });
+    Morris.Area({
+      element: 'recent-problems',
+      data: [
+        {% for s in problem_stat %}
+        { date: '{{ s.date | date('Y') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count'],
+      lineColors: ['#21BA45'],
+      pointFillColors: ['#21BA45'],
+      goalLineColors: ['#1b9e3b'],
       fillOpacity: 0.6,
       lineWidth: 2,
       pointSize: 3
