@@ -115,21 +115,25 @@ def invalidate_problems(problem_ids, contest_id=0):
     wa_count = {problem_id: 0 for problem_id in problem_ids}
     tle_count = {problem_id: 0 for problem_id in problem_ids}
     re_count = {problem_id: 0 for problem_id in problem_ids}
+    ce_count = {problem_id: 0 for problem_id in problem_ids}
     all_user = {problem_id: set() for problem_id in problem_ids}
     accept_user = {problem_id: set() for problem_id in problem_ids}
     cache_res = {}
 
     for submission in problem_filter:
         pid = submission.problem_id
-        if submission.status == SubmissionStatus.ACCEPTED:
+        status = submission.status
+        if status == SubmissionStatus.ACCEPTED:
             accept_count[pid] += 1
             accept_user[pid].add(submission.author_id)
-        elif submission.status == SubmissionStatus.WRONG_ANSWER:
+        elif status == SubmissionStatus.WRONG_ANSWER:
             wa_count[pid] += 1
-        elif submission.status == SubmissionStatus.TIME_LIMIT_EXCEEDED:
+        elif status == SubmissionStatus.TIME_LIMIT_EXCEEDED:
             tle_count[pid] += 1
-        elif submission.status == SubmissionStatus.RUNTIME_ERROR:
+        elif status == SubmissionStatus.RUNTIME_ERROR:
             re_count[pid] += 1
+        elif status == SubmissionStatus.COMPILE_ERROR:
+            ce_count[pid] += 1
         all_count[pid] += 1
         all_user[pid].add(submission.author_id)
 
@@ -156,8 +160,9 @@ def invalidate_problems(problem_ids, contest_id=0):
                 'wa': wa_count[problem_id],
                 'tle': tle_count[problem_id],
                 're': re_count[problem_id],
+                'ce': ce_count[problem_id],
                 'others': all_count[problem_id] - accept_count[problem_id] - wa_count[problem_id]
-                          - tle_count[problem_id] - re_count[problem_id],
+                          - tle_count[problem_id] - re_count[problem_id] - ce_count[problem_id],
             }
         })
 

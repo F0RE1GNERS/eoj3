@@ -1,4 +1,4 @@
-{% macro submit_view(submit_action="", hide_submit=False, running_complete=False) %}
+{% macro submit_view(submit_action="", hide_submit=False, running_complete=False, margin_top=False) %}
 
   {% include 'components/message.jinja2' %}
 
@@ -16,7 +16,7 @@
     </div>
 
     {% csrf_token %}
-    <div class="ui segments" style="margin-top: 0">
+    <div class="ui segments" style="{% if not margin_top %}margin-top: 0{% endif %}">
       <div class="ui right aligned compact segment">
         <div class="ui selection search language dropdown">
           <input name="lang" id="id_lang" type="hidden" value="python">

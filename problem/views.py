@@ -1,11 +1,15 @@
 import json
 from collections import defaultdict
+from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
 from django.conf import settings
+from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncMonth
+from django.db.models.functions import TruncYear
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
@@ -76,6 +80,7 @@ class ProblemList(ListView):
         current_problem_set = [problem.pk for problem in data['problem_list']]
         for problem in data['problem_list']:
             problem.personal_label = 0
+        data['show_tags'] = True
         if self.request.user.is_authenticated:
             # Get AC / Wrong
             attempt_list = set(get_attempted_problem_list(self.request.user.id))
@@ -102,6 +107,9 @@ class ProblemList(ListView):
                         if counter >= 5:
                             break
             data['unsolved_submissions'] = unsolved_submissions
+
+            if not self.request.user.show_tags:
+                data['show_tags'] = False
 
         # Get Accepted of all users
         problem_ids = list(map(lambda x: x.id, data['problem_list']))
@@ -166,8 +174,37 @@ class DiscussionView(ProblemDetailMixin, FormView):
 
 
 class ProblemView(ProblemDetailMixin, TemplateView):
-
     template_name = 'problem/detail/problem.jinja2'
+
+    def get_submit_data(self):
+        data = {}
+        submission_pk = self.request.GET.get('submission', None)
+        if submission_pk:
+            submission = Submission.objects.get(pk=submission_pk)
+            if get_permission_for_submission(self.request.user, submission):
+                data['code'] = submission.code
+        data['lang_choices'] = LANG_CHOICE
+        data['default_problem'] = self.problem.pk
+        return data
+
+    def get_stats(self):
+        data = {
+            'user_ac_count': get_problem_accept_user_count(self.problem.id),
+            'user_all_count': get_problem_all_user_count(self.problem.id),
+            'ac_count': get_problem_accept_count(self.problem.id),
+            'all_count': get_problem_all_count(self.problem.id),
+            'difficulty': get_problem_difficulty(self.problem.id),
+            'stats': get_problem_stats(self.problem.id),
+            'tags': edit_string_for_tags(self.problem.tags),
+            'tags_choices': Tag.objects.all().values_list("name", flat=True),
+            'public_edit_access': self.privileged or is_problem_accepted(self.request.user, self.problem),
+        }
+        try:
+            last_sub_time = self.problem.submission_set.first().create_time
+        except:
+            last_sub_time = None
+        data.update(last_sub_time=last_sub_time)
+        return data
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
@@ -177,28 +214,18 @@ class ProblemView(ProblemDetailMixin, TemplateView):
         if self.request.user.is_authenticated:
             show_tags = self.request.user.show_tags
         if show_tags:
-            data['tags'] = self.problem.tags
+            data['tags_list'] = self.problem.tags
+            data['show_tags'] = True
+
+        data.update(self.get_submit_data())
+        data.update(self.get_stats())
 
         return data
 
 
-class ProblemSubmitView(ProblemDetailMixin, TemplateView):
-
-    template_name = 'problem/detail/submit.jinja2'
-
+class ProblemSubmitView(ProblemDetailMixin, View):
     def test_func(self):
         return super(ProblemSubmitView, self).test_func() and self.user.is_authenticated
-
-    def get_context_data(self, **kwargs):
-        data = super(ProblemSubmitView, self).get_context_data(**kwargs)
-        submission_pk = self.request.GET.get('submission', None)
-        if submission_pk:
-            submission = Submission.objects.get(pk=submission_pk)
-            if get_permission_for_submission(self.request.user, submission):
-                data['code'] = submission.code
-        data['lang_choices'] = LANG_CHOICE
-        data['default_problem'] = self.problem.pk
-        return data
 
     def post(self, request, pk):
         try:
@@ -301,8 +328,42 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         else:
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
+    def get_sub_growth(self):
+        if not self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).exists():
+            return
+        first_accepted_time = self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).last().create_time
+        if datetime.now() - first_accepted_time > timedelta(days=365): function = TruncYear
+        elif datetime.now() - first_accepted_time > timedelta(days=30): function = TruncMonth
+        else: function = TruncDate
+        self.ctx['sub_growth'] = self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).\
+            annotate(date=function('create_time')).values('date'). \
+            annotate(count=Count('id')).values('date', 'count').order_by("date")
+        if len(self.ctx['sub_growth']) > 1:
+            self.ctx['show_sub_growth'] = True
+        for idx, count in enumerate(self.ctx['sub_growth']):
+            if idx == 0: continue
+            count['count'] += self.ctx['sub_growth'][idx - 1]['count']
+
+    def get_runtime_distribution(self):
+        ret = {}
+        lang_set = set()
+        time_interval = self.problem.time_limit / 1000 / 25
+        for i in range(0, 25):
+            ret.setdefault(i * time_interval, {"runtime": i * time_interval})
+        for submission in self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("id", "lang", "status_time").all():
+            time, lang = int(submission.status_time / time_interval) * time_interval, submission.get_lang_display()
+            ret.setdefault(time, {"runtime": time})
+            ret[time].setdefault(lang, 0)
+            ret[time][lang] += 1
+            lang_set.add(lang)
+
+        self.ctx["runtime_dist"] = sorted(ret.values(), key=lambda x: x["runtime"])
+        self.ctx["runtime_lang_set"] = list(lang_set)
+        if self.ctx["runtime_dist"]:
+            self.ctx["show_runtime_dist"] = True
+
     def get_context_data(self, **kwargs):
-        data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
+        self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
         data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
         data['user_all_count'] = get_problem_all_user_count(self.problem.id)
         data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id)
@@ -316,6 +377,9 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
         data['public_edit_access'] = is_problem_accepted(self.request.user, self.problem)
         data['all_valid'] = True
+        self.get_sub_growth()
+        self.get_runtime_distribution()
+
         return data
 
 

@@ -11,16 +11,10 @@
     <thead>
       <tr>
         <th class="six wide">
-          <h4 class="ui header">
-            <i class="user icon"></i>
-            BY AUTHORS
-          </h4>
+          <h4 class="ui header"><i class="user icon"></i> BY AUTHORS</h4>
         </th>
         <th class="six wide">
-          <h4 class="ui header">
-            <i class="tag icon"></i>
-            TOTAL
-          </h4>
+          <h4 class="ui header"><i class="tag icon"></i> TOTAL</h4>
         </th>
         <th class="four wide">
           <h4 class="ui header">REWARD</h4>
@@ -31,41 +25,25 @@
       <tr>
         <td>
           <div class="ui statistic">
-            <div class="value">
-              {{ user_ac_count }} / {{ user_all_count }}
-            </div>
-            <div class="label">
-              {{ "%.2f %%" | format(user_ratio) }} Accepted
-            </div>
+            <div class="value">{{ user_ac_count }} / {{ user_all_count }}</div>
+            <div class="label">{{ "%.2f %%" | format(user_ratio) }} Accepted</div>
           </div>
         </td>
         <td>
           <div class="ui statistic">
-            <div class="value">
-              {{ ac_count }} / {{ all_count }}
-            </div>
-            <div class="label">
-              {{ "%.2f %%" | format(ratio) }} Solved
-            </div>
+            <div class="value">{{ ac_count }} / {{ all_count }}</div>
+            <div class="label">{{ "%.2f %%" | format(ratio) }} Solved</div>
           </div>
         </td>
         <td>
           <div class="ui statistic">
-            <div class="value">
-              {{ difficulty | round(1) }}
-            </div>
-            <div class="label">
-              Points
-            </div>
+            <div class="value">{{ difficulty | round(1) }}</div>
+            <div class="label">Points</div>
           </div>
         </td>
       </tr>
       {% if all_count > 0 %}
-      <tr>
-        <td colspan="3">
-          <div id="distribution"></div>
-        </td>
-      </tr>
+      <tr><td colspan="3"><div id="distribution"></div></td></tr>
       {% endif %}
     </tbody>
   </table>
@@ -95,43 +73,25 @@
       <i class="right chevron icon"></i>
     </a>
   </div>
+  <div class="ui hidden divider" style="clear: both;"></div>
 
-  <div class="ui hidden divider" style="clear: both;">
-  </div>
+  {% if show_sub_growth %}
+  <div class="ui header">Accepted Submission Growth</div>
+  <div id="accepted-submission-growth"></div>
+  {% endif %}
 
-  <div class="ui header">Public Edit</div>
-  <form class="ui form" action="{{ url('problem:update_tags', problem.pk) }}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.get_full_path() }}">
-    <div class="field">
-      <label>Tags:</label>
-      <div class="ui multiple search selection dropdown maximum-5">
-        <input name="tags" type="hidden" value="{{ tags }}">
-        <i class="dropdown icon"></i>
-        <div class="default text">Select Multiple</div>
-        <div class="menu">
-          {% for val in tags_choices %}
-            <div class="item" data-value="{{ val }}">{{ val }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      {% if public_edit_access %}
-        <button class="ui positive button" type="submit">Submit</button>
-      {% else %}
-        <button class="ui disabled button">You don't have public edit access</button>
-      {% endif %}
-    </div>
-  </form>
+  {% if show_runtime_dist %}
+  <div class="ui header">Run time distribution</div>
+  <div id="runtime-distribution"></div>
+  {% endif %}
 
 {% endblock %}
 
 {% block script %}
   <script src="/static/node_modules/raphael/raphael.min.js"></script>
   <script src="/static/node_modules/morris.js/morris.min.js"></script>
-  {% if all_count > 0 %}
   <script type="text/javascript">
+    {% if all_count > 0 %}
     Morris.Donut({
       element: 'distribution',
       data: [
@@ -142,6 +102,54 @@
         {label: "Others", value: {{ stats.others }}, color: '#2185D0' }
       ]
     });
+    {% endif %}
+
+    {% if show_sub_growth %}
+    Morris.Area({
+      element: 'accepted-submission-growth',
+      data: [
+        {% for s in sub_growth %}
+        { date: '{{ s.date | date('Y-m') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count'],
+      lineColors: ['#2185D0'],
+      pointFillColors: ['#2185D0'],
+      goalLineColors: ['#2075bb'],
+      fillOpacity: 0.6,
+      lineWidth: 2,
+      pointSize: 3
+    });
+    {% endif %}
+
+    var data = [
+      {% for s in runtime_dist %}
+      { {% for key, val in s.items() %}"{{ key }}": {{ val }}, {% endfor %} },
+      {% endfor %}
+    ];
+
+    var ykeys = [{% for lang in runtime_lang_set %}"{{ lang }}",{% endfor %}];
+    var barColors = ["#DB2828", "#F2711C", "#FBBD08", "#21BA45", "#2185D0"];
+
+    for (var i = barColors.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = barColors[i];
+      barColors[i] = barColors[j];
+      barColors[j] = temp;
+    }
+
+    Morris.Bar({
+      element: 'runtime-distribution',
+      data: data,
+      xkey: 'runtime',
+      ykeys: ykeys,
+      labels: ykeys,
+      gridTextColor: '#898992',
+      barColors: barColors,
+      stacked: true
+    });
+
   </script>
-  {% endif %}
 {% endblock %}

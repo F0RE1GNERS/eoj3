@@ -19,11 +19,13 @@
         <tr class="center aligned middle aligned">
           <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
           <td class="left aligned middle aligned">
+          {% if show_tags %}
             <div style="float:right">
             {% for tag in problem.my_tags %}
               <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
             {% endfor %}
             </div>
+          {% endif %}
             <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
           </td>
           <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
@@ -33,16 +35,6 @@
         </tr>
       {% endfor %}
     </tbody>
-    <tfoot>
-      <tr>
-        <th colspan="4" class="right aligned">
-          <div class="ui checkbox">
-            <input type="checkbox" name="showTags" checked>
-            <label>Show tags</label>
-          </div>
-        </th>
-      </tr>
-    </tfoot>
   </table>
 </div>
 

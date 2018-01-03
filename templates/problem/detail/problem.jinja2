@@ -1,9 +1,79 @@
 {% extends 'problem/detail/base.jinja2' %}
 {% from 'components/problem.jinja2' import problem_view with context %}
+{% from 'components/submit.jinja2' import submit_view with context %}
 
 {% block problem_content %}
 
-  {{ problem_view(problem.title, False) }}
+  <div class="ui stackable grid">
+    <div class="eleven wide column">
+      {{ problem_view(problem.title, False) }}
+    </div>
+    <div class="five wide column">
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="description">
+            <p><b>{{ user_ac_count | intcomma }} Solved</b> out of {{ user_all_count | intcomma }} users tried.</p>
+            <p><b>{{ ac_count | intcomma }} Accepted</b> out of {{ all_count | intcomma }} tried.</p>
+            <p><b>{{ difficulty | round(1) }}</b> EMB will be rewarded for solving this problem.</p>
+          </div>
+        </div>
+        <div class="content">
+          <div class="description">
+            <p><b>Created</b>: {{ problem.create_time | naturaltime }}.</p>
+            <p><b>Updated</b>: {{ problem.update_time | naturaltime }}.</p>
+            <p><b>Latest Submission</b>: {% if last_sub_time %}{{ last_sub_time | naturaltime }}{% else %}N/A{% endif %}.</p>
+            <p><b>Source</b>: {% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</p>
+          </div>
+        </div>
+      </div>
+
+      {% if public_edit_access %}
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Problem Tags</div>
+        </div>
+        <div class="content">
+          <div class="description">
+            <form class="ui form" action="{{ url('problem:update_tags', problem.pk) }}" method="POST" style="margin-bottom: 0.5em">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+              <div class="field">
+                <div class="ui multiple search selection dropdown maximum-5">
+                  <input name="tags" type="hidden" value="{{ tags }}">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Select Tags</div>
+                  <div class="menu">
+                    {% for val in tags_choices %}
+                      <div class="item" data-value="{{ val }}">{{ val }}</div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <button class="ui small fluid button" type="submit">Save Tag</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% elif show_tags %}
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Problem Tags</div>
+        </div>
+        <div class="content">
+          <div class="description">
+            {% for tag in tags_list %}
+            <a href="{{ url('problem:list') }}?tag={{ tag }}" class="ui label">{{ tag }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
+
+  {{ submit_view(submit_action=url('problem:submit', problem.pk), margin_top=True) }}
 
 {% endblock %}
 

@@ -350,32 +350,8 @@ $.parseStatusDisplay = function () {
   new Clipboard('.clipboard');
 };
 
-// tags
-function toggleTags(showTags) {
-  var tags = $(".problem-tag");
-  if (showTags)
-    tags.show();
-  else tags.hide();
-}
-
 // initialize
 $(document).ready(function () {
   $.parseStatusDisplay();
-  var tagsCheckbox = $("*[name='showTags']");
-  if (tagsCheckbox.length > 0) {
-    var showTags = true;
-    if (window.localStorage && localStorage.getItem('showTags') !== null) {
-      showTags = localStorage.getItem('showTags') == "true";
-      tagsCheckbox.prop("checked", showTags);
-    }
-    toggleTags(showTags);
-    tagsCheckbox.parent().checkbox({
-      onChange: function () {
-        var checked = $(this).parent().checkbox("is checked");
-        toggleTags(checked);
-        localStorage.setItem('showTags', checked);
-      }
-    });
-  }
 });
 
