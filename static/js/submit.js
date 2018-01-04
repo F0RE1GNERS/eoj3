@@ -98,7 +98,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     }
     const item = clipboard.items[0];
     if (item.kind === "string") {
-      item.getAsString((str) => { editor.getSession().setValue(str); });
+      item.getAsString(function (str) { editor.getSession().setValue(str); });
       $('html, body').animate({
         scrollTop: $("#submit-form").offset().top - $("#navbar").height() - 15
       }, 500);
