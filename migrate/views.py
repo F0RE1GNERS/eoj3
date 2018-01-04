@@ -75,7 +75,7 @@ class MigrationThread(threading.Thread):
                                                       status_private=submission.status,
                                                       status_percent=submission.status_percent,
                                                       status_detail=submission.status_detail,
-                                                      status_time=submission.status_time / 1000)
+                                                      status_time=submission.status_time)
                         s.create_time = submission.create_time
                         s.save(update_fields=["create_time"])
                     else:
