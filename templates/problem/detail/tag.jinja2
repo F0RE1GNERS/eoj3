@@ -1,5 +1,5 @@
 {% if public_edit_access %}
-<div class="ui fluid card" id="problem-tag">
+<div class="ui fluid card" id="problem-tags">
   <div class="content">
     <div class="header">Problem Tags</div>
   </div>
@@ -7,7 +7,7 @@
     <div class="description">
       <form class="ui form" action="{{ url('problem:update_tags', problem.pk) }}" method="POST" style="margin-bottom: 0.5em">
         {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+        <input type="hidden" name="next" value="{{ request.path }}">
         <div class="field">
           <div class="ui multiple search selection dropdown maximum-5">
             <input name="tags" type="hidden" value="{{ tags }}">

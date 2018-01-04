@@ -199,9 +199,6 @@ class ProblemView(ProblemDetailMixin, TemplateView):
             'all_count': get_problem_all_count(self.problem.id),
             'difficulty': get_problem_difficulty(self.problem.id),
             'stats': get_problem_stats(self.problem.id),
-            'tags': edit_string_for_tags(self.problem.tags),
-            'tags_choices': Tag.objects.all().values_list("name", flat=True),
-            'public_edit_access': self.privileged or is_problem_accepted(self.request.user, self.problem),
         }
         try:
             last_sub_time = self.problem.submission_set.first().create_time
@@ -209,6 +206,13 @@ class ProblemView(ProblemDetailMixin, TemplateView):
             last_sub_time = None
         data.update(last_sub_time=last_sub_time)
         return data
+
+    def get_tag_info(self):
+        return {
+            'tags': edit_string_for_tags(self.problem.tags),
+            'tags_choices': Tag.objects.all().values_list("name", flat=True),
+            'public_edit_access': self.privileged or is_problem_accepted(self.request.user, self.problem)
+        }
 
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
@@ -220,9 +224,11 @@ class ProblemView(ProblemDetailMixin, TemplateView):
         if show_tags:
             data['tags_list'] = self.problem.tags
             data['show_tags'] = True
+        data.update(self.get_tag_info())
 
-        data.update(self.get_submit_data())
-        data.update(self.get_stats())
+        if 'onlytag' not in self.request.GET:
+            data.update(self.get_submit_data())
+            data.update(self.get_stats())
 
         return data
 
