@@ -334,8 +334,11 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
             self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("id", "lang", "status")
         ))
         self.ctx["runtime_band_width"] = self.problem.time_limit / 1000 / 25
-        self.ctx["runtime_band_maximum"] = max(self.problem.time_limit / 1000, max(map(lambda x: x["runtime"],
-                                                                                       self.ctx["runtime_dist"])))
+        try:
+            self.ctx["runtime_band_maximum"] = max(self.problem.time_limit / 1000, max(map(lambda x: x["runtime"],
+                                                                                           self.ctx["runtime_dist"])))
+        except ValueError:
+            self.ctx["runtime_band_maximum"] = self.problem.time_limit / 1000
 
     def get_context_data(self, **kwargs):
         self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
