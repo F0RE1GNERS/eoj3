@@ -88,6 +88,22 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     if (window.sessionStorage && code_in_storage_key)
       window.sessionStorage.setItem(code_in_storage_key, my_code);
   });
+
+  // paste listener
+  document.addEventListener('paste', function(e){
+    const clipboard = e.clipboardData;
+    if(!clipboard.items || !clipboard.items.length || $(e.target).attr('class') === "ace_text-input") {
+        clear();
+        return;
+    }
+    const item = clipboard.items[0];
+    if (item.kind === "string") {
+      item.getAsString((str) => { editor.getSession().setValue(str); });
+      $('html, body').animate({
+        scrollTop: $("#submit-form").offset().top - $("#navbar").height() - 15
+      }, 500);
+    }
+  }, false);
 }
 
 function scrollToCurrentSubmission () {
@@ -162,3 +178,8 @@ $("#problem-submit").click(function (event) {
 });
 
 updatePastSubmissions();
+
+$("a[href='#top']").click(function() {
+  $("html, body").animate({ scrollTop: 0 }, "slow");
+  return false;
+});

@@ -16,7 +16,7 @@
     </div>
 
     {% csrf_token %}
-    <div class="ui segments" style="{% if not margin_top %}margin-top: 0{% endif %}">
+    <div class="ui segments" id="submit-form" style="{% if not margin_top %}margin-top: 0{% endif %}">
       <div class="ui right aligned compact segment">
         <div class="ui selection search language dropdown">
           <input name="lang" id="id_lang" type="hidden" value="python">
@@ -64,5 +64,20 @@
   {% else %}
     <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
   {% endif %}
+
+  <a class="ui fixed circular button icon" href="#top">
+    <i class="arrow up icon"></i>
+  </a>
+  <style>
+    .fixed.button {
+      position: fixed;
+      bottom: 2.5em;
+      right: 2em;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 1;
+    }
+  </style>
 
 {% endmacro %}
