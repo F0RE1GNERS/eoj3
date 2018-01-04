@@ -1,0 +1,41 @@
+{% if public_edit_access %}
+<div class="ui fluid card" id="problem-tag">
+  <div class="content">
+    <div class="header">Problem Tags</div>
+  </div>
+  <div class="content">
+    <div class="description">
+      <form class="ui form" action="{{ url('problem:update_tags', problem.pk) }}" method="POST" style="margin-bottom: 0.5em">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+        <div class="field">
+          <div class="ui multiple search selection dropdown maximum-5">
+            <input name="tags" type="hidden" value="{{ tags }}">
+            <i class="dropdown icon"></i>
+            <div class="default text">Select Tags</div>
+            <div class="menu">
+              {% for val in tags_choices %}
+                <div class="item" data-value="{{ val }}">{{ val }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <button class="ui small fluid button" type="submit">Save Tag</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% elif show_tags %}
+<div class="ui fluid card" id="problem-tag">
+  <div class="content">
+    <div class="header">Problem Tags</div>
+  </div>
+  <div class="content">
+    <div class="description">
+      {% for tag in tags_list %}
+      <a href="{{ url('problem:list') }}?tag={{ tag }}" class="ui label">{{ tag }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}

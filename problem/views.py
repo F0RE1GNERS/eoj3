@@ -174,7 +174,11 @@ class DiscussionView(ProblemDetailMixin, FormView):
 
 
 class ProblemView(ProblemDetailMixin, TemplateView):
-    template_name = 'problem/detail/problem.jinja2'
+    def get_template_names(self):
+        if self.request.GET.get('onlytag'):
+            return ['problem/detail/tag.jinja2']
+        else:
+            return ['problem/detail/problem.jinja2']
 
     def get_submit_data(self):
         data = {}

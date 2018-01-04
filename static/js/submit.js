@@ -96,17 +96,20 @@ function scrollToCurrentSubmission () {
   }, 500);
 }
 
+var problemUpdateTimeout = null;
+
 function updateSubmission (url, scroll, preset_timeout) {
   $.get(url, function (data) {
     var submissionBox = $("#current-submission");
     submissionBox.html(data);
     var status = submissionBox.find(".status-span.with-icon").attr("data-status");
     if (status == "-3" || status == "-2") {
-      setTimeout(function() {
+      problemUpdateTimeout = setTimeout(function() {
         updateSubmission(url, false, (preset_timeout || 500) + 50);
       }, preset_timeout || 500);
     } else {
       updatePastSubmissions();
+      updateProblemTags();
     }
     if (scroll)
       scrollToCurrentSubmission();
@@ -124,6 +127,17 @@ function updatePastSubmissions () {
   }
 }
 
+function updateProblemTags () {
+  var fetch_url = location.href.split('?')[0] + "?onlytag=1";
+  $.get(fetch_url, function (data) {
+    $("#problem-tags").replaceWith(data);
+    $('.ui.selection.dropdown.maximum-5')
+    .dropdown({
+      maxSelections: 5
+    });
+  });
+}
+
 $("#problem-submit").click(function (event) {
   var button = $(event.currentTarget);
   var form = button.closest("form");
@@ -131,6 +145,7 @@ $("#problem-submit").click(function (event) {
   form.addClass("loading");
   $.post(form.attr("action"), form.serialize())
     .done(function (data) {
+      if (problemUpdateTimeout) clearTimeout(problemUpdateTimeout);
       updateSubmission(data.url, true);
       form.removeClass("loading");
     })
