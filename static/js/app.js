@@ -189,11 +189,22 @@ $(".like-link")
 $(".comment .actions .reply").each(function () {
   $(this).on('click', function () {
     $(".ui.form input[name='reply_to']").val($(this).data("pk"));
+    $(".ui .reply-to-name").text($(this).parent().siblings(".user").text());
     $('html, body').animate({
       scrollTop: $(".ui.form").offset().top - $("#navbar").height() - 15
     }, 500);
   }.bind(this));
 });
+
+
+$(".clear-reply-to")
+  .on('click', function(e) {
+    $(".ui.form input[name='reply_to']").val('0');
+    $(".ui .reply-to-name").text('the post');
+  });
+
+
+$(".reply-to").insertAfter(".autosave");
 
 $(".delete-link")
   .on('click', function (e) {
