@@ -103,7 +103,10 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
-                submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
+                try:
+                    submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
+                except ValueError:
+                    pass
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
                 invalidate_user(submission.author_id, submission.contest_id)
