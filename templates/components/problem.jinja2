@@ -27,11 +27,11 @@
           <div class="example">
             <div class="input">
               <div class="title">Input</div>
-              <pre>{{ input }}</pre>
+              <pre class="sample-content">{{ input }}</pre>
             </div>
             <div class="output">
               <div class="title">Output</div>
-              <pre>{{ output }}</pre>
+              <pre class="sample-content">{{ output }}</pre>
             </div>
           </div>
         {% endfor %}
@@ -42,4 +42,10 @@
       {{ problem.hint | markdown | safer | safe }}
     {% endif %}
   </div>
+
+  <script>
+    $(".sample-content").click(function() {
+      copyToClipboard($(this)[0].textContent);
+    })
+  </script>
 {% endmacro %}
