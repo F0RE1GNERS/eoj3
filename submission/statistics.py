@@ -10,6 +10,8 @@ USER_TOTAL_LIST = 'u{user}_c{contest}_total_list'
 USER_AC_COUNT = 'u{user}_c{contest}_ac_count'
 USER_AC_DIFF_COUNT = 'u{user}_c{contest}_ac_diff'
 USER_AC_LIST = 'u{user}_c{contest}_ac_list'
+USER_UPDATE_TIME = 'u{user}_c{contest}_update_time'
+FORTNIGHT = 14 * 86400
 
 
 def _get_or_invalidate(user_id, contest_id, cache_name):
@@ -47,17 +49,20 @@ def get_attempted_problem_list(user_id, contest_id=0):
 
 
 def invalidate_user(user_id, contest_id=0):
-    cache.delete_many([USER_TOTAL_COUNT.format(user=user_id, contest=contest_id),
-                       USER_TOTAL_LIST.format(user=user_id, contest=contest_id),
-                       USER_AC_COUNT.format(user=user_id, contest=contest_id),
-                       USER_AC_DIFF_COUNT.format(user=user_id, contest=contest_id),
-                       USER_AC_LIST.format(user=user_id, contest=contest_id)])
+    if contest_id is None:
+        contest_id = 0
+    for contest in {contest_id, 0}:
+        cache.delete_many([USER_TOTAL_COUNT.format(user=user_id, contest=contest),
+                           USER_TOTAL_LIST.format(user=user_id, contest=contest),
+                           USER_AC_COUNT.format(user=user_id, contest=contest),
+                           USER_AC_DIFF_COUNT.format(user=user_id, contest=contest),
+                           USER_AC_LIST.format(user=user_id, contest=contest)])
 
 
 def update_user(user_id, contest_id=0):
-    cache_time = 300 * uniform(0.6, 1)
+    cache_time = FORTNIGHT * uniform(0.8, 1)
     if contest_id > 0:
-        cache_time = 60 * uniform(0.6, 1)
+        cache_time = FORTNIGHT * uniform(0.8, 1)
         submission_filter = Submission.objects.filter(author_id=user_id, contest_id=contest_id).all()
     else:
         submission_filter = Submission.objects.filter(author_id=user_id).all()

@@ -10,6 +10,7 @@ from django.views.generic import View, TemplateView
 from ipware.ip import get_ip
 
 from account.permissions import is_volunteer
+from contest.statistics import invalidate_contest_participant
 from problem.tasks import create_submission
 from problem.views import StatusList
 from submission.models import Submission, SubmissionStatus
@@ -83,6 +84,7 @@ class ContestSubmissionClaim(BaseContestMixin, View):
                 submission.pk = None
                 submission.contest = self.contest
             Submission.objects.bulk_create(self.submissions)
+            invalidate_contest_participant(self.contest, self.user.pk)
             messages.add_message(request, messages.SUCCESS, "%d submissions successfully migrated." % len(self.submissions))
         return HttpResponse()
 

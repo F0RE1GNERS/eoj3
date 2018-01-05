@@ -16,12 +16,13 @@ PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
 PROBLEM_ALL_DIFFICULTY = 'pa_difficulty'
 PROBLEM_ALL_ACCEPT_COUNT = 'pa_ac_count'
 PROBLEM_STATS = 'p{problem}_c{contest}_stats'
+FORTNIGHT = 14 * 86400
 
 
 def _get_or_invalidate(problem_id, contest_id, cache_name):
     t = cache.get(cache_name)
     if t is None:
-        invalidate_problems([problem_id], contest_id)
+        update_problems([problem_id], contest_id)
         return cache.get(cache_name)
     else:
         return t
@@ -38,7 +39,7 @@ def _get_many_or_invalidate(problem_ids, contest_id, cache_template):
             second_attempt.append(problem_id)
         else:
             ans[problem_id] = cache_res[cache_name]
-    invalidate_problems(second_attempt, contest_id)
+    update_problems(second_attempt, contest_id)
     if second_attempt:
         res2 = cache.get_many(list(map(lambda x: cache_template.format(problem=x, contest=contest_id),
                                        second_attempt)))
@@ -117,13 +118,27 @@ def get_problem_stats(problem_id):
     return _get_or_invalidate(problem_id, 0, cache_name)
 
 
-def invalidate_problems(problem_ids, contest_id=0):
+def invalidate_problem(problem_id, contest_id=0):
+    if contest_id is None:
+        contest_id = 0
+    for contest in {contest_id, 0}:
+        cache.delete_many([PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest),
+                           PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest),
+                           PROBLEM_ALL_USER_COUNT.format(problem=problem_id, contest=contest),
+                           PROBLEM_AC_USER_COUNT.format(problem=problem_id, contest=contest),
+                           PROBLEM_AC_RATIO.format(problem=problem_id, contest=contest),
+                           PROBLEM_AC_USER_RATIO.format(problem=problem_id, contest=contest),
+                           PROBLEM_DIFFICULTY.format(problem=problem_id, contest=contest),
+                           PROBLEM_STATS.format(problem=problem_id, contest=contest)])
+
+
+def update_problems(problem_ids, contest_id=0):
     if contest_id > 0:
-        cache_time = 60 * uniform(0.6, 1)
+        cache_time = FORTNIGHT * uniform(0.6, 1)
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id).\
             only('problem_id', 'contest_id', 'author_id', 'status')
     else:
-        cache_time = 300 * uniform(0.6, 1)
+        cache_time = FORTNIGHT * uniform(0.6, 1)
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids). \
             only('problem_id', 'author_id', 'status')
 

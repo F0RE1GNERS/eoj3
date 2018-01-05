@@ -17,7 +17,7 @@ from submission.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
 from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram
-from .statistics import get_problem_difficulty
+from .statistics import get_problem_difficulty, invalidate_problem
 
 
 def upload_problem_to_judge_server(problem, server):
@@ -107,6 +107,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
                 invalidate_user(submission.author_id, submission.contest_id)
+                invalidate_problem(submission.author_id, submission.contest_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
