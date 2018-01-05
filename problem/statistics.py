@@ -3,6 +3,7 @@ from math import log10
 
 from django.core.cache import cache
 
+from problem.models import Problem
 from submission.models import SubmissionStatus, Submission
 
 PROBLEM_AC_USER_COUNT = 'p{problem}_c{contest}_ac_user_count'
@@ -12,6 +13,8 @@ PROBLEM_AC_COUNT = 'p{problem}_c{contest}_ac_count'
 PROBLEM_ALL_COUNT = 'p{problem}_c{contest}_all_count'
 PROBLEM_AC_RATIO = 'p{problem}_c{contest}_ac_ratio'
 PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
+PROBLEM_ALL_DIFFICULTY = 'pa_difficulty'
+PROBLEM_ALL_ACCEPT_COUNT = 'pa_ac_count'
 PROBLEM_STATS = 'p{problem}_c{contest}_stats'
 
 
@@ -93,6 +96,20 @@ def get_many_problem_accept_count(problem_ids, contest_id=0):
 
 def get_many_problem_difficulty(problem_ids):
     return _get_many_or_invalidate(problem_ids, 0, PROBLEM_DIFFICULTY)
+
+
+def get_all_problem_difficulty():
+    cache_time = 180
+    return cache.get_or_set(PROBLEM_ALL_DIFFICULTY,
+                            get_many_problem_difficulty(problem_ids=Problem.objects.all().values_list('id', flat=True)),
+                            cache_time)
+
+
+def get_all_accept_count():
+    cache_time = 180
+    return cache.get_or_set(PROBLEM_ALL_ACCEPT_COUNT,
+                            get_many_problem_accept_count(problem_ids=Problem.objects.all().values_list('id', flat=True)),
+                            cache_time)
 
 
 def get_problem_stats(problem_id):

@@ -256,6 +256,24 @@ $(".penalty-box").on('dblclick', function (e) {
   });
 });
 
+$(".ui.backend.sortable.table").each(function () {
+  var url_param = getUrlParamAsObject();
+  $(this).find("thead th").each(function () {
+    var d_type = $(this).data("key");
+    var next_type = $(this).data("order");
+    if (url_param.hasOwnProperty("c") && url_param.hasOwnProperty("a") && d_type == url_param.c) {
+      $(this).addClass("sorted " + url_param.a);
+      next_type = url_param.a == "ascending" ? "descending" : "ascending";
+    }
+    var new_url_param = _.assign({}, url_param);
+    new_url_param.c = d_type;
+    new_url_param.a = next_type;
+    $(this).on('click', function () {
+      location.href = encodeObjectAsUrlParamString(new_url_param);
+    })
+  })
+});
+
 // status string
 window.STATUS = {};
 window.STATUS[-4] = 'Submitted';

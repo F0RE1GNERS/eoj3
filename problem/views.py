@@ -39,8 +39,8 @@ from utils.permission import is_problem_manager, get_permission_for_submission, 
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
-    get_problem_difficulty, get_problem_stats
-)
+    get_problem_difficulty, get_problem_stats,
+    get_all_problem_difficulty, get_all_accept_count)
 from .tasks import create_submission, judge_submission_on_problem
 
 
@@ -53,6 +53,10 @@ class ProblemList(ListView):
         source = self.request.GET.get('source')
         kw = self.request.GET.get('keyword')
         tg = self.request.GET.get('tag')
+        order_c = self.request.GET.get('c', 'id')
+        order_a = self.request.GET.get('a', 'ascending')
+        if order_c not in ['id', 'name', 'rw', 'sol'] or order_a not in ['ascending', 'descending']:
+            raise PermissionDenied("Invalid order")
         if tg:
             queryset = TaggedItem.objects.get_by_model(Problem, get_object_or_404(Tag, name=tg))
         else:
@@ -72,7 +76,27 @@ class ProblemList(ListView):
                 if tag.exists():
                     queryset |= TaggedItem.objects.get_by_model(Problem, tag.first())
 
-        return queryset.distinct()
+        ret = queryset.defer("description", "input", "output", "hint").distinct()
+        if order_c == 'id':
+            if order_a == 'ascending': ret = ret.order_by('id')
+            else: ret = ret.order_by('-id')
+        elif order_c == 'name':
+            if order_a == 'ascending': ret = ret.order_by('title')
+            else: ret = ret.order_by('-title')
+        elif order_c == 'upd':
+            if order_a == 'ascending': ret = ret.order_by('update_time')
+            else: ret = ret.order_by('-update_time')
+        elif order_c == 'rw':
+            if order_a == 'descending': reverse = True
+            else: reverse = False
+            all_reward = get_all_problem_difficulty()
+            ret = sorted(ret, key=lambda x: all_reward.get(x.id, 0.0), reverse=reverse)
+        elif order_c == 'sol':
+            if order_a == 'descending': reverse = True
+            else: reverse = False
+            all_solved = get_all_accept_count()
+            ret = sorted(ret, key=lambda x: all_solved.get(x.id, 0), reverse=reverse)
+        return ret
 
     def get_context_data(self, **kwargs):
         data = super(ProblemList, self).get_context_data(**kwargs)

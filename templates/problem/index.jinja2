@@ -5,13 +5,13 @@
 {% block problem_content %}
 <div class="ui stackable grid">
 <div class="twelve wide column">
-  <table class="ui celled unstackable table">
+  <table class="ui backend sortable celled unstackable table">
     <thead>
       <tr>
-        <th class="center aligned one wide">#</th>
-        <th>Name</th>
-        <th class="center aligned collapsing hidden-on-small">Reward</th>
-        <th class="center aligned two wide">Solved</th>
+        <th class="center aligned one wide" data-key="id" data-order="ascending">#</th>
+        <th data-key="name" data-order="ascending">Name</th>
+        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">Reward</th>
+        <th class="center aligned two wide" data-key="sol" data-order="ascending">Solved</th>
       </tr>
     </thead>
     <tbody>
