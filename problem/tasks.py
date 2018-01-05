@@ -109,8 +109,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                     pass
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
-                invalidate_user(submission.author_id, submission.contest_id)
-                invalidate_problem(submission.author_id, submission.contest_id)
+                difficulty = get_problem_difficulty(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
@@ -119,13 +118,14 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                                                           problem_id=submission.problem_id,
                                                           status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
                         if submission.contest_id:
-                            reward_contest_ac(submission.author, get_problem_difficulty(submission.problem_id),
-                                              submission.contest_id)
+                            reward_contest_ac(submission.author, difficulty, submission.contest_id)
                         else:
-                            reward_problem_ac(submission.author, get_problem_difficulty(submission.problem_id),
-                                              submission.problem_id)
+                            reward_problem_ac(submission.author, difficulty, submission.problem_id)
                         submission.rewarded = True
                         submission.save(update_fields=["rewarded"])
+
+                invalidate_user(submission.author_id, submission.contest_id)
+                invalidate_problem(submission.author_id, submission.contest_id)
                 if callback:
                     Thread(target=callback).start()
                 return True

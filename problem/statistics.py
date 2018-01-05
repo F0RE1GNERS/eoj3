@@ -122,7 +122,7 @@ def invalidate_problem(problem_id, contest_id=0):
     if contest_id is None:
         contest_id = 0
     for contest in {contest_id, 0}:
-        cache.delete_many([PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest),
+        t = cache.delete_many([PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_ALL_USER_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_USER_COUNT.format(problem=problem_id, contest=contest),
@@ -130,6 +130,7 @@ def invalidate_problem(problem_id, contest_id=0):
                            PROBLEM_AC_USER_RATIO.format(problem=problem_id, contest=contest),
                            PROBLEM_DIFFICULTY.format(problem=problem_id, contest=contest),
                            PROBLEM_STATS.format(problem=problem_id, contest=contest)])
+        print('delete', t, problem_id, contest)
 
 
 def update_problems(problem_ids, contest_id=0):
