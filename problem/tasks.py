@@ -103,13 +103,17 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
+                print('debug1')
                 try:
                     submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
                 except ValueError:
                     pass
+                print('debug2')
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
+                print('debug3')
                 difficulty = get_problem_difficulty(submission.problem_id)
+                print('debug4')
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
@@ -124,8 +128,11 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                         submission.rewarded = True
                         submission.save(update_fields=["rewarded"])
 
+                print('debug5')
                 invalidate_user(submission.author_id, submission.contest_id)
+                print('debug6')
                 invalidate_problem(submission.author_id, submission.contest_id)
+                print('debug7')
                 if callback:
                     Thread(target=callback).start()
                 return True
