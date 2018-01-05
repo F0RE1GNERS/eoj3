@@ -54,7 +54,7 @@ class ProblemList(ListView):
         kw = self.request.GET.get('keyword')
         tg = self.request.GET.get('tag')
         order_c = self.request.GET.get('c', 'id')
-        order_a = self.request.GET.get('a', 'ascending')
+        order_a = self.request.GET.get('a', 'descending')
         if order_c not in ['id', 'name', 'rw', 'sol'] or order_a not in ['ascending', 'descending']:
             raise PermissionDenied("Invalid order")
         if tg:
