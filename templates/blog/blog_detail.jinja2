@@ -24,7 +24,6 @@
 
   <h3 class="ui dividing header">Comments</h3>
   {{ render_comment_tree(blog) }}
-  {% include 'components/form.jinja2' %}
-
+  {% include 'comments/comment_reply.jinja2' %}
 
 {% endblock %}

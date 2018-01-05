@@ -6,7 +6,7 @@
 
   {{ render_comment_tree(contest) }}
   {% if contest.status == 0 and has_permission %}
-    {% include 'components/form.jinja2' %}
+    {% include 'comments/comment_reply.jinja2' %}
   {% endif %}
 
 
