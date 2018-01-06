@@ -17,7 +17,7 @@ from submission.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
 from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram
-from .statistics import get_problem_difficulty, invalidate_problem
+from .statistics import get_problem_difficulty, invalidate_problem, get_problem_reward
 
 
 def upload_problem_to_judge_server(problem, server):
@@ -109,21 +109,21 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                     pass
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
-                difficulty = get_problem_difficulty(submission.problem_id)
-                if difficulty is None: difficulty = 5.0  # in case invalidate too often
+                difficulty = get_problem_reward(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
-                    if not submission.rewarded and \
-                            not Submission.objects.filter(author_id=submission.author_id,
-                                                          problem_id=submission.problem_id,
-                                                          status=SubmissionStatus.ACCEPTED, rewarded=True).exists():
-                        if submission.contest_id:
-                            reward_contest_ac(submission.author, difficulty, submission.contest_id)
-                        else:
-                            reward_problem_ac(submission.author, difficulty, submission.problem_id)
-                        submission.rewarded = True
-                        submission.save(update_fields=["rewarded"])
+                    with transaction.atomic():
+                        if not submission.rewarded and \
+                                not Submission.objects.filter(author_id=submission.author_id,
+                                                              problem_id=submission.problem_id,
+                                                              rewarded=True).exists():
+                            submission.rewarded = True
+                            submission.save(update_fields=["rewarded"])
+                            if submission.contest_id:
+                                reward_contest_ac(submission.author, difficulty, submission.contest_id)
+                            else:
+                                reward_problem_ac(submission.author, difficulty, submission.problem_id)
 
                 invalidate_user(submission.author_id, submission.contest_id)
                 invalidate_problem(submission.problem_id, submission.contest_id)

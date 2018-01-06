@@ -13,6 +13,7 @@ PROBLEM_AC_COUNT = 'p{problem}_c{contest}_ac_count'
 PROBLEM_TOTAL_SUB_COUNT = 'p{problem}_c{contest}_all_count'
 PROBLEM_AC_RATIO = 'p{problem}_c{contest}_ac_ratio'
 PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
+PROBLEM_DIFFICULTY_FOR_REWARD = 'p{problem}_reward'
 PROBLEM_ALL_DIFFICULTY = 'pa_difficulty'
 PROBLEM_ALL_ACCEPT_COUNT = 'pa_ac_count'
 PROBLEM_ALL_SUB_COUNT = 'pa_sub_count'
@@ -22,11 +23,8 @@ FORTNIGHT = 14 * 86400
 
 def _get_or_invalidate(problem_id, contest_id, cache_name):
     t = cache.get(cache_name)
-    if t is None:
-        update_problems([problem_id], contest_id)
-        return cache.get(cache_name)
-    else:
-        return t
+    if t is None: return update_problems([problem_id], contest_id).get(cache_name)
+    else: return t
 
 
 def _get_many_or_invalidate(problem_ids, contest_id, cache_template):
@@ -90,6 +88,12 @@ def get_problem_accept_ratio(problem_id, contest_id=0):
 def get_problem_difficulty(problem_id):
     cache_name = PROBLEM_DIFFICULTY.format(problem=problem_id, contest=0)
     return _get_or_invalidate(problem_id, 0, cache_name)
+
+
+def get_problem_reward(problem_id):
+    def default():
+        return get_problem_difficulty(problem_id)
+    return cache.get_or_set(PROBLEM_DIFFICULTY_FOR_REWARD.format(problem=problem_id), default) or 5.0
 
 
 def get_many_problem_accept_count(problem_ids, contest_id=0):
@@ -208,6 +212,7 @@ def update_problems(problem_ids, contest_id=0):
         })
 
     cache.set_many(cache_res, cache_time)
+    return cache_res
 
 
 def get_contest_problem_ac_submit(problem_ids, contest_id):
