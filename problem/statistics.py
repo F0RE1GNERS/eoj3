@@ -7,14 +7,15 @@ from problem.models import Problem
 from submission.models import SubmissionStatus, Submission
 
 PROBLEM_AC_USER_COUNT = 'p{problem}_c{contest}_ac_user_count'
-PROBLEM_ALL_USER_COUNT = 'p{problem}_c{contest}_all_user_count'
+PROBLEM_TOTAL_USER_COUNT = 'p{problem}_c{contest}_all_user_count'
 PROBLEM_AC_USER_RATIO = 'p{problem}_c{contest}_ac_ratio_user'
 PROBLEM_AC_COUNT = 'p{problem}_c{contest}_ac_count'
-PROBLEM_ALL_COUNT = 'p{problem}_c{contest}_all_count'
+PROBLEM_TOTAL_SUB_COUNT = 'p{problem}_c{contest}_all_count'
 PROBLEM_AC_RATIO = 'p{problem}_c{contest}_ac_ratio'
 PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
 PROBLEM_ALL_DIFFICULTY = 'pa_difficulty'
 PROBLEM_ALL_ACCEPT_COUNT = 'pa_ac_count'
+PROBLEM_ALL_SUB_COUNT = 'pa_sub_count'
 PROBLEM_STATS = 'p{problem}_c{contest}_stats'
 FORTNIGHT = 14 * 86400
 
@@ -62,7 +63,7 @@ def get_problem_accept_user_count(problem_id, contest_id=0):
 
 
 def get_problem_all_user_count(problem_id, contest_id=0):
-    cache_name = PROBLEM_ALL_USER_COUNT.format(problem=problem_id, contest=contest_id)
+    cache_name = PROBLEM_TOTAL_USER_COUNT.format(problem=problem_id, contest=contest_id)
     return _get_or_invalidate(problem_id, contest_id, cache_name)
 
 
@@ -77,7 +78,7 @@ def get_problem_accept_count(problem_id, contest_id=0):
 
 
 def get_problem_all_count(problem_id, contest_id=0):
-    cache_name = PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest_id)
+    cache_name = PROBLEM_TOTAL_SUB_COUNT.format(problem=problem_id, contest=contest_id)
     return _get_or_invalidate(problem_id, contest_id, cache_name)
 
 
@@ -95,22 +96,30 @@ def get_many_problem_accept_count(problem_ids, contest_id=0):
     return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_AC_USER_COUNT)
 
 
+def get_many_problem_tried_count(problem_ids, contest_id=0):
+    return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_TOTAL_USER_COUNT)
+
+
 def get_many_problem_difficulty(problem_ids):
     return _get_many_or_invalidate(problem_ids, 0, PROBLEM_DIFFICULTY)
 
 
 def get_all_problem_difficulty():
-    cache_time = 180
-    return cache.get_or_set(PROBLEM_ALL_DIFFICULTY,
-                            get_many_problem_difficulty(problem_ids=Problem.objects.all().values_list('id', flat=True)),
-                            cache_time)
+    def default():
+        return get_many_problem_difficulty(problem_ids=Problem.objects.all().values_list('id', flat=True))
+    return cache.get_or_set(PROBLEM_ALL_DIFFICULTY, default)
 
 
 def get_all_accept_count():
-    cache_time = 180
-    return cache.get_or_set(PROBLEM_ALL_ACCEPT_COUNT,
-                            get_many_problem_accept_count(problem_ids=Problem.objects.all().values_list('id', flat=True)),
-                            cache_time)
+    def default():
+        return get_many_problem_accept_count(problem_ids=Problem.objects.all().values_list('id', flat=True))
+    return cache.get_or_set(PROBLEM_ALL_ACCEPT_COUNT, default)
+
+
+def get_all_tried_user_count():
+    def default():
+        return get_many_problem_tried_count(problem_ids=Problem.objects.all().values_list('id', flat=True))
+    return cache.get_or_set(PROBLEM_ALL_SUB_COUNT, default)
 
 
 def get_problem_stats(problem_id):
@@ -122,9 +131,9 @@ def invalidate_problem(problem_id, contest_id=0):
     if contest_id is None:
         contest_id = 0
     for contest in {contest_id, 0}:
-        t = cache.delete_many([PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest),
+        t = cache.delete_many([PROBLEM_TOTAL_SUB_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest),
-                           PROBLEM_ALL_USER_COUNT.format(problem=problem_id, contest=contest),
+                           PROBLEM_TOTAL_USER_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_USER_COUNT.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_RATIO.format(problem=problem_id, contest=contest),
                            PROBLEM_AC_USER_RATIO.format(problem=problem_id, contest=contest),
@@ -180,9 +189,9 @@ def update_problems(problem_ids, contest_id=0):
         difficulty = max(min(5 - (.02 * accept_ratio + .03 * accept_user_ratio) * min(log10(accept_user_count + 1), 1.2)
                              + max(6 - 2 * log10(accept_user_count + 1), 0), 9.9), 0.1)
         cache_res.update({
-            PROBLEM_ALL_COUNT.format(problem=problem_id, contest=contest_id): all_count[problem_id],
+            PROBLEM_TOTAL_SUB_COUNT.format(problem=problem_id, contest=contest_id): all_count[problem_id],
             PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest_id): accept_count[problem_id],
-            PROBLEM_ALL_USER_COUNT.format(problem=problem_id, contest=contest_id): all_user_count,
+            PROBLEM_TOTAL_USER_COUNT.format(problem=problem_id, contest=contest_id): all_user_count,
             PROBLEM_AC_USER_COUNT.format(problem=problem_id, contest=contest_id): accept_user_count,
             PROBLEM_AC_RATIO.format(problem=problem_id, contest=contest_id): accept_ratio,
             PROBLEM_AC_USER_RATIO.format(problem=problem_id, contest=contest_id): accept_user_ratio,
@@ -203,7 +212,7 @@ def update_problems(problem_ids, contest_id=0):
 
 def get_contest_problem_ac_submit(problem_ids, contest_id):
     ac_count = _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_AC_COUNT)
-    submit_count = _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_ALL_COUNT)
+    submit_count = _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_TOTAL_SUB_COUNT)
     ans = dict()
     for problem in problem_ids:
         ans[problem] = dict(ac=ac_count.get(problem, 0), submit=submit_count.get(problem, 0))

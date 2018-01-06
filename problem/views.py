@@ -40,7 +40,7 @@ from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
     get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
     get_problem_difficulty, get_problem_stats,
-    get_all_problem_difficulty, get_all_accept_count)
+    get_all_problem_difficulty, get_all_accept_count, get_all_tried_user_count)
 from .tasks import create_submission, judge_submission_on_problem
 
 
@@ -94,8 +94,8 @@ class ProblemList(ListView):
         elif order_c == 'sol':
             if order_a == 'descending': reverse = True
             else: reverse = False
-            all_solved = get_all_accept_count()
-            ret = sorted(ret, key=lambda x: all_solved.get(x.id, 0), reverse=reverse)
+            all_solved, all_tried = get_all_accept_count(), get_all_tried_user_count()
+            ret = sorted(ret, key=lambda x: (all_solved.get(x.id, 0), -all_tried.get(x.id, 0)), reverse=reverse)
         return ret
 
     def get_context_data(self, **kwargs):
