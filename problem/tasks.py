@@ -110,6 +110,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.judge_end_time = judge_time
                 submission.save(update_fields=['status_time', 'judge_end_time'])
                 difficulty = get_problem_difficulty(submission.problem_id)
+                if difficulty is None: difficulty = 9.9
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
