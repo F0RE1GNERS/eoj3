@@ -116,21 +116,19 @@ class ProblemList(ListView):
                     problem.personal_label = -1
 
             # get recent unsolved problems
-            recent_submission = Submission.objects.filter(author_id=self.request.user.id).exclude(status=0)[:100]
-            unsolved_submissions = list()
-            unsolved_problem_set = set()
-            counter = 0
-            for s in recent_submission:
-                if s.problem_id not in accept_list and s.problem_id not in unsolved_problem_set:
-                    if not s.contest_id or s.contest.always_running:
-                        if s.contest_id:
-                            s.contest.add_contest_problem_to_submissions([s])
-                        unsolved_problem_set.add(s.problem_id)
-                        unsolved_submissions.append(s)
-                        counter += 1
-                        if counter >= 5:
-                            break
-            data['unsolved_submissions'] = unsolved_submissions
+            unsolved_problem_set = set(get_attempted_problem_list(self.request.user.id)) - set(
+                get_accept_problem_list(self.request.user.id))
+            data['unsolved_submissions'] = unsolved_submissions = []
+            for s in self.request.user.submission_set.exclude(status=SubmissionStatus.ACCEPTED).filter(
+                    problem_id__in=unsolved_problem_set):
+                if s.problem_id not in unsolved_problem_set:
+                    continue
+                if s.contest_id:
+                    s.contest.add_contest_problem_to_submissions([s])
+                unsolved_submissions.append(s)
+                unsolved_problem_set.remove(s.problem_id)
+                if len(unsolved_submissions) >= 5:
+                    break
 
             if not self.request.user.show_tags:
                 data['show_tags'] = False
