@@ -120,7 +120,7 @@ class ProblemList(ListView):
                 get_accept_problem_list(self.request.user.id))
             data['unsolved_submissions'] = unsolved_submissions = []
             for s in self.request.user.submission_set.exclude(status=SubmissionStatus.ACCEPTED).filter(
-                    problem_id__in=unsolved_problem_set):
+                    problem_id__in=unsolved_problem_set).only("problem_id", "contest_id", "status"):
                 if s.problem_id not in unsolved_problem_set:
                     continue
                 if s.contest_id:

@@ -19,6 +19,7 @@ from pygments.lexers import get_lexer_by_name
 from account.models import User
 from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
+from dispatcher.models import Server
 from utils.permission import get_permission_for_submission
 from .models import Submission, SubmissionStatus
 
@@ -44,8 +45,13 @@ def render_submission(submission: Submission, permission=1, hide_problem=False, 
         raise PermissionDenied
     if permission == 1 and submission.status_private != SubmissionStatus.COMPILE_ERROR and submission.status_message:
         submission.status_message = ''
+    try:
+        judge_server = Server.objects.get(pk=submission.judge_server).name
+    except:
+        judge_server = ''
     t = loader.get_template('components/single_submission.jinja2')
-    c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent})
+    c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent,
+                 'server': judge_server})
     return t.render(c)
 
 

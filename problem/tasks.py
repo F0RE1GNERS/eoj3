@@ -106,10 +106,13 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             if SubmissionStatus.is_judged(data.get('verdict')):
                 try:
                     submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
-                except ValueError:
-                    pass
+                except ValueError: pass
                 submission.judge_end_time = judge_time
-                submission.save(update_fields=['status_time', 'judge_end_time'])
+
+                try: submission.judge_server = server.id
+                except: pass
+
+                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server'])
                 difficulty = get_problem_reward(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:

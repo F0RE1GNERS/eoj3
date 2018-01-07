@@ -15,6 +15,9 @@
       <th>Percent</th>
       {% endif %}
       <th>CPU</th>
+      {% if server %}
+      <th>Judge</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -35,6 +38,9 @@
       <td>{{ submission.status_percent | round(1) }} %</td>
       {% endif %}
       <td>{{ submission.get_time_display() }}</td>
+      {% if server %}
+      <td>{{ server }}</td>
+      {% endif %}
     </tr>
     <tr>
       {% set my_colspan = 6 %}
@@ -42,6 +48,9 @@
         {% set my_colspan = my_colspan - 1 %}
       {% endif %}
       {% if show_percent %}
+        {% set my_colspan = my_colspan + 1 %}
+      {% endif %}
+      {% if server %}
         {% set my_colspan = my_colspan + 1 %}
       {% endif %}
       <td colspan="{{ my_colspan }}">
