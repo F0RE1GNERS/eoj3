@@ -87,11 +87,10 @@ class MigrationThread(threading.Thread):
 
                     if s.status == SubmissionStatus.ACCEPTED:
                         # Add reward
-                        try:
-                            ProblemRewardStatus.objects.create(problem_id=s.problem_id, user_id=self.new_user.id)
+                        _, created = ProblemRewardStatus.objects.get_or_create(problem_id=s.problem_id,
+                                                                               user_id=self.new_user.id)
+                        if created:
                             reward_problem_ac(self.new_user, get_problem_reward(s.problem_id), s.problem_id)
-                        except db.IntegrityError:
-                            pass
 
                 self.old_user.is_active = False
                 self.old_user.save(update_fields=['is_active'])
