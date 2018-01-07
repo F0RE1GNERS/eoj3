@@ -2,6 +2,7 @@ import random
 from datetime import datetime
 from threading import Thread
 
+from django import db
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -16,7 +17,7 @@ from submission.models import Submission, SubmissionStatus
 from submission.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
 from utils.language import LANG_CHOICE
-from .models import Problem, SpecialProgram
+from .models import Problem, SpecialProgram, ProblemRewardStatus
 from .statistics import get_problem_difficulty, invalidate_problem, get_problem_reward
 
 
@@ -113,17 +114,15 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
-                    with transaction.atomic():
-                        if not submission.rewarded and \
-                                not Submission.objects.filter(author_id=submission.author_id,
-                                                              problem_id=submission.problem_id,
-                                                              rewarded=True).exists():
-                            submission.rewarded = True
-                            submission.save(update_fields=["rewarded"])
-                            if submission.contest_id:
-                                reward_contest_ac(submission.author, difficulty, submission.contest_id)
-                            else:
-                                reward_problem_ac(submission.author, difficulty, submission.problem_id)
+                    try:
+                        ProblemRewardStatus.objects.create(problem_id=submission.problem_id,
+                                                           user_id=submission.author_id)
+                        if submission.contest_id:
+                            reward_contest_ac(submission.author, difficulty, submission.contest_id)
+                        else:
+                            reward_problem_ac(submission.author, difficulty, submission.problem_id)
+                    except db.IntegrityError:
+                        pass
 
                 invalidate_user(submission.author_id, submission.contest_id)
                 invalidate_problem(submission.problem_id, submission.contest_id)

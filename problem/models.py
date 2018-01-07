@@ -78,6 +78,14 @@ class Problem(models.Model):
 register(Problem)
 
 
+class ProblemRewardStatus(models.Model):
+    user = models.ForeignKey(User)
+    problem = models.ForeignKey(Problem)
+
+    class Meta:
+        unique_together = ('user', 'problem')
+
+
 class SpecialProgram(models.Model):
 
     CATEGORIES = ((x, x) for x in ('checker', 'generator', 'interactor', 'validator'))
