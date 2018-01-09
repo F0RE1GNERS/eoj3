@@ -1,5 +1,8 @@
 from django.db import models
 from django.core.cache import cache
+from dateutil.parser import parse as datetime_parse
+from datetime import datetime as dt
+import datetime
 
 
 class SiteSettings(models.Model):
@@ -32,4 +35,15 @@ def site_settings_set(key, val):
 
 
 def is_site_closed():
-    return bool(site_settings_get("SITE_CLOSE"))
+    if not bool(site_settings_get("SITE_CLOSE")):
+        return False
+    try:
+        def default():
+            st, ed = site_settings_get("SITE_CLOSE_START"), site_settings_get('SITE_CLOSE_END')
+            if st and ed:
+                return datetime_parse(st), datetime_parse(ed)
+            return dt(1970, 1, 1), dt(2999, 12, 31)
+        start_time, end_time = cache.get_or_set("SITE_CLOSE_TIME_INTERVAL", default)
+        return start_time <= dt.now() <= end_time
+    except ValueError:
+        return True

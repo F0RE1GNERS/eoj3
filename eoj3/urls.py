@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^backstage/', include('backstage.urls', namespace='backstage')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^logout/$', logout, name='logout'),
-    url(r'^search/$', search_view, name='search'),
+    url(r'^search/$', search_view, name='search', kwargs=force_closed()),
     url(r'^filemanager/$', file_manager, name='filemanager'),
     url(r'^filemanager/download/$', proxy_file_downloader, name='filemanager_downloader'),
     url(r'^admin/', admin.site.urls),
@@ -45,8 +45,8 @@ urlpatterns = [
     url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
     url(r'^migrate/$', migrate_view, name='migrate'),
-    url(r'^pay/report/', make_payment_for_full_report, name='pay_report'),
-    url(r'^case/download/$', case_download_link, name='download_case'),
+    url(r'^pay/report/', make_payment_for_full_report, name='pay_report', kwargs=force_closed()),
+    url(r'^case/download/$', case_download_link, name='download_case', kwargs=force_closed()),
     url(r'^museum/$', museum_view, name='museum'),
 ]
 

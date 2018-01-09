@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.permissions import is_admin_or_root, is_volunteer
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager
 from utils.site_settings import is_site_closed
 from .models import Contest, ContestProblem, ContestInvitation
@@ -28,6 +29,8 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
+        if self.contest.always_running and is_site_closed() and not is_admin_or_root(request.user):
+            raise CloseSiteException
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_volunteer(self.user)
