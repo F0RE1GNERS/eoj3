@@ -35,7 +35,8 @@ def site_settings_set(key, val):
 
 
 def is_site_closed():
-    if not bool(site_settings_get("SITE_CLOSE")):
+    site_close = site_settings_get("SITE_CLOSE")
+    if site_close is None or site_close == '0':
         return False
     try:
         def default():
