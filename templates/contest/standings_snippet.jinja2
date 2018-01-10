@@ -1,0 +1,79 @@
+{% macro display_rank_head(column_style) %}
+  {% set first_column_span = 3 %}
+  <th class="{{ column_style }}">#</th>
+  <th class="ui left aligned">Who</th>
+  <th class="{{ column_style }}">=</th>
+  {% if contest.penalty_counts %}
+    {% set first_column_span = first_column_span + 1 %}
+    <th class="one wide">Penalty</th>
+  {% endif %}
+  {% if not contest.standings_without_problem %}
+    {% if contest.scoring_method == "acm" %}
+      {% for problem in contest.contest_problem_list %}
+        <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
+      {% endfor %}
+    {% else %}
+      {% for problem in contest.contest_problem_list %}
+        <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a><br>{{ problem.weight }}</th>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+{% macro display_rank(rank) %}
+    <td scope="row">{% if rank.rank %}{{ rank.rank }}{% else %}??{% endif %}</td>
+    <td class="ui left aligned">
+      <h5 class="ui header">
+        <div class="content">
+          {% if rank.user.star %}* {% endif %}{{ username_display(rank.user.user) }}
+          {% if rank.user.comment %}
+            <div class="sub header">{{ rank.user.comment }}</div>
+          {% endif %}
+        </div>
+      </h5>
+    </td>
+    <td>{{ rank.score }}</td>
+    {% if contest.penalty_counts %}
+    <td>{{ (rank.penalty / 60) | int }}</td>
+    {% endif %}
+  {% if not contest.standings_without_problem %}
+    {% for problem in contest.contest_problem_list %}
+      {% set d = rank.detail[problem.problem_id] %}
+      {% set url_param = '?user=%d&problem=%s' % (rank.user.user.pk, problem.identifier) %}
+      {% if d %}
+        {% if d.waiting %}
+          <td class="penalty-box" data-param="{{ url_param }}"><span class="score text blue"><i class="help icon"></i></td>
+        {% elif d.attempt %}
+          <td class="penalty-box {% if d.first_blood %}accepted{% endif %}" data-param="{{ url_param }}">
+            {% if d.solved %}
+              <span class="score text green">
+                {% if contest.scoring_method == 'acm' %}
+                  +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
+                {% else %}
+                  {{ d.score }}
+                {% endif %}
+              </span><br>
+              {% if contest.penalty_counts %}
+                <span class="penalty">{{ (d.time / 60) | int }}</span>
+              {% endif %}
+            {% else %}
+              {% if contest.scoring_method == 'oi' %}
+                {% if d.score %}
+                  <span class="score text yellow">{{ d.score }}</span>
+                {% else %}
+                  <span class="score text red">0</span>
+                {% endif %}
+              {% else %}
+                <span class="score negative text red">-{{ d.attempt }}</span>
+              {% endif %}
+            {% endif %}
+          </td>
+        {% else %}
+          <td></td>
+        {% endif %}
+      {% else %}
+        <td></td>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endmacro %}

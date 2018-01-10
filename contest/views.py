@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.cache import cache
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
@@ -9,12 +10,13 @@ from django.views.generic.list import ListView
 from django.utils.translation import ugettext_lazy as _
 
 from account.permissions import is_admin_or_root, is_volunteer
+from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager
 from utils.site_settings import is_site_closed
-from .models import Contest, ContestProblem, ContestInvitation
+from .models import Contest, ContestProblem, ContestInvitation, ContestParticipant
 from .tasks import add_participant_with_invitation
 
 
@@ -98,30 +100,43 @@ class DashboardView(BaseContestMixin, TemplateView):
         data['has_permission'] = super(DashboardView, self).test_func()
         for problem in data['contest_problem_list']:
             problem.personal_label = 0
-        if data['has_permission']:
-            if self.user.is_authenticated:
-                attempt_list = set(get_attempted_problem_list(self.request.user.id, self.contest.id))
-                accept_list = set(get_accept_problem_list(self.request.user.id, self.contest.id))
-                for problem in data['contest_problem_list']:
-                    if problem.problem_id in accept_list:
-                        problem.personal_label = 1
-                    elif problem.problem_id in attempt_list:
-                        problem.personal_label = -1
-                    else:
-                        problem.personal_label = 0
-                if self.contest.always_running:
-                    all_accept_list = set(get_accept_problem_list(self.request.user.id))
-                    for problem in data['contest_problem_list']:
-                        if problem.problem_id in all_accept_list and problem.personal_label <= 0:
-                            problem.personal_label = 2
-                if self.privileged:
-                    clarifications = self.contest.contestclarification_set.all()
+        if data['has_permission'] and self.user.is_authenticated:
+            attempt_list = set(get_attempted_problem_list(self.request.user.id, self.contest.id))
+            accept_list = set(get_accept_problem_list(self.request.user.id, self.contest.id))
+            for problem in data['contest_problem_list']:
+                if problem.problem_id in accept_list:
+                    problem.personal_label = 1
+                elif problem.problem_id in attempt_list:
+                    problem.personal_label = -1
                 else:
-                    q = Q(important=True)
-                    if self.user.is_authenticated:
-                        q |= Q(author=self.user)
-                    clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
-                data["clarifications"] = clarifications
+                    problem.personal_label = 0
+            if self.contest.always_running:
+                all_accept_list = set(get_accept_problem_list(self.request.user.id))
+                for problem in data['contest_problem_list']:
+                    if problem.problem_id in all_accept_list and problem.personal_label <= 0:
+                        problem.personal_label = 2
+            if self.privileged:
+                clarifications = self.contest.contestclarification_set.all()
+            else:
+                q = Q(important=True)
+                if self.user.is_authenticated:
+                    q |= Q(author=self.user)
+                clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
+            data["clarifications"] = clarifications
+            if not self.contest.always_running:
+                try:
+                    user_as_participant = self.contest.contestparticipant_set.select_related('user').get(user_id=self.user.pk)
+                    self_displayed_rank_template = 'display_rank_cp_%d' % user_as_participant.pk
+                    data["rank"] = cache.get(self_displayed_rank_template)
+                    if data["rank"] is None:
+                        data["rank"] = recalculate_for_participants(self.contest, [self.user.pk], privilege=True).get(self.user.pk)
+                        if not self.contest.standings_disabled:
+                            data["rank"].update(rank=get_participant_rank(self.contest, self.user.pk))
+                        cache.set(self_displayed_rank_template, data["rank"], 15)
+                    if data["rank"] is not None:
+                        data["rank"].update(user=user_as_participant)
+                except ContestParticipant.DoesNotExist:
+                    pass
 
         accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
                                                      self.contest.id)

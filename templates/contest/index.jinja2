@@ -1,5 +1,6 @@
 {% extends 'contest/base.jinja2' %}
 {% from 'components/modal.jinja2' import modal %}
+{% from 'contest/standings_snippet.jinja2' import display_rank, display_rank_head with context %}
 
 {% block contest_content %}
 
@@ -48,8 +49,44 @@
       </tbody>
     </table>
 
+    {% if rank %}
+      <div class="ui hidden divider"></div>
+      <h3 class="ui header">
+        <i class="student icon"></i>
+        <div class="content">
+          My Score
+          <div class="sub header">Might be cached for a few seconds.</div>
+        </div>
+      </h3>
+
+      <table class="ui compact celled table">
+        {% if (contest.contest_problem_list | length) > 6 and not contest.standings_without_problem %}
+          {% set column_style = 'collapsing' %}
+        {% else %}
+          {% set column_style = 'one wide' %}
+        {% endif %}
+        <thead>
+          <tr class="ui center aligned">
+            {{ display_rank_head(column_style) }}
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ui center aligned">
+            {{ display_rank(rank) }}
+          </tr>
+        </tbody>
+      </table>
+    {% endif %}
+
     <div class="ui hidden divider"></div>
 
+    <h3 class="ui header">
+      <i class="help circle icon"></i>
+      <div class="content">
+        Clarifications
+        <div class="sub header">Ask questions and receive notifications</div>
+      </div>
+    </h3>
     {% if is_privileged %}
       {% set clarification_modal_name = "Post a notification" %}
     {% else %}
