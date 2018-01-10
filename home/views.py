@@ -27,7 +27,6 @@ def home_view(request):
                 if i < len(comment_list) and (j == len(blog_list) or (
                         j < len(blog_list) and comment_list[i].submit_date > blog_list[j].create_time)):
                     ctx['comment_list'].append(comment_list[i])
-                    print(comment_list[i].__dict__)
                     i += 1
                 elif j < len(blog_list):
                     ctx['comment_list'].append(blog_list[j])
