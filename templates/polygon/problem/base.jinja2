@@ -23,6 +23,7 @@
     <a class="item {{ active('polygon:session_program_list') }}" href="{{ url('polygon:session_program_list', problem.id) }}">Programs</a>
     <a class="item {{ active('polygon:session_case_list') }}" href="{{ url('polygon:session_case_list', problem.id) }}">Cases</a>
     <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submissions</a>
+    <a class="item" href="{{ url('problem:detail', problem.id) }}">Showtime</a>
   </div>
 
   <div class="ui inverted dimmer" id="loading-dimmer">
