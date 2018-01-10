@@ -83,9 +83,11 @@ $.filterChangeTo = function (filter, value) {
 
 $('.ui.dropdown.status-filter').each(function () {
   var api_url = null;
-  if ($(this).data('filter-type') == 'user' && !$(this).hasClass("local"))
-    api_url = '/api/search/user/?kw={query}';
-  else if ($(this).data('filter-type') == 'problem' && !$(this).hasClass("local"))
+  if ($(this).data('filter-type') == 'user' && !$(this).hasClass("local")) {
+    if ($(this).data('filter-contest'))
+      api_url = '/api/search/user/?kw={query}&contest=' + $(this).data('filter-contest');
+    else api_url = '/api/search/user/?kw={query}';
+  } else if ($(this).data('filter-type') == 'problem' && !$(this).hasClass("local"))
     api_url = '/api/search/problem/?kw={query}';
   $(this).dropdown({
     onChange: function (value) {

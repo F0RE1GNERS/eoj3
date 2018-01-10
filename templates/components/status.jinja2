@@ -9,7 +9,7 @@
         <th>When</th>
         {% if not hide_users %}
         <th>
-          <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}">
+          <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}" {% if contest %}data-filter-contest="{{ contest.pk }}"{% endif %}>
             <span class="text">Who</span>
             <div class="menu">
               <div class="item">Who</div>

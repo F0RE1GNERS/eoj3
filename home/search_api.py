@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils.html import escape
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -5,7 +6,7 @@ from tagging.models import Tag
 
 from account.models import User
 from blog.models import Blog
-from contest.models import Contest
+from contest.models import Contest, ContestParticipant
 from problem.models import Problem
 from account.permissions import is_admin_or_root
 
@@ -98,7 +99,12 @@ class SearchUserAPI(APIView):
         kw = request.GET.get('kw')
         results = list()
         if kw:
-            for user in User.objects.filter(username__icontains=kw, is_active=True).all().only('username', 'pk')[:5]:
+            if 'contest' in request.GET and request.GET['contest'].isdigit():
+                contest = request.GET['contest']
+                query_from = get_object_or_404(Contest, pk=contest).participants.filter(username__icontains=kw)
+            else:
+                query_from = User.objects.filter(username__icontains=kw, is_active=True)
+            for user in query_from.only('username', 'pk')[:5]:
                 results.append(dict(name=user.username, value=user.pk))
         return Response(dict(success=True, results=results))
 
