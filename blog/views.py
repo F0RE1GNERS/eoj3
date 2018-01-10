@@ -42,7 +42,7 @@ class GenericView(ListView):
 
 class BlogGoto(View):
     def post(self, request):
-        user = get_object_or_404(User, username=request.POST['name'])
+        user = get_object_or_404(User, username=request.POST.get('name', ''))
         return HttpResponseRedirect(reverse('generic', kwargs={'pk': user.pk}))
 
 
@@ -102,7 +102,8 @@ class BlogUpdate(UpdateView):
 
 class BlogAddComment(LoginRequiredMixin, View):
     def post(self, request, pk):
-        Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
+        if 'text' in request.POST and request.POST['text']:
+            Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
 
 

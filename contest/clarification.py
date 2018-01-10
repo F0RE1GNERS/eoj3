@@ -14,7 +14,7 @@ class ContestClarificationView(BaseContestMixin, View):
     def post(self, request, cid):
         if self.contest.status != 0:
             raise PermissionDenied
-        text = request.POST["text"]
+        text = request.POST.get("text", "")
         if not text or not request.user.is_authenticated:
             raise PermissionDenied
         if is_contest_manager(request.user, self.contest):

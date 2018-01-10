@@ -1,79 +1,12 @@
-from datetime import datetime, timedelta
-from threading import Thread
-
-import requests
-from django.core.exceptions import PermissionDenied
-from django.db.models import Count
-from django.db.models.functions import TruncDate
-from django.db.models.functions import TruncMonth
-from django.db.models.functions import TruncYear
-from django.shortcuts import render, reverse, redirect
 from random import randint
-from django.conf import settings
 
-from os import path, listdir
-
+from django.shortcuts import render
+from django.views.generic import TemplateView
 from django_comments_xtd.models import XtdComment
 
-from account.models import User
-from account.permissions import is_admin_or_root
 from blog.models import Blog
-from django.views.generic import TemplateView
-
-from dispatcher.manage import ping
-from dispatcher.models import Server
-from problem.models import Problem
-from submission.models import Submission
 from submission.statistics import get_accept_problem_count
-from utils import random_string
 from utils.site_settings import is_site_closed, site_settings_get
-from utils.upload import save_uploaded_file_to
-
-
-def file_manager(request):
-    def slugify(text):
-        import re
-        return re.sub(r'[ /"#!:]+', '_', text)
-
-    if not is_admin_or_root(request.user):
-        raise PermissionDenied
-    if request.method == 'POST':
-        try:
-            file = request.FILES['file']
-            save_uploaded_file_to(file, settings.UPLOAD_DIR, filename=slugify(file.name))
-        except Exception as e:
-            raise PermissionDenied(repr(e))
-    return render(request, 'filemanager.jinja2', context={
-        'file_list': list(map(lambda x: {
-            'name': x,
-            'modified_time': datetime.fromtimestamp(path.getmtime(path.join(settings.UPLOAD_DIR, x))).
-                              strftime(settings.DATETIME_FORMAT_TEMPLATE),
-            'size': str(path.getsize(path.join(settings.UPLOAD_DIR, x)) // 1024) + "K"
-        }, filter(lambda x: path.isfile(path.join(settings.UPLOAD_DIR, x)), listdir(settings.UPLOAD_DIR))))
-    })
-
-
-def proxy_file_downloader(request):
-    if not is_admin_or_root(request.user):
-        raise PermissionDenied
-
-    def download_file(url):
-        local_filename = url.split('/')[-1]
-        if local_filename == '':
-            local_filename = random_string()
-        r = requests.get(url, stream=True, timeout=30)
-        with open(path.join(settings.UPLOAD_DIR, local_filename), 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-
-    if request.method == 'POST':
-        try:
-            url = request.POST['url']
-            Thread(target=download_file, args=(url,)).start()
-        except Exception as e:
-            raise PermissionDenied(repr(e))
-    return redirect(reverse('filemanager'))
 
 
 def home_view(request):
@@ -85,7 +18,7 @@ def home_view(request):
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
                 "author").order_by("-create_time").filter(visible=True, recommend=True)[:LIMIT_BLOG]
             comment_list, blog_list = XtdComment.objects.filter(is_public=True, is_removed=False).order_by(
-                "-submit_date").select_related("user", "content_type").all()[:LIMIT], \
+                "-submit_date").select_related("user", "content_type").prefetch_related('content_object').all()[:LIMIT], \
                                       Blog.objects.order_by("-create_time").select_related("author").filter(
                                           visible=True)[:LIMIT]
             ctx['comment_list'] = []
@@ -94,6 +27,7 @@ def home_view(request):
                 if i < len(comment_list) and (j == len(blog_list) or (
                         j < len(blog_list) and comment_list[i].submit_date > blog_list[j].create_time)):
                     ctx['comment_list'].append(comment_list[i])
+                    print(comment_list[i].__dict__)
                     i += 1
                 elif j < len(blog_list):
                     ctx['comment_list'].append(blog_list[j])
@@ -106,57 +40,6 @@ def home_view(request):
         return render(request, 'home_logged_in.jinja2', context=ctx)
     else:
         return render(request, 'home.jinja2', context={'bg': '/static/image/bg/%d.jpg' % randint(1, 14), })
-
-
-def museum_view(request):
-    def convert_timedelta(td):
-        return {
-            'year': td.days // 365,
-            'day': td.days % 365,
-            'hour': td.seconds // 3600,
-            'minute': (td.seconds % 3600) // 60,
-            'second': td.seconds % 60
-        }
-
-    ctx = {}
-    ctx['total_problem_count'] = Problem.objects.count()
-    ctx['total_submission_count'] = Submission.objects.count()
-    ctx['total_user_count'] = User.objects.filter(is_active=True).count()
-    # TODO: catch no submission error
-    first_submission = Submission.objects.last()
-    ctx['first_submission_time'] = first_submission.create_time
-    ctx['first_submission_duration'] = convert_timedelta(datetime.now() - ctx['first_submission_time'])
-    ctx['first_submission_author'] = first_submission.author
-
-    from uptime import uptime
-    ctx['uptime'] = convert_timedelta(timedelta(seconds=uptime()))
-    ctx['server_time'] = datetime.now()
-    ctx['eoj3_create_duration'] = convert_timedelta(datetime.now() - datetime(2017, 3, 11, 18, 32))
-
-    ctx['submission_count_1'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=1)).count()
-    ctx['submission_count_7'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=7)).count()
-    ctx['submission_count_30'] = Submission.objects.filter(create_time__gt=datetime.now() - timedelta(days=30)).count()
-
-    ctx['submission_stat'] = Submission.objects.filter(create_time__gt=datetime.today() - timedelta(days=30)).\
-        annotate(date=TruncDate('create_time')).values('date').\
-        annotate(count=Count('id')).values('date', 'count').order_by()
-    ctx['user_stat'] = User.objects.filter(is_active=True).annotate(date=TruncYear('date_joined')).values('date').\
-        annotate(count=Count('id')).values('date', 'count').order_by("date")
-    for idx, user in enumerate(ctx['user_stat']):
-        if idx == 0: continue
-        user['count'] += ctx['user_stat'][idx - 1]['count']
-    ctx['problem_stat'] = Problem.objects.annotate(date=TruncYear('create_time')).values('date'). \
-        annotate(count=Count('id')).values('date', 'count').order_by("date")
-    for idx, user in enumerate(ctx['problem_stat']):
-        if idx == 0: continue
-        user['count'] += ctx['problem_stat'][idx - 1]['count']
-
-    ctx['servers'] = servers = Server.objects.filter(enabled=True)
-
-    for server in servers:
-        server.status = ping(server)
-
-    return render(request, 'museum.jinja2', context=ctx)
 
 
 def forbidden_view(request, exception):
