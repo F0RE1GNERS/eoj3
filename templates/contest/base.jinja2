@@ -12,8 +12,8 @@
     <a class="{{ active('contest:submit') }} item" href="{{ url('contest:submit', contest.pk) }}
       {%- if contest_problem %}?problem={{ contest_problem.identifier | urlencode }}{% endif %}">Submit</a>
     <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">My</a>
-    <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
     {% if not contest.standings_disabled or is_privileged %}
+      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
       <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
     {% endif %}
     {% if is_volunteer or is_privileged %}

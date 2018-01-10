@@ -171,6 +171,15 @@ class ContestStatus(BaseContestMixin, StatusList):
         return data
 
 
+class ContestStatusForAll(ContestStatus):
+    def test_func(self):
+        if self.privileged:
+            return True
+        if self.contest.standings_disabled:
+            return False
+        return super().test_func()
+
+
 class ContestPenaltyDetail(ContestStatus):
     template_name = 'contest/standings_penalty_detail.jinja2'
 

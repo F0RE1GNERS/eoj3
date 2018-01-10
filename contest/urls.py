@@ -2,7 +2,8 @@ from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList
 from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch,\
-    ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim
+    ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim, \
+    ContestStatusForAll
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
 from .clarification import ContestClarificationView, ContestClarificationAnswer
 
@@ -18,7 +19,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/submission/(?P<sid>\d+)/$', ContestSubmissionView.as_view(), name='submission'),
     url(r'^(?P<cid>\d+)/my/$', ContestMyStatus.as_view(), name='my'),
     url(r'^(?P<cid>\d+)/my/claim/$', ContestSubmissionClaim.as_view(), name='my_claim'),
-    url(r'^(?P<cid>\d+)/status/$', ContestStatus.as_view(), name='status'),
+    url(r'^(?P<cid>\d+)/status/$', ContestStatusForAll.as_view(), name='status'),
     url(r'^(?P<cid>\d+)/clarification/$', ContestClarificationView.as_view(), name='clarification'),
     url(r'^(?P<cid>\d+)/clarification/(?P<pk>\d+)/answer/$', ContestClarificationAnswer.as_view(), name='clarification_answer'),
     url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation'),
