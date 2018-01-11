@@ -19,3 +19,9 @@ class SkillEditForm(forms.ModelForm):
         self.fields['problem_list'].choices = [(problem.pk, str(problem)) for problem in Problem.objects.only("title").all()]
         self.fields['parent'].initial = skill.parent_id
         self.fields['parent'].choices = [(-1, 'None')] + [(skill.pk, skill.name) for skill in Skill.objects.exclude(pk=self.instance.pk).exclude(parent_id=self.instance.pk)]
+
+
+class SetSourceForm(forms.Form):
+    id_start = forms.IntegerField()
+    id_end = forms.IntegerField()
+    source = forms.CharField()

@@ -4,7 +4,7 @@ from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordC
 from .base_views import Index
 from .contest.views import ContestList, ContestSendInvitationMail
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, ProblemTagCreate, ProblemTagEdit, \
-    ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate
+    ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate, ProblemSourceBatchEdit
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
     ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^archive/$', ProblemArchiveList.as_view(), name='archive'),
     url(r'^archive/add/$', ProblemArchiveCreate.as_view(), name='archive_add'),
     url(r'^archive/(?P<pk>\d+)/edit/$', ProblemArchiveEdit.as_view(), name='archive_edit'),
+    url(r'^problem/source/$', ProblemSourceBatchEdit.as_view(), name='source_edit'),
 
     url(r'^contest/$', ContestList.as_view(), name='contest'),
     url(r'^contest/send/invitation/$', ContestSendInvitationMail.as_view(), name='contest_send_invitation'),

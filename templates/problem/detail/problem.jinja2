@@ -22,7 +22,7 @@
             <p><b>Created</b>: {{ problem.create_time | naturaltime }}.</p>
             <p><b>Updated</b>: {{ problem.update_time | naturaltime }}.</p>
             <p><b>Latest Submission</b>: {% if last_sub_time %}{{ last_sub_time | naturaltime }}{% else %}N/A{% endif %}.</p>
-            <p><b>Source</b>: {% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</p>
+            <p><b>Source</b>: {% if problem.source %}<a href="{{ url('problem:list') }}?source={{ problem.source }}">{{ problem.source }}</a>{% else %}N/A{% endif %}</p>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import HttpResponse, redirect
 from django.urls import reverse
+from django.views.generic import FormView
 from django.views.generic import UpdateView
 from django.views.generic import View
 from django.views.generic.list import ListView
@@ -11,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from tagging.models import Tag
 
-from backstage.problem.forms import SkillEditForm
+from backstage.problem.forms import SkillEditForm, SetSourceForm
 from problem.models import Problem, Skill
 from ..base_views import BaseBackstageMixin
 
@@ -81,13 +82,19 @@ class ProblemArchiveEdit(BaseBackstageMixin, UpdateView):
     template_name = 'backstage/problem/skill_edit.jinja2'
     queryset = Skill.objects.all()
 
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        return data
-
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.problem_list = ','.join(form.cleaned_data['problem_list'])
         instance.parent_id = form.cleaned_data['parent']
         instance.save()
         return redirect(reverse('backstage:archive'))
+
+
+class ProblemSourceBatchEdit(BaseBackstageMixin, FormView):
+    form_class = SetSourceForm
+    template_name = 'backstage/problem/source_edit.jinja2'
+
+    def form_valid(self, form):
+        Problem.objects.filter(id__gte=form.cleaned_data["id_start"], id__lte=form.cleaned_data["id_end"]).\
+            update(source=form.cleaned_data["source"])
+        return redirect(reverse('backstage:problem'))
