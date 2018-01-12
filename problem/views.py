@@ -74,7 +74,7 @@ class ProblemList(ListView):
             self.her_attempt = set(get_attempted_problem_list(compare_with))
             self.her_solved = set(get_accept_problem_list(compare_with))
             self.my_attempt = set(get_attempted_problem_list(self.request.user.id))
-            self.my_solved = set(get_attempted_problem_list(self.request.user.id))
+            self.my_solved = set(get_accept_problem_list(self.request.user.id))
             queryset = queryset.filter(pk__in=self.her_attempt | self.her_solved | self.my_attempt | self.my_solved)
             self.comparing = True
             self.paginate_by = 200
@@ -115,8 +115,8 @@ class ProblemList(ListView):
             all_solved, all_tried = get_all_accept_count(), get_all_tried_user_count()
             ret = sorted(ret, key=lambda x: (all_solved.get(x.id, 0), -all_tried.get(x.id, 0)), reverse=reverse)
         elif order_c == 'she' and self.comparing:
-            if order_a == 'ascending': reverse = True
-            else: reverse = False
+            if order_a == 'ascending': reverse = False
+            else: reverse = True
             ref = {problem_id: -1 for problem_id in self.her_attempt}
             ref.update({problem_id: 1 for problem_id in self.her_solved})
             ref2 = {problem_id: -1 for problem_id in self.my_attempt}
