@@ -58,7 +58,7 @@ class ProblemList(ListView):
         order_a = self.request.GET.get('a', 'descending')
         compare_with = self.request.GET.get('compare', '')
 
-        if order_c not in ['id', 'name', 'rw', 'sol'] or order_a not in ['ascending', 'descending']:
+        if order_c not in ['id', 'name', 'rw', 'sol', 'she'] or order_a not in ['ascending', 'descending']:
             raise PermissionDenied("Invalid order")
         if tg:
             tag = get_object_or_404(Tag, name=tg)
@@ -114,6 +114,14 @@ class ProblemList(ListView):
             else: reverse = False
             all_solved, all_tried = get_all_accept_count(), get_all_tried_user_count()
             ret = sorted(ret, key=lambda x: (all_solved.get(x.id, 0), -all_tried.get(x.id, 0)), reverse=reverse)
+        elif order_c == 'she' and self.comparing:
+            if order_a == 'ascending': reverse = True
+            else: reverse = False
+            ref = {problem_id: -1 for problem_id in self.her_attempt}
+            ref.update({problem_id: 1 for problem_id in self.her_solved})
+            ref2 = {problem_id: -1 for problem_id in self.my_attempt}
+            ref2.update({problem_id: 1 for problem_id in self.my_solved})
+            ret = sorted(ret, key=lambda x: (ref.get(x.id, 0), ref2.get(x.id, 0)), reverse=reverse)
         return ret
 
     def get_context_data(self, **kwargs):
