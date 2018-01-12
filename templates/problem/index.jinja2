@@ -12,6 +12,7 @@
         <th data-key="name" data-order="ascending">Name</th>
         <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">Reward</th>
         <th class="center aligned two wide" data-key="sol" data-order="ascending">Solved</th>
+        {% if comparing %}<th class="center aligned two wide">He/She</th>{% endif %}
       </tr>
     </thead>
     <tbody>
@@ -42,6 +43,7 @@
           <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
             <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
           </td>
+          {% if comparing %}<td>{% if problem.her_label > 0 %}<i class="large green checkmark icon"></i>{% elif problem.her_label < 0 %}<i class="large red remove icon"></i>{% endif %}</td>{% endif %}
         </tr>
       {% endfor %}
     </tbody>
@@ -78,6 +80,26 @@
             </div>
           {% endfor %}
         </div>
+      </div>
+    </div>
+  {% endif %}
+  {% if request.user.is_authenticated %}
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">Compare with</div>
+      </div>
+      <div class="content">
+        <form style="margin-bottom:0;" action="{{ url('problem:compare_with') }}" method="POST">
+          {% csrf_token %}
+          <div class="ui user fluid search">
+            <div class="ui icon input">
+              <input class="prompt" name="username" type="text" placeholder="Username...">
+              <i class="search icon"></i>
+            </div>
+            <div class="results"></div>
+            <input type="submit" style="display: none;">
+          </div>
+        </form>
       </div>
     </div>
   {% endif %}

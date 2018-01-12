@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/statistics/$', v.ProblemStatisticsView.as_view(), name='statistics'),
     url(r'^archive/$', v.ArchiveList.as_view(), name='archive'),
     url(r'^case/pay/$', v.make_payment_for_full_report, name='pay_report'),
+    url(r'^compare/$', v.compare_with, name='compare_with'),
 ]

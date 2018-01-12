@@ -13,6 +13,7 @@ from django.db.models.functions import TruncYear
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
+from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
@@ -55,6 +56,8 @@ class ProblemList(ListView):
         tg = self.request.GET.get('tag')
         order_c = self.request.GET.get('c', 'id')
         order_a = self.request.GET.get('a', 'descending')
+        compare_with = self.request.GET.get('compare', '')
+
         if order_c not in ['id', 'name', 'rw', 'sol'] or order_a not in ['ascending', 'descending']:
             raise PermissionDenied("Invalid order")
         if tg:
@@ -67,6 +70,15 @@ class ProblemList(ListView):
                 }
         else:
             queryset = Problem.objects.all()
+        if self.request.user.is_authenticated and compare_with and compare_with.isdigit():
+            self.her_attempt = set(get_attempted_problem_list(compare_with))
+            self.her_solved = set(get_accept_problem_list(compare_with))
+            self.my_attempt = set(get_attempted_problem_list(self.request.user.id))
+            self.my_solved = set(get_attempted_problem_list(self.request.user.id))
+            queryset = queryset.filter(pk__in=self.her_attempt | self.her_solved | self.my_attempt | self.my_solved)
+            self.comparing = True
+            self.paginate_by = 200
+        else: self.comparing = False
         if source:
             queryset = queryset.filter(source=source)
         if not is_admin_or_root(self.request.user):
@@ -113,8 +125,19 @@ class ProblemList(ListView):
         data['show_tags'] = True
         if self.request.user.is_authenticated:
             # Get AC / Wrong
-            attempt_list = set(get_attempted_problem_list(self.request.user.id))
-            accept_list = set(get_accept_problem_list(self.request.user.id))
+            if self.comparing:
+                attempt_list = self.my_attempt
+                accept_list = self.my_solved
+                for problem in data['problem_list']:
+                    if problem.id in self.her_solved:
+                        problem.her_label = 1
+                    elif problem.id in self.her_attempt:
+                        problem.her_label = -1
+                    else: problem.her_label = 0
+                data['comparing'] = True
+            else:
+                attempt_list = set(get_attempted_problem_list(self.request.user.id))
+                accept_list = set(get_accept_problem_list(self.request.user.id))
             for problem in data['problem_list']:
                 if problem.id in accept_list:
                     problem.personal_label = 1
@@ -562,3 +585,9 @@ def case_download_link(request):
         return respond_as_attachment(request, get_output_path(fingerprint), "case.%s.out" % fingerprint[:8])
     else:
         raise Http404
+
+
+@login_required
+@require_http_methods(['POST'])
+def compare_with(request):
+    return redirect(reverse('problem:list') + '?compare=%d' % get_object_or_404(User, username=request.POST.get('username', '')).pk)

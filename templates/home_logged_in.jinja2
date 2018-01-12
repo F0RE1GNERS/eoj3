@@ -34,13 +34,6 @@
       </div>
 
       {{ profile_card(request.user, solved) }}
-      <form class="ui form" action="{{ url('blog:goto') }}" method="post">
-        {% csrf_token %}
-        <div class="ui action fluid input">
-          <input type="text" name="name" placeholder="Username here...">
-          <button type="submit" class="ui button">Go to</button>
-        </div>
-      </form>
 
       {% if comment_list %}
       <div class="ui fluid card">

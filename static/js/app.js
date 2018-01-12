@@ -48,6 +48,17 @@ $('.ui.search.massive-search').search({
 $('.ui.search.dropdown.language')
   .dropdown();
 
+// user search
+$('.ui.search.user').search({
+  apiSettings: {
+    url: '/api/search/user/?kw={query}'
+  },
+  fields: {
+    title: 'name'
+  },
+  minCharacters: 1
+});
+
 // url param plugin
 function getUrlParamAsObject () {
   var search = location.search.substring(1);
