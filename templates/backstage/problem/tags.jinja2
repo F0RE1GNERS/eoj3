@@ -9,7 +9,7 @@
   <table class="ui celled table">
     <thead>
       <tr>
-        <th colspan="3">
+        <th colspan="4">
           <button class="ui right floated primary labeled icon button modal-link" data-target="#tag-add">
             <i class="server icon"></i> Add Tag
           </button>
@@ -21,7 +21,10 @@
         <tr>
           <td>{{ tag.name }}</td>
           <td class="right aligned collapsing">
-            <a class="modal-link" data-target="#tag-edit" data-pk="{{ tag.pk }}">Edit</a>
+            <a href="{{ url('backstage:tag_edit', tag.pk) }}">Edit</a>
+          </td>
+          <td class="right aligned collapsing">
+            <a class="delete-link" data-link="{{ url('backstage:tag_delete', tag.pk) }}">Delete</a>
           </td>
         </tr>
       {% endfor %}
@@ -29,14 +32,6 @@
   </table>
 
   {% call modal(id="tag-add", title="Add a tag", action=url('backstage:tag_add')) %}
-    {% csrf_token %}
-    <div class="field">
-      <label>Tag name:</label>
-      <input type="text" name="name">
-    </div>
-  {% endcall %}
-
-  {% call modal(id="tag-edit", title="Edit tag", action=url('backstage:tag_edit')) %}
     {% csrf_token %}
     <div class="field">
       <label>Tag name:</label>

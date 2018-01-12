@@ -58,7 +58,13 @@ class ProblemList(ListView):
         if order_c not in ['id', 'name', 'rw', 'sol'] or order_a not in ['ascending', 'descending']:
             raise PermissionDenied("Invalid order")
         if tg:
-            queryset = TaggedItem.objects.get_by_model(Problem, get_object_or_404(Tag, name=tg))
+            tag = get_object_or_404(Tag, name=tg)
+            queryset = TaggedItem.objects.get_by_model(Problem, tag)
+            if hasattr(tag, 'taginfo'):
+                self.tag_info = {
+                    "name": tag.name,
+                    "description": tag.taginfo.description
+                }
         else:
             queryset = Problem.objects.all()
         if source:
@@ -148,6 +154,8 @@ class ProblemList(ListView):
             items = list(filter(lambda x: x.object_id == problem.pk, tagged_items))
             if items:
                 problem.my_tags = map(lambda x: x.tag.name, items)
+        if hasattr(self, "tag_info"):
+            data["tag_info"] = self.tag_info
 
         data['tags'] = Tag.objects.usage_for_model(Problem, counts=True)
 

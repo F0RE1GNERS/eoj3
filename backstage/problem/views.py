@@ -10,11 +10,11 @@ from django.views.generic import View
 from django.views.generic.list import ListView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from tagging.models import Tag
+from tagging.models import Tag, TaggedItem
 
-from backstage.problem.forms import SkillEditForm, SetSourceForm
+from backstage.problem.forms import SkillEditForm, SetSourceForm, TagEditForm
 from problem.models import Problem, Skill
-from ..base_views import BaseBackstageMixin
+from ..base_views import BaseBackstageMixin, BaseUpdateView
 
 
 class ProblemList(BaseBackstageMixin, ListView):
@@ -55,12 +55,23 @@ class ProblemTagCreate(BaseBackstageMixin, APIView):
         return Response()
 
 
-class ProblemTagEdit(BaseBackstageMixin, APIView):
+class ProblemTagEdit(BaseBackstageMixin, UpdateView):
+    form_class = TagEditForm
+    template_name = 'backstage/problem/tags_edit.jinja2'
+    queryset = Tag.objects.all()
+
+    def get_success_url(self):
+        return reverse('backstage:tags')
+
+
+class ProblemTagDelete(BaseBackstageMixin, APIView):
     def post(self, request, *args, **kwargs):
-        pk, name = request.POST['pk'], request.POST['name']
-        tag = Tag.objects.get(pk=pk)
-        tag.name = name
-        tag.save(update_fields=["name"])
+        tag = Tag.objects.get(pk=kwargs.get('pk'))
+        with transaction.atomic():
+            if hasattr(tag, 'taginfo'):
+                tag.taginfo.delete()
+            TaggedItem.objects.filter(tag=tag).delete()
+            tag.delete()
         return Response()
 
 

@@ -15,6 +15,16 @@
       </tr>
     </thead>
     <tbody>
+      {% if tag_info %}
+        <div class="ui fluid card">
+          <div class="content">
+            <div class="header" style="text-transform: capitalize;">{{ tag_info.name }}</div>
+            <div class="description">
+              {{ tag_info.description | markdown | safe }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
       {% for problem in problem_list %}
         <tr class="center aligned middle aligned">
           <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
@@ -22,7 +32,7 @@
           {% if show_tags %}
             <div style="float:right">
             {% for tag in problem.my_tags %}
-              <a href="?{{ url_replace(request, 'tag', tag) }}" class="label horizontal ui problem-tag">{{ tag }}</a>
+              <a href="?tag={{ tag }}" class="label horizontal ui problem-tag">{{ tag }}</a>
             {% endfor %}
             </div>
           {% endif %}

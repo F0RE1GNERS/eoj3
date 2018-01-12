@@ -2,6 +2,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
 from os import path
+
+from tagging.models import Tag
+
 from account.models import User
 from tagging.registry import register
 from utils.language import LANG_CHOICE
@@ -131,3 +134,8 @@ class Skill(models.Model):
     @property
     def parsed_problem_list(self):
         return list(map(int, filter(lambda x: x, self.problem_list.split(','))))
+
+
+class TagInfo(models.Model):
+    tag = models.OneToOneField(Tag)
+    description = models.TextField(blank=True)
