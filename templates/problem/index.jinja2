@@ -5,6 +5,12 @@
 {% block problem_content %}
 <div class="ui stackable grid">
 <div class="twelve wide column">
+  {% if comparing %}
+    <h5 class="ui header">
+      <div class="sub header">Your are currently comparing with {{ username_display(compare_user) }}</div>
+    </h5>
+  {% endif %}
+
   <table class="ui backend sortable celled unstackable table">
     <thead>
       <tr>
@@ -89,12 +95,12 @@
         <div class="header">Compare with</div>
       </div>
       <div class="content">
-        <form style="margin-bottom:0;" action="{{ url('problem:compare_with') }}" method="POST">
+        <form style="margin-bottom:0;" id="compare-form" action="{{ url('problem:compare_with') }}" method="POST">
           {% csrf_token %}
-          <div class="ui user fluid search">
-            <div class="ui icon input">
+          <div class="ui user search">
+            <div class="ui fluid icon input">
               <input class="prompt" name="username" type="text" placeholder="Username...">
-              <i class="search icon"></i>
+              <i class="search link icon" onclick="document.getElementById('compare-form').submit();"></i>
             </div>
             <div class="results"></div>
             <input type="submit" style="display: none;">
