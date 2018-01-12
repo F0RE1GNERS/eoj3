@@ -117,11 +117,11 @@ class ProblemList(ListView):
         elif order_c == 'she' and self.comparing:
             if order_a == 'ascending': reverse = False
             else: reverse = True
-            ref = {problem_id: -1 for problem_id in self.her_attempt}
-            ref.update({problem_id: 1 for problem_id in self.her_solved})
+            ref = {problem_id: 1 for problem_id in self.her_attempt}
+            ref.update({problem_id: -1 for problem_id in self.her_solved})
             ref2 = {problem_id: -1 for problem_id in self.my_attempt}
             ref2.update({problem_id: 1 for problem_id in self.my_solved})
-            ret = sorted(ret, key=lambda x: (ref.get(x.id, 0), ref2.get(x.id, 0)), reverse=reverse)
+            ret = sorted(ret, key=lambda x: (ref2.get(x.id, 0), ref.get(x.id, 0)), reverse=reverse)
         return ret
 
     def get_context_data(self, **kwargs):
@@ -598,4 +598,4 @@ def case_download_link(request):
 @login_required
 @require_http_methods(['POST'])
 def compare_with(request):
-    return redirect(reverse('problem:list') + '?compare=%d' % get_object_or_404(User, username=request.POST.get('username', '')).pk)
+    return redirect(reverse('problem:list') + '?compare=%d&c=she&a=ascending' % get_object_or_404(User, username=request.POST.get('username', '')).pk)
