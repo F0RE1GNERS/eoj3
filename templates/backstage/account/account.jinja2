@@ -31,15 +31,15 @@
     <tbody>
       {% for user in user_list %}
         <tr>
-          <td scope="row"> {{ user.create_time | date('Y-m-d H:i:s') }}</td>
+          <td scope="row"> {{ user.date_joined | date('Y-m-d H:i:s') }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.username }}</td>
           <td>
-            {% if user.privilege == 'root' %}
-              {{ user.get_privilege_display() }}
+            {% if not request.user.is_superuser %}
+              {{ user.is_staff }}
             {% else %}
               <a class="post-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">
-              {{ user.get_privilege_display() }}</a>
+              {{ user.is_staff }}</a>
             {% endif %}
           </td>
           <td><a class="post-link" data-link="{{ url('backstage:account_active_switch', user.pk) }}">{{ user.is_active }}</a></td>

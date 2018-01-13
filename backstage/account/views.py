@@ -22,8 +22,8 @@ class AccountList(BaseBackstageMixin, ListView):
             q = Q(username__icontains=kw) | Q(email__icontains=kw)
             queryset = queryset.filter(q)
         if admin:
-            queryset = queryset.exclude(privilege='user')
-        return queryset.order_by("-create_time").all()
+            queryset = queryset.filter(is_staff=True)
+        return queryset.order_by("-date_joined").all()
 
     def get_context_data(self, **kwargs):
         data = super(AccountList, self).get_context_data(**kwargs)
@@ -33,22 +33,15 @@ class AccountList(BaseBackstageMixin, ListView):
 
 
 class AccountPrivilegeSwitch(BaseBackstageMixin, View):
+    def test_func(self):
+        return super().test_func() and self.request.user.is_superuser
+
     def post(self, request, pk):
         with transaction.atomic():
             user = User.objects.select_for_update().get(pk=pk)
-            if self.request.user.privilege == Privilege.ROOT:
-                if user.privilege == 'user':
-                    user.privilege = 'volunteer'
-                elif user.privilege == 'volunteer':
-                    user.privilege = 'admin'
-                elif user.privilege == 'admin':
-                    user.privilege = 'user'
-            elif self.request.user.privilege == Privilege.ADMIN:
-                if user.privilege == 'user':
-                    user.privilege = 'volunteer'
-                elif user.privilege == 'volunteer':
-                    user.privilege = 'user'
-            user.save()
+            if not user.is_superuser:
+                user.is_staff = not user.is_staff
+                user.save(update_fields=['is_staff'])
         return HttpResponse(json.dumps({'result': 'success'}))
 
 

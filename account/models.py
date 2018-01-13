@@ -70,9 +70,7 @@ class User(AbstractUser):
     email = models.EmailField(_('email'), max_length=192, unique=True, error_messages={
         'unique': _("This email has already been used.")
     })
-    privilege = models.CharField(choices=PRIVILEGE_CHOICE, max_length=12, default=Privilege.REGULAR_USER)
     school = models.CharField(_('school'), max_length=64, blank=True)
-    create_time = models.DateTimeField(auto_now_add=True)
     nickname = models.CharField(_('nickname'), max_length=30, blank=True)
     magic = models.CharField(_('magic'), choices=MAGIC_CHOICE, max_length=18, blank=True)
     show_tags = models.BooleanField(_('show tags'), default=True)

@@ -1,15 +1,14 @@
 from django.contrib.auth import get_user_model
 
-from account.models import Privilege
 from django.contrib.auth.backends import ModelBackend
 
 
 def is_admin_or_root(user):
-    return user.is_authenticated and user.privilege in (Privilege.ROOT, Privilege.ADMIN)
+    return user.is_authenticated and user.is_staff
 
 
 def is_volunteer(user):
-    return user.is_authenticated and user.privilege == Privilege.VOLUNTEER
+    return False
 
 
 class UsernameOrEmailModelBackend(ModelBackend):

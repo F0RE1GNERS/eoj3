@@ -97,7 +97,7 @@ class RegisterView(FormView):
         user = form.create()
         user.avatar.save('generated.png', Identicon(user.email).get_bytes())
         login(self.request, user)
-        return HttpResponseRedirect(self.request.POST.get('next', self.request.GET.get('next', '/')))
+        return redirect('/')
 
 
 def my_password_change(request):
