@@ -7,10 +7,6 @@ __pycache__/
 # Database
 *.sqlite3
 
-# ignore migrations
-migrations/
-!migrations/__init__.py
-
 # ignore datadir
 data/
 upload/
