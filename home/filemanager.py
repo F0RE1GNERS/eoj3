@@ -1,5 +1,5 @@
 from datetime import datetime
-from os import path, listdir
+from os import path, listdir, makedirs
 from threading import Thread
 
 import requests
@@ -14,6 +14,7 @@ from utils.upload import save_uploaded_file_to
 
 
 def file_manager(request):
+    makedirs(settings.MIRROR_DIR, exist_ok=True)
     def slugify(text):
         import re
         return re.sub(r'[ /"#!:]+', '_', text)
@@ -23,16 +24,16 @@ def file_manager(request):
     if request.method == 'POST':
         try:
             file = request.FILES['file']
-            save_uploaded_file_to(file, settings.UPLOAD_DIR, filename=slugify(file.name))
+            save_uploaded_file_to(file, settings.MIRROR_DIR, filename=slugify(file.name))
         except Exception as e:
             raise PermissionDenied(repr(e))
     return render(request, 'filemanager.jinja2', context={
         'file_list': list(map(lambda x: {
             'name': x,
-            'modified_time': datetime.fromtimestamp(path.getmtime(path.join(settings.UPLOAD_DIR, x))).
+            'modified_time': datetime.fromtimestamp(path.getmtime(path.join(settings.MIRROR_DIR, x))).
                               strftime(settings.DATETIME_FORMAT_TEMPLATE),
-            'size': str(path.getsize(path.join(settings.UPLOAD_DIR, x)) // 1024) + "K"
-        }, filter(lambda x: path.isfile(path.join(settings.UPLOAD_DIR, x)), listdir(settings.UPLOAD_DIR))))
+            'size': str(path.getsize(path.join(settings.MIRROR_DIR, x)) // 1024) + "K"
+        }, filter(lambda x: path.isfile(path.join(settings.MIRROR_DIR, x)), listdir(settings.MIRROR_DIR))))
     })
 
 
@@ -45,7 +46,7 @@ def proxy_file_downloader(request):
         if local_filename == '':
             local_filename = random_string()
         r = requests.get(url, stream=True, timeout=30)
-        with open(path.join(settings.UPLOAD_DIR, local_filename), 'wb') as f:
+        with open(path.join(settings.MIRROR_DIR, local_filename), 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
