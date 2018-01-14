@@ -43,7 +43,7 @@ class FileManager(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         display_dir = self.position + '/'
-        if '/' in self.position:
+        if '/' not in self.position:
             parent_link = ''
         else:
             parent_link = self.position[0:self.position.rfind('/')]
