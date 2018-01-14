@@ -1,31 +1,109 @@
-<html>
-<head>
-  <title>File Manager of /upload</title>
-</head>
-<body>
-  <h1>File Manager of /upload</h1>
-  <form method="POST" action="{{ url('filemanager_downloader') }}">
-    {% csrf_token %}
-    <label for="url">Download from URL:</label>
-    <input type="text" name="url">
-    <button type="submit">Submit</button>
-  </form>
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="file">Upload a file: </label>
-    <input type="file" name="file">
-    <button type="submit">Submit</button>
-  </form>
-  <table>
-    <tbody>
-    {% for file in file_list %}
+{% extends 'html_base.jinja2' %}
+{% from 'components/modal.jinja2' import modal %}
+
+<title>{% block base_title %}EOJ Mirror Site{% endblock %}</title>
+
+{% block _content %}
+  <style>
+    .ui.container {
+      padding-top: 5em;
+      padding-bottom: 15em;
+    }
+    .fixed.launch.button {
+      position: fixed;
+      top: 2.5em;
+      left: 0;
+      width: 55px;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  </style>
+  <div class="ui container">
+    <h1 class="ui header">EOJ Mirror Site
+      <div class="sub header">Path: {{ display_dir }}</div>
+    </h1>
+
+    {% include 'components/message.jinja2' %}
+
+    <form class="ui form" method="POST">
+      {% csrf_token %}
+      <h5 class="ui dividing header">Download from URL</h5>
+      <input type="hidden" name="q" value="{{ position }}">
+      <input type="hidden" name="type" value="download" required>
+      <div class="inline field">
+        <div class="ui fluid action input">
+          <input type="text" name="url" placeholder="URL...">
+          <button type="submit" class="ui button">Submit</button>
+        </div>
+      </div>
+    </form>
+
+    <form class="ui form" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <h5 class="ui dividing header">Upload</h5>
+      <input type="hidden" name="q" value="{{ position }}">
+      <input type="hidden" name="type" value="upload">
+      <div class="inline field">
+        <div class="ui file fluid input action">
+          <input type="text" readonly>
+          <input type="file" name="file" autocomplete="off" required>
+          <div class="ui button">Select...</div>
+          <button type="submit" class="ui positive button">Submit</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="ui hidden divider"></div>
+
+    <table class="ui very basic table">
+      <thead>
       <tr>
-        <td><a href="/upload/{{ file.name }}">{{ file.name }}</a></td>
-        <td>{{ file.modified_time }}</td>
-        <td>{{ file.size }}</td>
+        <th>Name</th>
+        <th class="right aligned collapsing">Modified</th>
+        <th class="right aligned collapsing">Size</th>
+        <th class="center aligned" colspan="2">Actions</th>
       </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="3"><i class="reply icon"></i> <a href="{{ url('filemanager:index') }}?q={{ parent_link }}">(Parent Directory)</a></td>
+        </tr>
+      {% for file in file_list %}
+        <tr>
+          <td>{% if file.is_dir %}<i class="icon folder"></i>{% else %}<i class="file outline icon"></i>{% endif %}<a href="{{ file.link }}">{{ file.name }}</a></td>
+          <td class="right aligned collapsing">{{ file.modified }}</td>
+          <td class="right aligned collapsing">{{ file.size }}</td>
+          <td class="right aligned collapsing"><a class="modal-link" data-name="{{ file.name }}" data-old-name="{{ file.name }}" data-action="{{ url('filemanager:index') }}" data-type="rename" data-q="{{ position }}" data-target="#renameFile">Rename</td>
+          <td class="right aligned collapsing"><a class="delete-link" data-name="{{ file.name }}" data-type="delete">Delete</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <a class="ui right floated primary icon labeled primary small button modal-link" data-type="createdir" data-target="#createDir"><i class="add icon"></i> Create Directory</a>
+  </div>
+
+  {% call modal(title="Rename a file", id="renameFile", action='#') %}
+    {% csrf_token %}
+    <div class="field">
+      <label>New name</label>
+      <input id="name" name="name">
+    </div>
+  {% endcall %}
+
+  {% call modal(title="Create a directory", id="createDir", action='#') %}
+    {% csrf_token %}
+    <div class="field">
+      <label>Directory name</label>
+      <input id="name" name="name">
+    </div>
+  {% endcall %}
+
+  {% include 'components/delete_confirmation.jinja2' %}
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

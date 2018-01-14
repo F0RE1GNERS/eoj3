@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'migrate',
     'polygon',
     'message',
+    'filemanager',
 
     # third-party packages
     'widget_tweaks',

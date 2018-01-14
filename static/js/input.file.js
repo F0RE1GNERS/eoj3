@@ -18,7 +18,7 @@ $.fn.inputFile = function(data) {
   }
   if (!this.prop("init")) {
     this.prop("init", true);
-    this.find('input:text, .ui.button')
+    this.find('input:text, .ui.button:not([type="submit"])')
       .on('click', function (e) {
         $(e.target).parent().find('input:file').click();
       })
