@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
-from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList
+from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestAlwaysRunningList, \
+    ContestPublicToggleRegister
 from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon, balloon_switch,\
     ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim, \
     ContestStatusForAll
@@ -29,4 +30,5 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/balloon/$', ContestBalloon.as_view(), name='balloon'),
     url(r'^switch/(?P<pk>\d+)/$', balloon_switch, name='balloon_switch'),
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
+    url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
 ]

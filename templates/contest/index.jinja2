@@ -19,6 +19,30 @@
     </div>
   {% endif %}
 
+  {% if (public_register == -1 or public_register == 1) and not has_permission %}
+    <div class="ui info message">
+      <div class="header">
+        Rated contest requires registration.
+      </div>
+      <ul class="list">
+        <li>You need to register, before the contest begins, to be rated in this contest.</li>
+        <li>If you fail to register, you can still participate in the contest, but you will be an un-rated participant (by automatically starred).</li>
+        <li>You can cancel your registration before the contest begins. But if you don't, you <b>will be considered a participant</b> in the contest, and be rated, even if you haven't submit any solution.</li>
+      </ul>
+    </div>
+    {% if public_register == -1 %}
+    <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
+      {% csrf_token %}
+      <button class="fluid ui primary button">OK, Register</button>
+    </form>
+    {% else %}
+    <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
+      {% csrf_token %}
+      <button class="fluid ui red button">Cancel my registration</button>
+    </form>
+    {% endif %}
+  {% else %}
+
   {% if has_permission %}
     <table class="ui unstackable celled table">
       <thead>
@@ -152,9 +176,10 @@
 
     <h2 class="ui center aligned disabled icon header" style="margin-top: 5em;">
       <i class="ban icon"></i>
-      Not Available
+      Content Not Available
     </h2>
 
+  {% endif %}
   {% endif %}
 
 

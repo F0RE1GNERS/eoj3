@@ -109,6 +109,21 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
 
 
 def get_contest_rank(contest: Contest, privilege=False):
+    """
+    :param contest
+    :return [
+        {
+            rank: int
+            user: user_id
+            penalty: ...
+            score: ...
+            detail: ...
+        },
+        ...,
+    ]
+    Refer to `recalculate_for_participants`.
+    Rank is in order.
+    """
     # TODO: support slice
     lst = get_contest_rank_list(contest, privilege=privilege)
     details = get_all_contest_participants_detail(contest, privilege=privilege)
@@ -142,6 +157,11 @@ def get_all_contest_participants_detail(contest: Contest, users=None, privilege=
 
 
 def get_contest_rank_list(contest: Contest, privilege=False):
+    """
+    :param contest:
+    :param privilege:
+    :return: [(user_id, rank), ...]
+    """
     def _calculate():
 
         def find_key(tup):
@@ -152,7 +172,7 @@ def get_contest_rank_list(contest: Contest, privilege=False):
 
         items = sorted(get_all_contest_participants_detail(contest, privilege=privilege).items(),
                        key=find_key, reverse=True)
-        ans = []  # ans = [(user_id, rank), ...]
+        ans = []
         last_item = None
         for idx, item in enumerate(items, start=1):
             if last_item and find_key(item) == find_key(last_item):

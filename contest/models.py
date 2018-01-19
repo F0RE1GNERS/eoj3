@@ -91,6 +91,7 @@ class Contest(models.Model):
     case_public = models.BooleanField('Cases can be downloaded if paid', default=False)
 
     system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
+    rated = models.BooleanField(default=False)
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
@@ -226,3 +227,14 @@ class ContestInvitation(models.Model):
     class Meta:
         unique_together = ('contest', 'code')
         ordering = ['-pk']
+
+
+class ContestUserRating(models.Model):
+    rating = models.IntegerField(default=1500)
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)
+    modified = models.DateTimeField()
+
+    class Meta:
+        unique_together = ('contest', 'user')
+        ordering = ["-modified"]

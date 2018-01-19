@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
@@ -96,6 +97,11 @@ class DashboardView(BaseContestMixin, TemplateView):
 
         if self.registered:
             data['registered'] = True
+        if self.user.is_authenticated and self.contest.public and self.contest.rated and self.contest.status == -1:
+            if self.contest.contestparticipant_set.filter(user=self.user).exists():
+                data['public_register'] = 1
+            else:
+                data['public_register'] = -1
 
         data['has_permission'] = super(DashboardView, self).test_func()
         for problem in data['contest_problem_list']:
@@ -170,6 +176,21 @@ class ContestBoundUser(View):
                 messages.success(request, _('You have successfully joined this contest.'))
             except ContestInvitation.DoesNotExist:
                 messages.error(request, _('There seems to be something wrong with your invitation code.'))
+        return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
+
+
+class ContestPublicToggleRegister(View):
+    def post(self, request, cid):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please login first.')
+        else:
+            contest = get_object_or_404(Contest, pk=cid)
+            if contest.public and contest.rated and contest.status == -1:
+                with transaction.atomic():
+                    if not contest.contestparticipant_set.filter(user=request.user).exists():
+                        contest.contestparticipant_set.get_or_create(user=request.user)
+                    else:
+                        contest.contestparticipant_set.filter(user=request.user).delete()
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
 
 
