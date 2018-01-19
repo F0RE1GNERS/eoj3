@@ -40,7 +40,7 @@
             <h5 class="ui header red">Running</h5>
           {% elif contest.status == -1 %}
             {% if contest.public and contest.rated %}
-              <a href="{{ url('contest:dashboard', contest.pk) }}" style="background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">Register »</a>
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">Register »</a>
             {% else %}
               <h5 class="ui header teal">Pending</h5>
             {% endif %}
