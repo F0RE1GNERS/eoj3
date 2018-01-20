@@ -137,7 +137,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     if data["rank"] is None:
                         data["rank"] = recalculate_for_participants(self.contest, [self.user.pk], privilege=True).get(self.user.pk)
                         if not self.contest.standings_disabled:
-                            data["rank"].update(rank=get_participant_rank(self.contest, self.user.pk))
+                            data["rank"].update(actual_rank=get_participant_rank(self.contest, self.user.pk))
                         cache.set(self_displayed_rank_template, data["rank"], 15)
                     if data["rank"] is not None:
                         data["rank"].update(user=user_as_participant)

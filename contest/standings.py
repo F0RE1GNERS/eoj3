@@ -53,7 +53,6 @@ class ContestStandings(BaseContestMixin, ListView):
                                     all()}
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
-        data['my_rank'] = get_participant_rank(self.contest, self.request.user.pk)
         if not self.contest.standings_without_problem:
             data['statistics'] = {
                 'problem': get_contest_problem_ac_submit(list(map(lambda x: x.problem_id,

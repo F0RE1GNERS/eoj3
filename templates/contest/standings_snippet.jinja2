@@ -21,7 +21,7 @@
 {% endmacro %}
 
 {% macro display_rank(rank) %}
-    <td scope="row">{% if rank.rank %}{{ rank.rank }}{% else %}??{% endif %}</td>
+    <td scope="row">{% if rank.actual_rank %}{{ rank.actual_rank }}{% endif %}</td>
     <td class="ui left aligned">
       <h5 class="ui header">
         <div class="content">

@@ -9,7 +9,6 @@ from random import uniform
 
 PARTICIPANT_RANK_DETAIL = 'c{contest}_u{user}_rank_detail'
 PARTICIPANT_RANK_DETAIL_PRIVATE = 'c{contest}_u{user}_rank_detail_private'
-PARTICIPANT_RANK = 'c{contest}_u{user}_rank'
 PARTICIPANT_RANK_LIST = 'c{contest}_rank_list'
 CONTEST_FIRST_YES = 'c{contest}_first_yes'
 FORTNIGHT = 86400 * 14
@@ -113,6 +112,7 @@ def get_contest_rank(contest: Contest, privilege=False):
     :param contest
     :return [
         {
+            actual_rank: int
             rank: int
             user: user_id
             penalty: ...
@@ -128,9 +128,8 @@ def get_contest_rank(contest: Contest, privilege=False):
     lst = get_contest_rank_list(contest, privilege=privilege)
     details = get_all_contest_participants_detail(contest, privilege=privilege)
     for idx, item in enumerate(lst):
-        rank = item[1]
         lst[idx] = details[item[0]]
-        lst[idx].update(rank=rank, user=item[0])
+        lst[idx].update(rank=item[1], user=item[0], actual_rank=item[2])
     return lst
 
 
@@ -160,7 +159,9 @@ def get_contest_rank_list(contest: Contest, privilege=False):
     """
     :param contest:
     :param privilege:
-    :return: [(user_id, rank), ...]
+    :return: [(user_id, rank, actual_rank), ...]
+
+    actual_rank is the rank considering starred participants
     """
     def _calculate():
 
@@ -172,13 +173,19 @@ def get_contest_rank_list(contest: Contest, privilege=False):
 
         items = sorted(get_all_contest_participants_detail(contest, privilege=privilege).items(),
                        key=find_key, reverse=True)
+        user_star = {c.user_id: c.star for c in contest.contestparticipant_set.all()}
         ans = []
         last_item = None
+        actual_rank_reducer = 0
         for idx, item in enumerate(items, start=1):
             if last_item and find_key(item) == find_key(last_item):
-                ans.append((item[0], ans[-1][1]))
-            else:
-                ans.append((item[0], idx))
+                claim_rank = ans[-1][1]
+            else: claim_rank = idx
+            if user_star.get(item[0]):
+                actual_rank = 0
+                actual_rank_reducer += 1
+            else: actual_rank = claim_rank - actual_rank_reducer
+            ans.append((item[0], claim_rank, actual_rank))
             last_item = item
         return ans
 
@@ -189,8 +196,6 @@ def get_contest_rank_list(contest: Contest, privilege=False):
         if t is None:
             t = _calculate()
             cache.set(cache_name, t, FORTNIGHT * uniform(0.6, 1))
-            d = {PARTICIPANT_RANK.format(contest=contest.pk, user=user): rank for user, rank in t}
-            cache.set_many(d, FORTNIGHT * uniform(0.6, 1))
         return t
     else:
         return _calculate()
@@ -200,17 +205,11 @@ def get_participant_rank(contest: Contest, user_id):
     """
     Get rank in public standings
     """
-    cache_name = PARTICIPANT_RANK.format(contest=contest.pk, user=user_id)
-    t = cache.get(cache_name)
-    if t is None:
-        rank = 0
-        get_contest_rank_list(contest)
-        t = cache.get(cache_name)
-        if t is not None:
-            rank = t
-    else:
-        rank = t
-    return rank
+    rank_list = get_contest_rank_list(contest)
+    for user, rank, actual_rank in rank_list:
+        if user == user_id:
+            return actual_rank
+    return 0
 
 
 def get_first_yes(contest: Contest):

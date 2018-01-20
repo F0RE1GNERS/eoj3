@@ -48,7 +48,10 @@ class ContestSubmit(BaseContestMixin, TemplateView):
                 raise ValueError("Invalid problem.")
             submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
                                            contest=self.contest, ip=get_ip(request))
-            contest_participant, _ = self.contest.contestparticipant_set.get_or_create(user=self.user)
+            contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
+            if created and self.contest.public and self.contest.rated:
+                contest_participant.star = True
+                contest_participant.save(update_fields=['star'])
             if contest_participant.is_disabled:
                 raise ValueError("You have quitted the contest.")
             judge_submission_on_contest(submission)
