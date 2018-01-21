@@ -8,32 +8,55 @@
 
   {% include 'contest/contest_list_header.jinja2' %}
 
-  <div id="rating-changes"></div>
+  <div class="ui grid">
+  <div class="ten wide column">
+    <div id="rating-changes"></div>
 
-  <table class="ui celled table">
-    <thead>
-      <tr class="center aligned">
-        <th>#</th>
-        <th>Contest</th>
-        <th>When</th>
-        <th>Rank</th>
-        <th>Solved</th>
-        <th>Rating</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for rating in rating_list %}
+    <table class="ui celled table">
+      <thead>
         <tr class="center aligned">
-          <td>{{ rating.contest_id }}</td>
-          <td><a href="{{ url('contest:dashboard', rating.contest_id) }}">{{ rating.contest.title }}</a></td>
-          <td>{{ rating.modified | date('Y-m-d') }}</td>
-          <td><a href="{{ url('contest:standings', rating.contest_id) }}">{{ rating.rank }}</a></td>
-          <td><a href="{{ url('contest:my', rating.contest_id) }}">{{ rating.solved }}</a></td>
+          <th>#</th>
+          <th>Contest</th>
+          <th>When</th>
+          <th>Rank</th>
+          <th>Solved</th>
+          <th>Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rating in rating_list %}
+          <tr class="center aligned">
+            <td>{{ rating.contest_id }}</td>
+            <td><a href="{{ url('contest:dashboard', rating.contest_id) }}">{{ rating.contest.title }}</a></td>
+            <td>{{ rating.modified | date('Y-m-d') }}</td>
+            <td><a href="{{ url('contest:standings', rating.contest_id) }}">{{ rating.rank }}</a></td>
+            <td><a href="{{ url('contest:my', rating.contest_id) }}">{{ rating.solved }}</a></td>
+            <td>{{ rating.rating }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="six wide column">
+    <div class="ui center aligned header">Top 50</div>
+    <table class="ui celled very compact center aligned table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for rating in global_rating %}
+        <tr>
+          <td>{{ username_display(rating.user) }}</td>
           <td>{{ rating.rating }}</td>
         </tr>
       {% endfor %}
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
+  </div>
 
 {% endblock %}
 

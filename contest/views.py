@@ -227,4 +227,13 @@ class ContestRatings(LoginRequiredMixin, ListView):
         if self.object_list:
             data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, self.object_list)))
             data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, self.object_list)))
+
+        # get global ratings
+        user_ratings = {}
+
+        for rating in ContestUserRating.objects.select_related('user').all():
+            if rating.user_id not in user_ratings:
+                user_ratings[rating.user_id] = rating
+        data['global_rating'] = sorted(user_ratings.values(), key=lambda x: x.rating, reverse=True)[:50]
+
         return data
