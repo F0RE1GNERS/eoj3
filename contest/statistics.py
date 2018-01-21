@@ -127,10 +127,12 @@ def get_contest_rank(contest: Contest, privilege=False):
     # TODO: support slice
     lst = get_contest_rank_list(contest, privilege=privilege)
     details = get_all_contest_participants_detail(contest, privilege=privilege)
+    ans = []
     for idx, item in enumerate(lst):
-        lst[idx] = details[item[0]]
-        lst[idx].update(rank=item[1], user=item[0], actual_rank=item[2])
-    return lst
+        if item[0] in details:
+            ans.append(details[item[0]])
+            ans[-1].update(rank=item[1], user=item[0], actual_rank=item[2])
+    return ans
 
 
 def get_all_contest_participants_detail(contest: Contest, users=None, privilege=False):
