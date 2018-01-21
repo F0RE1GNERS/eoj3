@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
@@ -214,7 +214,7 @@ class ContestAlwaysRunningList(ListView):
                                                sorting_by_id=True, always_running=True)
 
 
-class ContestRatings(ListView):
+class ContestRatings(LoginRequiredMixin, ListView):
     template_name = 'contest/contest_ratings.jinja2'
     context_object_name = 'rating_list'
 
