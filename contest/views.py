@@ -223,6 +223,8 @@ class ContestRatings(ListView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['max_rating'] = max(2000, max(map(lambda x: x.rating, self.object_list)))
-        data['min_rating'] = min(1000, max(map(lambda x: x.rating, self.object_list)))
+        data['max_rating'], data['min_rating'] = 2000, 1000
+        if self.object_list:
+            data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, self.object_list)))
+            data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, self.object_list)))
         return data
