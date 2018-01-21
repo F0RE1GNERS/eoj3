@@ -10,6 +10,7 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 from django.utils.translation import ugettext_lazy as _
 
+from account.models import User
 from account.permissions import is_admin_or_root, is_volunteer
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
@@ -214,26 +215,20 @@ class ContestAlwaysRunningList(ListView):
                                                sorting_by_id=True, always_running=True)
 
 
-class ContestRatings(LoginRequiredMixin, ListView):
+class ContestRatings(TemplateView):
     template_name = 'contest/contest_ratings.jinja2'
-    context_object_name = 'rating_list'
-
-    def get_queryset(self):
-        return ContestUserRating.objects.select_related('contest').filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['max_rating'], data['min_rating'] = 2000, 1000
-        if self.object_list:
-            data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, self.object_list)))
-            data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, self.object_list)))
-
-        # get global ratings
-        user_ratings = {}
-
-        for rating in ContestUserRating.objects.select_related('user').all():
-            if rating.user_id not in user_ratings:
-                user_ratings[rating.user_id] = rating
-        data['global_rating'] = sorted(user_ratings.values(), key=lambda x: x.rating, reverse=True)[:50]
-
+        if not self.request.user.is_authenticated or self.request.GET.get('full'):
+            data['full'] = True
+        else: data['full'] = False
+        data['global_rating'] = User.objects.filter(rating__gt=0).order_by("-rating")
+        if not data['full']:
+            data['max_rating'], data['min_rating'] = 2000, 1000
+            data['rating_list'] = ContestUserRating.objects.select_related('contest').filter(user=self.request.user)
+            if data['rating_list']:
+                data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, data['rating_list'])))
+                data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, data['rating_list'])))
+            data['global_rating'] = data['global_rating'][:15]
         return data

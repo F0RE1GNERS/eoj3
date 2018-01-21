@@ -8,8 +8,9 @@ from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 
+from account.color import update_color
 from account.models import User
-from contest.models import Contest
+from contest.models import Contest, ContestUserRating
 from contest.ratings import calculate_rating_changes, clear_previous_ratings
 from utils.email import send_mail_with_bcc
 from ..base_views import BaseBackstageMixin
@@ -55,4 +56,18 @@ class ContestWithdrawRatingChanges(BaseBackstageMixin, View):
     def post(self, request, cid):
         contest = get_object_or_404(Contest, pk=cid)
         clear_previous_ratings(contest)
+        return HttpResponse()
+
+
+class ApplyGlobalChangesToRating(BaseBackstageMixin, View):
+    def post(self, request):
+        user_ratings = {}
+
+        for rating in ContestUserRating.objects.select_related('user').all():
+            if rating.user_id not in user_ratings:
+                user_ratings[rating.user_id] = rating
+                rating.user.rating = rating.rating
+                rating.user.save(update_fields=['rating'])
+
+        update_color()
         return HttpResponse()

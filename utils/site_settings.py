@@ -48,3 +48,7 @@ def is_site_closed():
         return start_time <= dt.now() <= end_time
     except ValueError:
         return True
+
+
+def is_festival():
+    return site_settings_get("FESTIVAL", default=False, use_cache=True)

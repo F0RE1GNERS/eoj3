@@ -5,7 +5,7 @@ from django.views.generic.list import ListView, View
 from django.db import transaction
 from django.db.models import Q
 
-from account.models import Privilege, User
+from account.models import User
 from ..base_views import BaseBackstageMixin
 
 

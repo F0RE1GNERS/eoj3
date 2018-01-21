@@ -11,21 +11,6 @@ from imagekit.processors import ResizeToFill
 from django.utils.translation import ugettext_lazy as _
 
 
-class Privilege(object):
-    REGULAR_USER = "user"
-    ADMIN = "admin"
-    ROOT = "root"
-    VOLUNTEER = "volunteer"
-
-
-PRIVILEGE_CHOICE = (
-    ('user', 'Regular User'),
-    ('admin', 'Admin'),
-    ('root', 'Root'),
-    ('volunteer', 'Volunteer'),
-)
-
-
 MAGIC_CHOICE = (
     ('red', 'Red'),
     ('green', 'Green'),
@@ -90,6 +75,7 @@ class User(AbstractUser):
     score = models.FloatField(default=0)
     username_change_attempt = models.IntegerField(default=0)
     email_subscription = models.BooleanField(default=True)
+    rating = models.IntegerField(default=0)
 
     def __str__(self):
         return self.username

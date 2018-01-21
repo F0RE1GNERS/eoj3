@@ -6,7 +6,31 @@
 
 {% block content %}
 
+  {% macro full_list() %}
+    <h2 class="ui sub header" style="margin-top: 0">
+      <span class="text red">Red</span>: 5%. <span class="text orange">Orange</span>: 15%. <span class="text purple">Purple</span>: 30%. <span class="text blue">Blue</span>: 50%. <span class="text teal">Teal</span>: 75%. <span class="text green">Green</span>: 100%. <span class="text grey">Grey</span>: Admin.
+    </h2>
+    <table class="ui celled very compact center aligned table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for user in global_rating %}
+        <tr>
+          <td>{{ username_display(user) }}</td>
+          <td>{{ user.rating }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% endmacro %}
+
   {% include 'contest/contest_list_header.jinja2' %}
+
+  {% if not full %}
 
   <div class="ui grid">
   <div class="ten wide column">
@@ -38,29 +62,22 @@
     </table>
   </div>
   <div class="six wide column">
-    <div class="ui center aligned header">Top 50</div>
-    <table class="ui celled very compact center aligned table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Rating</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for rating in global_rating %}
-        <tr>
-          <td>{{ username_display(rating.user) }}</td>
-          <td>{{ rating.rating }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    {{ full_list() }}
+    <a href="?full=1" class="ui right floated right labeled icon primary button">
+      See Full List
+      <i class="right chevron icon"></i>
+    </a>
   </div>
   </div>
+
+  {% else %}
+    {{ full_list() }}
+  {% endif %}
 
 {% endblock %}
 
 {% block script %}
+  {% if not full %}
   <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
   <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
   <script type="text/javascript">
@@ -114,4 +131,5 @@
     });
     chart.render();
   </script>
+  {% endif %}
 {% endblock %}

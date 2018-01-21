@@ -2,7 +2,8 @@ from django.conf.urls import url
 
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch, AccountActiveSwitch
 from .base_views import Index
-from .contest.views import ContestList, ContestSendInvitationMail, ContestApplyRatingChanges, ContestWithdrawRatingChanges
+from .contest.views import ContestList, ContestSendInvitationMail, ContestApplyRatingChanges, ContestWithdrawRatingChanges, \
+    ApplyGlobalChangesToRating
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, ProblemTagCreate, ProblemTagEdit, \
     ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate, ProblemSourceBatchEdit, ProblemTagDelete
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
@@ -34,6 +35,7 @@ urlpatterns = [
     url(r'^contest/send/invitation/$', ContestSendInvitationMail.as_view(), name='contest_send_invitation'),
     url(r'^contest/(?P<cid>\d+)/ratings/apply/$', ContestApplyRatingChanges.as_view(), name='contest_apply_ratings'),
     url(r'^contest/(?P<cid>\d+)/ratings/withdraw/$', ContestWithdrawRatingChanges.as_view(), name='contest_withdraw_ratings'),
+    url(r'^contest/ratings/global/$', ApplyGlobalChangesToRating.as_view(), name='contest_apply_ratings_global'),
 
     url(r'^server/$', ServerList.as_view(), name='server'),
     url(r'^server/create/$', ServerCreate.as_view(), name='server_create'),

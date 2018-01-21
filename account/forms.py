@@ -1,5 +1,7 @@
 from django import forms
-from .models import User, Privilege
+
+from utils.site_settings import is_festival
+from .models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from captcha.fields import CaptchaField
@@ -93,6 +95,11 @@ class ProfileForm(forms.ModelForm):
         }
         error_messages = {
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not is_festival():
+            self.fields.pop('magic')
 
     def clean_avatar(self):
         avatar = self.cleaned_data['avatar']
