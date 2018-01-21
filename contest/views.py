@@ -17,7 +17,7 @@ from submission.statistics import get_accept_problem_list, get_attempted_problem
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager
 from utils.site_settings import is_site_closed
-from .models import Contest, ContestProblem, ContestInvitation, ContestParticipant
+from .models import Contest, ContestProblem, ContestInvitation, ContestParticipant, ContestUserRating
 from .tasks import add_participant_with_invitation
 
 
@@ -195,7 +195,7 @@ class ContestPublicToggleRegister(View):
 
 
 class ContestList(ListView):
-    template_name = 'contest_list.jinja2'
+    template_name = 'contest/contest_list.jinja2'
     paginate_by = 30
     context_object_name = 'contest_list'
 
@@ -204,7 +204,7 @@ class ContestList(ListView):
 
 
 class ContestAlwaysRunningList(ListView):
-    template_name = 'contest_always_running.jinja2'
+    template_name = 'contest/contest_always_running.jinja2'
     paginate_by = 30
     context_object_name = 'contest_list'
 
@@ -212,3 +212,17 @@ class ContestAlwaysRunningList(ListView):
         user = self.request.user if self.request.user.is_authenticated else None
         return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
                                                sorting_by_id=True, always_running=True)
+
+
+class ContestRatings(ListView):
+    template_name = 'contest/contest_ratings.jinja2'
+    context_object_name = 'rating_list'
+
+    def get_queryset(self):
+        return ContestUserRating.objects.select_related('contest').filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['max_rating'] = max(2000, max(map(lambda x: x.rating, self.object_list)))
+        data['min_rating'] = min(1000, max(map(lambda x: x.rating, self.object_list)))
+        return data

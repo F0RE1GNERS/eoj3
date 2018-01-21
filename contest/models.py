@@ -233,8 +233,13 @@ class ContestUserRating(models.Model):
     rating = models.IntegerField(default=1500)
     user = models.ForeignKey(User)
     contest = models.ForeignKey(Contest)
+    solved = models.IntegerField()
+    rank = models.IntegerField()
     modified = models.DateTimeField()
 
     class Meta:
         unique_together = ('contest', 'user')
         ordering = ["-modified"]
+
+    def __str__(self):
+        return 'ContestUserRating: {user: %d, rating: %d}' % (self.user_id, self.rating)

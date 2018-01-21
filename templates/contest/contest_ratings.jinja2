@@ -1,0 +1,94 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Ratings - {% endblock %}
+
+{% block page_header %}Contest Ratings{% endblock %}
+
+{% block content %}
+
+  {% include 'contest/contest_list_header.jinja2' %}
+
+  <div id="rating-changes"></div>
+
+  <table class="ui celled table">
+    <thead>
+      <tr class="center aligned">
+        <th>#</th>
+        <th>Contest</th>
+        <th>When</th>
+        <th>Rank</th>
+        <th>Solved</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rating in rating_list %}
+        <tr class="center aligned">
+          <td>{{ rating.contest_id }}</td>
+          <td><a href="{{ url('contest:dashboard', rating.contest_id) }}">{{ rating.contest.title }}</a></td>
+          <td>{{ rating.modified | date('Y-m-d') }}</td>
+          <td><a href="{{ url('contest:standings', rating.contest_id) }}">{{ rating.rank }}</a></td>
+          <td><a href="{{ url('contest:my', rating.contest_id) }}">{{ rating.solved }}</a></td>
+          <td>{{ rating.rating }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script type="text/javascript">
+    var myFontFamily = "Open Sans";
+    var data = [
+      { time: "{{ request.user.date_joined | date('Y-m-d') }}", rating: 1500, comment: "Joined EOJ" },
+        {% for rating in rating_list | reverse %}{ time: "{{ rating.modified | date('Y-m-d') }}", rating: {{ rating.rating }}, comment: "{{ rating.contest.title }}" },{% endfor %}];
+    const chart = new G2.Chart({
+      container: 'rating-changes',
+      forceFit: true
+    });
+    chart.source(data);
+    chart.scale('rating', {
+      type: 'linear',
+      min: {{ min_rating }},
+      max: {{ max_rating }}
+    });
+    chart.scale('time', {
+      range: [ 0 , 1 ],
+      type: 'time'
+    });
+    chart.axis('rating', {
+      label: {
+        textStyle: {
+          fontFamily: myFontFamily
+        }
+      }
+    }).axis('time', {
+      label: {
+        textStyle: {
+          fontFamily: myFontFamily
+        }
+      }
+    });
+    chart.tooltip({
+      crosshairs: {
+        type: 'line'
+      },
+      position: 'top',
+      inPlot: false,
+      "g2-tooltip": {
+        fontFamily: myFontFamily
+      },
+      title: 'comment'
+    });
+    chart.area().position('time*rating*comment');
+    chart.line().position('time*rating*comment');
+    chart.point().position('time*rating*comment').size(4).shape('circle').style({
+      stroke: '#fff',
+      lineWidth: 1
+    });
+    chart.render();
+  </script>
+{% endblock %}

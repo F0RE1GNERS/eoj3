@@ -23,3 +23,4 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 ADMINS = [('ultmaster', 'scottyugochang@hotmail.com'), ('zerol', 'zerolfx0@gmail.com')]
 ADMIN_EMAIL = ""
+IPWARE_PRIVATE_IP_PREFIX = ('202.120.88.',)

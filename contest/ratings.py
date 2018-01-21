@@ -14,6 +14,9 @@ class RatingContestant:
         self.points = float(points)
         self.rating = int(rating)
 
+    def __repr__(self):
+        return 'RatingContestant: %s' % self.__dict__
+
 
 def get_previous_ratings(contest: Contest):
     """
@@ -27,38 +30,49 @@ def get_previous_ratings(contest: Contest):
     for participant in contest_participants:
         if participant not in result:
             result[participant] = INITIAL_RATING
+    return result
 
 
 def calculate_rating_changes(contest: Contest):
-    _clear_previous_ratings(contest)
+    clear_previous_ratings(contest)
     previous_ratings = get_previous_ratings(contest)
     standing_rows = get_contest_rank(contest)
     contestants = []
+    query_solved, query_rank = {}, {}
     for standing_row in standing_rows:
-        user, rank = standing_row["user"], standing_row["rank"]
+        if not standing_row.get("actual_rank"):
+            continue
+        user, rank = standing_row["user"], standing_row["actual_rank"]
         contestants.append(RatingContestant(user, rank, standing_row["score"], previous_ratings[user]))
-        _process(contestants)
+        query_solved[user] = sum(map(lambda detail: int(detail["solved"]), standing_row["detail"].values()))
+        query_rank[user] = rank
+    _process(contestants)
 
     new_ratings = list(map(lambda contestant: ContestUserRating(rating=contestant.rating + contestant.delta,
                                                                 user_id=contestant.user,
                                                                 contest=contest,
-                                                                modified=contest.end_time), contestants))
+                                                                modified=contest.end_time,
+                                                                solved=query_solved[contestant.user],
+                                                                rank=query_rank[contestant.user]), contestants))
     ContestUserRating.objects.bulk_create(new_ratings)
 
 
-def _clear_previous_ratings(contest: Contest):
+def clear_previous_ratings(contest: Contest):
     ContestUserRating.objects.filter(contest=contest).delete()
 
 
 def _get_elo_win_probability(a: RatingContestant, b: RatingContestant):
-    return 1 / (1 + pow(10, (a.rating - b.rating) / 400))
+    """
+    :param a:
+    :param b:
+    :return: probability that a wins b
+    """
+    return 1 / (1 + pow(10, (b.rating - a.rating) / 400))
 
 
 def _get_seed(contestants: list, rating: int):
     extra_contestant = RatingContestant(0, 0, 0, rating)
-    result = 1.0
-    for other in contestants:
-        result += _get_elo_win_probability(other, extra_contestant)
+    result = 1 + sum(map(lambda other: _get_elo_win_probability(other, extra_contestant), contestants))
     return result
 
 
@@ -87,13 +101,11 @@ def _reassign_ranks(contestants: list):
         contestant.rank = 0
         contestant.delta = 0
     first = 0
-    points = contestants[0].points
     for i in range(1, len(contestants)):
-        if contestants[i].points < points:
+        if contestants[i].points < contestants[first].points:
             for j in range(first, i):
                 contestants[j].rank = i
             first = i
-            points = contestants[i].points
 
     rank = float(len(contestants))
     for j in range(first, len(contestants)):

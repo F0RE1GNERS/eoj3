@@ -10,6 +10,7 @@ from django.views.generic.list import ListView
 
 from account.models import User
 from contest.models import Contest
+from contest.ratings import calculate_rating_changes, clear_previous_ratings
 from utils.email import send_mail_with_bcc
 from ..base_views import BaseBackstageMixin
 
@@ -37,3 +38,21 @@ class ContestList(BaseBackstageMixin, ListView):
     queryset = Contest.objects.all()
     paginate_by = 100
     context_object_name = 'contest_list'
+
+
+class ContestApplyRatingChanges(BaseBackstageMixin, View):
+    def post(self, request, cid):
+        try:
+            contest = get_object_or_404(Contest, pk=cid)
+            calculate_rating_changes(contest)
+            messages.success(request, 'Ratings successfully updated.')
+        except Exception as e:
+            messages.error(request, str(e))
+        return HttpResponse()
+
+
+class ContestWithdrawRatingChanges(BaseBackstageMixin, View):
+    def post(self, request, cid):
+        contest = get_object_or_404(Contest, pk=cid)
+        clear_previous_ratings(contest)
+        return HttpResponse()

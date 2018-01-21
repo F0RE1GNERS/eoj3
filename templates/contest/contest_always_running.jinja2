@@ -6,10 +6,7 @@
 
 {% block content %}
 
-  <div class="ui secondary menu small">
-    <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}">REGULAR</a>
-    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}">GYM</a>
-  </div>
+  {% include 'contest/contest_list_header.jinja2' %}
 
   <table class="ui celled table">
     <thead>
