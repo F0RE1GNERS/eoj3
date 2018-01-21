@@ -178,17 +178,27 @@ def get_contest_rank_list(contest: Contest, privilege=False):
         user_star = {c.user_id: c.star for c in contest.contestparticipant_set.all()}
         ans = []
         last_item = None
-        actual_rank_reducer = 0
+        last_actual_item, last_actual_rank = None, 0
+
+        actual_rank_counter = 1
         for idx, item in enumerate(items, start=1):
             if last_item and find_key(item) == find_key(last_item):
                 claim_rank = ans[-1][1]
             else: claim_rank = idx
+
             if user_star.get(item[0]):
+                # starred
                 actual_rank = 0
-                actual_rank_reducer += 1
-            else: actual_rank = claim_rank - actual_rank_reducer
+            else:
+                if last_actual_item and find_key(item) == find_key(last_actual_item):
+                    actual_rank = last_actual_rank
+                else: actual_rank = actual_rank_counter
+                last_actual_rank, last_actual_item = actual_rank, item
+                actual_rank_counter += 1
+
             ans.append((item[0], claim_rank, actual_rank))
             last_item = item
+
         return ans
 
     if not privilege:
