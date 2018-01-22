@@ -242,8 +242,8 @@ class ContestRatings(ListView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['full'] = self.full
-        data['query_user'] = self.user
         if not self.full:
+            data['query_user'] = self.user
             data['max_rating'], data['min_rating'] = 2000, 1000
             data['rating_list'] = ContestUserRating.objects.select_related('contest').filter(user=self.user)
             if data['rating_list']:
