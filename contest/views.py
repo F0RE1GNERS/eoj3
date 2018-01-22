@@ -215,20 +215,38 @@ class ContestAlwaysRunningList(ListView):
                                                sorting_by_id=True, always_running=True)
 
 
-class ContestRatings(TemplateView):
+class ContestRatings(ListView):
     template_name = 'contest/contest_ratings.jinja2'
+    context_object_name = 'global_rating'
+    paginate_by = 100
+
+    def dispatch(self, request, *args, **kwargs):
+        q = request.GET.get('q', '')
+        if request.GET.get('full'):
+            self.full = True
+        elif q.isdigit():
+            self.user = get_object_or_404(User, pk=q)
+            self.full = False
+        elif request.user.is_authenticated:
+            self.user = request.user
+            self.full = False
+        else:
+            self.full = True
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.full:
+            return User.objects.filter(rating__gt=0).order_by("-rating")
+        else: return User.objects.filter(rating__gt=0).order_by("-rating")[:15]
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        if not self.request.user.is_authenticated or self.request.GET.get('full'):
-            data['full'] = True
-        else: data['full'] = False
-        data['global_rating'] = User.objects.filter(rating__gt=0).order_by("-rating")
-        if not data['full']:
+        data['full'] = self.full
+        data['query_user'] = self.user
+        if not self.full:
             data['max_rating'], data['min_rating'] = 2000, 1000
-            data['rating_list'] = ContestUserRating.objects.select_related('contest').filter(user=self.request.user)
+            data['rating_list'] = ContestUserRating.objects.select_related('contest').filter(user=self.user)
             if data['rating_list']:
                 data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, data['rating_list'])))
                 data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, data['rating_list'])))
-            data['global_rating'] = data['global_rating'][:15]
         return data

@@ -13,15 +13,15 @@
     <table class="ui celled very compact center aligned table">
       <thead>
         <tr>
-          <th>Username</th>
-          <th>Rating</th>
+          <th class="ten wide">Username</th>
+          <th class="six wide">Rating</th>
         </tr>
       </thead>
       <tbody>
-      {% for user in global_rating %}
+      {% for rating_user in global_rating %}
         <tr>
-          <td>{{ username_display(user) }}</td>
-          <td>{{ user.rating }}</td>
+          <td>{{ username_display(rating_user) }}</td>
+          <td><a href="?q={{ rating_user.pk }}">{{ rating_user.rating }}</a></td>
         </tr>
       {% endfor %}
       </tbody>
@@ -34,6 +34,7 @@
 
   <div class="ui grid">
   <div class="ten wide column">
+    <h5 class="ui header">User: {{ username_display(query_user) }}</h5>
     <div id="rating-changes"></div>
 
     <table class="ui celled table">
@@ -72,6 +73,9 @@
 
   {% else %}
     {{ full_list() }}
+
+    {{ my_paginator() }}
+
   {% endif %}
 
 {% endblock %}
@@ -83,11 +87,12 @@
   <script type="text/javascript">
     var myFontFamily = "Open Sans";
     var data = [
-      { time: "{{ request.user.date_joined | date('Y-m-d') }}", rating: 1500, comment: "Joined EOJ" },
-        {% for rating in rating_list | reverse %}{ time: "{{ rating.modified | date('Y-m-d') }}", rating: {{ rating.rating }}, comment: "{{ rating.contest.title }}" },{% endfor %}];
+      { user: "ultmaster", time: "{{ query_user.date_joined | date('Y-m-d') }}", rating: 1500, comment: "Joined EOJ" },
+        {% for rating in rating_list | reverse %}{ user: "ultmaster", time: "{{ rating.modified | date('Y-m-d') }}", rating: {{ rating.rating }}, comment: "{{ rating.contest.title }}" },{% endfor %}];
     const chart = new G2.Chart({
       container: 'rating-changes',
-      forceFit: true
+      forceFit: true,
+      padding: [20, "auto", 50, "auto"]
     });
     chart.source(data);
     chart.scale('rating', {
@@ -111,6 +116,13 @@
           fontFamily: myFontFamily
         }
       }
+    });
+    chart.legend('user', {
+      textStyle: {
+        fontFamily: myFontFamily
+      },
+      position: "right",
+      title: 'legend'
     });
     chart.tooltip({
       crosshairs: {
