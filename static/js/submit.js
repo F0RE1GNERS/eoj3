@@ -1,34 +1,57 @@
 if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   // has a editor
   var map = {
-    'c': 'c_cpp',
-    'c11': 'c_cpp',
-    'cpp98': 'c_cpp',
-    'cpp': 'c_cpp',
-    'cpp14': 'c_cpp',
-    'cc14': 'c_cpp',
-    'csharp': 'csharp',
-    'python2': 'python',
-    'python': 'python',
-    'java': 'java',
-    'php': 'php',
-    'fortran': 'fortran',
-    'perl': 'perl',
-    'ruby': 'ruby',
-    'objc': 'objectivec',
-    'haskell': 'haskell',
-    'scala': 'scala',
-    'lua': 'lua',
-    'lisp': 'lisp',
-    'js': 'javascript',
-    'go': 'golang',
-    'ocaml': 'ocaml',
-    'fsharp': 'text',
-    'pypy2': 'python',
-    'swift': 'swift',
-    'pascal': 'pascal',
-    'rust': 'rust',
-    'r': 'r'
+    'c': {
+      'mode': 'c_cpp', 'name': 'C'
+    },
+    'cpp': {
+      'mode': 'c_cpp', 'name': 'C++11'
+    },
+    'python': {
+      'mode': 'python', 'name': 'Python 3'
+    },
+    'java': {
+      'mode': 'java', 'name': 'Java 8'
+    },
+    'cc14': {
+      'mode': 'c_cpp', 'name': 'C++14'
+    },
+    'cs': {
+      'mode': 'csharp', 'name': 'C#'
+    },
+    'py2': {
+      'mode': 'python', 'name': 'Python 2'
+    },
+    'php': {
+      'mode': 'php', 'name': 'PHP 7'
+    },
+    'perl': {
+      'mode': 'perl', 'name': 'Perl'
+    },
+    'hs': {
+      'mode': 'haskell', 'name': 'Haskell'
+    },
+    'js': {
+      'mode': 'javascript', 'name': 'JavaScript'
+    },
+    'ocaml': {
+      'mode': 'ocaml', 'name': 'OCaml'
+    },
+    'pypy': {
+      'mode': 'python', 'name': 'PyPy'
+    },
+    'pas': {
+      'mode': 'pascal', 'name': 'Pascal'
+    },
+    'rs': {
+      'mode': 'rust', 'name': 'Rust'
+    },
+    'scale': {
+      'mode': 'scala', 'name': 'Scala'
+    },
+    'auto': {
+      'mode': 'c_cpp', 'name': 'Detecting'
+    }
   };
   const ele = $('.ui.search.dropdown.language');
   const all_lang = ele.find('.item').map(function() { return $(this).data('value'); }).get();
@@ -42,9 +65,28 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var code = $("#id_code");
   var problem = $("*[name='problem']");
   var code_param = "", code_in_storage_key = "";
+  var code_changed = false;
+  var auto_lang = ele.dropdown('get value') == "auto";
+  var detected_lang = "cpp";
+
   code.on("change", function (event) {
     editor.getSession().setValue(code.val());
+    code_changed = true;
   });
+
+  function detectLanguage(force) {
+    if(!code_changed && !force) return; code_changed = false;
+    detected_lang = detectLang(code.val(), all_lang);
+    $('.detected-lang-name').text(map[detected_lang].name);
+    if(auto_lang) {
+      if(lang.val()!=detected_lang) {
+        lang.val(detected_lang);
+        editor.getSession().setMode("ace/mode/" + map[detected_lang].mode);
+      }
+    }
+  }
+
+  setInterval("detectLanguage()", 1000);
 
   function updateStorageKey() {
     var problem_val = problem.val();
@@ -65,17 +107,32 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     }
   }
   updateStorageKey();
+  detectLanguage(true);
 
   editor.setTheme("ace/theme/chrome");
-  editor.getSession().setMode("ace/mode/" + map[lang.val()]);
+  editor.getSession().setMode("ace/mode/" + map[auto_lang?detected_lang:lang.val()].mode);
   editor.setOptions({
     fontFamily: ["Consolas", "Courier", "Courier New", "monospace"],
     fontSize: "11pt"
   });
+
+  var ignore_change = false;
+
   lang.on("change", function (event) {
-    editor.getSession().setMode("ace/mode/" + map[event.target.value]);
+    if(ignore_change) {
+      ignore_change = false;
+      console.log("remove");
+      return;
+    }
+    detectLanguage();
+    auto_lang = event.target.value == "auto";
+    if(auto_lang) {
+      ignore_change = true;
+      lang.val(detected_lang);
+    }
+    editor.getSession().setMode("ace/mode/" + map[event.target.value].mode);
     if (window.localStorage) {
-      localStorage.setItem("lang", event.target.value);
+      localStorage.setItem("lang", auto_lang?"auto": event.target.value);
     }
   });
   problem.on("change", function (event) {
@@ -85,6 +142,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   editor.getSession().on("change", function () {
     var my_code = editor.getSession().getValue();
     code.val(my_code);
+    code_changed = true;
     if (window.sessionStorage && code_in_storage_key)
       window.sessionStorage.setItem(code_in_storage_key, my_code);
   });
@@ -93,8 +151,8 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   document.addEventListener('paste', function(e){
     const clipboard = e.clipboardData;
     if(!clipboard.items || !clipboard.items.length || $(e.target).attr('class') === "ace_text-input") {
-        clear();
-        return;
+      detectLanguage(true);
+      return;
     }
     const item = clipboard.items[0];
     if (item.kind === "string") {
@@ -102,6 +160,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       $('html, body').animate({
         scrollTop: $("#submit-form").offset().top - $("#navbar").height() - 15
       }, 500);
+      detectLanguage(true);
     }
   }, false);
 }
@@ -155,6 +214,7 @@ function updateProblemTags () {
 }
 
 $("#problem-submit").click(function (event) {
+  detectLanguage();
   var button = $(event.currentTarget);
   var form = button.closest("form");
   form.removeClass("error");

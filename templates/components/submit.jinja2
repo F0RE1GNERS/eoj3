@@ -17,8 +17,13 @@
 
     {% csrf_token %}
     <div class="ui segments" id="submit-form" style="{% if not margin_top %}margin-top: 0{% endif %}">
-      <div class="ui right aligned compact segment">
-        <div class="ui selection search language dropdown">
+      <div class="ui compact segment">
+        <input id="default-contest" value="{% if contest %}{{ contest.pk }}{% endif %}" type="hidden">
+        <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
+        <div id="editor" style="height: 400px; position: relative"></div>
+      </div>
+      <div class="ui compact right aligned segment">
+        <div class="ui selection search submit language dropdown">
           <input name="lang" id="id_lang" type="hidden" value="python">
           <i class="dropdown icon"></i>
           <div class="text"></div>
@@ -26,11 +31,12 @@
             {% for identifier, display in lang_choices %}
             <div class="item" data-value="{{ identifier }}">{{ display }}</div>
             {% endfor %}
+            <div class="item" data-value="auto">Auto: <span class="detected-lang-name">None</span></div>
           </div>
         </div>
         {% if contest %}
         <div style="float:left;">
-          <select class="ui search language dropdown" name="problem">
+          <select class="ui search submit dropdown" name="problem">
             <option value="">Select Problem</option>
             {% for contest_problem in contest_problem_list %}
               <option value="{{ contest_problem.identifier }}"
@@ -42,13 +48,6 @@
         {% else %}
           <input name="problem" value="{{ default_problem }}" type="hidden">
         {% endif %}
-      </div>
-      <div class="ui compact segment">
-        <input id="default-contest" value="{% if contest %}{{ contest.pk }}{% endif %}" type="hidden">
-        <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
-        <div id="editor" style="height: 400px; position: relative"></div>
-      </div>
-      <div class="ui compact right aligned segment">
         <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
            <i class="icon send"></i> Submit
         </button>

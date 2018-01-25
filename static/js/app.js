@@ -45,7 +45,7 @@ $('.ui.search.massive-search').search({
   },
   minCharacters: 1
 });
-$('.ui.search.dropdown.language')
+$('.ui.search.dropdown.submit')
   .dropdown();
 
 // user search
