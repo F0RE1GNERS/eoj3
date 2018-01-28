@@ -120,13 +120,9 @@ class ProblemPreview(PolygonProblemMixin, TemplateView):
 
 class ProblemAccessManage(PolygonProblemMixin, View):
     def post(self, request, pk):
-        upload_permission_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
-        for record in self.problem.managers.all():
-            if record.id in upload_permission_set:
-                upload_permission_set.remove(record.id)
-            else:
-                record.delete()
-        for key in upload_permission_set:
+        my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
+        self.problem.managers.clear()
+        for key in my_set:
             self.problem.managers.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:problem_edit', kwargs={'pk': str(pk)}))
 
