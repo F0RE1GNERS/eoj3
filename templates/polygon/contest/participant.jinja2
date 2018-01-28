@@ -9,11 +9,13 @@
     <a class="ui button" href="{{ url('polygon:contest_participant_download', contest.pk) }}">Download as csv</a>
   </div>
 
-  <table class="ui table center aligned">
+  <table class="ui table celled center aligned">
     <thead>
       <tr>
         <th>Username</th>
         <th>Comment</th>
+        <th>Name</th>
+        <th>Student ID</th>
         <th>Hidden</th>
         <th>Star</th>
         <th>Edit</th>
@@ -25,6 +27,8 @@
         <tr>
           <td>{{ participant.user.username }}</td>
           <td>{{ participant.comment }}</td>
+          <td>{{ participant.user.name }}</td>
+          <td>{{ participant.user.student_id }}</td>
           <td>{{ participant.hidden_comment }}</td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
           <td><a class="modal-link" data-action="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>

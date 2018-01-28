@@ -286,7 +286,7 @@ class ContestParticipantList(PolygonContestMixin, ListView):
     context_object_name = 'participant_list'
 
     def get_queryset(self):
-        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.all()
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.select_related('user').all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestParticipantList, self).get_context_data(**kwargs)
@@ -331,12 +331,11 @@ class ContestParticipantCreate(PolygonContestMixin, View):
                 star = False
             password_gen = shortuuid.ShortUUID("23456789ABCDEF")
             password = password_gen.random(8)
-            nickname = names.get_full_name()
             while True:
                 try:
                     username = self._get_username(pk, user_id)
                     email = '%s@fake.ecnu.edu.cn' % username
-                    user = User.objects.create(username=username, email=email, nickname=nickname,
+                    user = User.objects.create(username=username, email=email,
                                                magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
                     user.set_password(password)
                     user.save()

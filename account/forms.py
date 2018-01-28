@@ -89,7 +89,7 @@ class MySetPasswordForm(SetPasswordForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'nickname', 'school', 'motto', 'magic', 'avatar', 'email_subscription', 'show_tags']
+        fields = ['email', 'name', 'student_id', 'school', 'motto', 'magic', 'avatar', 'email_subscription', 'show_tags']
         help_texts = {
             'magic': 'See what is going to happen!'
         }
@@ -106,12 +106,6 @@ class ProfileForm(forms.ModelForm):
         if avatar.size > 2 * 1048576:
             raise forms.ValidationError("Image size should not be larger than 2M.")
         return avatar
-
-    def clean_nickname(self):
-        nickname = self.cleaned_data['nickname']
-        if len(nickname) > 18:
-            raise forms.ValidationError("should be no longer than 18.")
-        return nickname
 
 
 class PreferenceForm(forms.ModelForm):
