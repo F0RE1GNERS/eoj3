@@ -207,7 +207,7 @@ def push_session(session):
             file_config = config['program'][file]
             if not SpecialProgram.objects.filter(fingerprint=file_config['fingerprint']).exists():
                 SpecialProgram.objects.create(fingerprint=file_config['fingerprint'], lang=file_config['lang'],
-                                              filename=file, category='checker',
+                                              filename=file, category=file_config['type'],
                                               code=read_program_file(session, file))
             setattr(problem, type, file_config['fingerprint'])
         else:
