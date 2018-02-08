@@ -15,6 +15,7 @@ from account.permissions import is_admin_or_root, is_volunteer
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager
 from utils.site_settings import is_site_closed
@@ -149,6 +150,9 @@ class DashboardView(BaseContestMixin, TemplateView):
                                                      self.contest.id)
         for problem in data['contest_problem_list']:
             problem.accept_count = accept_count[problem.problem_id]
+
+        # submit part
+        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
 
         return data
 

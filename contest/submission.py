@@ -23,18 +23,7 @@ from .tasks import judge_submission_on_contest
 from .views import BaseContestMixin
 
 
-class ContestSubmit(BaseContestMixin, TemplateView):
-    template_name = 'contest/submit.jinja2'
-
-    def test_func(self):
-        return super(ContestSubmit, self).test_func() and self.user.is_authenticated
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestSubmit, self).get_context_data(**kwargs)
-        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
-        data['default_problem'] = self.request.GET.get('problem', '')
-        return data
-
+class ContestSubmit(BaseContestMixin, View):
     def post(self, request, cid):
         try:
             if self.contest.status != 0:
@@ -148,12 +137,12 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestMyPastSubmissions, self).get_context_data(**kwargs)
+        problem = self.contest.contestproblem_set.get(identifier=kwargs.get('pid')).id
         data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status", "status_private",
                                                                    "status_private", "create_time", "contest_id",
                                                                    "author_id", "author__username",
                                                                    "author__nickname", "author__magic"). \
-                                      filter(author_id=self.request.user.pk)[:20]
-        self.contest.add_contest_problem_to_submissions(data['submission_list'])
+                                      filter(author_id=self.request.user.pk, problem_id=problem)[:20]
         data['view_more'] = True
         return data
 

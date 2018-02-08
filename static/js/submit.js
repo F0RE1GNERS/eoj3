@@ -54,7 +54,9 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     }
   };
   const ele = $('.ui.search.dropdown.language');
-  const all_lang = ele.find('.item').map(function() { return $(this).data('value'); }).get();
+  const all_lang = ele.find('.item').map(function () {
+    return $(this).data('value');
+  }).get();
   if (window.localStorage && all_lang.indexOf(localStorage.getItem('lang')) >= 0) {
     ele.dropdown('set selected', localStorage.getItem('lang'));
   } else {
@@ -65,28 +67,26 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var code = $("#id_code");
   var problem = $("*[name='problem']");
   var code_param = "", code_in_storage_key = "";
-  var code_changed = false;
   var auto_lang = ele.dropdown('get value') == "auto";
   var detected_lang = "cpp";
 
   code.on("change", function (event) {
     editor.getSession().setValue(code.val());
-    code_changed = true;
+    _.debounce(detectLanguage, 100);
   });
 
-  function detectLanguage(force) {
-    if(!code_changed && !force) return; code_changed = false;
+  setInterval(detectLanguage(), 1000);
+
+  function detectLanguage() {
     detected_lang = detectLang(code.val(), all_lang);
     $('.detected-lang-name').text(map[detected_lang].name);
-    if(auto_lang) {
-      if(lang.val()!=detected_lang) {
+    if (auto_lang) {
+      if (lang.val() != detected_lang) {
         lang.val(detected_lang);
         editor.getSession().setMode("ace/mode/" + map[detected_lang].mode);
       }
     }
   }
-
-  setInterval("detectLanguage()", 1000);
 
   function updateStorageKey() {
     var problem_val = problem.val();
@@ -106,11 +106,12 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       code_in_storage_key = "";
     }
   }
+
   updateStorageKey();
-  detectLanguage(true);
+  detectLanguage();
 
   editor.setTheme("ace/theme/chrome");
-  editor.getSession().setMode("ace/mode/" + map[auto_lang?detected_lang:lang.val()].mode);
+  editor.getSession().setMode("ace/mode/" + map[auto_lang ? detected_lang : lang.val()].mode);
   editor.setOptions({
     fontFamily: ["Consolas", "Courier", "Courier New", "monospace"],
     fontSize: "11pt"
@@ -119,20 +120,20 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var ignore_change = false;
 
   lang.on("change", function (event) {
-    if(ignore_change) {
+    if (ignore_change) {
       ignore_change = false;
       console.log("remove");
       return;
     }
     detectLanguage();
     auto_lang = event.target.value == "auto";
-    if(auto_lang) {
+    if (auto_lang) {
       ignore_change = true;
       lang.val(detected_lang);
     }
     editor.getSession().setMode("ace/mode/" + map[event.target.value].mode);
     if (window.localStorage) {
-      localStorage.setItem("lang", auto_lang?"auto": event.target.value);
+      localStorage.setItem("lang", auto_lang ? "auto" : event.target.value);
     }
   });
   problem.on("change", function (event) {
@@ -142,21 +143,22 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   editor.getSession().on("change", function () {
     var my_code = editor.getSession().getValue();
     code.val(my_code);
-    code_changed = true;
     if (window.sessionStorage && code_in_storage_key)
       window.sessionStorage.setItem(code_in_storage_key, my_code);
   });
 
   // paste listener
-  document.addEventListener('paste', function(e){
+  document.addEventListener('paste', function (e) {
     const clipboard = e.clipboardData;
-    if(!clipboard.items || !clipboard.items.length || $(e.target).attr('class') === "ace_text-input") {
+    if (!clipboard.items || !clipboard.items.length || $(e.target).attr('class') === "ace_text-input") {
       detectLanguage(true);
       return;
     }
     const item = clipboard.items[0];
     if (item.kind === "string") {
-      item.getAsString(function (str) { editor.getSession().setValue(str); });
+      item.getAsString(function (str) {
+        editor.getSession().setValue(str);
+      });
       $('html, body').animate({
         scrollTop: $("#submit-form").offset().top - $("#navbar").height() - 15
       }, 500);
@@ -165,7 +167,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   }, false);
 }
 
-function scrollToCurrentSubmission () {
+function scrollToCurrentSubmission() {
   $('html, body').animate({
     scrollTop: $("#current-submission").offset().top - $("#navbar").height() - 15
   }, 500);
@@ -173,13 +175,13 @@ function scrollToCurrentSubmission () {
 
 var problemUpdateTimeout = null;
 
-function updateSubmission (url, scroll, preset_timeout) {
+function updateSubmission(url, scroll, preset_timeout) {
   $.get(url, function (data) {
     var submissionBox = $("#current-submission");
     submissionBox.html(data);
     var status = submissionBox.find(".status-span.with-icon").attr("data-status");
     if (status == "-3" || status == "-2") {
-      problemUpdateTimeout = setTimeout(function() {
+      problemUpdateTimeout = setTimeout(function () {
         updateSubmission(url, false, (preset_timeout || 500) + 50);
       }, preset_timeout || 500);
     } else {
@@ -192,7 +194,7 @@ function updateSubmission (url, scroll, preset_timeout) {
   });
 }
 
-function updatePastSubmissions () {
+function updatePastSubmissions() {
   var pastSubmissionBox = $("#past-submissions");
   if (pastSubmissionBox.length > 0) {
     $.get(pastSubmissionBox.data("url"), function (data) {
@@ -202,19 +204,18 @@ function updatePastSubmissions () {
   }
 }
 
-function updateProblemTags () {
+function updateProblemTags() {
   var fetch_url = location.href.split('?')[0] + "?onlytag=1";
   $.get(fetch_url, function (data) {
     $("#problem-tags").replaceWith(data);
     $('.ui.selection.dropdown.maximum-5')
-    .dropdown({
-      maxSelections: 5
-    });
+      .dropdown({
+        maxSelections: 5
+      });
   });
 }
 
 $("#problem-submit").click(function (event) {
-  detectLanguage();
   var button = $(event.currentTarget);
   var form = button.closest("form");
   form.removeClass("error");
@@ -239,7 +240,7 @@ $("#problem-submit").click(function (event) {
 
 updatePastSubmissions();
 
-$("a[href='#top']").click(function() {
-  $("html, body").animate({ scrollTop: 0 }, "slow");
+$("a[href='#top']").click(function () {
+  $("html, body").animate({scrollTop: 0}, "slow");
   return false;
 });

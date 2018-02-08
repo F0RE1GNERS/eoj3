@@ -23,7 +23,7 @@
         <div id="editor" style="height: 400px; position: relative"></div>
       </div>
       <div class="ui compact right aligned segment">
-        <div class="ui selection search submit language dropdown">
+        <div style="float:left;" class="ui selection search submit language dropdown">
           <input name="lang" id="id_lang" type="hidden" value="python">
           <i class="dropdown icon"></i>
           <div class="text"></div>
@@ -34,20 +34,10 @@
             <div class="item" data-value="auto">Auto: <span class="detected-lang-name">None</span></div>
           </div>
         </div>
-        {% if contest %}
-        <div style="float:left;">
-          <select class="ui search submit dropdown" name="problem">
-            <option value="">Select Problem</option>
-            {% for contest_problem in contest_problem_list %}
-              <option value="{{ contest_problem.identifier }}"
-                  {% if default_problem == contest_problem.identifier %}selected{% endif %}
-              >{{ contest_problem }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        {% else %}
-          <input name="problem" value="{{ default_problem }}" type="hidden">
-        {% endif %}
+      {% if contest and contest_problem %}
+        <input name="problem" type="hidden" value="{{ contest_problem.identifier }}">
+      {% endif %}
+        <input name="problem" value="{{ default_problem }}" type="hidden">
         <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
            <i class="icon send"></i> Submit
         </button>
@@ -59,7 +49,7 @@
   <div id="current-submission"></div>
 
   {% if contest %}
-    <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id) }}"></div>
+    <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id, contest_problem.identifier) }}"></div>
   {% else %}
     <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
   {% endif %}
