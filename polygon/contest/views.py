@@ -120,26 +120,18 @@ class ContestToggleVisible(PolygonContestMixin, View):
 
 class ContestAccessManage(PolygonContestMixin, View):
     def post(self, request, pk):
-        upload_permission_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
-        for record in self.contest.managers.all():
-            if record.id in upload_permission_set:
-                upload_permission_set.remove(record.id)
-            else:
-                record.delete()
-        for key in upload_permission_set:
+        my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
+        self.contest.managers.clear()
+        for key in my_set:
             self.contest.managers.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
 
 class ContestAuthorsManage(PolygonContestMixin, View):
     def post(self, request, pk):
-        upload_permission_set = set(map(int, filter(lambda x: x, request.POST['author'].split(','))))
-        for record in self.contest.authors.all():
-            if record.id in upload_permission_set:
-                upload_permission_set.remove(record.id)
-            else:
-                record.delete()
-        for key in upload_permission_set:
+        my_set = set(map(int, filter(lambda x: x, request.POST['author'].split(','))))
+        self.contest.authors.clear()
+        for key in my_set:
             self.contest.authors.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
@@ -286,7 +278,7 @@ class ContestParticipantList(PolygonContestMixin, ListView):
     context_object_name = 'participant_list'
 
     def get_queryset(self):
-        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.all()
+        return Contest.objects.get(pk=self.kwargs.get('pk')).contestparticipant_set.select_related('user').all()
 
     def get_context_data(self, **kwargs):
         data = super(ContestParticipantList, self).get_context_data(**kwargs)
@@ -331,12 +323,11 @@ class ContestParticipantCreate(PolygonContestMixin, View):
                 star = False
             password_gen = shortuuid.ShortUUID("23456789ABCDEF")
             password = password_gen.random(8)
-            nickname = names.get_full_name()
             while True:
                 try:
                     username = self._get_username(pk, user_id)
                     email = '%s@fake.ecnu.edu.cn' % username
-                    user = User.objects.create(username=username, email=email, nickname=nickname,
+                    user = User.objects.create(username=username, email=email,
                                                magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
                     user.set_password(password)
                     user.save()

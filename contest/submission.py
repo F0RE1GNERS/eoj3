@@ -141,8 +141,9 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
         data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status", "status_private",
                                                                    "status_private", "create_time", "contest_id",
                                                                    "author_id", "author__username",
-                                                                   "author__nickname", "author__magic"). \
+                                                                   "author__magic"). \
                                       filter(author_id=self.request.user.pk, problem_id=problem)[:20]
+        self.contest.add_contest_problem_to_submissions(data['submission_list'])
         data['view_more'] = True
         return data
 
