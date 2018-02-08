@@ -53,8 +53,8 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       'mode': 'c_cpp', 'name': 'Detecting'
     }
   };
-  const ele = $('.ui.search.dropdown.language');
-  const all_lang = ele.find('.item').map(function () {
+  var ele = $('.ui.search.dropdown.language');
+  var all_lang = ele.find('.item').map(function () {
     return $(this).data('value');
   }).get();
   if (window.localStorage && all_lang.indexOf(localStorage.getItem('lang')) >= 0) {
@@ -70,13 +70,6 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var auto_lang = ele.dropdown('get value') == "auto";
   var detected_lang = "cpp";
 
-  code.on("change", function (event) {
-    editor.getSession().setValue(code.val());
-    _.debounce(detectLanguage, 100);
-  });
-
-  setInterval(detectLanguage(), 1000);
-
   function detectLanguage() {
     detected_lang = detectLang(code.val(), all_lang);
     $('.detected-lang-name').text(map[detected_lang].name);
@@ -87,6 +80,12 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       }
     }
   }
+  var detectLanguageDebouncer = _.debounce(detectLanguage, 100);
+
+  code.on("change", function (event) {
+    editor.getSession().setValue(code.val());
+    detectLanguageDebouncer();
+  });
 
   function updateStorageKey() {
     var problem_val = problem.val();
@@ -143,18 +142,19 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   editor.getSession().on("change", function () {
     var my_code = editor.getSession().getValue();
     code.val(my_code);
+    detectLanguageDebouncer();
     if (window.sessionStorage && code_in_storage_key)
       window.sessionStorage.setItem(code_in_storage_key, my_code);
   });
 
   // paste listener
   document.addEventListener('paste', function (e) {
-    const clipboard = e.clipboardData;
+    var clipboard = e.clipboardData;
     if (!clipboard.items || !clipboard.items.length || $(e.target).attr('class') === "ace_text-input") {
       detectLanguage(true);
       return;
     }
-    const item = clipboard.items[0];
+    var item = clipboard.items[0];
     if (item.kind === "string") {
       item.getAsString(function (str) {
         editor.getSession().setValue(str);

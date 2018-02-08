@@ -15,9 +15,13 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
         if callback:
             callback()
 
-    contest = submission.contest
+    contest = submission.contest or kwargs.get('contest')
     cases = 'all' if contest.status > 0 else contest.run_tests_during_contest
     run_until_complete = contest.scoring_method == 'oi'
+    if not submission.contest:
+        cases = 'all'
+        _callback = None
+
     if cases != 'none':
         judge_submission_on_problem(submission, callback=_callback, case=cases,
                                     status_private=contest.is_frozen, run_until_complete=run_until_complete,

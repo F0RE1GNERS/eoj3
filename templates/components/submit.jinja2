@@ -37,7 +37,6 @@
       {% if contest and contest_problem %}
         <input name="problem" type="hidden" value="{{ contest_problem.identifier }}">
       {% endif %}
-        <input name="problem" value="{{ default_problem }}" type="hidden">
         <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
            <i class="icon send"></i> Submit
         </button>

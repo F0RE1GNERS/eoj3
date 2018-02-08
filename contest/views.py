@@ -151,9 +151,6 @@ class DashboardView(BaseContestMixin, TemplateView):
         for problem in data['contest_problem_list']:
             problem.accept_count = accept_count[problem.problem_id]
 
-        # submit part
-        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
-
         return data
 
 
@@ -166,6 +163,9 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
                                                     identifier=self.kwargs.get('pid'),
                                                     contest=self.contest)
         data['problem'] = data['contest_problem'].problem
+
+        # submit part
+        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
         return data
 
 
