@@ -1,7 +1,13 @@
 {% extends 'contest/base.jinja2' %}
 {% from 'components/problem.jinja2' import problem_view with context %}
+{% from 'components/submit.jinja2' import submit_view with context %}
 {% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
 {% block contest_content %}
   <div class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</div>
   {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
+
+  {% if request.user.is_authenticated %}
+    <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
+  {{ submit_view(submit_action=url('contest:submit', contest.pk, contest_problem.identifier), margin_top=True) }}
+  {% endif %}
 {% endblock %}

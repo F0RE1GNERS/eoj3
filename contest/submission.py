@@ -23,37 +23,32 @@ from .tasks import judge_submission_on_contest
 from .views import BaseContestMixin
 
 
-class ContestSubmit(BaseContestMixin, TemplateView):
-    template_name = 'contest/submit.jinja2'
-
-    def test_func(self):
-        return super(ContestSubmit, self).test_func() and self.user.is_authenticated
-
-    def get_context_data(self, **kwargs):
-        data = super(ContestSubmit, self).get_context_data(**kwargs)
-        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
-        data['default_problem'] = self.request.GET.get('problem', '')
-        return data
-
-    def post(self, request, cid):
+class ContestSubmit(BaseContestMixin, View):
+    def post(self, request, cid, pid):
         try:
-            if self.contest.status != 0:
+            if self.contest.status < 0 and not self.privileged:  # pending contest
                 raise ValueError("Contest is not running.")
             lang = request.POST.get('lang', '')
             if lang not in self.contest.supported_language_list:
                 raise ValueError("Invalid language.")
             try:
-                problem = self.contest.contestproblem_set.get(identifier=request.POST.get('problem', '')).problem_id
+                problem = self.contest.contestproblem_set.get(identifier=pid).problem_id
             except ContestProblem.DoesNotExist:
                 raise ValueError("Invalid problem.")
-            submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
-                                           contest=self.contest, ip=get_ip(request))
-            contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
-            if created and self.contest.public and self.contest.rated:
-                contest_participant.star = True
-                contest_participant.save(update_fields=['star'])
-            if contest_participant.is_disabled:
-                raise ValueError("You have quitted the contest.")
+
+            code = request.POST.get('code', '')
+
+            if self.contest.status != 0:
+                submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
+            else:
+                submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
+                                               contest=self.contest, ip=get_ip(request))
+                contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
+                if created and self.contest.public and self.contest.rated:
+                    contest_participant.star = True
+                    contest_participant.save(update_fields=['star'])
+                if contest_participant.is_disabled:
+                    raise ValueError("You have quitted the contest.")
             judge_submission_on_contest(submission)
             return JsonResponse({"url": reverse('contest:submission_api',
                                                 kwargs={'cid': self.contest.id, 'sid': submission.id})})
@@ -148,12 +143,15 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestMyPastSubmissions, self).get_context_data(**kwargs)
-        data['submission_list'] = self.contest.submission_set.only("problem_id", "id", "status", "status_private",
-                                                                   "status_private", "create_time", "contest_id",
-                                                                   "author_id", "author__username",
-                                                                   "author__magic"). \
-                                      filter(author_id=self.request.user.pk)[:20]
-        self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        try:
+            problem = self.contest.contestproblem_set.get(identifier=kwargs.get('pid')).problem_id
+            data['submission_list'] = Submission.objects.only("problem_id", "id", "status", "status_private",
+                                                              "status_private", "create_time", "contest_id",
+                                                              "author_id", "author__username",
+                                                              "author__magic"). \
+                                          filter(author_id=self.request.user.pk, problem_id=problem)[:15]
+        except ContestProblem.DoesNotExist:
+            data['submission_list'] = []
         data['view_more'] = True
         return data
 
@@ -201,7 +199,7 @@ class ContestMyStatus(ContestStatus):
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
-        if not self.contest.always_running:
+        if not self.contest.always_running and self.contest.status == 0 and not self.privileged:
             return self.contest.submission_set.filter(author=self.user).all()
         else:
             return self.user.submission_set.filter(

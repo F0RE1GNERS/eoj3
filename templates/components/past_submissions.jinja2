@@ -11,9 +11,6 @@
         <th>#</th>
         <th>Sent</th>
         <th>Judged</th>
-        {% if contest %}
-          <th>Problem</th>
-        {% endif %}
         <th>Lang</th>
         <th>Verdict</th>
       {% if show_percent %}
@@ -25,20 +22,16 @@
     <tbody>
       {% for submission in submission_list %}
         <tr>
+        <td>
         {% if not submission.contest_id %}
-          <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a></td>
+          <a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}{% if contest %}*{% endif %}</a>
         {% else %}
-          <td><a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}</a></td>
+          <a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}</a>
         {% endif %}
+
+        </td>
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
-        {% if contest %}
-          {% if submission.contest_problem %}
-            <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
-          {% else %}
-            <td>N/A</td>
-          {% endif %}
-        {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
           <td><h5 class="ui header status-span" data-status="{{ submission.status_private }}"></h5></td>
           {% if show_percent %}

@@ -45,6 +45,8 @@
     "spectre.css": "^0.2.14",
     "typed.js": "^2.0.2",
     "vue": "^2.4.1",
-    "vuedraggable": "^2.14.1"
+    "vuedraggable": "^2.14.1",
+    "underscore": "^1.8.3",
+    "lang-detector": "github:zhouyiran2/lang-detector"
   }
 }

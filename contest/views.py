@@ -15,6 +15,7 @@ from account.permissions import is_admin_or_root, is_volunteer
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager
 from utils.site_settings import is_site_closed
@@ -40,7 +41,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
-        elif self.contest.public:
+        elif self.contest.public or self.contest.status > 0:
             self.registered = True
         else:
             self.registered = False
@@ -162,6 +163,9 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
                                                     identifier=self.kwargs.get('pid'),
                                                     contest=self.contest)
         data['problem'] = data['contest_problem'].problem
+
+        # submit part
+        data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
         return data
 
 
