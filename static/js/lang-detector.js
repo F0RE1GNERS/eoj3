@@ -1,25 +1,25 @@
 /**
- *	The MIT License (MIT)
+ *  The MIT License (MIT)
  *
- *	Copyright (c) 2015 Toni Sučić
+ *  Copyright (c) 2015 Toni Sučić
  *
- *	Permission is hereby granted, free of charge, to any person obtaining a copy
- *	of this software and associated documentation files (the "Software"), to deal
- *	in the Software without restriction, including without limitation the rights
- *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *	copies of the Software, and to permit persons to whom the Software is
- *	furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- *	The above copyright notice and this permission notice shall be included in
- *	all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *	THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  */
 
 /**
@@ -27,10 +27,10 @@
  *  { pattern: /something/, points: 1 }
  * or if the pattern only matches code near the top of a given file:
  *  { pattern: /something/, points: 2, nearTop: true }
- * 
+ *
  * Key: Language name.
  * Value: Array of checkers.
- * 
+ *
  * N.B. An array of checkers shouldn't contain more regexes than
  * necessary as it would inhibit performance.
  *
@@ -47,199 +47,199 @@ var languages = [
     'language': ['js'],
     'checkers': [
       // undefined keyword
-      { pattern: /undefined/g, points: 2 },
+      {pattern: /undefined/g, points: 2},
       // console.log('ayy lmao')
-      { pattern: /console\.log( )*\(/, points: 2 },
+      {pattern: /console\.log( )*\(/, points: 2},
       // Variable declaration
-      { pattern: /(var|const|let)( )+\w+( )*=?/, points: 2 },
+      {pattern: /(var|const|let)( )+\w+( )*=?/, points: 2},
       // Array/Object declaration
-      { pattern: /(('|").+('|")( )*|\w+):( )*[{\[]/, points: 2 },
+      {pattern: /(('|").+('|")( )*|\w+):( )*[{\[]/, points: 2},
       // === operator
-      { pattern: /===/g, points: 1 },
+      {pattern: /===/g, points: 1},
       // !== operator
-      { pattern: /!==/g, points: 1 },
+      {pattern: /!==/g, points: 1},
       // Function definition
-      { pattern: /function\*?(( )+[\$\w]+( )*\(.*\)|( )*\(.*\))/g, points: 1 },
+      {pattern: /function\*?(( )+[\$\w]+( )*\(.*\)|( )*\(.*\))/g, points: 1},
       // null keyword
-      { pattern: /null/g, points: 1 },
+      {pattern: /null/g, points: 1},
       // lambda expression
-      { pattern: /\(.*\)( )*=>( )*.+/, points: 1 },
+      {pattern: /\(.*\)( )*=>( )*.+/, points: 1},
       // (else )if statement
-      { pattern: /(else )?if( )+\(.+\)/, points: 1 },
+      {pattern: /(else )?if( )+\(.+\)/, points: 1},
       // while loop
-      { pattern: /while( )+\(.+\)/, points: 1 },
+      {pattern: /while( )+\(.+\)/, points: 1},
       // C style variable declaration.
-      { pattern: /(^|\s)(char|long|int|float|double)( )+\w+( )*=?/, points: -1 },
+      {pattern: /(^|\s)(char|long|int|float|double)( )+\w+( )*=?/, points: -1},
       // pointer
-      { pattern: /(\w+)( )*\*( )*\w+/, points: -1 },
+      {pattern: /(\w+)( )*\*( )*\w+/, points: -1},
       // HTML <script> tag
-      { pattern: /<(\/)?script( type=('|")text\/javascript('|"))?>/, points: -50 }
+      {pattern: /<(\/)?script( type=('|")text\/javascript('|"))?>/, points: -50}
     ]
   },
   {
     'language': ['cc14', 'cpp', 'c'],
     'checkers': [
       // Primitive variable declaration.
-      { pattern: /(char|long|int|float|double)( )+\w+( )*=?/, points: 2 },
+      {pattern: /(char|long|int|float|double)( )+\w+( )*=?/, points: 2},
       // #include <whatever.h>
-      { pattern: /#include( )*(<|")\w+(\.h)?(>|")/, points: 2, nearTop: true },
+      {pattern: /#include( )*(<|")\w+(\.h)?(>|")/, points: 2, nearTop: true},
       // using namespace something
-      { pattern: /using( )+namespace( )+.+( )*;/, points: 2 },
+      {pattern: /using( )+namespace( )+.+( )*;/, points: 2},
       // template declaration
-      { pattern: /template( )*<.*>/, points: 2 },
+      {pattern: /template( )*<.*>/, points: 2},
       // std
-      { pattern: /std::\w+/g, points: 2 },
+      {pattern: /std::\w+/g, points: 2},
       // cout/cin/endl
-      { pattern: /(cout|cin|endl)/g, points: 2 },
+      {pattern: /(cout|cin|endl)/g, points: 2},
       // Visibility specifiers
-      { pattern: /(public|protected|private):/, points: 2 },
+      {pattern: /(public|protected|private):/, points: 2},
       // nullptr
-      { pattern: /nullptr/, points: 2 },
+      {pattern: /nullptr/, points: 2},
       // new Keyword
-      { pattern: /new \w+(\(.*\))?/, points: 1 },
+      {pattern: /new \w+(\(.*\))?/, points: 1},
       // #define macro
-      { pattern: /#define( )+.+/, points: 1 },
+      {pattern: /#define( )+.+/, points: 1},
       // template usage
-      { pattern: /\w+<\w+>/, points: 1 },
+      {pattern: /\w+<\w+>/, points: 1},
       // class keyword
-      { pattern: /class( )+\w+/, points: 1 },
+      {pattern: /class( )+\w+/, points: 1},
       // void keyword
-      { pattern: /void/g, points: 1 },
+      {pattern: /void/g, points: 1},
       // (else )if statement
-      { pattern: /(else )?if( )*\(.+\)/, points: 1 },
+      {pattern: /(else )?if( )*\(.+\)/, points: 1},
       // while loop
-      { pattern: /while( )+\(.+\)/, points: 1 },
+      {pattern: /while( )+\(.+\)/, points: 1},
       // Scope operator
-      { pattern: /\w*::\w+/, points: 1 },
+      {pattern: /\w*::\w+/, points: 1},
       // Single quote multicharacter string
-      { pattern: /'.{2,}'/, points: -1 },
+      {pattern: /'.{2,}'/, points: -1},
       // Java List/ArrayList
-      { pattern: /(List<\w+>|ArrayList<\w*>( )*\(.*\))(( )+[\w]+|;)/, points: -1 },
+      {pattern: /(List<\w+>|ArrayList<\w*>( )*\(.*\))(( )+[\w]+|;)/, points: -1},
       // malloc function call
-      { pattern: /malloc\(.+\)/, points: 2 },
+      {pattern: /malloc\(.+\)/, points: 2},
       // pointer
-      { pattern: /(\w+)( )*\*( )*\w+/, points: 2 },
+      {pattern: /(\w+)( )*\*( )*\w+/, points: 2},
       // Variable declaration and/or initialisation.
-      { pattern: /(\w+)( )+\w+(;|( )*=)/, points: 1 },
+      {pattern: /(\w+)( )+\w+(;|( )*=)/, points: 1},
       // Array declaration.
-      { pattern: /(\w+)( )+\w+\[.+\]/, points: 1 },
+      {pattern: /(\w+)( )+\w+\[.+\]/, points: 1},
       // NULL constant
-      { pattern: /NULL/, points: 1 },
+      {pattern: /NULL/, points: 1},
       // printf function
-      { pattern: /(printf|puts)( )*\(.+\)/, points: 1 },
+      {pattern: /(printf|puts)( )*\(.+\)/, points: 1},
       // Single quote multicharacter string
-      { pattern: /'.{2,}'/, points: -1 },
+      {pattern: /'.{2,}'/, points: -1},
       // Ignore '\0'
-      { pattern: /'\\0'/, points: 1 },
+      {pattern: /'\\0'/, points: 1},
       // JS variable declaration
-      { pattern: /var( )+\w+( )*=?/, points: -1 }
+      {pattern: /var( )+\w+( )*=?/, points: -1}
     ]
   },
   {
     'language': ['python', 'pypy', 'py2'],
     'checkers': [
       // Function definition
-      { pattern: /def( )+\w+\(.*\)( )*:/, points: 2 },
+      {pattern: /def( )+\w+\(.*\)( )*:/, points: 2},
       // while loop
-      { pattern: /while (.+):/, points: 2 },
+      {pattern: /while (.+):/, points: 2},
       // from library import something
-      { pattern: /from [\w\.]+ import (\w+|\*)/, points: 2 },
+      {pattern: /from [\w\.]+ import (\w+|\*)/, points: 2},
       // class keyword
-      { pattern: /class( )*\w+(\(( )*\w+( )*\))?( )*:/, points: 2 },
+      {pattern: /class( )*\w+(\(( )*\w+( )*\))?( )*:/, points: 2},
       // if keyword
-      { pattern: /if( )+(.+)( )*:/, points: 2 },
+      {pattern: /if( )+(.+)( )*:/, points: 2},
       // elif keyword
-      { pattern: /elif( )+(.+)( )*:/, points: 2 },
+      {pattern: /elif( )+(.+)( )*:/, points: 2},
       // else keyword
-      { pattern: /else:/, points: 2 },
+      {pattern: /else:/, points: 2},
       // for loop
-      { pattern: /for (\w+|\(?\w+,( )*\w+\)?) in (.+):/, points: 2 },
+      {pattern: /for (\w+|\(?\w+,( )*\w+\)?) in (.+):/, points: 2},
       // Python variable declaration.
-      { pattern: /\w+( )*=( )*\w+(?!;)(\n|$)/, points: 1 },
+      {pattern: /\w+( )*=( )*\w+(?!;)(\n|$)/, points: 1},
       // import something
-      { pattern: /import ([[^\.]\w])+/, points: 1, nearTop: true },
+      {pattern: /import ([[^\.]\w])+/, points: 1, nearTop: true},
       // print statement/function
-      { pattern: /print((( )*\(.+\))|( )+.+)/, points: 1 },
+      {pattern: /print((( )*\(.+\))|( )+.+)/, points: 1},
       // &&/|| operators
-      { pattern: /(&{2}|\|{2})/, points: -1 }
+      {pattern: /(&{2}|\|{2})/, points: -1}
     ]
   },
   {
     'language': ['java'],
     'checkers': [
       // System.out.println() etc.
-      { pattern: /System\.(in|out)\.\w+/, points: 2 },
+      {pattern: /System\.(in|out)\.\w+/, points: 2},
       // Class variable declarations
-      { pattern: /(private|protected|public)( )*\w+( )*\w+(( )*=( )*[\w])?/, points: 2 },
+      {pattern: /(private|protected|public)( )*\w+( )*\w+(( )*=( )*[\w])?/, points: 2},
       // Method
-      { pattern: /(private|protected|public)( )*\w+( )*[\w]+\(.+\)/, points: 2 },
+      {pattern: /(private|protected|public)( )*\w+( )*[\w]+\(.+\)/, points: 2},
       // String class
-      { pattern: /(^|\s)(String)( )+[\w]+( )*=?/, points: 2 },
+      {pattern: /(^|\s)(String)( )+[\w]+( )*=?/, points: 2},
       // List/ArrayList
-      { pattern: /(List<\w+>|ArrayList<\w*>( )*\(.*\))(( )+[\w]+|;)/, points: 2 },
+      {pattern: /(List<\w+>|ArrayList<\w*>( )*\(.*\))(( )+[\w]+|;)/, points: 2},
       // class keyword
-      { pattern: /(public( )*)?class( )*\w+/, points: 2 },
+      {pattern: /(public( )*)?class( )*\w+/, points: 2},
       // Array declaration.
-      { pattern: /(\w+)(\[( )*\])+( )+\w+/, points: 2 },
+      {pattern: /(\w+)(\[( )*\])+( )+\w+/, points: 2},
       // final keyword
-      { pattern: /final( )*\w+/, points: 2 },
+      {pattern: /final( )*\w+/, points: 2},
       // getter & setter
-      { pattern: /\w+\.(get|set)\(.+\)/, points: 2 },
+      {pattern: /\w+\.(get|set)\(.+\)/, points: 2},
       // new Keyword (Java)
-      { pattern: /new [A-Z]\w*( )*\(.+\)/, points: 2 },
+      {pattern: /new [A-Z]\w*( )*\(.+\)/, points: 2},
       // C style variable declaration.
-      { pattern: /(^|\s)(char|long|int|float|double)( )+[\w]+( )*=?/, points: 1 },
+      {pattern: /(^|\s)(char|long|int|float|double)( )+[\w]+( )*=?/, points: 1},
       // extends/implements keywords
-      { pattern: /(extends|implements)/, points: 2, nearTop: true },
+      {pattern: /(extends|implements)/, points: 2, nearTop: true},
       // null keyword
-      { pattern: /null/g, points: 1 },
+      {pattern: /null/g, points: 1},
       // (else )if statement
-      { pattern: /(else )?if( )*\(.+\)/, points: 1 },
+      {pattern: /(else )?if( )*\(.+\)/, points: 1},
       // while loop
-      { pattern: /while( )+\(.+\)/, points: 1 },
+      {pattern: /while( )+\(.+\)/, points: 1},
       // void keyword
-      { pattern: /void/g, points: 1 },
+      {pattern: /void/g, points: 1},
       // const
-      { pattern: /const( )*\w+/, points: -1 },
+      {pattern: /const( )*\w+/, points: -1},
       // pointer
-      { pattern: /(\w+)( )*\*( )*\w+/, points: -1 },
+      {pattern: /(\w+)( )*\*( )*\w+/, points: -1},
       // Single quote multicharacter string
-      { pattern: /'.{2,}'/, points: -1 },
+      {pattern: /'.{2,}'/, points: -1},
       // C style include
-      { pattern: /#include( )*(<|")\w+(\.h)?(>|")/, points: -1, nearTop: true }
+      {pattern: /#include( )*(<|")\w+(\.h)?(>|")/, points: -1, nearTop: true}
     ]
   },
   {
     'language': ['php'],
     'checkers': [
       // PHP tag
-      { pattern: /<\?php/, points: 2 },
+      {pattern: /<\?php/, points: 2},
       // PHP style variables.
-      { pattern: /\$\w+/, points: 2 },
+      {pattern: /\$\w+/, points: 2},
       // use Something\Something
-      { pattern: /use( )+\w+(\\\w+)+( )*;/, points: 2, nearTop: true },
+      {pattern: /use( )+\w+(\\\w+)+( )*;/, points: 2, nearTop: true},
       // arrow
-      { pattern: /\$\w+\->\w+/, points: 2 },
+      {pattern: /\$\w+\->\w+/, points: 2},
       // require/include
-      { pattern: /(require|include)(_once)?( )*\(?( )*('|").+\.php('|")( )*\)?( )*;/, points: 2 },
+      {pattern: /(require|include)(_once)?( )*\(?( )*('|").+\.php('|")( )*\)?( )*;/, points: 2},
       // echo 'something'
-      { pattern: /echo( )+('|").+('|")( )*;/, points: 1 },
+      {pattern: /echo( )+('|").+('|")( )*;/, points: 1},
       // NULL constant
-      { pattern: /NULL/, points: 1 },
+      {pattern: /NULL/, points: 1},
       // new keyword
-      { pattern: /new( )+((\\\w+)+|\w+)(\(.*\))?/, points: 1 },
+      {pattern: /new( )+((\\\w+)+|\w+)(\(.*\))?/, points: 1},
       // Function definition
-      { pattern: /function(( )+[\$\w]+\(.*\)|( )*\(.*\))/g, points: 1 },
+      {pattern: /function(( )+[\$\w]+\(.*\)|( )*\(.*\))/g, points: 1},
       // (else)if statement
-      { pattern: /(else)?if( )+\(.+\)/, points: 1 },
+      {pattern: /(else)?if( )+\(.+\)/, points: 1},
       // scope operator
-      { pattern: /\w+::\w+/, points: 1 },
+      {pattern: /\w+::\w+/, points: 1},
       // === operator
-      { pattern: /===/g, points: 1 },
+      {pattern: /===/g, points: 1},
       // !== operator
-      { pattern: /!==/g, points: 1 },
+      {pattern: /!==/g, points: 1},
       // C/JS style variable declaration.
-      { pattern: /(^|\s)(var|char|long|int|float|double)( )+\w+( )*=?/, points: -1 }
+      {pattern: /(^|\s)(var|char|long|int|float|double)( )+\w+( )*=?/, points: -1}
     ]
   },
   {
@@ -277,45 +277,47 @@ var languages = [
     'checkers': [],
     'disabled': true
   }
-]
+];
 
-function detectLang (snippet, all_lang) {
+function detectLang(snippet, all_lang) {
   var linesOfCode = snippet
     .replace(/\r\n?/g, '\n')
     .replace(/\n{2,}/g, '\n')
-    .split('\n')
+    .split('\n');
 
-  function nearTop (index) {
+  function nearTop(index) {
     if (linesOfCode.length <= 10) {
-      return true
+      return true;
     }
-    return index < linesOfCode.length / 10
+    return index < linesOfCode.length / 10;
   }
 
-  function getPoints (language, lineOfCode, checkers) {
+  function getPoints(language, lineOfCode, checkers) {
     return _.reduce(_.map(checkers, function (checker) {
       if (checker.pattern.test(lineOfCode)) {
-        return checker.points
+        return checker.points;
       }
-      return 0
+      return 0;
     }), function (memo, num) {
-      return memo + num
+      return memo + num;
     }, 0)
   }
 
   if (linesOfCode.length > 500) {
-    var block = Math.ceil(linesOfCode.length / 500)
+    var block = Math.ceil(linesOfCode.length / 500);
     linesOfCode = linesOfCode.filter(function (lineOfCode, index) {
       if (nearTop(index)) {
-        return true
+        return true;
       }
-      return index % block === 0
+      return index % block === 0;
     })
   }
 
-  var results = _.map(languages.filter(function (lang) { return !lang.disabled; }), function (lang) {
-    var language = lang.language
-    var checkers = lang.checkers
+  var results = _.map(languages.filter(function (lang) {
+    return !lang.disabled;
+  }), function (lang) {
+    var language = lang.language;
+    var checkers = lang.checkers;
     var pointsList = linesOfCode.map(function (lineOfCode, index) {
       if (!nearTop(index)) {
         return getPoints(language, lineOfCode, _.reject(checkers, function (checker) {
@@ -324,26 +326,26 @@ function detectLang (snippet, all_lang) {
       } else {
         return getPoints(language, lineOfCode, checkers)
       }
-    })
+    });
 
     var points = _.reduce(pointsList, function (memo, num) {
       return memo + num
-    })
+    });
 
-    return { language: language, points: points }
-  })
+    return {language: language, points: points}
+  });
 
-  var max = -1e9
-  var detected_lang = 'auto'
-  for (var result of results) {
-	if(result.points <= max) continue
-    for (var lang of result.language) {
+  var max = -1e9;
+  var detected_lang = 'auto';
+  for (var result in results) {
+    if (result.points <= max) continue;
+    for (var lang in result.language) {
       if ($.inArray(lang, all_lang) != -1) {
-        max = result.points
-		detected_lang = lang
-		break
+        max = result.points;
+        detected_lang = lang;
+        break;
       }
     }
   }
-  return detected_lang
+  return detected_lang;
 }
