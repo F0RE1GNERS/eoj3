@@ -47,6 +47,5 @@
     "vue": "^2.4.1",
     "vuedraggable": "^2.14.1",
     "underscore": "^1.8.3",
-    "lang-detector": "github:zhouyiran2/lang-detector"
   }
 }
