@@ -16,6 +16,8 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
             callback()
 
     contest = submission.contest or kwargs.get('contest')
+    if contest is None:
+        raise ValueError('Judge on "None" contest')
     cases = 'all' if contest.status > 0 else contest.run_tests_during_contest
     run_until_complete = contest.scoring_method == 'oi'
     if not submission.contest:

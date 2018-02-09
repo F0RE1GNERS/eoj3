@@ -39,7 +39,7 @@ class ContestSubmit(BaseContestMixin, View):
             code = request.POST.get('code', '')
 
             if self.contest.status != 0:
-                submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
+                submission = create_submission(problem, self.user, code, lang, ip=get_ip(request), contest=self.contest)
             else:
                 submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
                                                contest=self.contest, ip=get_ip(request))
