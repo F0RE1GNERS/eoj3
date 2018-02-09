@@ -40,6 +40,8 @@ class ContestSubmit(BaseContestMixin, View):
 
             if self.contest.status != 0:
                 submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
+                response = {"url": reverse('problem:submission_api',
+                                           kwargs={'pk': problem, 'sid': submission.id})}
             else:
                 submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
                                                contest=self.contest, ip=get_ip(request))
@@ -49,9 +51,10 @@ class ContestSubmit(BaseContestMixin, View):
                     contest_participant.save(update_fields=['star'])
                 if contest_participant.is_disabled:
                     raise ValueError("You have quitted the contest.")
+                response = {"url": reverse('contest:submission_api',
+                                           kwargs={'cid': self.contest.id, 'sid': submission.id})}
             judge_submission_on_contest(submission, contest=self.contest)
-            return JsonResponse({"url": reverse('contest:submission_api',
-                                                kwargs={'cid': self.contest.id, 'sid': submission.id})})
+            return JsonResponse(response)
         except Exception as e:
             return HttpResponseBadRequest(str(e).encode())
 
