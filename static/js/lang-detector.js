@@ -337,9 +337,9 @@ function detectLang(snippet, all_lang) {
 
   var max = -1e9;
   var detected_lang = 'auto';
-  for (var result in results) {
+  for (var result of results) {
     if (result.points <= max) continue;
-    for (var lang in result.language) {
+    for (var lang of result.language) {
       if ($.inArray(lang, all_lang) != -1) {
         max = result.points;
         detected_lang = lang;
