@@ -136,6 +136,7 @@ TEMPLATES = [
                 "myFilter6": "utils.jinja2.filters.get_intro",
                 "myFilter7": "utils.jinja2.filters.n2br",
                 "myFilter8": "utils.jinja2.filters.xss_filter",
+                "myFilter9": "utils.jinja2.filters.natural_duration",
             },
             "tests": {
                 "myTest": "utils.jinja2.tests.is_admin",

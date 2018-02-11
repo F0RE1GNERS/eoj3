@@ -1,5 +1,6 @@
 import re
 
+import datetime
 from django_jinja import library
 from submission.models import STATUS_CHOICE
 import utils.markdown3 as md3
@@ -86,3 +87,27 @@ def xss_filter(value):
     parser.feed(str(value))
     parser.close()
     return parser.getHtml()
+
+
+@library.filter(name='naturalduration')
+def natural_duration(value, abbr=True):
+    if not abbr:
+        DAY, HOUR, MINUTE, SECOND = ' day(s)', ' hour(s)', ' minute(s)', ' second(s)'
+    else:
+        DAY, HOUR, MINUTE, SECOND = 'd.', 'h.', 'm.', 's.'
+    if isinstance(value, datetime.timedelta):
+        if value.days > 0:
+            if round(value.seconds / 3600) > 0:
+                return '%d%s %d%s' % (value.days, DAY, round(value.seconds / 3600), HOUR)
+            else: return '%d%s' % (value.days, DAY)
+        else:
+            value = value.total_seconds()
+    assert isinstance(value, (int, float))
+    if value > 3600:
+        if round(value % 3600 // 60) > 0:
+            return '%d%s %d%s' % (value // 3600, HOUR, round(value % 3600 // 60), MINUTE)
+        else: return '%d%s' % (value // 3600, HOUR)
+    else:
+        if value % 60 > 0:
+            return '%d%s %d%s' % (value // 60, MINUTE, value % 60, SECOND)
+        else: return '%d%s' % (value // 60, MINUTE)

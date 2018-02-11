@@ -151,6 +151,8 @@ class DashboardView(BaseContestMixin, TemplateView):
         for problem in data['contest_problem_list']:
             problem.accept_count = accept_count[problem.problem_id]
 
+        data['authors'] = self.contest.authors.all()
+
         return data
 
 

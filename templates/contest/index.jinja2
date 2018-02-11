@@ -1,25 +1,43 @@
 {% extends 'contest/base.jinja2' %}
 {% from 'components/modal.jinja2' import modal %}
 {% from 'contest/standings_snippet.jinja2' import display_rank, display_rank_head with context %}
+{% from 'components/timeanddate_link.jinja2' import timeanddate_link %}
+
+{% macro separator() %}
+  <div class="ui hidden divider"></div>
+{% endmacro %}
 
 {% block contest_content %}
 
   {% include 'components/message.jinja2' %}
 
-  {% if not registered %}
+  {% if not registered and contest.status <= 0 %}
+    {# private contest registration #}
     <div>
-      <p>This contest is private. Please enter the invitation code. The invitation code will be bound to your account.</p>
+      <h3 class="ui header">
+        <i class="privacy icon"></i>
+        <div class="content">
+          Permission Notice
+          <div class="sub header">This contest is private. You can either</div>
+        </div>
+      </h3>
+      <ul class="ui list">
+        <li class="item">Enter a valid invitation code to join the contest, OR</li>
+        <li class="item">Re-login with the given account.</li>
+      </ul>
       <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
         {% csrf_token %}
-        <div class="ui action input">
-          <input type="text" name="code" placeholder="Invitation code...">
-          <button type="submit" class="ui button">OK</button>
+        <div class="ui action fluid input">
+          <input type="text" name="code" placeholder="If you have an invitation code..." style="font-family:monospace">
+          <button type="submit" class="ui button">Join the contest</button>
         </div>
       </form>
     </div>
+    {{ separator() }}
   {% endif %}
 
   {% if (public_register == -1 or public_register == 1) and not has_permission %}
+    {# public rated contest registration #}
     <div class="ui info message">
       <div class="header">
         Rated contest requires registration.
@@ -41,9 +59,12 @@
       <button class="fluid ui red button">Cancel my registration</button>
     </form>
     {% endif %}
+    {{ separator() }}
   {% else %}
 
   {% if has_permission %}
+
+    {# proble list #}
     <table class="ui unstackable celled table">
       <thead>
         <tr class="center aligned">
@@ -73,8 +94,11 @@
       </tbody>
     </table>
 
+    {{ separator() }}
+
+    {# personal score #}
+
     {% if rank %}
-      <div class="ui hidden divider"></div>
       <h3 class="ui header">
         <i class="student icon"></i>
         <div class="content">
@@ -100,10 +124,11 @@
           </tr>
         </tbody>
       </table>
+
+      {{ separator() }}
     {% endif %}
 
-    <div class="ui hidden divider"></div>
-
+    {# clarification #}
     <h3 class="ui header">
       <i class="help circle icon"></i>
       <div class="content">
@@ -157,6 +182,8 @@
       </tfoot>
     </table>
 
+    {{ separator() }}
+
     {% call modal(clarification_modal_name, action=url('contest:clarification', contest.pk), id="clarificationModal") %}
       {% csrf_token %}
       <div class="field">
@@ -172,14 +199,153 @@
       </div>
     {% endcall %}
 
-  {% else %}
-
-    <h2 class="ui center aligned disabled icon header" style="margin-top: 5em;">
-      <i class="ban icon"></i>
-      Content Not Available
-    </h2>
-
   {% endif %}
+  {% endif %}
+
+  {# score distribution (for rated contest and scoring contest) #}
+  {% if contest.rated and (contest.scoring_method == 'cf' or contest.scoring_method == 'oi') %}
+    <h3 class="ui header">
+      <i class="bar chart icon"></i>
+      <div class="content">
+        Point Values
+      </div>
+    </h3>
+    <p>This will be a <b>rated</b> contest and here are the points for each problem:</p>
+    <div class="ui grid">
+      <div class="sixteen wide mobile twelve wide tablet eight wide computer column">
+        <table class="ui unstackable center aligned striped celled table">
+          <thead>
+            <tr>
+              <th>Task</th><th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for problem in contest_problem_list %}
+            <tr>
+              <td>{{ problem.identifier }}</td>
+              <td>{{ problem.weight }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>Information above are not guaranteed to stay unchanged before the contest.</p>
+    </div>
+
+
+    {{ separator() }}
+  {% endif %}
+
+  {# contest information (always public) #}
+
+  <h3 class="ui header">
+    <i class="info circle icon"></i>
+    <div class="content">
+      Contest Information and Rules
+      <div class="sub header">Read this carefully</div>
+    </div>
+  </h3>
+
+  <ul class="ui list">
+    <li class="item">
+    {% if authors %}
+      Contest Authors: {% for author in authors %}{{ username_display(author) }}{% if not loop.last %},{% endif %} {% endfor %}
+    {% else %}
+      Contest authors have not been disclosed yet.
+    {% endif %}
+    </li>
+    <li class="item">
+      Contest Access: {% if contest.public %}<b>Public</b>{% else %}<b>Private</b>{% endif %}
+    </li>
+    {% if contest.always_running %}
+      <li class="item">
+        Contest Duration: <b>Always Running</b>
+      </li>
+    {% else %}
+      <li class="item">
+        Contest Duration: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
+      </li>
+      <li class="item">
+        Start time: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
+      </li>
+    {% endif %}
+    {% if contest.freeze %}
+      <li class="item">
+        Standings frozen after {{ contest.freeze_time | date('Y-m-d H:i:s') }} ({{ contest.freeze_time | naturaltime }}).
+      </li>
+    {% endif %}
+    <li class="item">
+      Supported languages: {{ contest.verbose_supported_language_list }}.
+    </li>
+    <li class="item">
+      {% if contest.scoring_method == 'acm' %}
+      Based on traditional ACM-ICPC scoring method. Contestants are ranked according to the most problems solved. Contestants who solve the same number of problems are ranked by penalty, if penalty is calculated.
+      {% elif contest.scoring_method == 'oi' %}
+      Based on COI (Chinese OI) scoring method. All test cases will be judged. Contestant's score on a single problem will be determined by the percentage of <b>weighted</b> sum of all passed test cases. The sum score is simply the <b>weighted</b> sum of score that is earned in each problem.
+      {% elif contest.scoring_method == 'cf' %}
+      Scoring rule of this contest is very similar to <a href="http://codeforces.com/">Codeforces</a> regular round. Basically, When you solve a problem, you get a score assigned to it. This score drops as time goes by. It will be half the score when the contest ends. 50 points will be lost for each rejected solutions. At least 0.3 times the original score will be earned if the problem is successfully solved at the end.
+      {% endif %}
+    </li>
+    <li class="item">
+      {% if contest.run_tests_during_contest == 'all' %}
+      This contest is full-feedback (solutions are fully judged during the contest).
+      {% elif contest.run_tests_during_contest == 'pretest' %}
+      Only pretests will be judged during the contest. There will be system tests after the contest.
+      {% elif contest.run_tests_during_contest == 'sample' %}
+      Only samples will be judged during the contest. There will be system tests after the contest.
+      {% else %}
+      All solutions will not be judged until the contest ends.
+      {% endif %}
+    </li>
+    <li class="item">
+      {% if contest.allow_code_share == 0 %}
+      Codes are not shared under any circumstances.
+      {% elif contest.allow_code_share == 1 %}
+      Certain codes are available <b>after</b> the contest, if you have solved the problem.
+      {% elif contest.allow_code_share == 2 %}
+      All codes go public after the contest.
+      {% else %}
+      Certain codes are available <b>during</b> the contest, if you have solved the problem.
+      {% endif %}
+    </li>
+    <li class="item">
+      {% if contest.last_counts %}
+        Your <b>latest</b> submission will be scored.
+      {% else %}
+        Your <b>best-scored</b> submission will be scored.
+      {% endif %}
+    </li>
+    <li class="item">
+      {% if contest.penalty_counts %}
+        Penalty will determine the rank among participants with the same score. The total penalty is the sum of the time consumed for each problem solved. The time consumed for a solved problem is the time elapsed from the beginning of the contest to the submittal of the accepted run plus 20 penalty minutes for every rejected run for that problem regardless of submittal time. There is no time consumed for a problem that is not solved.
+      {% else %}
+        Penalty will not be calculated.
+      {% endif %}
+    </li>
+    {% if contest.standings_disabled %}
+      <li class="item">Standings are closed now.</li>
+    {% endif %}
+  </ul>
+  {{ separator() }}
+
+  {% if contest.rated %}
+  {% endif %}
+
+  {# annoucement #}
+
+  {% if contest.description %}
+    <h3 class="ui header">
+      <i class="annoucnment icon"></i>
+      <div class="content">
+        Announcement
+        <div class="sub header">Contest writer has something to say</div>
+      </div>
+    </h3>
+
+    {{ contest.description | markdown | safe }}
+
+    {{ separator() }}
+
   {% endif %}
 
 
