@@ -14,7 +14,7 @@ def home_view(request):
     if request.user.is_authenticated:
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', ''),
-               'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:15]}
+               'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10]}
         if not is_site_closed():
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
