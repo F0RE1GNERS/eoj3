@@ -73,6 +73,7 @@
           </th>
         {% endfor %}
       </tr>
+      {% if not contest.always_running %}
       <tr>
         <th colspan="{{ first_column_span }}">First Yes</th>
         {% for problem in contest.contest_problem_list %}
@@ -83,6 +84,7 @@
           {% endif %}</th>
         {% endfor %}
       </tr>
+      {% endif %}
     </tfoot>
   {% endif %}
   </table>

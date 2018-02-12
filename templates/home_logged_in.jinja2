@@ -33,6 +33,35 @@
         </div>
       </div>
 
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Top-Rated Users</div>
+        </div>
+        <div class="content">
+          <table class="ui very basic celled very compact center aligned table">
+            <thead>
+              <tr>
+                <th class="ten wide">Username</th>
+                <th class="six wide">Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for rating_user in global_rating %}
+              <tr>
+                <td>{{ username_display(rating_user) }}</td>
+                <td><a href="{{ url('contest:rating') }}?q={{ rating_user.pk }}">{{ rating_user.rating }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="extra content right aligned">
+          <a href="{{ url('contest:rating') }}?full=1">
+            <i class="user icon"></i> See full list here
+          </a>
+        </div>
+      </div>
+
       {{ profile_card(request.user, solved) }}
 
       {% if comment_list %}

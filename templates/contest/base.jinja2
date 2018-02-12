@@ -80,6 +80,35 @@
               </div>
             </div>
           </div>
+
+          {% if contest.status == 0 and contest.rated and contest.scoring_method == 'cf' %}
+            <div class="ui segments">
+              <div class="ui segment">
+                <h3 class="ui center aligned header">Scoring</h3>
+              </div>
+              <div class="ui segment">
+                <table class="ui very basic celled very compact center aligned table">
+                  <thead>
+                    <tr>
+                      <th>Problem</th>
+                      <th>Worth</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for contest_problem in contest_problem_list %}
+                    <tr>
+                      <td>{{ contest_problem.identifier }}</td>
+                      <td>{{ (contest_problem.weight * (1 + remaining_percent) / 2) | round | int }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="ui bottom attached tiny info message">
+                This shows the values you earned if you solve the problem right now.
+              </div>
+            </div>
+          {% endif %}
         {% endif %}
 
       </div>

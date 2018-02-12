@@ -73,9 +73,11 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
                 data['time_remaining'] = (self.contest.start_time - data['current_time']).total_seconds()
             elif data['contest_status'] == 0:
                 data['time_remaining'] = (self.contest.end_time - data['current_time']).total_seconds()
-            data['time_all'] = 0
+            data['time_all'], data['remaining_percent'] = 0, 0
             if data['contest_status'] == 0:
                 data['time_all'] = (self.contest.end_time - self.contest.start_time).total_seconds()
+                if data['time_all'] > 0:
+                    data['remaining_percent'] = data['time_remaining'] / data['time_all']
         data['contest_problem_list'] = self.contest.contest_problem_list
         data['has_permission'] = self.test_func()
         data['is_privileged'] = self.privileged

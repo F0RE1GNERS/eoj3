@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from django_comments_xtd.models import XtdComment
 
+from account.models import User
 from blog.models import Blog
 from submission.statistics import get_accept_problem_count
 from utils.site_settings import is_site_closed, site_settings_get
@@ -12,7 +13,8 @@ from utils.site_settings import is_site_closed, site_settings_get
 def home_view(request):
     if request.user.is_authenticated:
         ctx = {'solved': get_accept_problem_count(request.user.pk),
-               'bulletin': site_settings_get('BULLETIN', '')}
+               'bulletin': site_settings_get('BULLETIN', ''),
+               'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:15]}
         if not is_site_closed():
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
