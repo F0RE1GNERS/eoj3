@@ -124,18 +124,18 @@ def _process(contestants):
     for contestant in contestants:
         mid_rank = sqrt(contestant.rank * contestant.seed)
         contestant.need_rating = _get_rating_to_rank(contestants, mid_rank)
-        contestant.delta = (contestant.need_rating - contestant.rating) // 2
+        contestant.delta = int((contestant.need_rating - contestant.rating) / 2)
 
     _sort_by_rating_desc(contestants)
 
     sum_delta = sum(map(lambda c: c.delta, contestants))
-    inc = -sum_delta // len(contestants) - 1
+    inc = -int(sum_delta / len(contestants)) - 1
     for contestant in contestants:
         contestant.delta += inc
 
     zero_sum_count = min(int(4 * round(sqrt(len(contestants)))), len(contestants))
     sum_delta = sum(map(lambda c: c.delta, contestants[:zero_sum_count]))
-    inc = min(max(-sum_delta // zero_sum_count, -10), 0)
+    inc = min(max(-int(sum_delta / zero_sum_count), -10), 0)
     for contestant in contestants:
         contestant.delta += inc
 
