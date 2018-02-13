@@ -98,13 +98,13 @@ def _sort_by_rating_desc(contestants: list):
 def _reassign_ranks(contestants: list):
     _sort_by_points_desc(contestants)
     for contestant in contestants:
-        contestant.rank = 0
+        contestant.rank = 0.0
         contestant.delta = 0
     first = 0
     for i in range(1, len(contestants)):
         if contestants[i].points < contestants[first].points:
             for j in range(first, i):
-                contestants[j].rank = i
+                contestants[j].rank = float(i)
             first = i
 
     rank = float(len(contestants))
@@ -149,6 +149,7 @@ def _validate_deltas(contestants):
             if contestants[i].rating > contestants[j].rating:
                 if contestants[i].rating + contestants[i].delta < contestants[j].rating + contestants[j].delta:
                     raise ValueError("First rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
+            elif contestants[i].rating < contestants[j].rating:
                 if contestants[i].delta < contestants[j].delta:
                     raise ValueError(
                         "Second rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
