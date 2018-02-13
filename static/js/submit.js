@@ -46,7 +46,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     'rs': {
       'mode': 'rust', 'name': 'Rust'
     },
-    'scale': {
+    'scala': {
       'mode': 'scala', 'name': 'Scala'
     },
     'auto': {
@@ -121,7 +121,6 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   lang.on("change", function (event) {
     if (ignore_change) {
       ignore_change = false;
-      console.log("remove");
       return;
     }
     detectLanguage();
@@ -216,6 +215,7 @@ function updateProblemTags() {
 }
 
 $("#problem-submit").click(function (event) {
+  detectLanguage();
   var button = $(event.currentTarget);
   var form = button.closest("form");
   form.removeClass("error");
