@@ -146,10 +146,9 @@ def _validate_deltas(contestants):
     _sort_by_points_desc(contestants)
     for i in range(len(contestants)):
         for j in range(i + 1, len(contestants)):
-            if contestants[i].rating > contestants[j].rating and \
-                                    contestants[i].rating + contestants[i].delta >= contestants[j].rating + contestants[j].delta:
-                raise ValueError("First rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
-            if contestants[i].rating < contestants[j].rating and \
-                            contestants[i].delta >= contestants[j].delta:
-                raise ValueError(
-                    "Second rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
+            if contestants[i].rating > contestants[j].rating:
+                if contestants[i].rating + contestants[i].delta < contestants[j].rating + contestants[j].delta:
+                    raise ValueError("First rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
+                if contestants[i].delta < contestants[j].delta:
+                    raise ValueError(
+                        "Second rating invariant failed: %d vs. %d." % (contestants[i].user, contestants[j].user))
