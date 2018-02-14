@@ -12,3 +12,9 @@ def file_hash(file, lang):
     hash1 = hashlib.sha256(open(file, 'rb').read()).digest()
     hash2 = hashlib.sha256(lang.encode()).digest()
     return hashlib.sha256(hash1 + hash2).hexdigest()
+
+
+def sha_hash(x):
+    if not isinstance(x, bytes):
+        x = str(x).encode()
+    return hashlib.sha256(x).hexdigest()

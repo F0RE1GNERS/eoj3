@@ -1,6 +1,7 @@
 from django import forms
 from tagging.models import Tag
 
+from polygon.models import Statement, Revision, Program, Case, Asset
 from problem.models import Problem
 from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 
@@ -41,3 +42,51 @@ class ProblemEditForm(forms.ModelForm):
         if ',' not in cleaned_data['tags']:
             cleaned_data['tags'] = "\"%s\"" % cleaned_data['tags']
         return cleaned_data
+
+
+class RevisionUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Revision
+        fields = ['time_limit', 'memory_limit', 'alias', 'well_form_policy']
+
+
+class StatementUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Statement
+        exclude = ['create_time', 'update_time', 'activated']
+        widgets = {
+            'description': forms.Textarea(attrs={'class': 'markdown'}),
+            'input': forms.Textarea(attrs={'class': 'markdown'}),
+            'output': forms.Textarea(attrs={'class': 'markdown'}),
+            'hint': forms.Textarea(attrs={'class': 'markdown'}),
+        }
+
+
+class ProgramUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Program
+        fields = ["name", "lang", "code", "tag"]
+
+
+class CaseCreateForm(forms.Form):
+    option = forms.ChoiceField(choices=[
+        ('batch', 'Upload a zip archive'),
+        ('single', 'Upload input file (and output file)'),
+        ('gen', 'Generate cases',)])
+    input_file = forms.FileField(required=False)
+    output_file = forms.FileField(required=False)
+    batch_file = forms.FileField(required=False)
+    gen_command = forms.CharField(widget=forms.Textarea())
+
+
+class CaseUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Case
+        fields = ["in_samples", "in_pretests", "in_tests", "output_lock",
+                  "description", "case_number", "activated"]
+
+
+class AssetUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Asset
+        fields = ["name", "file"]
