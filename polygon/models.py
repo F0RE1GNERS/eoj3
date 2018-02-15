@@ -148,6 +148,7 @@ class Revision(models.Model):
     statements = models.ManyToManyField(Statement)
     programs = models.ManyToManyField(Program)
     cases = models.ManyToManyField(Case)
+    assets = models.ManyToManyField(Asset)
     messages = models.TextField(default='[]')  # json
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
