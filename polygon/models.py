@@ -43,25 +43,28 @@ class NameValidator(RegexValidator):
 
 class AliasValidator(RegexValidator):
     regex = r'^[a-z0-9]{2,30}$'
-    message = _(
-        'Enter a valid alias. Use letters and digits only.'
-    )
+    message = 'Enter a valid alias. Use letters and digits only.'
 
 
 class Statement(models.Model):
+    """
+    Statement: read only (create a new one when modified)
+    """
     name = models.CharField(validators=[NameValidator()], max_length=24, default='default')
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
     input = models.TextField(blank=True)
     output = models.TextField(blank=True)
     hint = models.TextField(blank=True)
-    readonly = models.BooleanField(default=False)
     activated = models.BooleanField(default=False)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
 
 class Asset(models.Model):
+    """
+    Asset: read only (create a new one when modified)
+    """
     name = models.CharField(validators=[NameValidator()], max_length=24)
     file = models.FileField(upload_to='assets/%Y%m%d/', storage=repo_storage)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -69,6 +72,9 @@ class Asset(models.Model):
 
 
 class Program(models.Model):
+    """
+    Program: read only (create a new one when modified)
+    """
     LANG_CHOICES = (
         ('cpp', 'C++'),
         ('java', 'Java'),
@@ -105,6 +111,10 @@ class Program(models.Model):
 
 
 class Case(models.Model):
+    """
+    Case: create a new one when modified (without duplicated in and out)
+    If input and output are modified, then create new file for input and output
+    """
     fingerprint = models.CharField(max_length=64, default='invalid')
     input_file = models.FileField(upload_to='cases/%Y%m%d/', storage=repo_storage)
     output_file = models.FileField(upload_to='cases/%Y%m%d/', storage=repo_storage)
@@ -125,7 +135,14 @@ class Case(models.Model):
 
 
 class Revision(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+
+    STATUS_CHOICE = (
+        (-1, 'Discarded'),
+        (0, 'Undergoing'),
+        (1, 'Done')
+    )
+
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='revisions')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     revision = models.PositiveIntegerField()
     statements = models.ManyToManyField(Statement)
@@ -138,4 +155,8 @@ class Revision(models.Model):
     memory_limit = models.PositiveIntegerField(default=256)
     alias = models.CharField(max_length=64, validators=[AliasValidator()])
     well_form_policy = models.BooleanField(default=True)
+    status = models.IntegerField(choices=STATUS_CHOICE, default=0)
+    parent_id = models.IntegerField(default=0)
+
+    # when a revision is done, making changes will create a new revision
 
