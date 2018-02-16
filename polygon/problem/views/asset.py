@@ -1,10 +1,12 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from polygon.problem.forms import AssetUpdateForm
+from polygon.models import Asset
+from polygon.problem.forms import AssetUpdateForm, AssetRenameForm
 from polygon.problem.views.base import ProblemRevisionMixin
 
 
@@ -20,18 +22,49 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
     form_class = AssetUpdateForm
 
     def get_success_url(self):
-        return reverse('polygon:asset_list', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+        return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.revision.assets.add(self.object)
+        return super().form_valid(form)
 
 
 class AssetUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = AssetUpdateForm
 
     def get_success_url(self):
-        return reverse('polygon:asset_list', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+        return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get_object(self, queryset=None):
-        return self.revision.assets.get(pk=self.kwargs['apk'])
+        try:
+            return self.revision.assets.get(pk=self.kwargs['apk'])
+        except Asset.DoesNotExist:
+            raise Http404("No assets found matching the query")
 
     def form_valid(self, form):
-        self.object.id = None
+        self.revision.assets.remove(self.object)
+        form.instance.pk = None
+        self.object = form.save()
+        self.revision.assets.add(self.object)
+        return super().form_valid(form)
+
+
+class AssetRenameView(ProblemRevisionMixin, UpdateView):
+    form_class = AssetRenameForm
+
+    def get_success_url(self):
+        return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+
+    def get_object(self, queryset=None):
+        try:
+            return self.revision.assets.get(pk=self.kwargs['apk'])
+        except Asset.DoesNotExist:
+            raise Http404("No assets found matching the query")
+
+    def form_valid(self, form):
+        self.revision.assets.remove(self.object)
+        form.instance.pk = None
+        self.object = form.save()
+        self.revision.assets.add(self.object)
         return super().form_valid(form)

@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from account.models import User
-from polygon.models import Case, Revision
+from polygon.models import Case, Revision, Asset
 from problem.models import Problem
 
 
@@ -40,3 +40,43 @@ class RevisionTest(TestCase):
         self.assertEqual(1024, self.revision.memory_limit)
         self.assertEqual("hello", self.revision.alias)
         self.assertEqual(False, self.revision.well_form_policy)
+
+    def test_asset(self):
+        my_file = SimpleUploadedFile("this_file.mp4", b"file_content")
+        response = self.client.post(reverse('polygon:revision_asset_create', kwargs=self.kwargs), data={
+            "file": my_file, "name": "my_name"
+        })
+        self.assertTrue(self.revision.assets.count())
+        self.assertEqual(self.revision.assets.all().first().name, "my_name")
+        asset_kwargs = {"apk": self.revision.assets.all().first().id}
+        asset_kwargs.update(self.kwargs)
+
+        # test update
+        another_file = SimpleUploadedFile("another_file.mp4", b"file_content_again")
+        response = self.client.post(reverse('polygon:revision_asset_update', kwargs=asset_kwargs), data={
+            "file": another_file, "name": "my_name_2"
+        })
+        self.assertEqual(self.revision.assets.count(), 1)
+        self.assertEqual(Asset.objects.count(), 2)
+        asset_list = Asset.objects.all()
+        self.assertNotEqual(asset_list[0].name, asset_list[1].name)
+        self.assertNotEqual(asset_list[0].file.path, asset_list[1].file.path)
+        self.assertNotEqual(asset_list[0].file.read(), asset_list[1].file.read())
+        self.assertEqual(self.revision.assets.all().first().name, "my_name_2")
+
+        # test rename
+        response = self.client.post(reverse('polygon:revision_asset_rename', kwargs=asset_kwargs), data={
+            "name": "my_name_3"
+        })
+        # self.assertContains(response, "No assets")
+        asset_kwargs.update(apk=self.revision.assets.all().first().pk)
+        response = self.client.post(reverse('polygon:revision_asset_rename', kwargs=asset_kwargs), data={
+            "name": "my_name_3"
+        })
+        self.assertEqual(self.revision.assets.count(), 1)
+        self.assertEqual(Asset.objects.count(), 3)
+        old_revision = Asset.objects.get(name='my_name_2')
+        new_revision = Asset.objects.get(name='my_name_3')
+        self.assertEqual(old_revision.file.path, new_revision.file.path)
+        self.assertEqual(len(set(map(lambda x: x.file.path, Asset.objects.all()))), 2)
+        self.assertEqual(new_revision, self.revision.assets.all().first())

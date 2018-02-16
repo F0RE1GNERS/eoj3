@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/create/$', asset.AssetCreateView.as_view(), name='revision_asset_create'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/update/$$', asset.AssetUpdateView.as_view(),
         name='revision_asset_update'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/rename/$$', asset.AssetRenameView.as_view(),
+        name='revision_asset_rename'),
 ]

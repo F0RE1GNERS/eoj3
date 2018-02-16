@@ -86,7 +86,16 @@ class CaseUpdateForm(forms.ModelForm):
                   "description", "case_number", "activated"]
 
 
+class AssetRenameForm(forms.ModelForm):
+    class Meta:
+        model = Asset
+        fields = ["name"]
+
+
 class AssetUpdateForm(forms.ModelForm):
+    """
+    Re-upload a file or create a file
+    """
     class Meta:
         model = Asset
         fields = ["name", "file"]
