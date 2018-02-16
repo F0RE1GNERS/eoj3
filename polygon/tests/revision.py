@@ -79,4 +79,5 @@ class RevisionTest(TestCase):
         new_revision = Asset.objects.get(name='my_name_3')
         self.assertEqual(old_revision.file.path, new_revision.file.path)
         self.assertEqual(len(set(map(lambda x: x.file.path, Asset.objects.all()))), 2)
+        self.assertEqual(len(set(map(lambda x: x.create_time, Asset.objects.all()))), 1)
         self.assertEqual(new_revision, self.revision.assets.all().first())

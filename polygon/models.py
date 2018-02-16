@@ -57,7 +57,7 @@ class Statement(models.Model):
     output = models.TextField(blank=True)
     hint = models.TextField(blank=True)
     activated = models.BooleanField(default=False)
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
 
 
@@ -67,7 +67,7 @@ class Asset(models.Model):
     """
     name = models.CharField(validators=[NameValidator()], max_length=24)
     file = models.FileField(upload_to='assets/%Y%m%d/', storage=repo_storage)
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
 
 
@@ -99,7 +99,7 @@ class Program(models.Model):
     lang = models.CharField(choices=LANG_CHOICES, default='cpp', max_length=12)
     code = models.TextField(blank=True)
     tag = models.CharField(choices=TAG_CHOICES, default='checker', max_length=24)
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
     readonly = models.BooleanField(default=False)
     fingerprint = models.CharField(max_length=64)
@@ -124,7 +124,7 @@ class Case(models.Model):
     output_lock = models.BooleanField(default=False)
     description = models.TextField(blank=True)
     case_number = models.PositiveIntegerField(default=1)
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
     readonly = models.BooleanField(default=False)
     activated = models.BooleanField(default=True)

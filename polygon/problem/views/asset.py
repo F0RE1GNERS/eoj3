@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -25,6 +27,7 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def form_valid(self, form):
+        form.instance.create_time = datetime.now()
         self.object = form.save()
         self.revision.assets.add(self.object)
         return super().form_valid(form)
