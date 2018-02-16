@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -35,6 +36,7 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
 
 class AssetUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = AssetUpdateForm
+    template_name = 'test.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -46,15 +48,18 @@ class AssetUpdateView(ProblemRevisionMixin, UpdateView):
             raise Http404("No assets found matching the query")
 
     def form_valid(self, form):
-        self.revision.assets.remove(self.object)
-        form.instance.pk = None
-        self.object = form.save()
-        self.revision.assets.add(self.object)
+        with transaction.atomic():
+            self.revision.assets.remove(self.object)
+            form.instance.parent_id = form.instance.pk
+            form.instance.pk = None
+            self.object = form.save()
+            self.revision.assets.add(self.object)
         return super().form_valid(form)
 
 
 class AssetRenameView(ProblemRevisionMixin, UpdateView):
     form_class = AssetRenameForm
+    template_name = 'test.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -66,8 +71,10 @@ class AssetRenameView(ProblemRevisionMixin, UpdateView):
             raise Http404("No assets found matching the query")
 
     def form_valid(self, form):
-        self.revision.assets.remove(self.object)
-        form.instance.pk = None
-        self.object = form.save()
-        self.revision.assets.add(self.object)
+        with transaction.atomic():
+            self.revision.assets.remove(self.object)
+            form.instance.parent_id = form.instance.pk
+            form.instance.pk = None
+            self.object = form.save()
+            self.revision.assets.add(self.object)
         return super().form_valid(form)

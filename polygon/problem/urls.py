@@ -17,4 +17,10 @@ urlpatterns = [
         name='revision_asset_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/rename/$$', asset.AssetRenameView.as_view(),
         name='revision_asset_rename'),
+
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/$', statement.StatementList.as_view(), name='revision_statement'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/create/$', statement.StatementCreateView.as_view(),
+        name='revision_statement_create'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<apk>\d+)/update/$$', statement.StatementUpdateView.as_view(),
+        name='revision_statement_update'),
 ]

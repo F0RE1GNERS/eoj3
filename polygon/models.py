@@ -59,6 +59,7 @@ class Statement(models.Model):
     activated = models.BooleanField(default=False)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
+    parent_id = models.IntegerField(default=0)
 
 
 class Asset(models.Model):
@@ -69,6 +70,7 @@ class Asset(models.Model):
     file = models.FileField(upload_to='assets/%Y%m%d/', storage=repo_storage)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
+    parent_id = models.IntegerField(default=0)
 
 
 class Program(models.Model):
@@ -104,6 +106,7 @@ class Program(models.Model):
     readonly = models.BooleanField(default=False)
     fingerprint = models.CharField(max_length=64)
     activated = models.BooleanField(default=False)
+    parent_id = models.IntegerField(default=0)
 
     def save(self, **kwargs):
         self.fingerprint = sha_hash(sha_hash(self.lang) + sha_hash(self.code) + sha_hash(self.tag))
@@ -128,6 +131,7 @@ class Case(models.Model):
     update_time = models.DateTimeField(auto_now=True)
     readonly = models.BooleanField(default=False)
     activated = models.BooleanField(default=True)
+    parent_id = models.IntegerField(default=0)
 
     def save(self, **kwargs):
         self.fingerprint = case_hash(0, self.input_file.read(), self.output_file.read())

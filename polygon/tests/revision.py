@@ -81,3 +81,13 @@ class RevisionTest(TestCase):
         self.assertEqual(len(set(map(lambda x: x.file.path, Asset.objects.all()))), 2)
         self.assertEqual(len(set(map(lambda x: x.create_time, Asset.objects.all()))), 1)
         self.assertEqual(new_revision, self.revision.assets.all().first())
+
+        asset_kwargs.update(apk=new_revision.pk)
+        response = self.client.post(reverse('polygon:revision_asset_rename', kwargs=asset_kwargs), data={
+            "name": "##########"
+        })
+        self.assertEqual(new_revision, self.revision.assets.all().first())
+        self.assertEqual("my_name_3", self.revision.assets.all().first().name)
+        self.assertEqual(Asset.objects.get(pk=3).parent_id, 2)
+        self.assertEqual(Asset.objects.get(pk=2).parent_id, 1)
+        self.assertEqual(Asset.objects.get(pk=1).parent_id, 0)
