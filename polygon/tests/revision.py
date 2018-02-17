@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from account.models import User
-from polygon.models import Case, Revision, Asset
+from polygon.models import Case, Revision, Asset, Statement
 from problem.models import Problem
 
 
@@ -91,3 +91,35 @@ class RevisionTest(TestCase):
         self.assertEqual(Asset.objects.get(pk=3).parent_id, 2)
         self.assertEqual(Asset.objects.get(pk=2).parent_id, 1)
         self.assertEqual(Asset.objects.get(pk=1).parent_id, 0)
+
+    def test_statement(self):
+        response = self.client.post(reverse('polygon:revision_statement_create', kwargs=self.kwargs), data={
+            "name": "default",
+            "title": "my title",
+            "description": "my description"
+        })
+        # print(response)
+        self.assertEqual(self.revision.statements.count(), 1)
+        response = self.client.post(reverse('polygon:revision_statement_create', kwargs=self.kwargs), data={
+            "name": "another",
+            "title": "another title",
+            "description": "another description"
+        })
+        self.assertEqual(self.revision.statements.count(), 2)
+        self.revision.refresh_from_db()
+        self.assertEqual(self.revision.active_statement.name, "default")
+        my_kwargs = {"spk": 1}
+        my_kwargs.update(self.kwargs)
+        self.client.post(reverse('polygon:revision_statement_update', kwargs=my_kwargs), data={
+            "name": "default2",
+            "title": "my title"
+        })
+        self.revision.active_statement.refresh_from_db()
+        self.revision.refresh_from_db()
+        self.assertEqual(Statement.objects.count(), 3)
+        self.assertEqual(self.revision.statements.count(), 2)
+        self.assertEqual(self.revision.active_statement.pk, 3)
+        my_kwargs.update(spk=2)
+        self.client.post(reverse('polygon:revision_statement_activate', kwargs=my_kwargs))
+        self.revision.refresh_from_db()
+        self.assertEqual(self.revision.active_statement.name, "another")

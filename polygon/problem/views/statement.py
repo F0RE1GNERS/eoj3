@@ -2,8 +2,9 @@ from datetime import datetime
 
 from django.db import transaction
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
@@ -33,6 +34,9 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
             form.instance.create_time = datetime.now()
             self.object = form.save()
             self.revision.statements.add(self.object)
+            if self.revision.statements.count() == 1:
+                self.revision.active_statement = self.object
+                self.revision.save(update_fields=["active_statement"])
         return super().form_valid(form)
 
 
@@ -51,8 +55,23 @@ class StatementUpdateView(ProblemRevisionMixin, UpdateView):
     def form_valid(self, form):
         with transaction.atomic():
             self.revision.statements.remove(self.object)
+            is_active = self.revision.active_statement == self.object
             form.instance.parent_id = form.instance.pk
             form.instance.pk = None
             self.object = form.save()
+            if is_active:
+                self.revision.active_statement = self.object
+                self.revision.save(update_fields=["active_statement"])
             self.revision.statements.add(self.object)
         return super().form_valid(form)
+
+
+class StatementActivateView(ProblemRevisionMixin, View):
+    def post(self, *args, **kwargs):
+        try:
+            statement = self.revision.statements.get(pk=self.kwargs['spk'])
+            self.revision.active_statement = statement
+            self.revision.save(update_fields=["active_statement"])
+            return redirect(reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+        except Statement.DoesNotExist:
+            raise Http404("No statements found matching the query")

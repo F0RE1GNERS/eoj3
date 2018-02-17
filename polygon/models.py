@@ -56,7 +56,6 @@ class Statement(models.Model):
     input = models.TextField(blank=True)
     output = models.TextField(blank=True)
     hint = models.TextField(blank=True)
-    activated = models.BooleanField(default=False)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
     parent_id = models.IntegerField(default=0)
@@ -103,9 +102,7 @@ class Program(models.Model):
     tag = models.CharField(choices=TAG_CHOICES, default='checker', max_length=24)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
-    readonly = models.BooleanField(default=False)
     fingerprint = models.CharField(max_length=64)
-    activated = models.BooleanField(default=False)
     parent_id = models.IntegerField(default=0)
 
     def save(self, **kwargs):
@@ -129,7 +126,6 @@ class Case(models.Model):
     case_number = models.PositiveIntegerField(default=1)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
-    readonly = models.BooleanField(default=False)
     activated = models.BooleanField(default=True)
     parent_id = models.IntegerField(default=0)
 
@@ -153,6 +149,10 @@ class Revision(models.Model):
     programs = models.ManyToManyField(Program)
     cases = models.ManyToManyField(Case)
     assets = models.ManyToManyField(Asset)
+    active_statement = models.ForeignKey(Statement, on_delete=models.SET_NULL, related_name="stating_revisions", null=True)
+    active_checker = models.ForeignKey(Program, on_delete=models.SET_NULL, related_name="checking_revisions", null=True)
+    active_validator = models.ForeignKey(Program, on_delete=models.SET_NULL, related_name="validating_revisions", null=True)
+    active_interactor = models.ForeignKey(Program, on_delete=models.SET_NULL, related_name="interacting_revisions", null=True)
     messages = models.TextField(default='[]')  # json
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)

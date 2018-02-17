@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/$', statement.StatementList.as_view(), name='revision_statement'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/create/$', statement.StatementCreateView.as_view(),
         name='revision_statement_create'),
-    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<apk>\d+)/update/$$', statement.StatementUpdateView.as_view(),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/update/$$', statement.StatementUpdateView.as_view(),
         name='revision_statement_update'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/activate/$$', statement.StatementActivateView.as_view(),
+        name='revision_statement_activate'),
 ]

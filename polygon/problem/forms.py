@@ -53,7 +53,7 @@ class RevisionUpdateForm(forms.ModelForm):
 class StatementUpdateForm(forms.ModelForm):
     class Meta:
         model = Statement
-        exclude = ['create_time', 'update_time', 'activated']
+        exclude = ['create_time', 'update_time', 'activated', 'parent_id']
         widgets = {
             'description': forms.Textarea(attrs={'class': 'markdown'}),
             'input': forms.Textarea(attrs={'class': 'markdown'}),
