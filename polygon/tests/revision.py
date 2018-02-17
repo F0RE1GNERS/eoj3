@@ -123,3 +123,50 @@ class RevisionTest(TestCase):
         self.client.post(reverse('polygon:revision_statement_activate', kwargs=my_kwargs))
         self.revision.refresh_from_db()
         self.assertEqual(self.revision.active_statement.name, "another")
+
+    def test_program(self):
+        response = self.client.post(reverse('polygon:revision_program_create', kwargs=self.kwargs), data={
+            "name": "default",
+            "lang": "cpp",
+            "tag": "checker",
+            "code": "int main() { }"
+        })
+        self.assertEqual(self.revision.programs.count(), 1)
+        response = self.client.post(reverse('polygon:revision_program_create', kwargs=self.kwargs), data={
+            "name": "int",
+            "lang": "cpp",
+            "tag": "interactor",
+            "code": "int main() { }"
+        })
+        self.assertEqual(self.revision.programs.count(), 2)
+        program_kwargs = {"ppk": 1}
+        program_kwargs.update(self.kwargs)
+        response = self.client.post(reverse('polygon:revision_program_toggle', kwargs=program_kwargs))
+        self.revision.refresh_from_db()
+        self.assertEqual(self.revision.active_checker_id, 1)
+        self.assertIsNone(self.revision.active_validator)
+        self.assertIsNone(self.revision.active_interactor)
+        response = self.client.post(reverse('polygon:revision_program_toggle', kwargs=program_kwargs))
+        self.revision.refresh_from_db()
+        self.assertIsNone(self.revision.active_checker)
+        response = self.client.post(reverse('polygon:revision_program_toggle', kwargs=program_kwargs))
+        response = self.client.post(reverse('polygon:revision_program_update', kwargs=program_kwargs), data={
+            "name": "int",
+            "lang": "cpp",
+            "tag": "interactor",
+            "code": "int main() { }"
+        })
+        self.revision.refresh_from_db()
+        self.assertEqual(self.revision.active_interactor_id, 3)
+        self.assertIsNone(self.revision.active_validator)
+        self.assertIsNone(self.revision.active_checker)
+        response = self.client.post(reverse('polygon:revision_program_update', kwargs=program_kwargs), data={
+            "name": "int",
+            "lang": "cpp",
+            "tag": "solution_main",
+            "code": "int main() { }"
+        })
+        self.revision.refresh_from_db()
+        self.assertIsNone(self.revision.active_checker)
+        self.assertIsNone(self.revision.active_validator)
+        self.assertIsNone(self.revision.active_checker)

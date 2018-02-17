@@ -36,7 +36,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
             self.revision.statements.add(self.object)
             if self.revision.statements.count() == 1:
                 self.revision.active_statement = self.object
-                self.revision.save(update_fields=["active_statement"])
+                self.revision.save(update_fields=["active_statement_id"])
         return super().form_valid(form)
 
 
@@ -61,7 +61,7 @@ class StatementUpdateView(ProblemRevisionMixin, UpdateView):
             self.object = form.save()
             if is_active:
                 self.revision.active_statement = self.object
-                self.revision.save(update_fields=["active_statement"])
+                self.revision.save(update_fields=["active_statement_id"])
             self.revision.statements.add(self.object)
         return super().form_valid(form)
 
@@ -71,7 +71,7 @@ class StatementActivateView(ProblemRevisionMixin, View):
         try:
             statement = self.revision.statements.get(pk=self.kwargs['spk'])
             self.revision.active_statement = statement
-            self.revision.save(update_fields=["active_statement"])
+            self.revision.save(update_fields=["active_statement_id"])
             return redirect(reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Statement.DoesNotExist:
             raise Http404("No statements found matching the query")
