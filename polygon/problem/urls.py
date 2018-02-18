@@ -13,10 +13,12 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/$', asset.AssetList.as_view(), name='revision_asset'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/create/$', asset.AssetCreateView.as_view(),
         name='revision_asset_create'),
-    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/update/$$', asset.AssetUpdateView.as_view(),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/update/$', asset.AssetUpdateView.as_view(),
         name='revision_asset_update'),
-    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/rename/$$', asset.AssetRenameView.as_view(),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/rename/$', asset.AssetRenameView.as_view(),
         name='revision_asset_rename'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/asset/(?P<apk>\d+)/delete/$', asset.AssetDeleteView.as_view(),
+        name='revision_asset_delete'),
 
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/$', statement.StatementList.as_view(),
         name='revision_statement'),
@@ -27,6 +29,8 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/activate/$',
         statement.StatementActivateView.as_view(),
         name='revision_statement_activate'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/delete/$', statement.StatementDeleteView.as_view(),
+        name='revision_statement_delete'),
 
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/$', program.ProgramList.as_view(), name='revision_program'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/create/$', program.ProgramCreateView.as_view(),
@@ -35,6 +39,8 @@ urlpatterns = [
         name='revision_program_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/toggle/$', program.ProgramActiveToggleView.as_view(),
         name='revision_program_toggle'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/delete/$', program.ProgramDeleteView.as_view(),
+        name='revision_program_delete'),
 
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/$', case.CaseList.as_view(), name='revision_case'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/create/$', case.CaseCreateView.as_view(),
@@ -43,4 +49,6 @@ urlpatterns = [
         name='revision_case_update_info'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/update/$', case.CaseUpdateFileView.as_view(),
         name='revision_case_update_file'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/delete/$', case.CaseDeleteView.as_view(),
+        name='revision_case_delete'),
 ]

@@ -4,6 +4,7 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
@@ -78,3 +79,12 @@ class AssetRenameView(ProblemRevisionMixin, UpdateView):
             self.object = form.save()
             self.revision.assets.add(self.object)
         return super().form_valid(form)
+
+
+class AssetDeleteView(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            object = self.revision.assets.get(pk=kwargs['apk'])
+            self.revision.assets.remove(object)
+        except Asset.DoesNotExist:
+            raise Http404("No assets found matching the query")

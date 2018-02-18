@@ -195,7 +195,7 @@ class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
         try:
             return self.revision.cases.get(pk=self.kwargs['cpk'])
         except Case.DoesNotExist:
-            raise Http404("No assets found matching the query")
+            raise Http404("No cases found matching the query")
 
     def form_valid(self, form):
         with transaction.atomic():
@@ -205,3 +205,12 @@ class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
             self.object = form.save()
             self.revision.cases.add(self.object)
         return super().form_valid(form)
+
+
+class CaseDeleteView(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            object = self.revision.cases.get(pk=kwargs['cpk'])
+            self.revision.cases.remove(object)
+        except Case.DoesNotExist:
+            raise Http404("No cases found matching the query")

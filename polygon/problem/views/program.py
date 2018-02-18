@@ -83,3 +83,12 @@ class ProgramActiveToggleView(ProblemRevisionMixin, View):
             return redirect(reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Program.DoesNotExist:
             raise Http404("No programs found matching the query")
+
+
+class ProgramDeleteView(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            object = self.revision.programs.get(pk=kwargs['ppk'])
+            self.revision.programs.remove(object)
+        except Program.DoesNotExist:
+            raise Http404("No programs found matching the query")

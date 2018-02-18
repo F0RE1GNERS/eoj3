@@ -75,3 +75,12 @@ class StatementActivateView(ProblemRevisionMixin, View):
             return redirect(reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Statement.DoesNotExist:
             raise Http404("No statements found matching the query")
+
+
+class StatementDeleteView(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            object = self.revision.statements.get(pk=kwargs['spk'])
+            self.revision.statements.remove(object)
+        except Statement.DoesNotExist:
+            raise Http404("No statements found matching the query")
