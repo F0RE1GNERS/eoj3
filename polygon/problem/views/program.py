@@ -90,5 +90,6 @@ class ProgramDeleteView(ProblemRevisionMixin, View):
         try:
             object = self.revision.programs.get(pk=kwargs['ppk'])
             self.revision.programs.remove(object)
+            return redirect(reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Program.DoesNotExist:
             raise Http404("No programs found matching the query")

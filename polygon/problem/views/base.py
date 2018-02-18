@@ -1,3 +1,5 @@
+from django.db.models import Count
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
@@ -18,9 +20,20 @@ class ProblemList(PolygonBaseMixin, ListView):
 
     def get_queryset(self):
         if is_admin_or_root(self.request.user):
-            return Problem.objects.all()
+            qs = Problem.objects.all()
         else:
-            return self.request.user.managing_problems.all()
+            qs = self.request.user.managing_problems.all()
+        qs = qs.prefetch_related("revisions").annotate(Count('revisions'))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        for problem in data['problem_list']:
+            problem.latest_revision, problem.my_latest_revision = None, None
+            for revision in sorted(problem.revisions.all(), key=lambda x: x.create_time, reverse=True):
+                problem.latest_revision = revision
+                break
+        return data
 
 
 class ProblemCreate(PolygonBaseMixin, View):
@@ -72,7 +85,11 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
 class ProblemRevisionMixin(PolygonProblemMixin):
 
     def init_revision(self, *args, **kwargs):
-        self.revision = get_object_or_404(Revision, pk=kwargs.get('rpk'))
+        self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
+                                                              "active_interactor", "user").filter(pk=kwargs.get('rpk'))
+        if len(self.revision) == 0:
+            raise Http404("Revision matches not found.")
+        else: self.revision = self.revision[0]
         if self.revision.user != self.request.user:
             self.permission = 1
 

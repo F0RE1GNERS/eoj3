@@ -35,8 +35,8 @@ class RevisionTest(TestCase):
                 self.assertEqual(revision.parent_id, self.revision.id)
 
     def test_revision_update(self):
-        response = self.client.post(reverse('polygon:revision_view', kwargs=self.kwargs), data={
-            "time_limit": 1000, "memory_limit": 1024, "alias": "hello", "well_form_policy": False
+        response = self.client.post(reverse('polygon:revision_update', kwargs=self.kwargs), data={
+            "time_limit": 1000, "memory_limit": 1024, "well_form_policy": False
         })
         self.revision.refresh_from_db()
         self.assertEqual(1000, self.revision.time_limit)

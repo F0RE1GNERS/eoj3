@@ -1,0 +1,39 @@
+{% extends 'polygon/problem/base.jinja2' %}
+
+{% block problem_content %}
+
+  <table class="ui celled table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="7">
+          <a href="{{ url('polygon:revision_asset_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
+            <i class="add icon"></i> Add Asset
+          </a>
+        </th>
+      </tr>
+      <tr>
+        <th class="collapsing">#</th>
+        <th>Name</th>
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+        <th class="collapsing">Edit</th>
+        <th class="collapsing">Rename</th>
+        <th class="collapsing">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in asset_list %}
+        <tr>
+          <td>{{ asset.pk }}</td>
+          <td>{{ asset.name }}</td>
+          <td>{{ asset.create_time | date('Y-m-d H:i') }}</td>
+          <td>{{ asset.update_time | date('Y-m-d H:i') }}</td>
+          <td><a href="{{ url('polygon:revision_asset_update', problem.id, revision.id, asset.id) }}">Edit</a></td>
+          <td><a href="{{ url('polygon:revision_asset_rename', problem.id, revision.id, asset.id) }}">Rename</a></td>
+          <td><a href="javascript:void(0);" class="post prompt" data-link="{{ url('polygon:revision_asset_delete', problem.id, revision.id, asset.id) }}">Delete</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

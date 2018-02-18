@@ -15,7 +15,7 @@ from polygon.problem.views.base import ProblemRevisionMixin
 
 
 class StatementList(ProblemRevisionMixin, ListView):
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/statement/list.jinja2'
     context_object_name = 'statement_list'
 
     def get_queryset(self):
@@ -24,7 +24,7 @@ class StatementList(ProblemRevisionMixin, ListView):
 
 class StatementCreateView(ProblemRevisionMixin, CreateView):
     form_class = StatementUpdateForm
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -42,6 +42,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
 
 class StatementUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = StatementUpdateForm
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -82,5 +83,6 @@ class StatementDeleteView(ProblemRevisionMixin, View):
         try:
             object = self.revision.statements.get(pk=kwargs['spk'])
             self.revision.statements.remove(object)
+            return redirect(reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Statement.DoesNotExist:
             raise Http404("No statements found matching the query")

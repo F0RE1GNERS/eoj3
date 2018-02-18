@@ -47,7 +47,7 @@ class ProblemEditForm(forms.ModelForm):
 class RevisionUpdateForm(forms.ModelForm):
     class Meta:
         model = Revision
-        fields = ['time_limit', 'memory_limit', 'alias', 'well_form_policy']
+        fields = ['time_limit', 'memory_limit', 'well_form_policy']
 
 
 class StatementUpdateForm(forms.ModelForm):
@@ -98,7 +98,7 @@ class CaseCreateForm(forms.Form):
 class CaseUpdateInfoForm(forms.ModelForm):
     class Meta:
         model = Case
-        fields = ["in_samples", "in_pretests", "in_tests", "output_lock",
+        fields = ["in_samples", "in_pretests", "in_tests", "points", "output_lock",
                   "description", "case_number", "activated"]
 
 

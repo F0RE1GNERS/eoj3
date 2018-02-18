@@ -212,5 +212,6 @@ class CaseDeleteView(ProblemRevisionMixin, View):
         try:
             object = self.revision.cases.get(pk=kwargs['cpk'])
             self.revision.cases.remove(object)
+            return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Case.DoesNotExist:
             raise Http404("No cases found matching the query")

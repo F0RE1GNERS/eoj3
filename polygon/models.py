@@ -67,6 +67,7 @@ class Asset(models.Model):
     """
     name = models.CharField(validators=[NameValidator()], max_length=24)
     file = models.FileField(upload_to='assets/%Y%m%d/', storage=repo_storage)
+    real_path = models.CharField(blank=True, max_length=192)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
     parent_id = models.IntegerField(default=0)
@@ -121,6 +122,7 @@ class Case(models.Model):
     in_samples = models.BooleanField(default=False)
     in_pretests = models.BooleanField(default=False)
     in_tests = models.BooleanField(default=True)
+    points = models.PositiveIntegerField(default=10)
     output_lock = models.BooleanField(default=False)
     description = models.TextField(blank=True)
     case_number = models.PositiveIntegerField(default=1)
@@ -179,7 +181,6 @@ class Revision(models.Model):
     update_time = models.DateTimeField(auto_now=True)
     time_limit = models.PositiveIntegerField(default=2000)
     memory_limit = models.PositiveIntegerField(default=256)
-    alias = models.CharField(max_length=64, validators=[AliasValidator()])
     well_form_policy = models.BooleanField(default=True)
     status = models.IntegerField(choices=STATUS_CHOICE, default=0)
     parent_id = models.IntegerField(default=0)

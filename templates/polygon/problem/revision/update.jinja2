@@ -1,0 +1,33 @@
+{% extends 'polygon/problem/base.jinja2' %}
+
+{% block problem_content %}
+  {% include 'components/form.jinja2' %}
+
+  <div class="ui dividing header">Related Revisions</div>
+
+  <table class="ui celled center aligned table">
+    <thead>
+      <tr>
+        <th>Revision</th>
+        <th>Create</th>
+        <th>Update</th>
+        <th>Author</th>
+        <th>Status</th>
+        <th>Based on</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for revision in revision_list %}
+      <tr>
+        <td>{{ revision.revision }}</td>
+        <td>{{ revision.create_time | date('Y-m-d H:i') }}</td>
+        <td>{{ revision.update_time | date('Y-m-d H:i') }}</td>
+        <td>{{ username_display(revision.user) }}</td>
+        <td>{{ revision.get_status_display() }}</td>
+        <td>{% if revision.based_on %}{{ revision.based_on }}{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
