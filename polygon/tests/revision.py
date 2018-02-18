@@ -1,10 +1,13 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from os import path
 
 from account.models import User
 from polygon.models import Case, Revision, Asset, Statement
 from problem.models import Problem
+
+BASE_LOCATION = path.dirname(path.abspath(__file__))
 
 
 class RevisionTest(TestCase):
@@ -170,3 +173,72 @@ class RevisionTest(TestCase):
         self.assertIsNone(self.revision.active_checker)
         self.assertIsNone(self.revision.active_validator)
         self.assertIsNone(self.revision.active_checker)
+
+    def test_case(self):
+        response = self.client.post(reverse('polygon:revision_case_create', kwargs=self.kwargs), data={
+            "option": "text",
+            "input_text": "this is input",
+            "output_text": "this is output",
+            "in_samples": False,
+            "output_lock": False,
+            "case_number": 0,
+            "activated": True
+        })
+        self.assertEqual(self.revision.cases.count(), 1)
+        my_case = self.revision.cases.first()
+        self.assertNotEqual(my_case.fingerprint, "invalid")
+        self.assertEqual(my_case.input_preview, "this is input")
+        self.assertEqual(my_case.output_preview, "this is output")
+        self.assertEqual(my_case.case_number, 1)
+
+        response = self.client.post(reverse('polygon:revision_case_create', kwargs=self.kwargs), data={
+            "option": "single",
+            "input_file": SimpleUploadedFile("input", b"this is input 3"),
+            "output_file": SimpleUploadedFile("output", b"this is output 3"),
+            "case_number": 3,
+            "activated": True
+        })
+        self.assertEqual(self.revision.cases.count(), 2)
+        my_case = self.revision.cases.get(pk=2)
+        self.assertNotEqual(my_case.fingerprint, "invalid")
+        self.assertEqual(my_case.input_preview, "this is input 3")
+        self.assertEqual(my_case.output_preview, "this is output 3")
+        self.assertEqual(my_case.case_number, 3)
+
+        zip_location = path.join(BASE_LOCATION, "asset", "d.zip")
+        with open(zip_location, "rb") as f:
+            response = self.client.post(reverse('polygon:revision_case_create', kwargs=self.kwargs), data={
+                "option": "batch",
+                "batch_file": UploadedFile(f),
+                "case_number": 2,
+                "activated": True
+            })
+        self.assertEqual(self.revision.cases.count(), 4)
+        mmap = {1: 1, 2: 4, 3: 2, 4: 3, 5: 4}
+        input_map = {1: "this", 2: "this", 3: "1 2", 4: "2 2", 5: "this"}
+        for case in self.revision.cases.all():
+            self.assertNotEqual(case.pk, 2)
+            self.assertEqual(mmap[case.pk], case.case_number)
+            self.assertIn(input_map[case.pk], case.input_preview)
+
+        with open(zip_location, "rb") as f:
+            response = self.client.post(reverse('polygon:revision_case_create', kwargs=self.kwargs), data={
+                "option": "batch",
+                "batch_file": UploadedFile(f),
+                "case_number": 0,
+                "activated": True
+            })
+        self.assertEqual(self.revision.cases.count(), 6)
+        self.assertEqual(len(set(self.revision.cases.all().values_list("fingerprint", flat=True))), 4)
+
+        # update case
+        p_kwargs = {"cpk": 1}
+        p_kwargs.update(self.kwargs)
+        response = self.client.post(reverse('polygon:revision_case_update_file', kwargs=p_kwargs), data={
+            "option": "text",
+            "input_text": "new input",
+            "output_text": "new output"
+        })
+        self.assertEqual(self.revision.cases.count(), 6)
+        for case in self.revision.cases.all():
+            self.assertNotEqual(case.pk, 1)

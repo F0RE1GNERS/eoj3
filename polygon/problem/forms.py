@@ -69,21 +69,53 @@ class ProgramUpdateForm(forms.ModelForm):
 
 
 class CaseCreateForm(forms.Form):
-    option = forms.ChoiceField(choices=[
+    option = forms.ChoiceField(choices=(
+        ('text', 'Type in input and output (Recommended for samples)'),
         ('batch', 'Upload a zip archive'),
         ('single', 'Upload input file (and output file)'),
-        ('gen', 'Generate cases',)])
+        ('gen', 'Generate cases',)))
     input_file = forms.FileField(required=False)
     output_file = forms.FileField(required=False)
+    input_text = forms.CharField(required=False, widget=forms.Textarea())
+    output_text = forms.CharField(required=False, widget=forms.Textarea())
     batch_file = forms.FileField(required=False)
-    gen_command = forms.CharField(widget=forms.Textarea())
+    gen_command = forms.CharField(required=False, widget=forms.Textarea())
+    in_samples = forms.BooleanField(initial=False, required=False)
+    output_lock = forms.BooleanField(initial=False, required=False)
+    case_number = forms.IntegerField(initial=0)
+    activated = forms.BooleanField(initial=True, required=False)
+
+    def clean(self):
+        if self.cleaned_data["option"] == "single" and (
+                        self.cleaned_data["input_file"] is None or self.cleaned_data["output_file"] is None):
+            raise forms.ValidationError("Input file and output file are required.")
+        if self.cleaned_data["option"] == "gen" and not self.cleaned_data["gen_command"]:
+            raise forms.ValidationError("Generate Command is required.")
+        if self.cleaned_data["option"] == "batch" and self.cleaned_data["batch_file"] is None:
+            raise forms.ValidationError("File for batch is required.")
 
 
-class CaseUpdateForm(forms.ModelForm):
+class CaseUpdateInfoForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = ["in_samples", "in_pretests", "in_tests", "output_lock",
                   "description", "case_number", "activated"]
+
+
+class CaseUpdateForm(forms.Form):
+    option = forms.ChoiceField(choices=(
+        ('file', 'Upload files'),
+        ('text', 'Type in textarea')
+    ))
+    input_file = forms.FileField(required=False)
+    output_file = forms.FileField(required=False)
+    input_text = forms.CharField(widget=forms.Textarea())
+    output_text = forms.CharField(widget=forms.Textarea())
+
+    def clean(self):
+        if self.cleaned_data["option"] == "file" and (
+                        self.cleaned_data["input_file"] is None or self.cleaned_data["output_file"] is None):
+            raise forms.ValidationError("Input file and output file are required.")
 
 
 class AssetRenameForm(forms.ModelForm):

@@ -35,4 +35,12 @@ urlpatterns = [
         name='revision_program_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/toggle/$', program.ProgramActiveToggleView.as_view(),
         name='revision_program_toggle'),
+
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/$', case.CaseList.as_view(), name='revision_case'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/create/$', case.CaseCreateView.as_view(),
+        name='revision_case_create'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/update/info/$', case.CaseUpdateInfoView.as_view(),
+        name='revision_case_update_info'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/update/$', case.CaseUpdateFileView.as_view(),
+        name='revision_case_update_file'),
 ]

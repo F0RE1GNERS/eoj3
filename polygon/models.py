@@ -129,9 +129,30 @@ class Case(models.Model):
     activated = models.BooleanField(default=True)
     parent_id = models.IntegerField(default=0)
 
-    def save(self, **kwargs):
-        self.fingerprint = case_hash(0, self.input_file.read(), self.output_file.read())
-        super().save(**kwargs)
+    def save_fingerprint(self, problem_id):
+        self.input_file.seek(0)
+        self.output_file.seek(0)
+        self.fingerprint = case_hash(problem_id, self.input_file.read(), self.output_file.read())
+
+    @staticmethod
+    def _read_file_preview(file):
+        file.seek(0)
+        p = file.read(20)
+        try:
+            p = p.decode().strip()
+            if file.read(1):
+                p += "..."
+            return p
+        except UnicodeDecodeError:
+            return p
+
+    @property
+    def input_preview(self):
+        return self._read_file_preview(self.input_file)
+
+    @property
+    def output_preview(self):
+        return self._read_file_preview(self.output_file)
 
 
 class Revision(models.Model):
