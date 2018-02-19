@@ -18,16 +18,23 @@ ACTIVABLE_PROGRAM_TAGS = ("checker", "interactor", "validator")
 
 
 class ProgramList(ProblemRevisionMixin, ListView):
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/program/list.jinja2'
     context_object_name = 'program_list'
 
     def get_queryset(self):
-        return self.revision.programs.all()
+        qs = self.revision.programs.all()
+        for program in qs:
+            program.is_active = False
+            for tag in ACTIVABLE_PROGRAM_TAGS:
+                if getattr(self.revision, 'active_%s' % tag) == program:
+                    program.is_active = True
+                    break
+        return qs
 
 
 class ProgramCreateView(ProblemRevisionMixin, CreateView):
     form_class = ProgramUpdateForm
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -42,6 +49,7 @@ class ProgramCreateView(ProblemRevisionMixin, CreateView):
 
 class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = ProgramUpdateForm
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})

@@ -10,11 +10,11 @@
     <a class="item {{ active('polygon:revision_update') }}" href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Revision</a>
     <a class="item {{ active('polygon:revision_statement') }}" href="{{ url('polygon:revision_statement', problem.id, revision.id) }}">Statements</a>
     <a class="item {{ active('polygon:revision_asset') }}" href="{{ url('polygon:revision_asset', problem.id, revision.id) }}">Assets</a>
-    <a class="item">Programs</a>
-    <a class="item">Cases</a>
-    <a class="item">Tests</a>
-{#    <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submits</a>#}
+    <a class="item {{ active('polygon:revision_program') }}" href="{{ url('polygon:revision_program', problem.id, revision.id) }}">Programs</a>
+    <a class="item {{ active('polygon:revision_case') }}" href="{{ url('polygon:revision_case', problem.id, revision.id) }}">Cases</a>
+    <a class="item">Tasks</a>
     <a class="item" href="{{ url('problem:detail', problem.id) }}" target="_blank">Preview</a>
+    {#    <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submits</a>#}
   </div>
 
   <div class="ui inverted dimmer" id="loading-dimmer">

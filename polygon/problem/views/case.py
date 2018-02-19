@@ -62,16 +62,29 @@ REFORMAT = CaseManagementTools.reformat
 
 
 class CaseList(ProblemRevisionMixin, ListView):
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/case/list.jinja2'
     context_object_name = 'case_list'
 
     def get_queryset(self):
-        return self.revision.cases.all()
+        qs = self.revision.cases.all()
+        for case in qs:
+            case.comments = []
+            case.comments.append(case.description)
+            if case.in_samples:
+                case.comments.append("Sample")
+            if case.in_pretests:
+                case.comments.append("Pretest")
+            if case.output_lock:
+                case.comments.append("Output locked")
+            if not case.activated:
+                case.comments.append("Excluded in tests")
+            case.comments.append("Worth %d pts." % case.points)
+        return qs
 
 
 class CaseCreateView(ProblemRevisionMixin, FormView):
     form_class = CaseCreateForm
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -154,6 +167,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
 
 class CaseUpdateFileView(ProblemRevisionMixin, FormView):
     form_class = CaseUpdateForm
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -186,7 +200,7 @@ class CaseUpdateFileView(ProblemRevisionMixin, FormView):
 
 class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
     form_class = CaseUpdateInfoForm
-    template_name = 'test.jinja2'
+    template_name = 'polygon/problem/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
