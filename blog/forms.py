@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 class BlogEditForm(forms.ModelForm):
     class Meta:
         model = Blog
-        fields = ['title', 'text', 'visible']
+        fields = ['title', 'text', 'visible', 'hide_revisions']
         error_messages = {
         }
         help_texts = {

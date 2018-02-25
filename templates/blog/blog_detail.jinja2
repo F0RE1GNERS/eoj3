@@ -22,6 +22,7 @@
     </a>
   </div>
 
+  {% if blog_revisions %}
   <h3 class="ui dividing header">Past Versions</h3>
   <table class="ui very basic collapsing celled table">
     <tbody>
@@ -35,6 +36,7 @@
     {% endfor %}
     </tbody>
   </table>
+  {% endif %}
 
   <h3 class="ui dividing header">Comments</h3>
   {{ render_comment_tree(blog) }}

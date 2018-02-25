@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
 from django.views.generic import View, TemplateView
@@ -15,7 +16,7 @@ from problem.models import Problem
 from submission.statistics import get_accept_problem_count
 from utils.comment import CommentForm
 from .forms import BlogEditForm
-from .models import Blog, Comment, BlogLikes
+from .models import Blog, Comment, BlogLikes, BlogRevision
 
 
 class GenericView(ListView):
@@ -93,9 +94,11 @@ class BlogRevisionView(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['blog'] = self.blog
-        context['revision'] = self.blog.revisions.get(pk=kwargs['rpk'])
-        context['blog_revisions'] = context['blog'].revisions.select_related("author").all()
+        try:
+            context['blog'] = self.blog
+            context['revision'] = self.blog.revisions.get(pk=kwargs['rpk'])
+        except BlogRevision.DoesNotExist:
+            raise Http404("Requested revision does not exist.")
         return context
 
 

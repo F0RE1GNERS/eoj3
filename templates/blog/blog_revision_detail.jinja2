@@ -1,29 +1,54 @@
 {% extends 'base.jinja2' %}
 
 {% block title %}{{ revision.title }} - Blog - {% endblock %}
+{% block css %}
+  <style>
+  ins {
+    text-decoration: none;
+    background-color: #d4fcbc;
+  }
+  del {
+    text-decoration: line-through;
+    background-color: #fbb6c2;
+    color: #555;
+  }
+  </style>
+{% endblock %}
 
 {% block page_header %}{{ revision.title }} (Past){% endblock %}
 
 {% block content %}
 
+  <div class="ui checkbox" style="float:right">
+    <input type="checkbox" name="compare">
+    <label>Compare</label>
+  </div>
   <p>{{ username_display(revision.author) }} edited {{ revision.create_time | naturaltime }}</p>
-  <p><i>This is a past version of blog <a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></i></p>
+  <p><b><i>This is a past version of blog <a href="{{ url('blog:detail', blog.pk) }}">{{ blog.title }}</a></i></b></p>
+
+  <div id="revision-passage">
   {% cache 3600 'blog_view#'+blog.pk.__str__()+'#'+blog.edit_time.__str__()+'#'+revision.create_time.__str__() %}
+    {{ revision.text | markdown | safer | safe }}
+  {% endcache %}
+  </div>
+  <div id="newest-passage" style="display:none">
+  {% cache 3600 'blog_view#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
     {{ blog.text | markdown | safer | safe }}
   {% endcache %}
+  </div>
 
-  <h3 class="ui dividing header">Past Versions</h3>
-  <table class="ui very basic collapsing celled table">
-    <tbody>
-    {% for revision in blog_revisions %}
-      <tr>
-        <td><a href="#">
-          {{ revision.create_time | date('Y-m-d h:i:s') }}
-        </a></td>
-        <td class="right aligned collapsing">{{ username_display(revision.author) }}</td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+{% endblock %}
 
+{% block script %}
+  <script src="/static/js/htmldiff.js"></script>
+  <script>
+  var mainDiv = $("#revision-passage");
+  var original = mainDiv.html();
+  var later = $("#newest-passage").html();
+  var diff = htmldiff(original, later);
+  $("*[type='checkbox']").on('change', function() {
+    if (this.checked) mainDiv.html(diff);
+    else mainDiv.html(original);
+  });
+  </script>
 {% endblock %}
