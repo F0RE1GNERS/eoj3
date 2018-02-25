@@ -110,6 +110,7 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
+        instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
         return HttpResponseRedirect(reverse('generic', kwargs={'pk': self.request.user.pk}))
 
 
