@@ -1,7 +1,8 @@
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.edit import FormMixin
@@ -70,9 +71,31 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
+        context['blog_revisions'] = self.blog.revisions.select_related("author").all()
         context['action_path'] = reverse('comments-post-comment')
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
+        return context
+
+
+class BlogRevisionView(UserPassesTestMixin, TemplateView):
+    template_name = 'blog/blog_revision_detail.jinja2'
+    raise_exception = True
+
+    def dispatch(self, request, *args, **kwargs):
+        self.blog = get_object_or_404(Blog, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
+            return True
+        return self.blog.visible and not self.blog.hide_revisions
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['blog'] = self.blog
+        context['revision'] = self.blog.revisions.get(pk=kwargs['rpk'])
+        context['blog_revisions'] = context['blog'].revisions.select_related("author").all()
         return context
 
 
@@ -96,15 +119,17 @@ class BlogUpdate(UpdateView):
         instance = form.save(commit=False)
         if not is_admin_or_root(self.request.user) and instance.author != self.request.user:
             raise PermissionDenied(_("You don't have the access."))
-        instance.save()
-        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
+        with transaction.atomic():
+            instance.save()
+            instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
+        return redirect(reverse('blog:detail', kwargs=self.kwargs))
 
 
 class BlogAddComment(LoginRequiredMixin, View):
     def post(self, request, pk):
         if 'text' in request.POST and request.POST['text']:
             Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
-        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
+        return redirect(reverse('blog:detail', kwargs={'pk': pk}))
 
 
 class LikeBlog(View):
