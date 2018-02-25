@@ -24,7 +24,11 @@
     <tbody>
       {% for statement in statement_list %}
         <tr>
-          <td>{% if statement == revision.active_statement %}<i class="large green checkmark icon"></i>{% endif %}</td>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('polygon:revision_statement_activate', problem.id, revision.id, statement.id) }}" type="checkbox" {% if statement == revision.active_statement %}checked{% endif %}>
+            </div>
+          </td>
           <td>{{ statement.pk }}</td>
           <td>{{ statement.name }}</td>
           <td>{{ statement.create_time | date('Y-m-d H:i') }}</td>

@@ -33,7 +33,7 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
         form.instance.create_time = datetime.now()
         self.object = form.save()
         self.revision.assets.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class AssetUpdateView(ProblemRevisionMixin, UpdateView):
@@ -56,7 +56,7 @@ class AssetUpdateView(ProblemRevisionMixin, UpdateView):
             form.instance.pk = None
             self.object = form.save()
             self.revision.assets.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class AssetRenameView(ProblemRevisionMixin, UpdateView):
@@ -79,7 +79,7 @@ class AssetRenameView(ProblemRevisionMixin, UpdateView):
             form.instance.pk = None
             self.object = form.save()
             self.revision.assets.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class AssetDeleteView(ProblemRevisionMixin, View):

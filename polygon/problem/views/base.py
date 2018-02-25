@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
@@ -83,6 +85,25 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
 
 
 class ProblemRevisionMixin(PolygonProblemMixin):
+    model_class = None
+
+    def verify_belong_to_revision(self, id):
+        def expand_queryset(qs):
+            return set(chain(*qs.values_list("id", "parent_id"))) - {0}
+
+        if self.model_class is None:
+            raise NotImplementedError("\"model_class\" should not be None when checking revision")
+        if isinstance(id, str) and id.isdigit():
+            id = int(id)
+        qs = self.model_class.objects.filter(revision=self.revision.id)
+        ret = set()
+        while True:
+            ret_nxt = expand_queryset(qs)
+            if ret_nxt == ret: break
+            ret = ret_nxt
+            if id in ret: return True
+            qs = self.model_class.objects.filter(id__in=ret)
+        return False
 
     def init_revision(self, *args, **kwargs):
         self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",

@@ -44,7 +44,7 @@ class ProgramCreateView(ProblemRevisionMixin, CreateView):
             form.instance.create_time = datetime.now()
             self.object = form.save()
             self.revision.programs.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
@@ -75,7 +75,7 @@ class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
                     break
             self.revision.programs.add(self.object)
             self.revision.save()
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class ProgramActiveToggleView(ProblemRevisionMixin, View):

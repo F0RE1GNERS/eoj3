@@ -8,6 +8,8 @@ import chardet
 from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -61,12 +63,22 @@ class CaseManagementTools(object):
 REFORMAT = CaseManagementTools.reformat
 
 
+class RevisionCaseMixin(ProblemRevisionMixin):
+    model_class = Case
+
+    def init_revision(self, *args, **kwargs):
+        super().init_revision(*args, **kwargs)
+        if not self.verify_belong_to_revision(kwargs['cpk']):
+            raise Http404("No cases found matching the query")
+        self.case = Case.objects.get(pk=kwargs['cpk'])
+
+
 class CaseList(ProblemRevisionMixin, ListView):
     template_name = 'polygon/problem/case/list.jinja2'
     context_object_name = 'case_list'
 
     def get_queryset(self):
-        qs = self.revision.cases.all()
+        qs = self.revision.cases.all().order_by("case_number")
         for case in qs:
             case.comments = []
             case.comments.append(case.description)
@@ -162,10 +174,10 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
             self.revision.cases.add(*cases)
             self.revision.cases.remove(*remove_list)
 
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
-class CaseUpdateFileView(ProblemRevisionMixin, FormView):
+class CaseUpdateFileView(RevisionCaseMixin, FormView):
     form_class = CaseUpdateForm
     template_name = 'polygon/problem/simple_form.jinja2'
 
@@ -173,10 +185,7 @@ class CaseUpdateFileView(ProblemRevisionMixin, FormView):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get_object(self):
-        try:
-            return self.revision.cases.get(pk=self.kwargs['cpk'])
-        except Case.DoesNotExist:
-            raise Http404("No cases found matching the query")
+        return self.case
 
     def form_valid(self, form):
         with transaction.atomic():
@@ -195,10 +204,10 @@ class CaseUpdateFileView(ProblemRevisionMixin, FormView):
             object.save_fingerprint(self.problem.id)
             object.save()
             self.revision.cases.add(object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
-class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
+class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
     form_class = CaseUpdateInfoForm
     template_name = 'polygon/problem/simple_form.jinja2'
 
@@ -206,10 +215,7 @@ class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get_object(self, queryset=None):
-        try:
-            return self.revision.cases.get(pk=self.kwargs['cpk'])
-        except Case.DoesNotExist:
-            raise Http404("No cases found matching the query")
+        return self.case
 
     def form_valid(self, form):
         with transaction.atomic():
@@ -218,14 +224,23 @@ class CaseUpdateInfoView(ProblemRevisionMixin, UpdateView):
             form.instance.pk = None
             self.object = form.save()
             self.revision.cases.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
-class CaseDeleteView(ProblemRevisionMixin, View):
+class CaseDeleteView(RevisionCaseMixin, View):
     def post(self, request, *args, **kwargs):
         try:
-            object = self.revision.cases.get(pk=kwargs['cpk'])
-            self.revision.cases.remove(object)
+            self.revision.cases.remove(self.case)
             return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Case.DoesNotExist:
             raise Http404("No cases found matching the query")
+
+
+class CaseFullInputOutputView(RevisionCaseMixin, View):
+    def get(self, request, *args, **kwargs):
+        if "t" not in request.kwargs or request.kwargs["t"].lower() not in ("input", "output"):
+            return HttpResponseBadRequest()
+        if request.kwargs["t"].lower() == "input":
+            p = self.case.input_file.read()
+        else: p = self.case.output_file.read()
+        return HttpResponse(p, content_type="text/plain; charset=utf-8")

@@ -37,7 +37,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
             if self.revision.statements.count() == 1:
                 self.revision.active_statement = self.object
                 self.revision.save(update_fields=["active_statement_id"])
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class StatementUpdateView(ProblemRevisionMixin, UpdateView):
@@ -64,7 +64,7 @@ class StatementUpdateView(ProblemRevisionMixin, UpdateView):
                 self.revision.active_statement = self.object
                 self.revision.save(update_fields=["active_statement_id"])
             self.revision.statements.add(self.object)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class StatementActivateView(ProblemRevisionMixin, View):

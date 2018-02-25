@@ -27,12 +27,14 @@ class RevisionCreateView(PolygonProblemMixin, View):
                                            revision=revision_num,
                                            time_limit=self.problem.time_limit,
                                            memory_limit=self.problem.memory_limit)
-        revision.statements.create(description=self.problem.description,
-                                   input=self.problem.input,
-                                   output=self.problem.output,
-                                   hint=self.problem.hint,
-                                   title=self.problem.title,
-                                   create_time=datetime.now())
+        if self.problem.description or self.problem.input or self.problem.output or self.problem.hint:
+            statement = revision.statements.create(description=self.problem.description,
+                                                   input=self.problem.input,
+                                                   output=self.problem.output,
+                                                   hint=self.problem.hint,
+                                                   title=self.problem.title,
+                                                   create_time=datetime.now())
+            revision.active_statement = statement
 
         return redirect(self.request.path)
 
@@ -47,7 +49,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
         self.revision.id = None
         self.revision.save()
         self.kwargs.update(rpk=self.revision.id)
-        return redirect(reverse('polygon:revision_view', kwargs=self.kwargs))
+        return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
 
 
 class RevisionUpdateView(ProblemRevisionMixin, UpdateView):

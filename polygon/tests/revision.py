@@ -41,7 +41,6 @@ class RevisionTest(TestCase):
         self.revision.refresh_from_db()
         self.assertEqual(1000, self.revision.time_limit)
         self.assertEqual(1024, self.revision.memory_limit)
-        self.assertEqual("hello", self.revision.alias)
         self.assertEqual(False, self.revision.well_form_policy)
 
     def test_asset(self):
@@ -101,13 +100,14 @@ class RevisionTest(TestCase):
             "title": "my title",
             "description": "my description"
         })
-        # print(response)
+        print(response)
         self.assertEqual(self.revision.statements.count(), 1)
         response = self.client.post(reverse('polygon:revision_statement_create', kwargs=self.kwargs), data={
             "name": "another",
             "title": "another title",
             "description": "another description"
         })
+        print(response)
         self.assertEqual(self.revision.statements.count(), 2)
         self.revision.refresh_from_db()
         self.assertEqual(self.revision.active_statement.name, "default")
@@ -239,6 +239,8 @@ class RevisionTest(TestCase):
             "input_text": "new input",
             "output_text": "new output"
         })
+        # print(response, response.__dict__)
         self.assertEqual(self.revision.cases.count(), 6)
         for case in self.revision.cases.all():
+            # print(case.pk, case.parent_id)
             self.assertNotEqual(case.pk, 1)
