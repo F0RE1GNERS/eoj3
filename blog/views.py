@@ -72,10 +72,11 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
-        context['blog_revisions'] = self.blog.revisions.select_related("author").all()[1:]
-        context['action_path'] = reverse('comments-post-comment')
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
             context['is_privileged'] = True
+        if context['is_privileged'] or not self.blog.hide_revisions:
+            context['blog_revisions'] = self.blog.revisions.select_related("author").all()[1:]
+        context['action_path'] = reverse('comments-post-comment')
         return context
 
 
