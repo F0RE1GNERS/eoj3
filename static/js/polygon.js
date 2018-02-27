@@ -1,4 +1,5 @@
 $('.ui.accordion').accordion();
+$('.ui.pointing.dropdown.button').dropdown();
 $('.ui.calendar').calendar({
   formatter: {
     date: function (date, settings) {
@@ -42,13 +43,17 @@ function bindFormAndButtonData(form, button) {
   replaceFormData(form, button.data());
 }
 
-function redirect(url, method) {
+function redirect(url, method, extra_input) {
   var form = document.createElement('form');
-  var input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = 'csrfmiddlewaretoken';
-  input.value = Cookies.get('csrftoken');
-  form.appendChild(input);
+  extra_input["csrfmiddlewaretoken"] = Cookies.get('csrftoken');  // add csrf token
+  for (var key in extra_input)
+    if (extra_input.hasOwnProperty(key)) {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = extra_input[key];
+      form.appendChild(input);
+    }
   document.body.appendChild(form);
   form.method = method;
   form.action = url;
@@ -58,13 +63,29 @@ function redirect(url, method) {
 $(".post").on('click', function (event) {
   var button = $(event.currentTarget);
   var link = button.data("link");
-  if (button.hasClass("prompt")) {
-    if (confirm("Are you sure about this?"))
-      redirect(link, "post");
-  } else {
-    redirect(link, "post");
+  var extra_input = {};
+  if (button.hasClass("gather")) {
+    // gather all checkbox information
+    extra_input["gather"] = $.makeArray($("input[type='checkbox']").map(function() {
+      return this.checked ? this.name : "";
+    })).filter(function(n) {
+      return n != "all" && n != "";
+    }).join(",");
+    if (!extra_input["gather"]) {
+      alert("Please select cases first!");
+      return;
+    }
   }
-});
+  if (button.hasClass("ask")) {
+    extra_input["answer"] = prompt(button.data("question") || "");
+    redirect(link, "post", extra_input);
+  } if (button.hasClass("prompt")) {
+    if (confirm("Are you sure about this?"))
+      redirect(link, "post", extra_input);
+  } else {
+    redirect(link, "post", extra_input);
+  }
+}).attr('href', 'javascript:void(0)');
 
 if ($("#contest-problem-app").length > 0) {
   Vue.options.delimiters = ["[[", "]]"];

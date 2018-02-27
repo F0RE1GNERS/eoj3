@@ -51,4 +51,10 @@ urlpatterns = [
         name='revision_case_update_file'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/delete/$', case.CaseDeleteView.as_view(),
         name='revision_case_delete'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/(?P<cpk>\d+)/preview/$', case.CaseFullInputOutputView.as_view(),
+        name='revision_case_preview'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/order/natural/$', case.CaseNaturalizeOrderView.as_view(),
+        name='revision_case_order_natural'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/order/move/$', case.CaseMoveOrderView.as_view(),
+        name='revision_case_order_move'),
 ]

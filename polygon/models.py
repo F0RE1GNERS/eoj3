@@ -121,7 +121,6 @@ class Case(models.Model):
     output_file = models.FileField(upload_to='cases/%Y%m%d/', storage=repo_storage)
     in_samples = models.BooleanField(default=False)
     in_pretests = models.BooleanField(default=False)
-    in_tests = models.BooleanField(default=True)
     points = models.PositiveIntegerField(default=10)
     output_lock = models.BooleanField(default=False)
     description = models.TextField(blank=True)

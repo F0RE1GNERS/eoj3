@@ -59,8 +59,24 @@ class CaseManagementTools(object):
             return CaseManagementTools.well_form_binary(txt)
         else: return txt
 
+    @staticmethod
+    def naturalize_order(revision, case_set):
+        remove_list = []
+        add_list = []
+        with transaction.atomic():
+            for idx, case in enumerate(case_set, start=1):
+                if idx != case.case_number:
+                    remove_list.append(Case(pk=case.pk))
+                    case.case_number = idx
+                    case.pk = None
+                    case.save()
+                    add_list.append(case)
+            revision.cases.add(*add_list)
+            revision.cases.remove(*remove_list)
+
 
 REFORMAT = CaseManagementTools.reformat
+NATURALIZE_ORDER = CaseManagementTools.naturalize_order
 
 
 class RevisionCaseMixin(ProblemRevisionMixin):
@@ -71,6 +87,17 @@ class RevisionCaseMixin(ProblemRevisionMixin):
         if not self.verify_belong_to_revision(kwargs['cpk']):
             raise Http404("No cases found matching the query")
         self.case = Case.objects.get(pk=kwargs['cpk'])
+
+
+class RevisionMultipleCasesMixin(ProblemRevisionMixin):
+    def init_revision(self, *args, **kwargs):
+        super().init_revision(*args, **kwargs)
+        self.pk_set = set(filter(lambda x: x, self.request.POST["gather"].split(",")))
+        if not self.pk_set:
+            raise ValueError("Invalid selected cases")
+        self.case_set = self.revision.cases.filter(pk__in=self.pk_set).order_by("case_number")
+        if len(self.case_set) != len(self.pk_set):
+            raise ValueError("Invalid selected cases")
 
 
 class CaseList(ProblemRevisionMixin, ListView):
@@ -92,6 +119,11 @@ class CaseList(ProblemRevisionMixin, ListView):
                 case.comments.append("Excluded in tests")
             case.comments.append("Worth %d pts." % case.points)
         return qs
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["disable_grid"] = True
+        return data
 
 
 class CaseCreateView(ProblemRevisionMixin, FormView):
@@ -238,9 +270,28 @@ class CaseDeleteView(RevisionCaseMixin, View):
 
 class CaseFullInputOutputView(RevisionCaseMixin, View):
     def get(self, request, *args, **kwargs):
-        if "t" not in request.kwargs or request.kwargs["t"].lower() not in ("input", "output"):
+        if "t" not in request.GET or request.GET["t"].lower() not in ("input", "output"):
             return HttpResponseBadRequest()
-        if request.kwargs["t"].lower() == "input":
+        if request.GET["t"].lower() == "input":
             p = self.case.input_file.read()
         else: p = self.case.output_file.read()
         return HttpResponse(p, content_type="text/plain; charset=utf-8")
+
+
+class CaseNaturalizeOrderView(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        qs = self.revision.cases.all().order_by("case_number")
+        NATURALIZE_ORDER(self.revision, qs)
+        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+
+
+class CaseMoveOrderView(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        after = int(request.POST.get("answer", 0))
+        other_case_set = self.revision.cases.exclude(pk__in=self.pk_set).order_by("case_number")
+        insert_pos = 0
+        while insert_pos < len(other_case_set) and other_case_set[insert_pos].case_number <= after:
+            insert_pos += 1
+        ret = other_case_set[:insert_pos] + list(self.case_set) + other_case_set[insert_pos:]
+        NATURALIZE_ORDER(self.revision, ret)
+        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))

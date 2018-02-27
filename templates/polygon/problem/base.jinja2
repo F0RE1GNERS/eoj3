@@ -21,10 +21,13 @@
     <div class="ui text loader">Loading</div>
   </div>
 
+  {% if not disable_grid %}
   <div class="ui grid">
     <div class="twelve wide column">
+    {% endif %}
       {% block problem_content %}
       {% endblock %}
+    {% if not disable_grid %}
     </div>
     <div class="four wide column">
       <div class="ui info small message">
@@ -82,6 +85,7 @@
 
     </div>
   </div>
+  {% endif %}
 
   {% include 'components/delete_confirmation.jinja2' %}
 
