@@ -109,6 +109,219 @@ $(".post").on('click', function (event) {
   }
 }).attr('href', 'javascript:void(0)');
 
+if ($("#session-case-app").length > 0) {
+  // Vue.js needed
+  Vue.options.delimiters = ["[[", "]]"];
+  new Vue({
+    el: "#session-case-app",
+    data: {
+      apiRoute: "",
+      errorMessage: "",
+      caseList: [],
+      previewCaseInput: "",
+      previewCaseOutput: "",
+      generateParam: ""
+    },
+    computed: {
+      generateParamLength: function () {
+        return this.generateParam.split('\n').length;
+      },
+      selectedId: function () {
+        return this.caseList.filter(function (c) {
+          return c.selected;
+        }).map(function (c) {
+          return c.fingerprint;
+        }).join(',');
+      }
+    },
+    methods: {
+      ping: function () {
+        console.log("pong");
+      },
+      updateConfig: function () {
+        this.apiRoute = $(this.$el).data("api-route");
+        $.getJSON(this.apiRoute, function (data) {
+          this.caseList = data['caseList'];
+          for (var i = 0; i < this.caseList.length; ++i)
+            this.caseList[i].used = this.caseList[i].order > 0;
+        }.bind(this));
+      },
+      clearErrorMessage: function () {
+        this.errorMessage = "";
+      },
+      showDeleteDialog: function (event) {
+        button = $(event.currentTarget);
+        $("#delete-confirmation")
+          .modal({
+            onApprove: function () {
+              $.post(button.attr("data-action"), {
+                csrfmiddlewaretoken: Cookies.get('csrftoken'),
+                id: button.attr("data-id")
+              }, function () {
+                this.updateConfig();
+              }.bind(this));
+            }.bind(this)
+          })
+          .modal('show');
+      },
+      initializeCaseEditor: function (event) {
+        var url = $(event.currentTarget).attr("data-api");
+        var modal = $("#case-edit-modal");
+        $.getJSON(url, function (data) {
+          var inputText = modal.find("*[name='inputText']"),
+            outputText = modal.find("*[name='outputText']"),
+            fileInput = modal.find(".file.input"),
+            pointInput = modal.find("*[name='point']"),
+            sampleCheckbox = modal.find("*[name='sample']"),
+            pretestCheckbox = modal.find("*[name='pretest']"),
+            formatCheckbox = modal.find("*[name='reform']");
+          fileInput.find("input").val('');
+          modal.find(".ui.file.input").inputFile();
+          inputText.prop("readonly", data.input.nan);
+          inputText.val(data.input.text);
+          outputText.prop("readonly", data.output.nan);
+          outputText.val(data.output.text);
+          pointInput.val(data.point);
+          sampleCheckbox.prop("checked", data.sample);
+          pretestCheckbox.prop("checked", data.pretest);
+          formatCheckbox.prop("checked", true);
+          modal.modal({
+            closable: false,
+            autofocus: false,
+            onApprove: function () {
+              modal.find("form").attr("action", url);
+              modal.find("form").submit();
+            }
+          }).modal('show');
+        }.bind(this));
+      },
+      showDialogWithOneForm: function (event) {
+        var button = $(event.currentTarget);
+        var local_modal = $(button.data("target"));
+        var form = local_modal.find("form");
+        bindFormAndButtonData(form, button);
+        var autofocus = true, closable = true;
+        if (button.data("block"))
+          closable = false;
+        if (form.find(".ui.dropdown", "select").length > 0) {
+          form.find(".ui.dropdown").dropdown();
+          autofocus = false;
+        }
+        if (form.find(".ui.checkbox").length > 0) {
+          form.find(".ui.checkbox").checkbox();
+        }
+        if (form.find(".ui.file.input").length > 0) {
+          form.find(".ui.file.input").inputFile();
+          autofocus = false;
+        }
+        local_modal
+          .modal({
+            autofocus: autofocus,
+            closable: closable,
+            onApprove : function () {
+              form.submit();
+            }
+          })
+          .modal('show');
+      },
+      postLink: function (event) {
+        var data = { csrfmiddlewaretoken: Cookies.get('csrftoken') };
+        var buttonData = $(event.currentTarget).data();
+        $.post(buttonData['action'], Object.assign(data, buttonData), function (data) {
+          this.updateConfig();
+        }.bind(this))
+      },
+      showTargetModalNaive: function (event) {
+        $($(event.currentTarget).data("target")).modal('show');
+      },
+      saveChanges: function (event) {
+        $.post($(event.currentTarget).data("url"), {
+          'case': JSON.stringify(this.caseList),
+          'csrfmiddlewaretoken': Cookies.get('csrftoken')
+        }, function () {
+          $("#success-modal").modal('show');
+          this.updateConfig();
+        }.bind(this));
+      },
+      toggleSelectAll: function () {
+        var ans = true;
+        if (this.caseList.every(function (element) {
+          return element.selected;
+        })) {
+          ans = false;
+        }
+        for (var i = 0; i < this.caseList.length; ++i)
+          this.caseList[i].selected = ans;
+      }
+    },
+    beforeMount: function () {
+      this.updateConfig();
+    },
+    mounted: function () {
+      $('.tabular.menu .item').tab({
+        history: false,
+        onLoad: function () {
+          $(this).siblings("input[type='hidden']").val($(this).attr("data-type"));
+        }
+      });
+      $('.ui.dropdown.onhover').dropdown({
+        on: 'hover'
+      });
+      $('.ui.checkbox:not(.vue)').checkbox();
+      $('.ui.selection.dropdown').dropdown();
+      $(".ui.icon.pointing.dropdown.button")
+        .dropdown();
+      new Clipboard('.clipboard');
+      $('form').submit(function (event) {
+        var target = $(event.target);
+        var progressBar = target.data("progress-bar") ? $(target.data("progress-bar")) : null;
+        if (target.form('is valid')) {
+          var formData = new FormData(target[0]);
+          $.ajax({
+            url: target.attr("action"),
+            type: 'POST',
+            data: formData,
+            success: function () {
+              this.updateConfig();
+            }.bind(this),
+            complete: function (data) {
+              if (progressBar) {
+                setTimeout(function () {
+                  progressBar.hide();
+                }, 2000);
+              }
+            },
+            cache: false,
+            contentType: false,
+            processData: false,
+            xhr: function () {
+              var myXhr = $.ajaxSettings.xhr();
+              if (myXhr.upload && progressBar) {
+                // For handling the progress of the upload
+                progressBar.show();
+                progressBar.progress();
+                myXhr.upload.addEventListener('progress', function(e) {
+                  if (e.lengthComputable) {
+                    progressBar.progress('set total', e.total);
+                    progressBar.progress('set progress', e.loaded);
+                  }
+                } , false);
+              }
+              return myXhr;
+            }
+          });
+          return false;
+        }
+      }.bind(this));
+    },
+    updated: function () {
+      $(".ui.icon.pointing.dropdown.button")
+        .dropdown();
+      $('.ui.selection.dropdown').dropdown();
+    }
+  });
+}
+
 if ($("#contest-problem-app").length > 0) {
   Vue.options.delimiters = ["[[", "]]"];
   new Vue({
