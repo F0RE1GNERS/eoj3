@@ -26,17 +26,29 @@ class BlogQuerySet(models.QuerySet):
         )
 
 
+class BlogRevision(models.Model):
+    title = models.CharField('Title', max_length=128)
+    text = models.TextField('Text')
+    author = models.ForeignKey(User)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-create_time"]
+
+
 class Blog(models.Model):
     title = models.CharField('Title', max_length=128)
     text = models.TextField('Text')
     author = models.ForeignKey(User)
 
-    visible = models.BooleanField('Visible', default=True)
+    visible = models.BooleanField('Accessible to all users', default=True)
     create_time = models.DateTimeField('Created time', auto_now_add=True)
     edit_time = models.DateTimeField('Edit time', auto_now=True)
 
     likes = models.ManyToManyField(User, through='BlogLikes', related_name='blog_user_like')
     recommend = models.BooleanField(default=False)
+    revisions = models.ManyToManyField(BlogRevision)
+    hide_revisions = models.BooleanField('Hide history versions', default=False)
 
     objects = BlogQuerySet.as_manager()
 

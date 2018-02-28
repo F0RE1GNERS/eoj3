@@ -23,7 +23,7 @@
 {% macro display_rank(rank) %}
     <td scope="row">{% if rank.actual_rank %}{{ rank.actual_rank }}{% endif %}</td>
     <td class="ui left aligned">
-      <h5 class="ui header">
+      <h5 class="ui header" style="margin-top:0; {% if not rank.user.user.magic %}font-weight:normal;{% endif %}">
         <div class="content">
           {% if rank.user.star %}* {% endif %}{{ username_display(rank.user.user) }}
           {% if rank.user.comment %}

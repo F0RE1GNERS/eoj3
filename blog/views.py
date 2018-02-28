@@ -1,7 +1,9 @@
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.edit import FormMixin
@@ -14,7 +16,7 @@ from problem.models import Problem
 from submission.statistics import get_accept_problem_count
 from utils.comment import CommentForm
 from .forms import BlogEditForm
-from .models import Blog, Comment, BlogLikes
+from .models import Blog, Comment, BlogLikes, BlogRevision
 
 
 class GenericView(ListView):
@@ -70,9 +72,33 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['blog'] = self.blog
+        context['is_privileged'] = is_admin_or_root(self.request.user) or self.request.user == self.blog.author
+        if context['is_privileged'] or not self.blog.hide_revisions:
+            context['blog_revisions'] = self.blog.revisions.select_related("author").all()[1:]
         context['action_path'] = reverse('comments-post-comment')
+        return context
+
+
+class BlogRevisionView(UserPassesTestMixin, TemplateView):
+    template_name = 'blog/blog_revision_detail.jinja2'
+    raise_exception = True
+
+    def dispatch(self, request, *args, **kwargs):
+        self.blog = get_object_or_404(Blog, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def test_func(self):
         if is_admin_or_root(self.request.user) or self.request.user == self.blog.author:
-            context['is_privileged'] = True
+            return True
+        return self.blog.visible and not self.blog.hide_revisions
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context['blog'] = self.blog
+            context['revision'] = self.blog.revisions.get(pk=kwargs['rpk'])
+        except BlogRevision.DoesNotExist:
+            raise Http404("Requested revision does not exist.")
         return context
 
 
@@ -84,6 +110,7 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
+        instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
         return HttpResponseRedirect(reverse('generic', kwargs={'pk': self.request.user.pk}))
 
 
@@ -96,15 +123,17 @@ class BlogUpdate(UpdateView):
         instance = form.save(commit=False)
         if not is_admin_or_root(self.request.user) and instance.author != self.request.user:
             raise PermissionDenied(_("You don't have the access."))
-        instance.save()
-        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
+        with transaction.atomic():
+            instance.save()
+            instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
+        return redirect(reverse('blog:detail', kwargs=self.kwargs))
 
 
 class BlogAddComment(LoginRequiredMixin, View):
     def post(self, request, pk):
         if 'text' in request.POST and request.POST['text']:
             Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
-        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': pk}))
+        return redirect(reverse('blog:detail', kwargs={'pk': pk}))
 
 
 class LikeBlog(View):
