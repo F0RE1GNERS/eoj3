@@ -78,7 +78,8 @@
           <li class="item"><b>Memory limit:</b> {{ revision.memory_limit }} MB</li>
         </ul>
       </div>
-      <a class="ui primary fluid small button post prompt" data-link="https://www.baidu.com/" style="margin-bottom: 0.75em">Publish</a>
+      <a class="ui green fluid small button post prompt" data-link="{{ url('polygon:revision_confirm', problem.id, revision.id) }}" style="margin-bottom: 0.75em">Publish</a>
+      <a class="ui fluid small button post promt" data-link="{{ url('polygon:revision_create', problem.id) }}" style="margin-bottom: 0.75em">Start New Revision</a>
       <a class="ui fluid small button" style="margin-bottom: 0.75em">Update Alias</a>
       <a class="ui fluid small button" style="margin-bottom: 0.75em">Fork This</a>
       <a class="ui fluid small negative button" style="margin-bottom: 0.75em">Discard</a>

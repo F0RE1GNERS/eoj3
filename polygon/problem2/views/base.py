@@ -111,7 +111,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
 
     def init_revision(self, *args, **kwargs):
         self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
-                                                              "active_interactor", "user").filter(pk=kwargs.get('rpk'))
+                                                              "active_interactor", "user").filter(pk=kwargs['rpk'])
         if len(self.revision) == 0:
             raise Http404("Revision matches not found.")
         else: self.revision = self.revision[0]

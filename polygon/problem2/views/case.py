@@ -108,7 +108,8 @@ class CaseList(ProblemRevisionMixin, ListView):
         qs = self.revision.cases.all().order_by("case_number")
         for case in qs:
             case.comments = []
-            case.comments.append(case.description)
+            if case.description:
+                case.comments.append(case.description)
             if case.in_samples:
                 case.comments.append("Sample")
             if case.in_pretests:

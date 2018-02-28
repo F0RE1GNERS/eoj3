@@ -66,9 +66,16 @@ $("input[name='all']").on('change', function() {
 
 var lastChecked = null;
 var slicedCheckbox = $(".ui.checkbox.slice");
-console.log(slicedCheckbox);
 slicedCheckbox.on('click', function (e) {
-  console.log(lastChecked);
+  // check all checked
+  var allChecked = true;
+  for (var i = 0; i < slicedCheckbox.length; ++i) {
+    if (!($(slicedCheckbox[i]).checkbox("is checked"))) {
+      allChecked = false;
+      break;
+    }
+  }
+  $("input[name='all']").prop('checked', allChecked);
   if (!lastChecked) {
     lastChecked = this;
     return;

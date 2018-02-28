@@ -11,6 +11,7 @@ urlpatterns += [
     url(r'^(?P<pk>\d+)/revision/create/$', revision.RevisionCreateView.as_view(), name='revision_create'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/$', revision.RevisionUpdateView.as_view(), name='revision_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/fork/$', revision.RevisionForkView.as_view(), name='revision_fork'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/confirm/$', revision.RevisionConfirmView.as_view(), name='revision_confirm'),
 ]
 
 urlpatterns += [
