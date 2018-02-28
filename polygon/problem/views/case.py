@@ -295,3 +295,10 @@ class CaseMoveOrderView(RevisionMultipleCasesMixin, View):
         ret = other_case_set[:insert_pos] + list(self.case_set) + other_case_set[insert_pos:]
         NATURALIZE_ORDER(self.revision, ret)
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+
+
+class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        self.revision.cases.remove(*list(self.case_set))
+        NATURALIZE_ORDER(self.revision, self.revision.cases.all().order_by("case_number"))
+        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))

@@ -60,6 +60,28 @@ function redirect(url, method, extra_input) {
   form.submit();
 }
 
+$("input[name='all']").on('change', function() {
+  $("input[type='checkbox']").prop('checked', this.checked);
+});
+
+var lastChecked = null;
+var slicedCheckbox = $(".ui.checkbox.slice");
+console.log(slicedCheckbox);
+slicedCheckbox.on('click', function (e) {
+  console.log(lastChecked);
+  if (!lastChecked) {
+    lastChecked = this;
+    return;
+  }
+  if (e.shiftKey) {
+    var start = slicedCheckbox.index(this);
+    var end = slicedCheckbox.index(lastChecked);
+    slicedCheckbox.slice(Math.min(start, end), Math.max(start, end) + 1)
+      .checkbox($(lastChecked).checkbox("is checked") ? "check" : "uncheck");
+  }
+  lastChecked = this;
+});
+
 $(".post").on('click', function (event) {
   var button = $(event.currentTarget);
   var link = button.data("link");

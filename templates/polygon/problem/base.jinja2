@@ -52,7 +52,7 @@
               {% if revision.active_checker %}
                 {{ revision.active_checker.name }}
               {% else %}
-                <span class="text red bold" style="font-weight:bold;">None</span>
+                <span class="text orange bold" style="font-weight:bold;" data-tooltip="Default checker is supported. Check help for details.">default</span>
               {% endif %}
             </a>
           </li>
