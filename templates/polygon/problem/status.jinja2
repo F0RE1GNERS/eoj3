@@ -1,0 +1,8 @@
+{% extends 'polygon/problem/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block problem_content %}
+
+  {{ status(hide_problems=True, rejudge=True, show_ip=True) }}
+
+{% endblock %}
