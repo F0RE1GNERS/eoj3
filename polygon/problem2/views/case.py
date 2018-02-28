@@ -20,8 +20,8 @@ from django.views.generic import UpdateView
 from os import path
 
 from polygon.models import Case
-from polygon.problem.forms import CaseUpdateForm, CaseCreateForm, CaseUpdateInfoForm
-from polygon.problem.views.base import ProblemRevisionMixin
+from polygon.problem2.forms import CaseUpdateForm, CaseCreateForm, CaseUpdateInfoForm
+from polygon.problem2.views.base import ProblemRevisionMixin
 from utils import random_string
 from utils.file_preview import sort_data_list_from_directory
 
@@ -101,7 +101,7 @@ class RevisionMultipleCasesMixin(ProblemRevisionMixin):
 
 
 class CaseList(ProblemRevisionMixin, ListView):
-    template_name = 'polygon/problem/case/list.jinja2'
+    template_name = 'polygon/problem2/case/list.jinja2'
     context_object_name = 'case_list'
 
     def get_queryset(self):
@@ -128,7 +128,7 @@ class CaseList(ProblemRevisionMixin, ListView):
 
 class CaseCreateView(ProblemRevisionMixin, FormView):
     form_class = CaseCreateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -211,7 +211,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
 
 class CaseUpdateFileView(RevisionCaseMixin, FormView):
     form_class = CaseUpdateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -241,7 +241,7 @@ class CaseUpdateFileView(RevisionCaseMixin, FormView):
 
 class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
     form_class = CaseUpdateInfoForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})

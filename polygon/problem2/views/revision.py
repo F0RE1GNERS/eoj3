@@ -9,8 +9,8 @@ from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
 from polygon.models import Revision
-from polygon.problem.forms import RevisionUpdateForm
-from polygon.problem.views.base import ProblemRevisionMixin, PolygonProblemMixin
+from polygon.problem2.forms import RevisionUpdateForm
+from polygon.problem2.views.base import ProblemRevisionMixin, PolygonProblemMixin
 
 
 class RevisionCreateView(PolygonProblemMixin, View):
@@ -54,7 +54,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
 
 class RevisionUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = RevisionUpdateForm
-    template_name = 'polygon/problem/revision/update.jinja2'
+    template_name = 'polygon/problem2/revision/update.jinja2'
 
     def get_object(self, queryset=None):
         return self.revision

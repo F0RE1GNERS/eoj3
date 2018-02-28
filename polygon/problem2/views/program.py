@@ -10,15 +10,15 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from polygon.models import Program
-from polygon.problem.forms import ProgramUpdateForm
-from polygon.problem.views.base import ProblemRevisionMixin
+from polygon.problem2.forms import ProgramUpdateForm
+from polygon.problem2.views.base import ProblemRevisionMixin
 
 
 ACTIVABLE_PROGRAM_TAGS = ("checker", "interactor", "validator")
 
 
 class ProgramList(ProblemRevisionMixin, ListView):
-    template_name = 'polygon/problem/program/list.jinja2'
+    template_name = 'polygon/problem2/program/list.jinja2'
     context_object_name = 'program_list'
 
     def get_queryset(self):
@@ -34,7 +34,7 @@ class ProgramList(ProblemRevisionMixin, ListView):
 
 class ProgramCreateView(ProblemRevisionMixin, CreateView):
     form_class = ProgramUpdateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -49,7 +49,7 @@ class ProgramCreateView(ProblemRevisionMixin, CreateView):
 
 class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = ProgramUpdateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})

@@ -17,7 +17,7 @@ class RevisionTest(TestCase):
         self.user.save()
 
         self.client.login(username='myusername', password='password')
-        self.assertContains(self.client.post(reverse('polygon:problem_create')), '')
+        self.assertContains(self.client.post(reverse('polygon:problem_create_2')), '')
         self.assertEqual(1, Problem.objects.all().count())
         self.problem = Problem.objects.all().first()
 

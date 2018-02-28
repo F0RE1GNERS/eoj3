@@ -1,10 +1,10 @@
 from django.conf.urls import url
 
-from polygon.problem.views import base, asset, case, program, revision, statement
+from polygon.problem2.views import base, asset, case, program, revision, statement
 
 urlpatterns = [
-    url(r'^$', base.ProblemList.as_view(), name='problem_list'),
-    url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create')
+    url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
+    url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create_2')
 ]
 
 urlpatterns += [

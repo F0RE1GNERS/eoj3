@@ -3,20 +3,24 @@ from itertools import chain
 from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
 from django.views.generic.base import ContextMixin
 
+from account.models import User
 from account.permissions import is_admin_or_root
 from polygon.base_views import PolygonBaseMixin
 from polygon.models import Revision
 from problem.models import Problem
+from problem.views import StatusList
+from submission.models import Submission
 from utils.permission import is_problem_manager
 
 
 class ProblemList(PolygonBaseMixin, ListView):
-    template_name = 'polygon/problem/list.jinja2'
+    template_name = 'polygon/problem2/list.jinja2'
     context_object_name = 'problem_list'
     paginate_by = 250
 
@@ -118,3 +122,23 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         data = super().get_context_data(**kwargs)
         data['revision'] = self.revision
         return data
+
+
+class ProblemStatus(PolygonProblemMixin, StatusList):
+    template_name = 'polygon/problem2/status.jinja2'
+    privileged = True
+
+    def get_selected_from(self):
+        return Submission.objects.filter(problem_id=self.problem.id)
+
+
+class ProblemBasicInfoManage(PolygonProblemMixin, View):
+    """
+    This includes admin and alias
+    """
+    def post(self, request, pk):
+        my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
+        self.problem.managers.clear()
+        for key in my_set:
+            self.problem.managers.add(User(pk=key))
+        return redirect(reverse('polygon:problem_edit', kwargs={'pk': str(pk)}))

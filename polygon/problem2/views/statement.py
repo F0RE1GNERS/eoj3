@@ -10,12 +10,12 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from polygon.models import Statement
-from polygon.problem.forms import StatementUpdateForm
-from polygon.problem.views.base import ProblemRevisionMixin
+from polygon.problem2.forms import StatementUpdateForm
+from polygon.problem2.views.base import ProblemRevisionMixin
 
 
 class StatementList(ProblemRevisionMixin, ListView):
-    template_name = 'polygon/problem/statement/list.jinja2'
+    template_name = 'polygon/problem2/statement/list.jinja2'
     context_object_name = 'statement_list'
 
     def get_queryset(self):
@@ -24,7 +24,7 @@ class StatementList(ProblemRevisionMixin, ListView):
 
 class StatementCreateView(ProblemRevisionMixin, CreateView):
     form_class = StatementUpdateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -42,7 +42,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
 
 class StatementUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = StatementUpdateForm
-    template_name = 'polygon/problem/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
