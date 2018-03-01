@@ -100,11 +100,20 @@ class RevisionForkView(ProblemRevisionMixin, View):
     """
     Fork a previous revision into a new one
     """
+    post_allowed_for_low_permission = True
 
+    @transaction.atomic()
     def post(self, *args, **kwargs):
-        self.revision.parent_id = self.revision.id
+        old_revision = Revision.objects.get(pk=self.revision.pk)
+        self.revision.parent_id = old_revision.id
         self.revision.id = None
+        self.revision.revision = self.problem.revisions.all().aggregate(Max("revision"))["revision__max"] + 1
+        self.revision.status = 0
         self.revision.save()
+        self.revision.statements.add(*old_revision.statements.all())
+        self.revision.assets.add(*old_revision.assets.all())
+        self.revision.programs.add(*old_revision.programs.all())
+        self.revision.cases.add(*old_revision.cases.all())
         self.kwargs.update(rpk=self.revision.id)
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
 
@@ -182,4 +191,17 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
             server.save(update_fields=['last_synchronize_time'])
 
         self.problem.save()
+        self.revision.status = 1
+        self.revision.save(update_fields=["status"])
+        return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
+
+
+class RevisionDiscardView(ProblemRevisionMixin, View):
+    """
+    Discard current revision
+    """
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        self.revision.status = -1
+        self.revision.save(update_fields=["status"])
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))

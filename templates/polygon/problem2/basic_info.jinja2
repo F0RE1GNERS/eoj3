@@ -1,0 +1,25 @@
+{% extends 'polygon/base.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
+
+{% block title %}Problem Manage - {% endblock %}
+
+{% block content %}
+  <h1 class="ui header">Problem #{{ problem.id }} Basic Info</h1>
+
+  {% include 'components/message.jinja2' %}
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Admin List (DO NOT DELETE YOURSELF!):</label>
+      {{ user_search_multiple(name='admin', exist=admin_list) }}
+    </div>
+    <div class="field">
+      <label>Problem Alias:</label>
+      <input type="text" name="alias" value="{{ problem.alias }}">
+    </div>
+    <div class="field">
+      <button class="ui button positive">Save</button>
+    </div>
+  </form>
+
+{% endblock %}

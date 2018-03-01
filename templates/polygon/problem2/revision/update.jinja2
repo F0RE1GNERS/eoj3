@@ -14,7 +14,7 @@
         <th>Author</th>
         <th>Status</th>
         <th>Based on</th>
-        <th>Action</th>
+        <th colspan="2">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +26,11 @@
         <td>{{ username_display(revision.user) }}</td>
         <td>{{ revision.get_status_display() }}</td>
         <td>{% if revision.based_on %}{{ revision.based_on }}{% endif %}</td>
-        <td>{% if revision.status == 0 %}<a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Continue</a>{% endif %}</td>
+        {% if revision.status == 0 %}<td colspan="2"><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Continue</a></td>
+        {% else %}
+          <td><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">View</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">Fork</a></td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>

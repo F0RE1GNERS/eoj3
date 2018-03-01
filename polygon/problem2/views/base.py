@@ -1,5 +1,6 @@
 from itertools import chain
 
+from django.db import transaction
 from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
@@ -7,12 +8,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import User
 from account.permissions import is_admin_or_root
 from polygon.base_views import PolygonBaseMixin
 from polygon.models import Revision
+from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem
 from problem.views import StatusList
 from submission.models import Submission
@@ -55,6 +57,7 @@ class ProblemCreate(PolygonBaseMixin, View):
 
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     raise_exception = True
+    post_allowed_for_low_permission = False
 
     def init_revision(self, *args, **kwargs):
         pass
@@ -76,7 +79,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
         """
         if not super().test_func():
             return False
-        if self.request.method == "POST" and self.permission < 2:
+        if self.request.method == "POST" and self.permission < 2 and not self.post_allowed_for_low_permission:
             return False
         elif self.permission < 1:
             return False
@@ -115,7 +118,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         if len(self.revision) == 0:
             raise Http404("Revision matches not found.")
         else: self.revision = self.revision[0]
-        if self.revision.user != self.request.user:
+        if self.revision.user != self.request.user or self.revision.status != 0:
             self.permission = 1
 
     def get_context_data(self, **kwargs):
@@ -132,13 +135,29 @@ class ProblemStatus(PolygonProblemMixin, StatusList):
         return Submission.objects.filter(problem_id=self.problem.id)
 
 
-class ProblemBasicInfoManage(PolygonProblemMixin, View):
+class ProblemRejudge(PolygonProblemMixin, View):
+    def post(self, request, *args, **kwargs):
+        rejudge_all_submission_on_problem(self.problem)
+        return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
+
+
+class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     """
     This includes admin and alias
     """
+    template_name = 'polygon/problem2/basic_info.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['admin_list'] = self.problem.managers.all()
+        return data
+
+    @transaction.atomic()
     def post(self, request, pk):
+        self.problem.alias = request.POST['alias']
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
         self.problem.managers.clear()
         for key in my_set:
-            self.problem.managers.add(User(pk=key))
-        return redirect(reverse('polygon:problem_edit', kwargs={'pk': str(pk)}))
+            self.problem.managers.add(User.objects.get(pk=key))
+        self.problem.save()
+        return redirect(self.request.path)

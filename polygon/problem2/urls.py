@@ -4,7 +4,10 @@ from polygon.problem2.views import base, asset, case, program, revision, stateme
 
 urlpatterns = [
     url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
-    url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create_2')
+    url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create_2'),
+    url(r'^(?P<pk>\d+)/info/$', base.ProblemBasicInfoManage.as_view(), name='problem_basic_info'),
+    url(r'^(?P<pk>\d+)/status/$', base.ProblemStatus.as_view(), name='problem_status'),
+    url(r'^(?P<pk>\d+)/rejudge/$', base.ProblemRejudge.as_view(), name='rejudge_problem'),
 ]
 
 urlpatterns += [
@@ -12,6 +15,7 @@ urlpatterns += [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/$', revision.RevisionUpdateView.as_view(), name='revision_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/fork/$', revision.RevisionForkView.as_view(), name='revision_fork'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/confirm/$', revision.RevisionConfirmView.as_view(), name='revision_confirm'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/discard/$', revision.RevisionDiscardView.as_view(), name='revision_discard'),
 ]
 
 urlpatterns += [
