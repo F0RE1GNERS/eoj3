@@ -35,6 +35,8 @@ urlpatterns += [
         name='revision_statement'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/create/$', statement.StatementCreateView.as_view(),
         name='revision_statement_create'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/$', statement.StatementPreview.as_view(),
+        name='revision_statement_preview'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/update/$', statement.StatementUpdateView.as_view(),
         name='revision_statement_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/statement/(?P<spk>\d+)/activate/$',

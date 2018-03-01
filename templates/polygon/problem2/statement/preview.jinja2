@@ -1,0 +1,27 @@
+{% extends 'polygon/problem2/base.jinja2' %}
+
+{% block problem_content %}
+
+  <h2 class="ui header">{{ problem.title }}</h2>
+  <div class="problem-body">
+    {% if statement.description %}
+      <div class="passage">
+        {{ statement.description | markdown | safer | safe }}
+      </div>
+    {% endif %}
+    {% if statement.input %}
+      <h3 class="title">Input</h3>
+      {{ statement.input | markdown | safer | safe }}
+    {% endif %}
+    {% if statement.output %}
+      <h3 class="title">Output</h3>
+      {{ statement.output | markdown | safer | safe }}
+    {% endif %}
+    {% if statement.hint %}
+      <h3 class="title">Note</h3>
+      {{ statement.hint | markdown | safer | safe }}
+    {% endif %}
+  </div>
+
+
+{% endblock %}

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
+from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
 from polygon.models import Statement
@@ -20,6 +21,16 @@ class StatementList(ProblemRevisionMixin, ListView):
 
     def get_queryset(self):
         return self.revision.statements.all()
+
+
+class RevisionStatementMixin(ProblemRevisionMixin):
+    model_class = Statement
+
+    def init_revision(self, *args, **kwargs):
+        super().init_revision(*args, **kwargs)
+        if not self.verify_belong_to_revision(kwargs['spk']):
+            raise Http404("No statement found matching the query")
+        self.statement = Statement.objects.get(pk=kwargs['spk'])
 
 
 class StatementCreateView(ProblemRevisionMixin, CreateView):
@@ -40,7 +51,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
         return redirect(self.get_success_url())
 
 
-class StatementUpdateView(ProblemRevisionMixin, UpdateView):
+class StatementUpdateView(RevisionStatementMixin, UpdateView):
     form_class = StatementUpdateForm
     template_name = 'polygon/problem2/simple_form.jinja2'
 
@@ -48,10 +59,7 @@ class StatementUpdateView(ProblemRevisionMixin, UpdateView):
         return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get_object(self, queryset=None):
-        try:
-            return self.revision.statements.get(pk=self.kwargs['spk'])
-        except Statement.DoesNotExist:
-            raise Http404("No statements found matching the query")
+        return self.statement
 
     def form_valid(self, form):
         with transaction.atomic():
@@ -86,3 +94,12 @@ class StatementDeleteView(ProblemRevisionMixin, View):
             return redirect(reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Statement.DoesNotExist:
             raise Http404("No statements found matching the query")
+
+
+class StatementPreview(RevisionStatementMixin, TemplateView):
+    template_name = 'polygon/problem2/statement/preview.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["statement"] = self.statement
+        return data

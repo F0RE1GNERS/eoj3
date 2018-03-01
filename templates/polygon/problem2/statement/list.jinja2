@@ -30,7 +30,7 @@
             </div>
           </td>
           <td>{{ statement.pk }}</td>
-          <td>{{ statement.name }}</td>
+          <td><a href="{{ url('polygon:revision_statement_preview', problem.id, revision.id, statement.id) }}">{{ statement.name }}</a></td>
           <td>{{ statement.create_time | date('Y-m-d H:i') }}</td>
           <td>{{ statement.update_time | date('Y-m-d H:i') }}</td>
           <td>{{ statement.parent_id }}</td>

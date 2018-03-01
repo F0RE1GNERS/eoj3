@@ -1,3 +1,7 @@
+import os
+import shutil
+
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -15,6 +19,7 @@ class RevisionTest(TestCase):
         self.user = User.objects.create(email="something@user.com", username="myusername", is_staff=True, polygon_enabled=True)
         self.user.set_password("password")
         self.user.save()
+        shutil.rmtree(os.path.join(settings.UPLOAD_DIR, "1"), ignore_errors=True)
 
         self.client.login(username='myusername', password='password')
         self.assertContains(self.client.post(reverse('polygon:problem_create_2')), '')
@@ -101,17 +106,17 @@ class RevisionTest(TestCase):
             "description": "my description"
         })
         print(response)
-        self.assertEqual(self.revision.statements.count(), 1)
+        self.assertEqual(self.revision.statements.count(), 2)
         response = self.client.post(reverse('polygon:revision_statement_create', kwargs=self.kwargs), data={
             "name": "another",
             "title": "another title",
             "description": "another description"
         })
         print(response)
-        self.assertEqual(self.revision.statements.count(), 2)
+        self.assertEqual(self.revision.statements.count(), 3)
         self.revision.refresh_from_db()
         self.assertEqual(self.revision.active_statement.name, "default")
-        my_kwargs = {"spk": 1}
+        my_kwargs = {"spk": 2}
         my_kwargs.update(self.kwargs)
         self.client.post(reverse('polygon:revision_statement_update', kwargs=my_kwargs), data={
             "name": "default2",
@@ -119,10 +124,10 @@ class RevisionTest(TestCase):
         })
         self.revision.active_statement.refresh_from_db()
         self.revision.refresh_from_db()
-        self.assertEqual(Statement.objects.count(), 3)
-        self.assertEqual(self.revision.statements.count(), 2)
-        self.assertEqual(self.revision.active_statement.pk, 3)
-        my_kwargs.update(spk=2)
+        self.assertEqual(Statement.objects.count(), 4)
+        self.assertEqual(self.revision.statements.count(), 3)
+        self.assertEqual(self.revision.active_statement.pk, 1)
+        my_kwargs.update(spk=3)
         self.client.post(reverse('polygon:revision_statement_activate', kwargs=my_kwargs))
         self.revision.refresh_from_db()
         self.assertEqual(self.revision.active_statement.name, "another")

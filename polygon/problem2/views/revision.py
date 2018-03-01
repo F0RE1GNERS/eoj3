@@ -68,14 +68,16 @@ class RevisionCreateView(PolygonProblemMixin, View):
             setattr(revision, 'active_%s' % t, created_program)
 
         asset_base_dir = os.path.join(settings.UPLOAD_DIR, str(self.problem.id))
-        asset_files = sort_out_directory(os.path.join(settings.UPLOAD_DIR, str(self.problem.id)))
-        for file in asset_files:
-            file_path = os.path.join(asset_base_dir, file)
-            with open(file_path, 'rb') as file_reader:
-                asset = revision.assets.create(name=file,
-                                               real_path='/upload/%d/%s' % (self.problem.id, file),
-                                               create_time=datetime.now())
-                asset.file.save(file, File(file_reader))
+        if os.path.exists(asset_base_dir):
+            asset_files = os.listdir(asset_base_dir)
+            for file in asset_files:
+                file_path = os.path.join(asset_base_dir, file)
+                with open(file_path, 'rb') as file_reader:
+                    ref_name = file[:file.find('.')] if '.' in file else file
+                    asset = revision.assets.create(name=ref_name,
+                                                   real_path='/upload/%d/%s' % (self.problem.id, file),
+                                                   create_time=datetime.now())
+                    asset.file.save(file, File(file_reader))
 
         cases_to_copy = self.keep_first_occurrence(
             self.problem.sample_list + self.problem.pretest_list + self.problem.case_list)
