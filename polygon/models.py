@@ -188,3 +188,20 @@ class Revision(models.Model):
 
     class Meta:
         unique_together = ('problem', 'revision')
+
+
+class Task(models.Model):
+    STATUS_CHOICE = (
+        (-3, 'PENDING'),
+        (-2, 'RUNNING'),
+        (-1, 'FAILED'),
+        (0, 'OK'),
+        (1, 'ABORTED')
+    )
+
+    revision = models.ForeignKey(Revision)
+    abstract = models.TextField(blank=True, max_length=256)
+    status = models.IntegerField(choices=STATUS_CHOICE, default=-3)
+    report = models.TextField(blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)

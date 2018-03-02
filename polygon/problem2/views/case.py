@@ -1,3 +1,4 @@
+import json
 import re
 import zipfile
 from datetime import datetime
@@ -5,8 +6,10 @@ from datetime import datetime
 import io
 
 import chardet
+from django.contrib import messages
 from django.core.files.base import ContentFile, File
 from django.db import transaction
+from django.db.models import Max
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -19,8 +22,12 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 from os import path
 
-from polygon.models import Case
+from django_q.tasks import async
+
+from polygon.models import Case, Program, Task
 from polygon.problem2.forms import CaseUpdateForm, CaseCreateForm, CaseUpdateInfoForm
+from polygon.problem2.runner import Runner
+from polygon.problem2.runner.exception import CompileError
 from polygon.problem2.views.base import ProblemRevisionMixin
 from utils import random_string
 from utils.file_preview import sort_data_list_from_directory
@@ -73,6 +80,89 @@ class CaseManagementTools(object):
                     add_list.append(case)
             revision.cases.add(*add_list)
             revision.cases.remove(*remove_list)
+
+    @staticmethod
+    def generate_cases(revision, commands):
+        generators = {}
+        current_task = Task.objects.create(revision=revision, abstract="GENERATE CASES")
+        report = []
+        for command_string in commands:
+            ret = {"command": command_string}
+            command = command_string.split()
+            program_name, program_args = command[0], command[1:]
+            try:
+                if program_name not in generators:
+                    program = revision.programs.get(name=program_name, tag="generator")
+                    generators[program_name] = Runner(program)
+                elif isinstance(generators[program_name], CompileError):
+                    raise generators[program_name]
+                runner = generators[program_name]
+                if revision.cases.all().count():
+                    case_number = revision.cases.all().aggregate(Max("case_number"))["case_number__max"] + 1
+                else: case_number = 1
+                new_case = Case(create_time=datetime.now(),
+                                description="Gen \"%s\"" % command_string,
+                                case_number=case_number)
+                new_case.input_file.save("in", ContentFile(b""), save=False)
+                new_case.output_file.save("out", ContentFile(b""), save=False)
+                running_result = runner.run(args=program_args, stdout=new_case.input_file.path,
+                                            max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                new_case.save_fingerprint(revision.problem_id)
+                ret["case_number"] = case_number
+                with transaction.atomic():
+                    new_case.save()
+                    revision.cases.add(new_case)
+                    ret.update(case_number=case_number,
+                               success=running_result["verdict"] == "OK",
+                               detail=running_result,
+                               generated=new_case.input_preview)
+                    current_task.status = -2
+                    current_task.report = json.dumps(running_result)
+                    current_task.save()
+            except (Program.MultipleObjectsReturned, Program.DoesNotExist):
+                ret.update(success=False,
+                           error="There should be exactly one program tagged 'generator' that fits the command.")
+            except CompileError as e:
+                generators[program_name] = e
+                ret.update(success=False, error=e.error)
+            report.append(ret)
+        current_task.status = 0 if all(map(lambda r: r["success"], report)) else -1
+
+    @staticmethod
+    def run_all_output(revision, solution):
+        current_task = Task.objects.create(revision=revision, abstract="RUN OUTPUT, all tests")
+        case_set = revision.cases.all()
+        try:
+            runner = Runner(solution)
+            result = []
+            failed = False
+            for case in case_set:
+                if case.output_lock: continue  # output content protected
+                case.output_file.save("out", ContentFile(b''), save=False)
+                case.parent_id = case.pk
+                case.pk = None
+                run_result = runner.run(stdin=case.input_file.path, stdout=case.output_file.path,
+                                        max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                case.save_fingerprint(revision.problem_id)
+                with transaction.atomic():
+                    case.save()
+                    revision.cases.remove(Case(pk=case.parent_id))
+                    revision.cases.add(case)
+                    result.append({
+                        "case_number": case.case_number,
+                        "success": run_result["verdict"] == "OK",
+                        "detail": run_result
+                    })
+                    if run_result["verdict"] != "OK":
+                        failed = True
+                    current_task.status = -2
+                    current_task.report = json.dumps(result)
+                    current_task.save()
+            current_task.status = -1 if failed else 0
+        except CompileError as e:
+            current_task.report = json.dumps([{"success": False, "error": e.error}])
+            current_task.status = -1
+        current_task.save()
 
 
 REFORMAT = CaseManagementTools.reformat
@@ -170,11 +260,15 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
                     case = Case(create_time=global_create_time,
                                 description="From \"%s\": (%s, %s)" % (form.cleaned_data["batch_file"].name,
                                                                        inf, ouf))
-                    case.input_file.save("in", File(ins))
-                    case.output_file.save("out", File(ous))
+                    case.input_file.save("in", File(ins), save=False)
+                    case.output_file.save("out", File(ous), save=False)
                     case.save_fingerprint(self.problem.id)
                     cases.append(case)
             # TODO: catch exception
+        elif option == "gen":
+            commands = list(map(lambda x: " ".join(x.split()),
+                                filter(lambda x: x, form.cleaned_data["gen_command"].split("\n"))))
+            async(CaseManagementTools.generate_cases, self.revision, commands)
 
         # process case numbers
         remove_list = []
@@ -302,4 +396,14 @@ class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
         self.revision.cases.remove(*list(self.case_set))
         NATURALIZE_ORDER(self.revision, self.revision.cases.all().order_by("case_number"))
+        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+
+
+class CaseRunOutput(ProblemRevisionMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            solution = self.revision.get(tag="solution_main_correct")
+            async(CaseManagementTools.run_all_output, self.revision, solution)
+        except (Program.MultipleObjectsReturned, Program.DoesNotExist):
+            messages.error(request, "There should be exactly one main correct solution!")
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))

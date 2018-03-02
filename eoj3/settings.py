@@ -38,6 +38,30 @@ except ImportError:
     }
     SITE_ID = 1
     ADMIN_LIST = []
+    RUNNER_CONFIG = {
+        "cpp": {
+            "compiler_file": "/usr/bin/g++",
+            "compiler_args": ["-O2", "-std=c++11", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
+                              "-fmax-errors=3"],
+            "code_file": "foo.cc",
+            "execute_file": "foo",
+        },
+        "java": {
+            "compiler_file": "/usr/bin/javac",
+            "compiler_args": ["-encoding", "utf8", "Main.java"],
+            "code_file": "Main.java",
+            "execute_file": "/usr/bin/java",
+            "execute_args": ["-Xss1M", "-XX:MaxPermSize=16M", "-XX:PermSize=8M", "-Xms16M", "-Xmx{max_memory}M",
+                             "-Dfile.encoding=UTF-8", "Main"],
+        },
+        "python": {
+            "compiler_file": "/usr/bin/python3",
+            "compiler_args": ["-m", "py_compile", "foo.py"],
+            "code_file": "foo.py",
+            "execute_file": "/usr/bin/python3",
+            "execute_args": ["foo.py"]
+        }
+    }
 
 
 ALLOWED_HOSTS = ['*']
@@ -82,6 +106,8 @@ INSTALLED_APPS = [
     'django_comments_xtd',
     'django_comments',
     'notifications',
+
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -301,3 +327,16 @@ NOTIFICATIONS_SOFT_DELETE = True
 
 
 AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
+
+
+Q_CLUSTER = {
+    'name': 'eoj_cluster',
+    'workers': 4,
+    'recycle': 10,
+    'timeout': 900,
+    'retry': None,
+    'cached': 3600,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'django_redis': 'default',
+}

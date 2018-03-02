@@ -1,7 +1,9 @@
-{% extends 'polygon/problem2/base.jinja2' %}
+{% extends 'polygon/base.jinja2' %}
 {% from 'components/status.jinja2' import status with context %}
 
-{% block problem_content %}
+{% block content %}
+
+  <h1 class="ui header">Problem #{{ problem.id }} Status</h1>
 
   {{ status(hide_problems=True, rejudge=True, show_ip=True) }}
 

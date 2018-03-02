@@ -39,3 +39,4 @@ django-ipware
 psycopg2
 uptime
 python-dateutil
+django-q
