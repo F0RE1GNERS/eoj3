@@ -186,3 +186,5 @@ class Revision(models.Model):
 
     # when a revision is done, making changes will create a new revision
 
+    class Meta:
+        unique_together = ('problem', 'revision')

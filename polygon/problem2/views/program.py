@@ -7,12 +7,13 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
+from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
 from polygon.models import Program
 from polygon.problem2.forms import ProgramUpdateForm
 from polygon.problem2.views.base import ProblemRevisionMixin
-
+from utils.language import transform_code_to_html
 
 ACTIVABLE_PROGRAM_TAGS = ("checker", "interactor", "validator")
 
@@ -32,6 +33,17 @@ class ProgramList(ProblemRevisionMixin, ListView):
         return qs
 
 
+class RevisionProgramMixin(ProblemRevisionMixin):
+    model_class = Program
+
+    def init_revision(self, *args, **kwargs):
+        super().init_revision(*args, **kwargs)
+        if not self.verify_belong_to_revision(kwargs['ppk']):
+            raise Http404("No program found matching the query")
+        self.program = Program.objects.get(pk=kwargs['ppk'])
+
+
+
 class ProgramCreateView(ProblemRevisionMixin, CreateView):
     form_class = ProgramUpdateForm
     template_name = 'polygon/problem2/simple_form.jinja2'
@@ -47,7 +59,7 @@ class ProgramCreateView(ProblemRevisionMixin, CreateView):
         return redirect(self.get_success_url())
 
 
-class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
+class ProgramUpdateView(RevisionProgramMixin, UpdateView):
     form_class = ProgramUpdateForm
     template_name = 'polygon/problem2/simple_form.jinja2'
 
@@ -55,10 +67,7 @@ class ProgramUpdateView(ProblemRevisionMixin, UpdateView):
         return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get_object(self, queryset=None):
-        try:
-            return self.revision.programs.get(pk=self.kwargs['ppk'])
-        except Program.DoesNotExist:
-            raise Http404("No programs found matching the query")
+        return self.program
 
     def form_valid(self, form):
         with transaction.atomic():
@@ -101,3 +110,13 @@ class ProgramDeleteView(ProblemRevisionMixin, View):
             return redirect(reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
         except Program.DoesNotExist:
             raise Http404("No programs found matching the query")
+
+
+class ProgramPreview(RevisionProgramMixin, TemplateView):
+    template_name = 'polygon/problem2/program/preview.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["program"] = self.program
+        self.program.code_as_html = transform_code_to_html(self.program.code, self.program.lang)
+        return data

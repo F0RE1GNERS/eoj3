@@ -50,6 +50,8 @@ urlpatterns += [
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/$', program.ProgramList.as_view(), name='revision_program'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/create/$', program.ProgramCreateView.as_view(),
         name='revision_program_create'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/$', program.ProgramPreview.as_view(),
+        name='revision_program_preview'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/update/$', program.ProgramUpdateView.as_view(),
         name='revision_program_update'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/toggle/$', program.ProgramActiveToggleView.as_view(),

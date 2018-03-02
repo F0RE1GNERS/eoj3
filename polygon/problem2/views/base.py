@@ -1,5 +1,7 @@
+import traceback
 from itertools import chain
 
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count
 from django.http import Http404
@@ -155,6 +157,7 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     @transaction.atomic()
     def post(self, request, pk):
         self.problem.alias = request.POST['alias']
+        self.problem.source = request.POST['source']
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
         self.problem.managers.clear()
         for key in my_set:
