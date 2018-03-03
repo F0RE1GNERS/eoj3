@@ -18,9 +18,9 @@ from polygon.problem2.views.base import ProblemRevisionMixin
 from utils import random_string
 
 
-def get_random_filename(raw_name, problem_id):
-    a, b = os.path.splitext(raw_name)
-    c = os.path.join(str(problem_id), a + "." + random_string(8) + b)
+def get_random_filename(raw_name, file_path, problem_id):
+    _, ext = os.path.splitext(file_path)
+    c = os.path.join(str(problem_id), raw_name + "." + random_string(8) + ext)
     dir_in_upload = os.path.join(settings.UPLOAD_DIR, c)
     os.makedirs(os.path.dirname(dir_in_upload), exist_ok=True)
     return dir_in_upload, os.path.join('/upload', c)
@@ -45,7 +45,7 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
         form.instance.create_time = datetime.now()
         self.object = form.save()
         self.revision.assets.add(self.object)
-        copy_path, self.object.real_path = get_random_filename(self.object.name, self.problem.id)
+        copy_path, self.object.real_path = get_random_filename(self.object.name, self.object.file.path, self.problem.id)
         copyfile(self.object.file.path, copy_path)
         self.object.save(update_fields=["real_path"])
         return redirect(self.get_success_url())
@@ -70,7 +70,7 @@ class AssetUpdateView(ProblemRevisionMixin, UpdateView):
             form.instance.parent_id = form.instance.pk
             form.instance.pk = None
             self.object = form.save()
-            copy_path, self.object.real_path = get_random_filename(self.object.name, self.problem.id)
+            copy_path, self.object.real_path = get_random_filename(self.object.name, self.object.file.path, self.problem.id)
             copyfile(self.object.file.path, copy_path)
             self.object.save(update_fields=["real_path"])
             self.revision.assets.add(self.object)
