@@ -58,6 +58,8 @@ urlpatterns += [
         name='revision_program_toggle'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/(?P<ppk>\d+)/delete/$', program.ProgramDeleteView.as_view(),
         name='revision_program_delete'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/program/import/$', program.ProgramImportView.as_view(),
+        name='revision_program_import'),
 ]
 
 urlpatterns += [

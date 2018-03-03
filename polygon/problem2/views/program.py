@@ -6,13 +6,15 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
+from django.views.generic import FormView
 from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
 from polygon.models import Program
-from polygon.problem2.forms import ProgramUpdateForm
+from polygon.problem2.forms import ProgramUpdateForm, ProgramImportForm
 from polygon.problem2.views.base import ProblemRevisionMixin
+from problem.models import SpecialProgram
 from utils.language import transform_code_to_html
 
 ACTIVABLE_PROGRAM_TAGS = ("checker", "interactor", "validator")
@@ -120,3 +122,22 @@ class ProgramPreview(RevisionProgramMixin, TemplateView):
         data["program"] = self.program
         self.program.code_as_html = transform_code_to_html(self.program.code, self.program.lang)
         return data
+
+
+class ProgramImportView(ProblemRevisionMixin, FormView):
+    template_name = 'polygon/problem2/simple_form.jinja2'
+    form_class = ProgramImportForm
+
+    def get_success_url(self):
+        return reverse('polygon:revision_program', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+
+    def form_valid(self, form):
+        program = SpecialProgram.objects.get(fingerprint=form.cleaned_data["program"], builtin=True)
+        self.revision.programs.create(name=program.filename,
+                                      fingerprint=program.fingerprint,
+                                      lang=program.lang,
+                                      tag=program.category,
+                                      create_time=datetime.now(),
+                                      code=program.code)
+        return redirect(self.get_success_url())
+

@@ -6,9 +6,12 @@
     <thead class="full-width">
       <tr>
         <th colspan="8">
-          <a href="{{ url('polygon:revision_program_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
-            <i class="add icon"></i> Add Program
-          </a>
+          <div class="ui right floated buttons">
+            <a href="{{ url('polygon:revision_program_create', problem.id, revision.id) }}" class="ui primary labeled icon button">
+              <i class="add icon"></i> Add Program
+            </a>
+            <a href="{{ url('polygon:revision_program_import', problem.id, revision.id) }}" class="ui button">Import</a>
+          </div>
         </th>
       </tr>
       <tr>

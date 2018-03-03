@@ -2,7 +2,7 @@ from django import forms
 from tagging.models import Tag
 
 from polygon.models import Statement, Revision, Program, Case, Asset
-from problem.models import Problem
+from problem.models import Problem, SpecialProgram
 from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 
 
@@ -66,6 +66,17 @@ class ProgramUpdateForm(forms.ModelForm):
     class Meta:
         model = Program
         fields = ["name", "lang", "code", "tag"]
+
+
+class ProgramImportForm(forms.Form):
+    program = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        program_choices = []
+        for program in SpecialProgram.objects.filter(builtin=True).order_by("category", "filename"):
+            program_choices.append((program.fingerprint, "%s - %s" % (program.get_category_display(), program.filename)))
+        self.fields["program"].choices = program_choices
 
 
 class CaseCreateForm(forms.Form):
