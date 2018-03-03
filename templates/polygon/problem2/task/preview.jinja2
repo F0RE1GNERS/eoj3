@@ -20,6 +20,10 @@
       <td>{{ task.update_time | date("Y-m-d H:i:s") }}</td>
     </tr>
     <tr>
+      <td>Status</td>
+      <td>{{ task.get_status_display() }}</td>
+    </tr>
+    <tr>
       <td>Report</td>
       <td><pre>{{ task.pretty_report }}</pre></td>
     </tr>
