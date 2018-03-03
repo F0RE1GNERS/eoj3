@@ -13,6 +13,7 @@
     <a class="item {{ active('polygon:revision_program') }}" href="{{ url('polygon:revision_program', problem.id, revision.id) }}">Programs</a>
     <a class="item {{ active('polygon:revision_case') }}" href="{{ url('polygon:revision_case', problem.id, revision.id) }}">Cases</a>
     <a class="item">Tasks</a>
+    <a class="item" href="{{ url('polygon:problem_status', problem.id) }}" target="_blank">Submits</a>
     <a class="item" href="{{ url('problem:detail', problem.id) }}" target="_blank">Preview</a>
     {#    <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submits</a>#}
   </div>
@@ -72,6 +73,11 @@
               {% else %}
                 None
               {% endif %}
+            </a>
+          </li>
+          <li class="item"><b>Cases:</b>
+            <a href="{{ url('polygon:revision_case', problem.id, revision.id) }}">
+              {{ revision.cases.count() }}
             </a>
           </li>
           <li class="item"><b>Time limit:</b> {{ revision.time_limit }} ms</li>

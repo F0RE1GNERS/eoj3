@@ -1,10 +1,7 @@
-{% extends 'polygon/base.jinja2' %}
+{% extends 'polygon/problem2/problem_base.jinja2' %}
 {% from 'components/search_user.jinja2' import user_search_multiple %}
 
-{% block title %}Problem Manage - {% endblock %}
-
-{% block content %}
-  <h1 class="ui header">Problem #{{ problem.id }} Basic Info</h1>
+{% block problem_content %}
 
   {% include 'components/message.jinja2' %}
   <form class="ui form" method="POST">

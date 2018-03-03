@@ -78,4 +78,6 @@ urlpatterns += [
         name='revision_case_order_move'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/delete/$', case.CaseDeleteSelectedView.as_view(),
         name='revision_case_delete'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/output/$', case.CaseRunOutput.as_view(),
+        name='revision_case_run_output'),
 ]

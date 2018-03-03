@@ -67,6 +67,16 @@ class CaseManagementTools(object):
         else: return txt
 
     @staticmethod
+    def reformat_file(file_path, well_form_policy=True):
+        if well_form_policy:
+            with open(file_path, "rb+") as file_obj:
+                file_obj.seek(0)
+                ret = CaseManagementTools.reformat(file_obj.read())
+                file_obj.seek(0)
+                file_obj.truncate(0)
+                file_obj.write(ret.encode())
+
+    @staticmethod
     def naturalize_order(revision, case_set):
         remove_list = []
         add_list = []
@@ -107,6 +117,7 @@ class CaseManagementTools(object):
                 new_case.output_file.save("out", ContentFile(b""), save=False)
                 running_result = runner.run(args=program_args, stdout=new_case.input_file.path,
                                             max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                CaseManagementTools.reformat_file(new_case.input_file.path, revision.well_form_policy)
                 new_case.save_fingerprint(revision.problem_id)
                 ret["case_number"] = case_number
                 with transaction.atomic():
@@ -143,6 +154,7 @@ class CaseManagementTools(object):
                 case.pk = None
                 run_result = runner.run(stdin=case.input_file.path, stdout=case.output_file.path,
                                         max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                CaseManagementTools.reformat_file(case.output_file.path, revision.well_form_policy)
                 case.save_fingerprint(revision.problem_id)
                 with transaction.atomic():
                     case.save()
@@ -402,7 +414,7 @@ class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
 class CaseRunOutput(ProblemRevisionMixin, View):
     def post(self, request, *args, **kwargs):
         try:
-            solution = self.revision.get(tag="solution_main_correct")
+            solution = self.revision.programs.get(tag="solution_main")
             async(CaseManagementTools.run_all_output, self.revision, solution)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")

@@ -67,6 +67,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     def dispatch(self, request, *args, **kwargs):
         self.request = request
         self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
+        self.latest_revisions = self.problem.revisions.all().order_by("-revision")[:5]
         if is_problem_manager(self.request.user, self.problem):
             self.permission = 2
 
@@ -90,6 +91,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['problem'] = self.problem
+        data['latest_revisions'] = self.latest_revisions
         return data
 
 

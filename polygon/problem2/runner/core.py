@@ -82,7 +82,6 @@ class Runner(object):
                 traceback.print_exc()
                 os._exit(-777)  # Magic number, indicates something wrong during execution
         else:
-            print(child_pid)
             killer = threading.Timer(max_real_time, os.killpg, (child_pid, signal.SIGKILL))
             killer.start()
 

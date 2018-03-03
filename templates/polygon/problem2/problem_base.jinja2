@@ -1,0 +1,23 @@
+{% extends 'polygon/base.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
+
+{% block title %}Problem #{{ problem.id }} - {% endblock %}
+
+{% block content %}
+  <h1 class="ui header">Problem #{{ problem.id }}</h1>
+
+  <div class="ui text stackable menu">
+    <a class="item {{ active('polygon:problem_basic_info') }}" href="{{ url('polygon:problem_basic_info', problem.id) }}">Basics</a>
+    <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submits</a>
+    <a class="item" href="{{ url('problem:detail', problem.id) }}" target="_blank">Preview</a>
+  {% for revision in latest_revisions %}
+    <a class="item {{ active('polygon:revision_update') }}" href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Revision {{ revision.revision }}</a>
+  {% endfor %}
+  </div>
+
+  {% block problem_content %}
+  {% endblock %}
+
+  {% include 'components/delete_confirmation.jinja2' %}
+
+{% endblock %}

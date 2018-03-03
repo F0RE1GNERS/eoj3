@@ -86,6 +86,11 @@ print(a + b)"""
 print("%d %d" % (randint(1, 10), randint(1, 10)))""",
                                       tag="generator",
                                       create_time=datetime.now())
+        program = Program(name="hello2", lang="python",
+                          code="""a, b = map(int, input().split())
+print(a + b)""")
         CaseManagementTools.generate_cases(self.revision, ["gen 1 2" for i in range(10)])
+        CaseManagementTools.run_all_output(self.revision, program)
         for i in self.revision.cases.all():
-            print(i.input_preview)
+            print(i.input_preview, i.output_preview, i.pk)
+            self.assertEqual(sum(map(int, i.input_preview.split())), int(i.output_preview))

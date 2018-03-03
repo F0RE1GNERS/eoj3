@@ -12,11 +12,11 @@
             <a href="{{ url('polygon:revision_case_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
               <i class="add icon"></i> Add Case(s)
             </a>
-            <div class="ui icon top left pointing dropdown button">
+            <div class="ui icon top right pointing dropdown button">
               <i class="wrench icon"></i>
               <div class="menu">
                 <div class="header">Typical</div>
-                <div class="item">Run Case Output (N/A)</div>
+                <a class="item post prompt" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Run Case Output (for all)</a>
                 <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">Adjust Case Order</a>
                 <div class="header">For selected</div>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
