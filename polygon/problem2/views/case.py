@@ -127,9 +127,6 @@ class CaseManagementTools(object):
                                success=running_result["verdict"] == "OK",
                                detail=running_result,
                                generated=new_case.input_preview)
-                    current_task.status = -2
-                    current_task.report = json.dumps(running_result)
-                    current_task.save()
             except (Program.MultipleObjectsReturned, Program.DoesNotExist):
                 ret.update(success=False,
                            error="There should be exactly one program tagged 'generator' that fits the command.")
@@ -137,6 +134,9 @@ class CaseManagementTools(object):
                 generators[program_name] = e
                 ret.update(success=False, error=e.error)
             report.append(ret)
+            current_task.status = -2
+            current_task.report = json.dumps(report)
+            current_task.save()
         current_task.status = 0 if all(map(lambda r: r["success"], report)) else -1
 
     @staticmethod

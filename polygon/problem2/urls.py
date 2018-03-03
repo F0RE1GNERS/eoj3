@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from polygon.problem2.views import base, asset, case, program, revision, statement
+from polygon.problem2.views import base, asset, case, program, revision, statement, task
 
 urlpatterns = [
     url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
@@ -80,4 +80,9 @@ urlpatterns += [
         name='revision_case_delete'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/output/$', case.CaseRunOutput.as_view(),
         name='revision_case_run_output'),
+]
+
+urlpatterns += [
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/task/$', task.TaskList.as_view(), name='revision_task'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/task/(?P<tpk>\d+)/$', task.TaskPreview.as_view(), name='revision_task_preview'),
 ]
