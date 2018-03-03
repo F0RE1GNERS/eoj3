@@ -21,5 +21,8 @@ class TaskPreview(ProblemRevisionMixin, TemplateView):
         data = super().get_context_data(**kwargs)
         data["task"] = self.revision.task_set.get(id=kwargs["tpk"])
         data["disable_grid"] = True
-        data["task"].pretty_report = json.dumps(json.loads(data["task"].report), indent=2, sort_keys=True)
+        try:
+            data["task"].pretty_report = json.dumps(json.loads(data["task"].report), indent=2, sort_keys=True)
+        except json.JSONDecodeError:
+            data["task"].pretty_report = ""
         return data

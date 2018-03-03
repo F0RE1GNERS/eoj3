@@ -71,9 +71,10 @@ class ProgramUpdateForm(forms.ModelForm):
 class CaseCreateForm(forms.Form):
     option = forms.ChoiceField(choices=(
         ('text', 'Type in input and output (Recommended for samples)'),
-        ('batch', 'Upload a zip archive'),
+        ('batch', 'Upload a zip archive (with input and output files)'),
         ('single', 'Upload input file (and output file)'),
-        ('gen', 'Generate cases',)))
+        ('gen', 'Generate cases'),
+        ('batch_input', 'Upload a zip file (with inputs only)')))
     input_file = forms.FileField(required=False)
     output_file = forms.FileField(required=False)
     input_text = forms.CharField(required=False, widget=forms.Textarea())

@@ -231,7 +231,7 @@ class CaseList(ProblemRevisionMixin, ListView):
 
 class CaseCreateView(ProblemRevisionMixin, FormView):
     form_class = CaseCreateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/case/create.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -277,6 +277,8 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
                     case.save_fingerprint(self.problem.id)
                     cases.append(case)
             # TODO: catch exception
+        elif option == "batch_input":
+            pass
         elif option == "gen":
             commands = list(map(lambda x: " ".join(x.split()),
                                 filter(lambda x: x, form.cleaned_data["gen_command"].split("\n"))))
@@ -312,6 +314,8 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
                 case.save()
             self.revision.cases.add(*cases)
             self.revision.cases.remove(*remove_list)
+
+        messages.success(self.request, "%d case(s) has been added." % len(cases))
 
         return redirect(self.get_success_url())
 
