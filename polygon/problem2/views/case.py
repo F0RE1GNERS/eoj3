@@ -292,6 +292,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
             for case in cases:
                 while idx in exist:
                     idx += 1
+                exist.add(idx)
                 case.case_number = idx
         else:
             idx = case_number_start
