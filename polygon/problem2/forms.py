@@ -110,8 +110,8 @@ class CaseUpdateForm(forms.Form):
     ))
     input_file = forms.FileField(required=False)
     output_file = forms.FileField(required=False)
-    input_text = forms.CharField(widget=forms.Textarea())
-    output_text = forms.CharField(widget=forms.Textarea())
+    input_text = forms.CharField(widget=forms.Textarea(), required=False)
+    output_text = forms.CharField(widget=forms.Textarea(), required=False)
 
     def clean(self):
         if self.cleaned_data["option"] == "file" and (

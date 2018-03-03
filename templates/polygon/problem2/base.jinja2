@@ -40,13 +40,11 @@
           <li class="item"><b>Problem Alias:</b> {{ problem.alias }}</li>
           <li class="item"><b>Revision:</b> {{ revision.revision }}</li>
           <li class="item"><b>Statement:</b>
-            <a href="{{ url('polygon:revision_statement', problem.id, revision.id) }}">
-              {% if revision.active_statement %}
-                {{ revision.active_statement.name }}
-              {% else %}
-                <span class="text red bold" style="font-weight:bold;">None</span>
-              {% endif %}
-            </a>
+            {% if revision.active_statement %}
+              <a href="{{ url('polygon:revision_statement_preview', problem.id, revision.id, revision.active_statement_id) }}">{{ revision.active_statement.name }}</a>
+            {% else %}
+              <a href="{{ url('polygon:revision_statement', problem.id, revision.id) }}"><span class="text red bold" style="font-weight:bold;">None</span></a>
+            {% endif %}
           </li>
           <li class="item"><b>Checker:</b>
             <a href="{{ url('polygon:revision_program', problem.id, revision.id) }}">

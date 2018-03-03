@@ -140,9 +140,8 @@ class CaseManagementTools(object):
         current_task.status = 0 if all(map(lambda r: r["success"], report)) else -1
 
     @staticmethod
-    def run_all_output(revision, solution):
-        current_task = Task.objects.create(revision=revision, abstract="RUN OUTPUT, all tests")
-        case_set = revision.cases.all()
+    def run_case_output(revision, case_set, solution):
+        current_task = Task.objects.create(revision=revision, abstract="RUN OUTPUT, %d cases" % len(case_set))
         try:
             runner = Runner(solution)
             result = []
@@ -322,7 +321,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
 
 class CaseUpdateFileView(RevisionCaseMixin, FormView):
     form_class = CaseUpdateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/case/update.jinja2'
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -415,11 +414,11 @@ class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
 
 
-class CaseRunOutput(ProblemRevisionMixin, View):
+class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
         try:
             solution = self.revision.programs.get(tag="solution_main")
-            async(CaseManagementTools.run_all_output, self.revision, solution)
+            async(CaseManagementTools.run_case_output, self.revision, self.case_set, solution)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))

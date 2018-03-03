@@ -16,9 +16,9 @@
               <i class="wrench icon"></i>
               <div class="menu">
                 <div class="header">Typical</div>
-                <a class="item post prompt" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Run Case Output (for all)</a>
                 <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">Adjust Case Order</a>
                 <div class="header">For selected</div>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Run Selected Case Output</a>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
                 <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="Move the selected cases after (0 means above all):">Move Selected</a>
               </div>
