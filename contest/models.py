@@ -98,6 +98,7 @@ class Contest(models.Model):
 
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
+    open_problems = models.BooleanField('Publish problems after contest', default=True)
 
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')

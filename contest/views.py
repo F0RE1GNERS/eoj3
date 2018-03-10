@@ -41,7 +41,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.volunteer = is_volunteer(self.user)
         if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
             self.registered = True
-        elif self.contest.public or self.contest.status > 0:
+        elif self.contest.public or (self.contest.open_problems and self.contest.status > 0):
             self.registered = True
         else:
             self.registered = False

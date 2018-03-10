@@ -1,17 +1,27 @@
-{% extends 'base.jinja2' %}
+{% extends 'html_base.jinja2' %}
 
-{% block page_header %}403 Forbidden{% endblock %}
+{% block css %}
+<style>
+  body > .grid {
+    height: 100%;
+  }
+  .image {
+    margin-top: -100px;
+  }
+  .column {
+    max-width: 450px;
+  }
+</style>
+{% endblock %}
 
-{% block content %}
-  <h4>Oops! Request forbidden...</h4>
+{% block _content %}
+  <div class="ui middle aligned center aligned grid">
 
-  {% if exception %}
-  <p>Exception message: {{ exception }}</p>
-  {% else %}
-  <p>Sorry, it appears that the page you were looking for is forbidden and not accessible. If the problem persists, please
-      contact the web administrator.</p>
-  {% endif %}
-
-  <a href="{{ request.META.HTTP_REFERER }}">Go back</a>
-
+    <div class="column">
+      <img class="ui fluid image" src="/static/image/error/403.png">
+      <h2 class="ui grey header">
+        Oops! Page Forbidden...
+      </h2>
+    </div>
+  </div>
 {% endblock %}

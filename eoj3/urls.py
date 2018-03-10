@@ -13,7 +13,7 @@ import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
-from home.views import home_view, faq_view, TestView
+from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view
 from home.museum import museum_view
 from problem.views import make_payment_for_full_report, case_download_link
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
@@ -68,7 +68,13 @@ if DEBUG:
         url(r'^t/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
+    urlpatterns += [
+        url(r'403/(?P<exception>\w+)/$', forbidden_view),
+        url(r'404/$', not_found_view),
+        url(r'500/$', server_error_view),
+    ]
+
 
 handler403 = 'home.views.forbidden_view'
 handler404 = 'home.views.not_found_view'
-# handler500 = 'home.views.server_error_view'
+handler500 = 'home.views.server_error_view'
