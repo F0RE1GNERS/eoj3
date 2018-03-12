@@ -168,7 +168,7 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
                 setattr(self.problem, t, program.fingerprint)
 
         samples, pretests, tests, points = [], [], [], []
-        for case in self.revision.cases.all():
+        for case in self.revision.cases.all().order_by("case_number"):
             if case.in_samples: samples.append(case.fingerprint)
             if case.in_pretests: pretests.append(case.fingerprint)
             if case.activated:

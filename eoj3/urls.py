@@ -50,6 +50,12 @@ urlpatterns = [
     url(r'^museum/$', museum_view, name='museum'),
 ]
 
+urlpatterns += [
+    url(r'403/(?P<exception>\w+)/$', forbidden_view),
+    url(r'404/$', not_found_view),
+    url(r'500/$', server_error_view),
+]
+
 
 urlpatterns += [
     url(r'^comment/post/$', login_required_post_comment, name='comments-post-comment', kwargs=force_closed()),
@@ -67,12 +73,6 @@ if DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^t/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
-
-    urlpatterns += [
-        url(r'403/(?P<exception>\w+)/$', forbidden_view),
-        url(r'404/$', not_found_view),
-        url(r'500/$', server_error_view),
-    ]
 
 
 handler403 = 'home.views.forbidden_view'
