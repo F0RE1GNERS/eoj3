@@ -4,6 +4,7 @@ from itertools import chain
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count
+from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -29,10 +30,19 @@ class ProblemList(PolygonBaseMixin, ListView):
     paginate_by = 250
 
     def get_queryset(self):
+        if 'q' in self.request.GET:
+            self.search_text = q = self.request.GET['q']
+            query = Q(title__icontains=q) | Q(alias__icontains=q) | Q(source__icontains=q)
+            if q.isdigit():
+                query |= Q(pk__exact=q)
+        else: query = None
+
         if is_admin_or_root(self.request.user):
             qs = Problem.objects.all()
         else:
             qs = self.request.user.managing_problems.all()
+        if query:
+            qs = qs.filter(query)
         qs = qs.prefetch_related("revisions").annotate(Count('revisions'))
         return qs
 
@@ -43,6 +53,7 @@ class ProblemList(PolygonBaseMixin, ListView):
             for revision in sorted(problem.revisions.all(), key=lambda x: x.create_time, reverse=True):
                 problem.latest_revision = revision
                 break
+        data['search_text'] = self.search_text
         return data
 
 

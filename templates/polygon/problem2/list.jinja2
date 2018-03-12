@@ -4,10 +4,17 @@
 
 {% block content %}
 
-  <table class="ui celled table center aligned">
+  <form class="ui form" name="searchForm">
+    <div class="ui icon input">
+      <input type="text" name="q" value="{{ search_text }}" placeholder="Search...">
+      <i class="inverted circular search link icon" onclick="document.forms.searchForm.submit()"></i>
+    </div>
+  </form>
+
+  <table class="ui celled small table center aligned">
     <thead class="full-width">
       <tr>
-        <th colspan="6">
+        <th colspan="8">
           <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Problem
           </button>
@@ -16,6 +23,8 @@
       <tr>
         <th>#</th>
         <th class="collapsing">Alias</th>
+        <th class="collapsing">Title</th>
+        <th class="collapsing">Source</th>
         <th class="collapsing">Created</th>
         <th class="collapsing">Updated</th>
         <th class="collapsing" colspan="2">Revisions</th>
@@ -26,6 +35,8 @@
         <tr>
           <td>{{ problem.pk }}</td>
           <td>{{ problem.alias }}</td>
+          <td>{{ problem.title }}</td>
+          <td>{{ problem.source }}</td>
           <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
           <td>{{ problem.revisions__count }} total</td>

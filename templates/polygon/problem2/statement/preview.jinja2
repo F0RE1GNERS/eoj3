@@ -2,7 +2,7 @@
 
 {% block problem_content %}
 
-  <h2 class="ui header">{{ statement.title }}</h2>
+  <h2 class="ui header">{{ statement.title }} <a href="{{ url('polygon:revision_statement_update', problem.id, revision.id, statement.id) }}"><i class="edit icon"></i></a></h2>
   <div class="problem-body">
     {% if statement.description %}
       <div class="passage">

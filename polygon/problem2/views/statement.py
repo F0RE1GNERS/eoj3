@@ -56,7 +56,8 @@ class StatementUpdateView(RevisionStatementMixin, UpdateView):
     template_name = 'polygon/problem2/simple_form.jinja2'
 
     def get_success_url(self):
-        return reverse('polygon:revision_statement', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+        return reverse('polygon:revision_statement_preview', kwargs={'pk': self.problem.id, 'rpk': self.revision.id,
+                                                                     'spk': self.statement.id})
 
     def get_object(self, queryset=None):
         return self.statement
