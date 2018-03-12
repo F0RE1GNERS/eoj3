@@ -35,7 +35,9 @@ class ProblemList(PolygonBaseMixin, ListView):
             query = Q(title__icontains=q) | Q(alias__icontains=q) | Q(source__icontains=q)
             if q.isdigit():
                 query |= Q(pk__exact=q)
-        else: query = None
+        else:
+            self.search_text = ''
+            query = None
 
         if is_admin_or_root(self.request.user):
             qs = Problem.objects.all()
