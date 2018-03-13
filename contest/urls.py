@@ -7,6 +7,7 @@ from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, 
     ContestStatusForAll
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
 from .clarification import ContestClarificationView, ContestClarificationAnswer
+from .activity import ActivityList, ActivityAddView, ActivityUpdateView
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -32,4 +33,8 @@ urlpatterns = [
     url(r'^switch/(?P<pk>\d+)/$', balloon_switch, name='balloon_switch'),
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
     url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
+
+    url(r'^activity/$', ActivityList.as_view(), name='activity_list'),
+    url(r'^activity/add/$', ActivityAddView.as_view(), name='activity_add'),
+    url(r'^activity/(?P<pk>\d+)/update/$', ActivityUpdateView.as_view(), name='activity_update'),
 ]

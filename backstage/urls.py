@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
-from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch, AccountActiveSwitch
+from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch, AccountActiveSwitch, \
+    AccountSchoolList, AccountAddSchool
 from .base_views import Index
 from .contest.views import ContestList, ContestSendInvitationMail, ContestApplyRatingChanges, ContestWithdrawRatingChanges, \
     ApplyGlobalChangesToRating
@@ -19,6 +20,8 @@ urlpatterns = [
     url(r'^account/polygon/(?P<pk>\d+)/$', AccountPolygonSwitch.as_view(), name='account_polygon_switch'),
     url(r'^account/password/(?P<pk>\d+)/$', AccountPasswordChange.as_view(), name='account_password_change'),
     url(r'^account/active/(?P<pk>\d+)/$', AccountActiveSwitch.as_view(), name='account_active_switch'),
+    url(r'^account/school/$', AccountSchoolList.as_view(), name='account_school'),
+    url(r'^account/school/add/$', AccountAddSchool.as_view(), name='account_school_add'),
 
     url(r'^problem/$', ProblemList.as_view(), name='problem'),
     url(r'^problem/(?P<pk>\d+)/visible/$', ProblemVisibleSwitch.as_view(), name='problem_visible_switch'),

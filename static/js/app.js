@@ -26,6 +26,16 @@ $('.message .close')
 ;
 $(".ui.file.input").inputFile();
 $('.ui.tabular.menu .item').tab();
+$('.ui.calendar').calendar({
+  formatter: {
+    date: function (date, settings) {
+      return moment(date).format('YYYY-MM-DD');
+    },
+    time: function (date, settings, forCalendar) {
+      return moment(date).format('HH:mm');
+    }
+  }
+});
 
 // captcha
 $('.captcha-refresh, img.captcha').click(function(){

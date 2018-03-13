@@ -1,0 +1,32 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Activities - {% endblock %}
+
+{% block page_header %}Activities{% endblock %}
+
+{% block content %}
+
+  <table class="ui celled center aligned table">
+    <thead>
+      <tr class="center aligned">
+        <th class="collapsing">#</th>
+        <th>Name</th>
+        <th>Register Open</th>
+        <th>Register Closed</th>
+        <th class="collapsing">Participants</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for activity in activity_list %}
+        <tr>
+          <td>{{ activity.pk }}</td>
+          <td>{{ activity.title }}</td>
+          <td>{{ activity.register_start_time | date("Y-m-d H:i") }}</td>
+          <td>{{ activity.register_end_time | date("Y-m-d H:i") }}</td>
+          <td><i class="icon fitted user" aria-hidden="true"></i> &times; {{ activity.participants__count }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

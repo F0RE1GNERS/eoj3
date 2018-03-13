@@ -5,7 +5,7 @@ from django.views.generic.list import ListView, View
 from django.db import transaction
 from django.db.models import Q
 
-from account.models import User
+from account.models import User, School
 from ..base_views import BaseBackstageMixin
 
 
@@ -71,3 +71,16 @@ class AccountActiveSwitch(BaseBackstageMixin, View):
             instance.is_active = not instance.is_active
             instance.save(update_fields=["is_active"])
         return HttpResponse()
+
+
+class AccountSchoolList(BaseBackstageMixin, ListView):
+    queryset = School.objects.all()
+    template_name = 'backstage/account/school.jinja2'
+
+
+class AccountAddSchool(BaseBackstageMixin, View):
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            if request.POST.get('name'):
+                School.objects.create(name=request.POST.get('name'))
+        return HttpResponseRedirect(reverse('backstage:account_school'))

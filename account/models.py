@@ -123,3 +123,7 @@ class Payment(models.Model):
 
     class Meta:
         ordering = ["-create_time"]
+
+
+class School(models.Model):
+    name = models.CharField(max_length=192, unique=True)

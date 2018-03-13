@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from account.models import User
+from account.models import User, School
 from problem.models import Problem
 from utils.language import LANG_CHOICE
 
@@ -244,3 +244,28 @@ class ContestUserRating(models.Model):
 
     def __str__(self):
         return 'ContestUserRating: {user: %d, rating: %d}' % (self.user_id, self.rating)
+
+
+class Activity(models.Model):
+    title = models.CharField(unique=True, max_length=192)
+    description = models.TextField(blank=True)
+    author = models.ForeignKey(User)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now_add=True)
+    register_start_time = models.DateTimeField(blank=True)
+    register_end_time = models.DateTimeField(blank=True)
+    participants = models.ManyToManyField(User, through='ActivityParticipant', related_name="activities")
+
+
+class ActivityParticipant(models.Model):
+    user = models.ForeignKey(User)
+    activity = models.ForeignKey(Activity)
+    real_name = models.CharField(max_length=30)
+    student_id = models.CharField(max_length=30)
+    school = models.ForeignKey(School)
+    email = models.CharField(max_length=192)
+    phone = models.CharField(max_length=30, blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'activity')
