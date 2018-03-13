@@ -5,8 +5,9 @@
   {% include 'components/message.jinja2' %}
 
   <h3 class="ui header">Select Solutions:</h3>
-  <form>
+  <form method="post" action="{{ request.path }}">
   <input type="hidden" name="cases" value="{{ select_cases }}">
+  {% csrf_token %}
   <table class="ui celled small table center aligned">
     <thead class="full-width">
       <tr>
@@ -33,9 +34,9 @@
     <tfoot>
       <tr>
         <th colspan="6">
-          <a class="ui right floated small primary button post prompt gather">
+          <button type="submit" class="ui right floated small primary button">
             Sent to judge
-          </a>
+          </button>
         </th>
       </tr>
     </tfoot>

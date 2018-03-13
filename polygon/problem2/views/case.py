@@ -570,7 +570,6 @@ class CaseCheckView(ProblemRevisionMixin, TemplateView):
         return data
 
     def post(self, request, *args, **kwargs):
-        # TODO: not done yet
         case_pk_set = set(filter(lambda x: x, request.POST["cases"].split(",")))
         if not case_pk_set:
             messages.error(request, "Invalid selected cases")
@@ -586,3 +585,4 @@ class CaseCheckView(ProblemRevisionMixin, TemplateView):
         if len(case_pk_set) != len(case_set) or len(program_pk_set) != len(program_set):
             messages.error(request, "Invalid selected cases or solutions.")
         async(CaseManagementTools.check_case, self.revision, case_set, program_set, self.revision.active_checker)
+        return redirect(reverse('polygon:revision_task', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
