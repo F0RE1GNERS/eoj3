@@ -13,17 +13,17 @@
         <th>Name</th>
         <th>Register Open</th>
         <th>Register Closed</th>
-        <th class="collapsing">Participants</th>
+{#        <th class="collapsing">Participants</th>#}
       </tr>
     </thead>
     <tbody>
       {% for activity in activity_list %}
         <tr>
           <td>{{ activity.pk }}</td>
-          <td>{{ activity.title }}</td>
+          <td><a href="{{ url('contest:activity_register', activity.pk) }}">{{ activity.title }}</a></td>
           <td>{{ activity.register_start_time | date("Y-m-d H:i") }}</td>
           <td>{{ activity.register_end_time | date("Y-m-d H:i") }}</td>
-          <td><i class="icon fitted user" aria-hidden="true"></i> &times; {{ activity.participants__count }}</td>
+{#          <td><i class="icon fitted user" aria-hidden="true"></i> &times; {{ activity.participants__count }}</td>#}
         </tr>
       {% endfor %}
     </tbody>

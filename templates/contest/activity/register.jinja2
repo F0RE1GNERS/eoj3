@@ -1,0 +1,43 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Activities - {% endblock %}
+
+{% block page_header %}Register: {{ activity.title }}{% endblock %}
+
+{% block content %}
+
+  <table class="ui definition table">
+    <tbody>
+      <tr>
+        <td>Title</td>
+        <td>{{ activity.title }}</td>
+      </tr>
+      <tr>
+        <td>Description</td>
+        <td>{{ activity.description | markdown | safe }}</td>
+      </tr>
+      <tr>
+        <td>Register Open</td>
+        <td>{{ activity.register_start_time | date("Y-m-d H:i") }}</td>
+      </tr>
+      <tr>
+        <td>Register Closed</td>
+        <td>{{ activity.register_end_time | date("Y-m-d H:i") }}</td>
+      </tr>
+      <tr>
+        <td>Registration Status</td>
+        <td><b>{% if registered %}Already Registered{% else %}Out of activity{% endif %}</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="ui header">Registration Details</h3>
+
+  {% set submit_button %}
+    <button type="submit" class="ui positive button">Register / Update Info</button>
+    {% if registered %}<a class="post-link ui red button" data-link="{{ url('contest:activity_quit', activity.id) }}">Quit</a>{% endif %}
+  {% endset %}
+
+  {% include 'components/form.jinja2' %}
+
+{% endblock %}

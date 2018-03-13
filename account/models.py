@@ -127,3 +127,6 @@ class Payment(models.Model):
 
 class School(models.Model):
     name = models.CharField(max_length=192, unique=True)
+
+    def __str__(self):
+        return self.name

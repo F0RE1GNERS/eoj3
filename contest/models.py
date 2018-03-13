@@ -1,4 +1,5 @@
 import shortuuid
+from django.core.validators import EmailValidator
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
@@ -263,7 +264,7 @@ class ActivityParticipant(models.Model):
     real_name = models.CharField(max_length=30)
     student_id = models.CharField(max_length=30)
     school = models.ForeignKey(School)
-    email = models.CharField(max_length=192)
+    email = models.CharField(max_length=192, validators=[EmailValidator()])
     phone = models.CharField(max_length=30, blank=True)
     is_deleted = models.BooleanField(default=False)
 
