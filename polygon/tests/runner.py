@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 from datetime import datetime
@@ -9,7 +10,7 @@ from django.urls import reverse
 from os import path
 
 from account.models import User
-from polygon.models import Case, Revision, Asset, Statement, Program
+from polygon.models import Case, Revision, Asset, Statement, Program, Task
 from polygon.problem2.runner import Runner
 from polygon.problem2.runner.exception import CompileError
 from polygon.problem2.views.case import CaseManagementTools
@@ -88,9 +89,18 @@ print("%d %d" % (randint(1, 10), randint(1, 10)))""",
                                       create_time=datetime.now())
         program = Program(name="hello2", lang="python",
                           code="""a, b = map(int, input().split())
-print(a + b)""")
+print(a + b)""", pk=30)
+        program2 = Program(name="hello2", lang="python",
+                          code="""a, b = map(int, input().split())
+print(a + b + b % 2)""", pk=31)
         CaseManagementTools.generate_cases(self.revision, ["gen 1 2" for i in range(10)])
-        CaseManagementTools.run_all_output(self.revision, program)
+        CaseManagementTools.run_case_output(self.revision, self.revision.cases.all(), program)
         for i in self.revision.cases.all():
             print(i.input_preview, i.output_preview, i.pk)
             self.assertEqual(sum(map(int, i.input_preview.split())), int(i.output_preview))
+        CaseManagementTools.check_case(self.revision, self.revision.cases.all(), [program], None)
+        current_task = Task.objects.last()
+        print(json.dumps(json.loads(current_task.report), sort_keys=True, indent=2))
+        CaseManagementTools.check_case(self.revision, self.revision.cases.all(), [program, program2], None)
+        current_task = Task.objects.last()
+        print(json.dumps(json.loads(current_task.report), sort_keys=True, indent=2))

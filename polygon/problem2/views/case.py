@@ -7,6 +7,7 @@ import io
 
 import chardet
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.db.models import Max
@@ -19,6 +20,7 @@ from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import FormView
 from django.views.generic import ListView
+from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 from os import path
 
@@ -93,6 +95,16 @@ class CaseManagementTools(object):
 
     @staticmethod
     def generate_cases(revision, commands):
+        """
+        report: [
+            {
+                success: True / False
+                error: ...
+                case_number: 1
+                detail: ...
+            }, { ... }, ...
+        ]
+        """
         generators = {}
         current_task = Task.objects.create(revision=revision, abstract="GENERATE CASES")
         report = []
@@ -141,6 +153,9 @@ class CaseManagementTools(object):
 
     @staticmethod
     def run_case_output(revision, case_set, solution):
+        """
+        report: similar to generating cases, [{ }, { }, ... { }]
+        """
         current_task = Task.objects.create(revision=revision, abstract="RUN OUTPUT, %d cases" % len(case_set))
         try:
             runner = Runner(solution)
@@ -173,6 +188,123 @@ class CaseManagementTools(object):
         except CompileError as e:
             current_task.report = json.dumps([{"success": False, "error": e.error}])
             current_task.status = -1
+        current_task.save()
+
+    @staticmethod
+    def read_abstract(file_path, read_size=1024):
+        try:
+            with open(file_path, "r") as f:
+                t = f.read(read_size + 1)
+            if len(t) > read_size:
+                return t[:read_size] + '...'
+            return t
+        except FileNotFoundError:
+            return ''
+
+    @staticmethod
+    def obtain_defaultspj():
+        try:
+            import requests
+            code = requests.get("https://raw.githubusercontent.com/ultmaster/ejudge/v2.1/lib/defaultspj.cpp").text
+            program = Program(name="defaultspj", lang="cpp", code=code, tag="checker")
+            program.save_fingerprint()
+            return program
+        except:
+            raise ValueError("Default checker cannot be obtained. Check network connections.")
+
+    @staticmethod
+    def check_case(revision, case_set, solution_set, checker):
+        """
+        response: {
+            "success": True / False,
+            "error": ...,
+            "tasks": [
+                {
+                    "verdict": "OK",
+                    "solution": 23,
+                    "case_number": 45,
+                    "time": 15,
+                    "memory": 30,
+                },
+                ...
+            ]
+        }
+        """
+        current_task = Task.objects.create(revision=revision,
+                                           abstract="CHECK, %d cases, %d solutions" % (
+                                               len(case_set), len(solution_set)))
+        packed_result = {"success": True, "tasks": [], "summary": {}}
+        try:
+            solution_runners = [(solution, Runner(solution)) for solution in solution_set]
+            if checker is None:
+                checker = CaseManagementTools.obtain_defaultspj()
+            checker_runner = Runner(checker)
+            checker_result_path = path.join(checker_runner.workspace, "result")
+            task_result = packed_result["tasks"]
+            verdict_for_each_solution = {solution.pk: set() for solution in solution_set}
+            for case in case_set:
+                for solution, runner in solution_runners:
+                    output_path = path.join(runner.workspace, "out")
+                    err_path = path.join(runner.workspace, "err")
+                    result = {"solution": solution.pk, "case_number": case.case_number}
+                    running_result = runner.run(stdin=case.input_file.path, stdout=output_path,
+                                                max_time=revision.time_limit / 1000,
+                                                max_memory=revision.memory_limit)
+                    result.update(running_result)
+                    result.update(input=CaseManagementTools.read_abstract(case.input_file.path),
+                                  answer=CaseManagementTools.read_abstract(case.output_file.path),
+                                  output=CaseManagementTools.read_abstract(output_path),
+                                  stderr=CaseManagementTools.read_abstract(err_path))
+
+                    if result["verdict"] == "OK":
+                        # run checker
+                        checking_result = checker_runner.run(
+                            args=[case.input_file.path, output_path, case.output_file.path],
+                            stdout=checker_result_path,
+                            max_time=revision.time_limit / 1000 * 3,
+                            max_memory=revision.memory_limit)
+                        result.update(checker_comment=CaseManagementTools.read_abstract(checker_result_path),
+                                      checker_exit_code=checking_result["exit_code"])
+                        if checking_result["verdict"] != "OK":
+                            result.update(verdict="WRONG_ANSWER")
+
+                    if result["verdict"] == "OK":
+                        result.update(points=case.points)
+                    else: result.update(points=0)
+                    result.update(total_points=case.points)
+
+                    verdict_for_each_solution[solution.pk].add(result["verdict"])
+                    task_result.append(result)
+            for solution in solution_set:
+                got_verdicts = verdict_for_each_solution[solution.pk]
+                if solution.tag in ('solution_main', 'solution_correct') and got_verdicts != {"OK"}:
+                    packed_result.update(success=False,
+                                         error="'%s' claims to be correct, but got rejected in tests" % solution.name)
+                if solution.tag == 'solution_tle_or_ok' and got_verdicts != {"TLE", "OK"}:
+                    packed_result.update(success=False, error="'%s' claims to be tle_or_ok, but got %s" % (
+                    solution.name, str(got_verdicts)))
+                if solution.tag == 'solution_wa' and 'WRONG_ANSWER' not in got_verdicts:
+                    packed_result.update(success=False, error="'%s' claims to be WA, but never got WA" % solution.name)
+                if solution.tag == 'solution_incorrect' and got_verdicts == {"OK"}:
+                    packed_result.update(success=False,
+                                         error="'%s' claims to be incorrect, but is actually correct" % solution.name)
+                if solution.tag == 'solution_fail' and "RUNTIME_ERROR" not in got_verdicts:
+                    packed_result.update(success=False, error="'%s' claims to fail, but didn't fail" % solution.name)
+                solution_based_result = list(filter(lambda x: x["solution"] == solution.pk, task_result))
+                solution_time_summary = list(map(lambda x: x["time"], solution_based_result)) + [0]
+                packed_result["summary"][solution.pk] = {
+                    "time": max(solution_time_summary),
+                    "sum_time": sum(solution_time_summary),
+                    "memory": max(list(map(lambda x: x["memory"], solution_based_result)) + [0]),
+                    "points": sum(list(map(lambda x: x["points"], solution_based_result)) + [0]) /
+                              max(sum(list(map(lambda x: x["total_points"], solution_based_result)) + [0]), 1) * 100
+                }
+        except CompileError as e:
+            packed_result.update(success=False, error=e.error)
+        except ValueError as e:
+            packed_result.update(success=True, error=e.args[0])
+        current_task.status = 0 if packed_result["success"] else -1
+        current_task.report = json.dumps(packed_result)
         current_task.save()
 
 
@@ -423,3 +555,34 @@ class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+
+
+class CaseCheckView(ProblemRevisionMixin, TemplateView):
+    template_name = 'polygon/problem2/case/check.jinja2'
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if 'gather' not in self.request.GET:
+            raise PermissionDenied
+        data['select_cases'] = self.request.GET['gather']
+        data['program_list'] = self.revision.programs.filter(tag__contains='solution').all()
+        return data
+
+    def post(self, request, *args, **kwargs):
+        # TODO: not done yet
+        case_pk_set = set(filter(lambda x: x, request.POST["cases"].split(",")))
+        if not case_pk_set:
+            messages.error(request, "Invalid selected cases")
+            return redirect(request.path)
+        case_set = self.revision.cases.filter(pk__in=case_pk_set).order_by("case_number")
+        program_pk_set = set()
+        for p, switch in request.POST.items():
+            if switch == 'on' and p.isdigit():
+                program_pk_set.add(int(p))
+        if not program_pk_set:
+            messages.error(request, "Please select at least one solution.")
+        program_set = self.revision.programs.filter(pk__in=program_pk_set)
+        if len(case_pk_set) != len(case_set) or len(program_pk_set) != len(program_set):
+            messages.error(request, "Invalid selected cases or solutions.")
+        async(CaseManagementTools.check_case, self.revision, case_set, program_set, self.revision.active_checker)

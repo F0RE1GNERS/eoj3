@@ -89,8 +89,9 @@ slicedCheckbox.on('click', function (e) {
   lastChecked = this;
 });
 
-$(".post").on('click', function (event) {
+$(".post, .get").on('click', function (event) {
   var button = $(event.currentTarget);
+  var method = button.hasClass("post") ? "post" : "get";
   var link = button.data("link");
   var extra_input = {};
   if (button.hasClass("gather")) {
@@ -108,12 +109,12 @@ $(".post").on('click', function (event) {
   if (button.hasClass("ask")) {
     extra_input["answer"] = prompt(button.data("question") || "");
     if (extra_input["answer"] !== null)
-      redirect(link, "post", extra_input);
+      redirect(link, method, extra_input);
   } if (button.hasClass("prompt")) {
     if (confirm("Are you sure about this?"))
-      redirect(link, "post", extra_input);
+      redirect(link, method, extra_input);
   } else {
-    redirect(link, "post", extra_input);
+    redirect(link, method, extra_input);
   }
 }).attr('href', 'javascript:void(0)');
 

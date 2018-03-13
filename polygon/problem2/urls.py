@@ -82,6 +82,8 @@ urlpatterns += [
         name='revision_case_delete'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/output/$', case.CaseRunSelectedOutput.as_view(),
         name='revision_case_run_output'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/check/$', case.CaseCheckView.as_view(),
+        name='revision_case_check'),
 ]
 
 urlpatterns += [

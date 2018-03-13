@@ -106,8 +106,11 @@ class Program(models.Model):
     fingerprint = models.CharField(max_length=64)
     parent_id = models.IntegerField(default=0)
 
-    def save(self, **kwargs):
+    def save_fingerprint(self):
         self.fingerprint = sha_hash(sha_hash(self.lang) + sha_hash(self.code) + sha_hash(self.tag))
+
+    def save(self, **kwargs):
+        self.save_fingerprint()
         super().save(**kwargs)
 
 
