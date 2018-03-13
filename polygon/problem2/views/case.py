@@ -227,7 +227,12 @@ class CaseManagementTools(object):
                     "memory": 30,
                 },
                 ...
-            ]
+            ],
+            "summary": {
+                solution_number: {
+                    time, max_time, memory, points
+                }
+            }
         }
         """
         current_task = Task.objects.create(revision=revision,
@@ -241,12 +246,12 @@ class CaseManagementTools(object):
             checker_runner = Runner(checker)
             checker_result_path = path.join(checker_runner.workspace, "result")
             task_result = packed_result["tasks"]
-            verdict_for_each_solution = {solution.pk: set() for solution in solution_set}
+            verdict_for_each_solution = {solution.id: set() for solution in solution_set}
             for case in case_set:
                 for solution, runner in solution_runners:
                     output_path = path.join(runner.workspace, "out")
                     err_path = path.join(runner.workspace, "err")
-                    result = {"solution": solution.pk, "case_number": case.case_number}
+                    result = {"solution": solution.id, "case_number": case.case_number, "case_id": case.id}
                     running_result = runner.run(stdin=case.input_file.path, stdout=output_path,
                                                 max_time=revision.time_limit / 1000,
                                                 max_memory=revision.memory_limit)
@@ -273,10 +278,10 @@ class CaseManagementTools(object):
                     else: result.update(points=0)
                     result.update(total_points=case.points)
 
-                    verdict_for_each_solution[solution.pk].add(result["verdict"])
+                    verdict_for_each_solution[solution.id].add(result["verdict"])
                     task_result.append(result)
             for solution in solution_set:
-                got_verdicts = verdict_for_each_solution[solution.pk]
+                got_verdicts = verdict_for_each_solution[solution.id]
                 if solution.tag in ('solution_main', 'solution_correct') and got_verdicts != {"OK"}:
                     packed_result.update(success=False,
                                          error="'%s' claims to be correct, but got rejected in tests" % solution.name)
@@ -290,9 +295,9 @@ class CaseManagementTools(object):
                                          error="'%s' claims to be incorrect, but is actually correct" % solution.name)
                 if solution.tag == 'solution_fail' and "RUNTIME_ERROR" not in got_verdicts:
                     packed_result.update(success=False, error="'%s' claims to fail, but didn't fail" % solution.name)
-                solution_based_result = list(filter(lambda x: x["solution"] == solution.pk, task_result))
+                solution_based_result = list(filter(lambda x: x["solution"] == solution.id, task_result))
                 solution_time_summary = list(map(lambda x: x["time"], solution_based_result)) + [0]
-                packed_result["summary"][solution.pk] = {
+                packed_result["summary"][solution.id] = {
                     "time": max(solution_time_summary),
                     "sum_time": sum(solution_time_summary),
                     "memory": max(list(map(lambda x: x["memory"], solution_based_result)) + [0]),

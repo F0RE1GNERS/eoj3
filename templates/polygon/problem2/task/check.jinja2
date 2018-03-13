@@ -1,0 +1,37 @@
+{% if not report.success %}
+<div class="ui negative message">
+  <div class="header">
+    Sorry. Checking process failed.
+  </div>
+  <p>{{ report.error }}
+</p></div>
+{% endif %}
+
+<table class="ui celled small table center aligned">
+  <thead>
+    <tr>
+      <th>#</th>
+      {% for solution in report.solutions %}
+        <th><a href="{{ url('polygon:revision_program_preview', problem.id, revision.id, solution.id) }}">{{ solution.name }}</a><br>{{ solution.get_tag_display() }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in report.table %}
+    <tr>
+      <td scope="row">{{ row[0].case_number }}</td>
+      {% for col in row %}
+        <td><a href="?detail=1&solution={{ col.solution }}&case={{ col.case_id }}">{{ col.verdict }}</a> ({{ (col.time * 1000) | round | int }}ms / {{ col.memory }}MB / {{ col.points }}pts)</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th></th>
+      {% for s in report.summary %}
+        <th>{{ (s.sum_time * 1000) | round | int }}ms / {{ (s.time * 1000) | round | int }}ms / {{ s.memory }}MB / {{ s.points | round | int }}%</th>
+      {% endfor %}
+    </tr>
+  </tfoot>
+</table>

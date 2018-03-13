@@ -3,6 +3,14 @@
 
 {% block title %}Problem #{{ problem.id }} - {% endblock %}
 
+{% block css %}
+<style>
+  pre {
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
   <h1 class="ui header">Problem #{{ problem.id }} (Revision {{ revision.revision }})</h1>
 

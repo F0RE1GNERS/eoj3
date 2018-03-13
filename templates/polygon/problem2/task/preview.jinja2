@@ -1,32 +1,46 @@
 {% extends 'polygon/problem2/base.jinja2' %}
 
 {% block problem_content %}
-<table class="ui definition table">
-  <tbody>
-    <tr>
-      <td>ID</td>
-      <td>{{ task.id }}</td>
-    </tr>
-    <tr>
-      <td>Abstract</td>
-      <td>{{ task.abstract }}</td>
-    </tr>
-    <tr>
-      <td>Created</td>
-      <td>{{ task.create_time | date("Y-m-d H:i:s") }}</td>
-    </tr>
-    <tr>
-      <td>Updated</td>
-      <td>{{ task.update_time | date("Y-m-d H:i:s") }}</td>
-    </tr>
-    <tr>
-      <td>Status</td>
-      <td>{{ task.get_status_display() }}</td>
-    </tr>
-    <tr>
-      <td>Report</td>
-      <td><pre>{{ task.pretty_report }}</pre></td>
-    </tr>
-  </table>
+  {% if tag == "CHECK_DETAIL" %}
+    {% include 'polygon/problem2/task/check_detail.jinja2' %}
+  {% else %}
+    <table class="ui definition table">
+      <tbody>
+        <tr>
+          <td>ID</td>
+          <td>{{ task.id }}</td>
+        </tr>
+        <tr>
+          <td>Abstract</td>
+          <td>{{ task.abstract }}</td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ task.create_time | date("Y-m-d H:i:s") }}</td>
+        </tr>
+        <tr>
+          <td>Updated</td>
+          <td>{{ task.update_time | date("Y-m-d H:i:s") }}</td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td>{{ task.get_status_display() }}</td>
+        </tr>
+        {% if tag == "PRETTY" %}
+        <tr>
+          <td>Report</td>
+          <td><pre>{{ task.pretty_report }}</pre></td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    {% if tag == "GENERATE" %}
+      {% include 'polygon/problem2/task/generate.jinja2' %}
+    {% elif tag == "RUN OUTPUT" %}
+      {% include 'polygon/problem2/task/output.jinja2' %}
+    {% elif tag == "CHECK" %}
+      {% include 'polygon/problem2/task/check.jinja2' %}
+    {% endif %}
+  {% endif %}
 
 {% endblock %}

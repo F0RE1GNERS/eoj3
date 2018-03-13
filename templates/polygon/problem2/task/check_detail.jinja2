@@ -1,0 +1,16 @@
+<table class="ui definition table">
+  <tbody>
+  {% for field, data in report %}
+    <tr>
+      <td class="collapsing">{{ field }}</td>
+      {% if field in ["Input", "Output", "Answer", "Stderr"] %}
+      <td><pre>{{ data }}</pre></td>
+      {% elif field == "Code" %}
+      <td>{{ data | safe }}</td>
+      {% else %}
+      <td>{{ data }}</td>
+      {% endif %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
