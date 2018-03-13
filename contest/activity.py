@@ -60,6 +60,8 @@ class ActivityParticipantList(UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["activity"] = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
+        data["active_member_count"] = ActivityParticipant.objects.filter(activity=data["activity"], is_deleted=False).count()
+        data["member_count"] = ActivityParticipant.objects.filter(activity=data["activity"]).count()
         return data
 
 

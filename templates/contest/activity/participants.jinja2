@@ -6,6 +6,8 @@
 
 {% block content %}
 
+  <a href="{{ url('contest:activity_register', activity.pk) }}" class="ui basic button">Back to activity</a>
+
   <table class="ui celled center aligned table">
     <thead>
       <tr class="center aligned">
@@ -31,6 +33,13 @@
         </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="7" class="right aligned">
+          {{ active_member_count }} out of {{ member_count }} active.
+        </th>
+      </tr>
+    </tfoot>
   </table>
 
 {% endblock %}
