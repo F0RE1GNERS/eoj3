@@ -41,6 +41,11 @@ class ActivityList(ListView):
         return Activity.objects.all().prefetch_related('participants').\
             annotate(Count('participants', distinct=True)).order_by("-pk")
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["privileged"] = is_admin_or_root(self.request.user)
+        return data
+
 
 class ActivityParticipantList(UserPassesTestMixin, ListView):
     template_name = 'contest/activity/participants.jinja2'
@@ -82,7 +87,7 @@ class ActivityUpdateView(UserPassesTestMixin, UpdateView):
         return is_admin_or_root(self.request.user)
 
     def get_success_url(self):
-        return reverse('contest:activity_list')
+        return reverse('contest:activity_register', kwargs=self.kwargs)
 
 
 class ActivityRegisterView(LoginRequiredMixin, UpdateView):
@@ -106,14 +111,17 @@ class ActivityRegisterView(LoginRequiredMixin, UpdateView):
         data["registered"] = ActivityParticipant.objects.filter(activity_id=self.kwargs["pk"],
                                                                 user_id=self.request.user.id,
                                                                 is_deleted=False).exists()
-        if not (data["activity"].register_start_time <= datetime.now() <= data["activity"].register_end_time) and \
-                not is_admin_or_root(self.request.user):
-            raise PermissionDenied
+        data["register_open"] = (data["activity"].register_start_time <= datetime.now() <= data["activity"].register_end_time)
+        data["privileged"] = is_admin_or_root(self.request.user)
         return data
 
     def form_valid(self, form):
+        activity = get_object_or_404(Activity, id=self.kwargs["pk"])
+        if not (activity.register_start_time <= datetime.now() <= activity.register_end_time) and \
+                not is_admin_or_root(self.request.user):
+            raise PermissionDenied
         if form.instance.activity_id is None:
-            form.instance.activity_id = self.kwargs["pk"]
+            form.instance.activity = activity
         if form.instance.user_id is None:
             form.instance.user = self.request.user
         form.instance.is_deleted = False

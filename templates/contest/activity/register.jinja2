@@ -6,6 +6,10 @@
 
 {% block content %}
 
+  {% if privileged %}
+  <a class="ui button basic" href="{{ url('contest:activity_update', activity.pk) }}">Update this</a>
+  {% endif %}
+
   <table class="ui definition table">
     <tbody>
       <tr>
@@ -31,13 +35,17 @@
     </tbody>
   </table>
 
+  {% if register_open %}
   <h3 class="ui header">Registration Details</h3>
 
   {% set submit_button %}
-    <button type="submit" class="ui positive button">Register / Update Info</button>
+    <button type="submit" class="ui positive button">{% if registered %}Update Info{% else %}Register{% endif %}</button>
     {% if registered %}<a class="post-link ui red button" data-link="{{ url('contest:activity_quit', activity.id) }}">Quit</a>{% endif %}
   {% endset %}
 
   {% include 'components/form.jinja2' %}
+  {% else %}
+  <h4 class="ui header">Registration is over. Contact admin if you have any questions.</h4>
+  {% endif %}
 
 {% endblock %}

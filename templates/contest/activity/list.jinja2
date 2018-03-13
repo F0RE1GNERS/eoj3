@@ -6,6 +6,10 @@
 
 {% block content %}
 
+  {% if privileged %}
+  <a class="ui button basic" href="{{ url('contest:activity_add') }}">Add an activity</a>
+  {% endif %}
+
   <table class="ui celled center aligned table">
     <thead>
       <tr class="center aligned">
