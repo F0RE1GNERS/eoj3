@@ -88,7 +88,6 @@ class ActivityUpdateView(UserPassesTestMixin, UpdateView):
 class ActivityRegisterView(LoginRequiredMixin, UpdateView):
     form_class = ActivityUserUpdateForm
     template_name = 'contest/activity/register.jinja2'
-    raise_exception = True
 
     def get_success_url(self):
         return self.request.path
