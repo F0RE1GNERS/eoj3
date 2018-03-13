@@ -8,6 +8,7 @@
 
   {% if privileged %}
   <a class="ui button basic" href="{{ url('contest:activity_update', activity.pk) }}">Update this</a>
+  <a class="ui button basic" href="{{ url('contest:activity_participant', activity.pk) }}">Participants</a>
   {% endif %}
 
   <table class="ui definition table">
