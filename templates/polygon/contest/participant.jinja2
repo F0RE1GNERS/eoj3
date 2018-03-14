@@ -16,6 +16,7 @@
         <th>Comment</th>
         <th>Name</th>
         <th>Student ID</th>
+        <th>Last Login</th>
         <th>Hidden</th>
         <th>Star</th>
         <th>Edit</th>
@@ -29,6 +30,7 @@
           <td>{{ participant.comment }}</td>
           <td>{{ participant.user.name }}</td>
           <td>{{ participant.user.student_id }}</td>
+          <td>{{ participant.user.last_login | date('Y-m-d H:i:s') }}</td>
           <td>{{ participant.hidden_comment }}</td>
           <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
           <td><a class="modal-link" data-action="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">Edit</a></td>
