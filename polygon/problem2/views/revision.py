@@ -110,6 +110,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
         self.revision.parent_id = old_revision.id
         self.revision.id = None
         self.revision.revision = self.problem.revisions.all().aggregate(Max("revision"))["revision__max"] + 1
+        self.revision.user = self.request.user
         self.revision.status = 0
         self.revision.save()
         self.revision.statements.add(*old_revision.statements.all())
