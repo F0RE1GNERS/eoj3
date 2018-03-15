@@ -17,6 +17,23 @@
       <h3 class="title">Output</h3>
       {{ statement.output | markdown | safer | safe }}
     {% endif %}
+    {% if samples %}
+      <div class="passage examples">
+        <h3 class="title">Examples</h3>
+        {% for input, output in samples %}
+          <div class="example">
+            <div class="input">
+              <div class="title">Input</div>
+              <pre class="sample-content">{{ input }}</pre>
+            </div>
+            <div class="output">
+              <div class="title">Output</div>
+              <pre class="sample-content">{{ output }}</pre>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     {% if statement.hint %}
       <h3 class="title">Note</h3>
       {{ statement.hint | markdown | safer | safe }}

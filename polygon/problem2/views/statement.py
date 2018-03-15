@@ -103,4 +103,7 @@ class StatementPreview(RevisionStatementMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["statement"] = self.statement
+        data["samples"] = []
+        for case in self.revision.cases.filter(in_samples=True).order_by("case_number"):
+            data["samples"].append((case.input_file.read().decode(), case.output_file.read().decode()))
         return data
