@@ -8,7 +8,7 @@ from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, 
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
 from .clarification import ContestClarificationView, ContestClarificationAnswer
 from .activity import ActivityList, ActivityAddView, ActivityUpdateView, ActivityRegisterView, ActivityQuitView, \
-    ActivityParticipantList
+    ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -41,4 +41,6 @@ urlpatterns = [
     url(r'^activity/(?P<pk>\d+)/$', ActivityRegisterView.as_view(), name='activity_register'),
     url(r'^activity/(?P<pk>\d+)/quit/$', ActivityQuitView.as_view(), name='activity_quit'),
     url(r'^activity/(?P<pk>\d+)/participants/$', ActivityParticipantList.as_view(), name='activity_participant'),
+    url(r'^activity/(?P<pk>\d+)/admin/add/$', ActivityAdminAddUserView.as_view(), name='activity_admin_add'),
+    url(r'^activity/(?P<pk>\d+)/admin/update/(?P<upk>\d+)/$', ActivityAdminUpdateUserView.as_view(), name='activity_admin_update'),
 ]

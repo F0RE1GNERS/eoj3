@@ -12,7 +12,8 @@ from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from account.permissions import is_admin_or_root
+from account.models import User
+from account.permissions import is_admin_or_root, StaffRequiredMixin
 from contest.models import Activity, ActivityParticipant
 
 
@@ -27,10 +28,25 @@ class ActivityUserUpdateForm(forms.ModelForm):
         model = ActivityParticipant
         fields = ['real_name', 'student_id', 'school', 'email', 'phone']
 
-    # def __init__(self, *args, **kwargs):
-        # user = kwargs.pop('user', '')
-        # super(DocumentForm, self).__init__(*args, **kwargs)
-        # self.fields['user_defined_code'] = forms.ModelChoiceField(queryset=UserDefinedCode.objects.filter(owner=user))
+
+class ActivityUserAdminAddForm(forms.ModelForm):
+    class Meta:
+        model = ActivityParticipant
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone']
+
+    username = forms.CharField()
+
+    def clean(self):
+        try:
+            self.cleaned_data["user"] = User.objects.get(username=self.cleaned_data["username"])
+        except User.DoesNotExist:
+            raise forms.ValidationError("Such user does not exist")
+
+
+class ActivityUserAdminEditForm(forms.ModelForm):
+    class Meta:
+        model = ActivityParticipant
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'is_deleted']
 
 
 class ActivityList(ListView):
@@ -47,12 +63,9 @@ class ActivityList(ListView):
         return data
 
 
-class ActivityParticipantList(UserPassesTestMixin, ListView):
+class ActivityParticipantList(StaffRequiredMixin, ListView):
     template_name = 'contest/activity/participants.jinja2'
     context_object_name = 'participant_list'
-
-    def test_func(self):
-        return is_admin_or_root(self.request.user)
 
     def get_queryset(self):
         return ActivityParticipant.objects.filter(activity_id=self.kwargs.get('pk'))
@@ -65,12 +78,9 @@ class ActivityParticipantList(UserPassesTestMixin, ListView):
         return data
 
 
-class ActivityAddView(UserPassesTestMixin, CreateView):
+class ActivityAddView(StaffRequiredMixin, CreateView):
     template_name = 'contest/activity/add.jinja2'
     form_class = ActivityUpdateForm
-
-    def test_func(self):
-        return is_admin_or_root(self.request.user)
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -80,13 +90,10 @@ class ActivityAddView(UserPassesTestMixin, CreateView):
         return reverse('contest:activity_list')
 
 
-class ActivityUpdateView(UserPassesTestMixin, UpdateView):
+class ActivityUpdateView(StaffRequiredMixin, UpdateView):
     template_name = 'contest/activity/edit.jinja2'
     form_class = ActivityUpdateForm
     queryset = Activity.objects.all()
-
-    def test_func(self):
-        return is_admin_or_root(self.request.user)
 
     def get_success_url(self):
         return reverse('contest:activity_register', kwargs=self.kwargs)
@@ -135,3 +142,28 @@ class ActivityQuitView(LoginRequiredMixin, View):
         ActivityParticipant.objects.filter(activity_id=self.kwargs["pk"],
                                            user_id=self.request.user.id).update(is_deleted=True)
         return HttpResponse()
+
+
+class ActivityAdminAddUserView(StaffRequiredMixin, CreateView):
+
+    form_class = ActivityUserAdminAddForm
+    template_name = 'contest/activity/admin_add.jinja2'
+
+    def get_success_url(self):
+        return reverse('contest:activity_participant', kwargs=self.kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = form.cleaned_data["user"]
+        form.instance.activity = get_object_or_404(Activity, id=self.kwargs["pk"])
+        return super().form_valid(form)
+
+
+class ActivityAdminUpdateUserView(StaffRequiredMixin, UpdateView):
+    form_class = ActivityUserAdminEditForm
+    template_name = 'contest/activity/admin_update.jinja2'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(ActivityParticipant, pk=self.kwargs["upk"])
+
+    def get_success_url(self):
+        return reverse('contest:activity_participant', kwargs={"pk": self.kwargs["pk"]})

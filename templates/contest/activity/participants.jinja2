@@ -7,6 +7,7 @@
 {% block content %}
 
   <a href="{{ url('contest:activity_register', activity.pk) }}" class="ui basic button">Back to activity</a>
+  <a href="{{ url('contest:activity_admin_add', activity.pk) }}" class="ui basic button">Add a user</a>
 
   <table class="ui celled center aligned table">
     <thead>
@@ -18,6 +19,7 @@
         <th>Email</th>
         <th>Phone</th>
         <th>Deleted</th>
+        <th>Edit</th>
       </tr>
     </thead>
     <tbody>
@@ -30,12 +32,13 @@
           <td>{{ participant.email }}</td>
           <td>{{ participant.phone }}</td>
           <td>{% if participant.is_deleted %}Yes{% endif %}</td>
+          <td><a href="{{ url('contest:activity_admin_update', activity.pk, participant.pk) }}">Edit</a></td>
         </tr>
       {% endfor %}
     </tbody>
     <tfoot>
       <tr>
-        <th colspan="7" class="right aligned">
+        <th colspan="8" class="right aligned">
           {{ active_member_count }} out of {{ member_count }} active.
         </th>
       </tr>
