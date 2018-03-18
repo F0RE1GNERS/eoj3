@@ -259,6 +259,18 @@ class Activity(models.Model):
 
 
 class ActivityParticipant(models.Model):
+    MAJOR_CHOICES = (
+        ('cs', 'Computer Science'),
+        ('se', 'Software Engineering'),
+        ('ee', 'Electrical Engineering'),
+        ('math', 'Math Science'),
+        ('physics', 'Physics'),
+        ('chemistry', 'Chemistry'),
+        ('business', 'Business'),
+        ('literature', 'Literature'),
+        ('art', 'Art')
+    )
+
     user = models.ForeignKey(User)
     activity = models.ForeignKey(Activity)
     real_name = models.CharField(max_length=30)
@@ -266,6 +278,13 @@ class ActivityParticipant(models.Model):
     school = models.ForeignKey(School)
     email = models.CharField(max_length=192, validators=[EmailValidator()])
     phone = models.CharField(max_length=30, blank=True)
+    major = models.CharField(max_length=30, choices=MAJOR_CHOICES, blank=True)
+    gender = models.CharField(max_length=5, choices=(
+        ('m', 'Male'),
+        ('f', 'Female'),
+        ('d', 'Declined to answer')
+    ), blank=True)
+    graduate_year = models.IntegerField(blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:

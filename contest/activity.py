@@ -26,13 +26,13 @@ class ActivityUpdateForm(forms.ModelForm):
 class ActivityUserUpdateForm(forms.ModelForm):
     class Meta:
         model = ActivityParticipant
-        fields = ['real_name', 'student_id', 'school', 'email', 'phone']
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'major', 'gender', 'graduate_year']
 
 
 class ActivityUserAdminAddForm(forms.ModelForm):
     class Meta:
         model = ActivityParticipant
-        fields = ['real_name', 'student_id', 'school', 'email', 'phone']
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'major', 'gender', 'graduate_year']
 
     username = forms.CharField()
 
