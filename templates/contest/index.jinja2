@@ -236,6 +236,21 @@
     {{ separator() }}
   {% endif %}
 
+  {% if contest.description %}
+    <h3 class="ui header">
+      <i class="announcement icon"></i>
+      <div class="content">
+        Announcement
+        <div class="sub header">Contest writer has something to say</div>
+      </div>
+    </h3>
+
+    {{ contest.description | markdown | safe }}
+
+    {{ separator() }}
+
+  {% endif %}
+
   {# contest information (always public) #}
 
   <h3 class="ui header">
@@ -332,21 +347,6 @@
   {% endif %}
 
   {# annoucement #}
-
-  {% if contest.description %}
-    <h3 class="ui header">
-      <i class="annoucnment icon"></i>
-      <div class="content">
-        Announcement
-        <div class="sub header">Contest writer has something to say</div>
-      </div>
-    </h3>
-
-    {{ contest.description | markdown | safe }}
-
-    {{ separator() }}
-
-  {% endif %}
 
 
 {% endblock %}
