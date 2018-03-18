@@ -31,6 +31,8 @@ urlpatterns = [
         v.ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
     url(r'^(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', v.ContestParticipantStarToggle.as_view(),
         name='contest_participant_star_toggle'),
+    url(r'^(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/ip/clear/$', v.ContestParticipantClearIP.as_view(),
+        name='contest_participant_clear_ip'),
     url(r'^(?P<pk>\d+)/participants/create/$', v.ContestParticipantCreate.as_view(),
         name='contest_participant_create'),
     url(r'^(?P<pk>\d+)/participants/download/$', v.ContestParticipantsNoteDownload.as_view(),

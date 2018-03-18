@@ -100,6 +100,7 @@ class Contest(models.Model):
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
     open_problems = models.BooleanField('Publish problems after contest', default=True)
+    ip_sensitive = models.BooleanField('Bind IP to user\'s account after first login', default=False)
 
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')
@@ -214,6 +215,7 @@ class ContestParticipant(models.Model):
     html_cache = models.TextField(blank=True)
     is_disabled = models.BooleanField(default=False)
     rank = models.IntegerField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
 
     class Meta:
         unique_together = ["user", "contest"]

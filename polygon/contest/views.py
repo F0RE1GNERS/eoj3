@@ -305,6 +305,15 @@ class ContestParticipantStarToggle(PolygonContestMixin, View):
         return HttpResponse()
 
 
+class ContestParticipantClearIP(PolygonContestMixin, View):
+    def post(self, request, pk, participant_pk):
+        with transaction.atomic():
+            participant = Contest.objects.get(pk=pk).contestparticipant_set.select_for_update().get(pk=participant_pk)
+            participant.ip_address = None
+            participant.save(update_fields=["ip_address"])
+        return HttpResponse()
+
+
 class ContestParticipantCreate(PolygonContestMixin, View):
     @staticmethod
     def _get_username(contest_id, user_id):

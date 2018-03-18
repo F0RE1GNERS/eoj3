@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 from django.utils.translation import ugettext_lazy as _
+from ipware.ip import get_ip
 
 from account.models import User
 from account.permissions import is_admin_or_root, is_volunteer
@@ -39,12 +40,21 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_volunteer(self.user)
-        if self.user.is_authenticated and self.contest.contestparticipant_set.filter(user=self.user).exists():
+        self.registered = False
+        if self.user.is_authenticated:
+            try:
+                participant = self.contest.contestparticipant_set.get(user=self.user)
+                if self.contest.ip_sensitive:
+                    current_ip = get_ip(request)
+                    if participant.ip_address is None:
+                        participant.ip_address = current_ip
+                        participant.save(update_fields=['ip_address'])
+                    self.registered = current_ip == participant.ip_address
+                else: self.registered = True
+            except ContestParticipant.DoesNotExist:
+                pass
+        if not self.registered and (self.contest.public or (self.contest.open_problems and self.contest.status > 0)):
             self.registered = True
-        elif self.contest.public or (self.contest.open_problems and self.contest.status > 0):
-            self.registered = True
-        else:
-            self.registered = False
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
