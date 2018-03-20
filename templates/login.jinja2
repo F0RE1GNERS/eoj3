@@ -9,3 +9,7 @@
     <a href="{{ url('register') }}">Do not have an account?</a></p>
 
 {% endblock %}
+
+{% block script %}
+{% include 'components/rsa_encrypt.jinja2' %}
+{% endblock %}
