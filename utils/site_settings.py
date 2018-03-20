@@ -52,3 +52,7 @@ def is_site_closed():
 
 def is_festival():
     return site_settings_get("FESTIVAL", default=False, use_cache=True)
+
+
+def force_closed():
+    return {"force_closed": True}

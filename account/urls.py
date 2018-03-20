@@ -1,11 +1,13 @@
 from django.conf.urls import url
+
+from utils.site_settings import force_closed
 from . import views
 from .payment import PaymentList
 
 urlpatterns = [
-    url(r'^settings/profile/$', views.UpdateProfileView.as_view(), name='profile'),
-    url(r'^settings/security/$', views.my_password_change, name='security'),
-    url(r'^settings/preference/$', views.UpdatePreferencesView.as_view(), name='preference'),
+    url(r'^settings/profile/$', views.UpdateProfileView.as_view(), name='profile', kwargs=force_closed()),
+    url(r'^settings/security/$', views.my_password_change, name='security', kwargs=force_closed()),
+    url(r'^settings/preference/$', views.UpdatePreferencesView.as_view(), name='preference', kwargs=force_closed()),
     url(r'^settings/username/update/$', views.ChangeUsernameView.as_view(), name='change_username'),
     url(r'^settings/payment/$', PaymentList.as_view(), name='payment'),
     url(r'^password_reset/$', views.my_password_reset, name='reset_password'),

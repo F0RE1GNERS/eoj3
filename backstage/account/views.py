@@ -1,11 +1,13 @@
 import json
 
+from django.http import Http404
 from django.shortcuts import HttpResponseRedirect, reverse, HttpResponse
 from django.views.generic.list import ListView, View
 from django.db import transaction
 from django.db.models import Q
 
 from account.models import User, School
+from submission.statistics import get_accept_problem_count
 from ..base_views import BaseBackstageMixin
 
 
@@ -18,17 +20,23 @@ class AccountList(BaseBackstageMixin, ListView):
         queryset = User.objects
         kw = self.request.GET.get('keyword')
         admin = self.request.GET.get('admin')
+        sorted = self.request.GET.get('sort', 'date_joined')
+        if sorted not in ["date_joined", "last_login"]:
+            raise Http404
+        sorted = "-" + sorted
         if kw:
             q = Q(username__icontains=kw) | Q(email__icontains=kw)
             queryset = queryset.filter(q)
         if admin:
             queryset = queryset.filter(is_staff=True)
-        return queryset.order_by("-date_joined").all()
+        return queryset.order_by(sorted).all()
 
     def get_context_data(self, **kwargs):
         data = super(AccountList, self).get_context_data(**kwargs)
         data['keyword'] = self.request.GET.get('keyword')
         data['admin'] = self.request.GET.get('admin')
+        for user in data["user_list"]:
+            user.solved = get_accept_problem_count(user.pk)
         return data
 
 
