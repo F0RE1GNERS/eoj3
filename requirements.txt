@@ -2,7 +2,7 @@ amqp==1.4.9
 anyjson==0.3.3
 beautifulsoup4==4.5.3
 billiard==3.3.0.23
-Django==1.10.4
+Django==1.11
 django-jinja==2.2.2
 django-widget-tweaks==1.4.1
 Jinja2==2.9.5
@@ -40,3 +40,4 @@ psycopg2
 uptime
 python-dateutil
 django-q
+pycrypto
