@@ -6,6 +6,7 @@ from datetime import datetime
 import io
 
 import chardet
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile, File
@@ -32,6 +33,7 @@ from polygon.problem2.runner import Runner
 from polygon.problem2.runner.exception import CompileError
 from polygon.problem2.views.base import ProblemRevisionMixin
 from utils import random_string
+from utils.download import respond_generate_file
 from utils.file_preview import sort_data_list_from_directory
 
 
@@ -591,3 +593,25 @@ class CaseCheckView(ProblemRevisionMixin, TemplateView):
             messages.error(request, "Invalid selected cases or solutions.")
         async(CaseManagementTools.check_case, self.revision, case_set, program_set, self.revision.active_checker)
         return redirect(reverse('polygon:revision_task', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+
+
+class CasePackAsZipView(ProblemRevisionMixin, View):
+    def get_redirect_url(self):
+        return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+
+    def get(self, request, *args, **kwargs):
+        cases = list(self.revision.cases.all().order_by("case_number"))
+        if len(cases) == 0:
+            messages.error(request, "There are no cases to pack.")
+            return redirect(self.get_redirect_url())
+        for idx, case in enumerate(cases):
+            if idx > 0 and case.case_number == cases[idx - 1].case_number:
+                messages.error(request, "Cases refuse to pack because there are two cases with the same case number.")
+                return redirect(self.get_redirect_url())
+        file_path = path.join(settings.GENERATE_DIR, random_string())
+        with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zip:
+            for case in cases:
+                zip.write(case.input_file.path, arcname="%d.in" % case.case_number)
+                zip.write(case.output_file.path, arcname="%d.out" % case.case_number)
+        return respond_generate_file(request, file_path,
+                                     "PackedTestCases - %s#%d.zip" % (self.problem.alias, self.revision.revision))
