@@ -413,12 +413,13 @@ if ($("#contest-problem-app").length > 0) {
       this.updateConfig();
     },
     mounted: function () {
-      $('.ui.dropdown.problem-search')
-        .dropdown({
+      $('.ui.dropdown.problem-search').each(function () {
+        $(this).dropdown({
           apiSettings: {
             url: $(this).data('query') || '/api/search/problem/?kw={query}'
           }
         });
+      });
     }
   });
 }
