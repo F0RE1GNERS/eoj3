@@ -262,15 +262,35 @@ class Activity(models.Model):
 
 class ActivityParticipant(models.Model):
     MAJOR_CHOICES = (
-        ('cs', 'Computer Science'),
-        ('se', 'Software Engineering'),
-        ('ee', 'Electrical Engineering'),
-        ('math', 'Math Science'),
-        ('physics', 'Physics'),
-        ('chemistry', 'Chemistry'),
+        ('art', 'Art'),
+        ('accounting', 'Accounting'),
         ('business', 'Business'),
+        ('business_admin', 'Business Administration'),
+        ('chemistry', 'Chemistry'),
+        ('commerce', 'Commerce'),
+        ('communication', 'Communications'),
+        ('ce', 'Computer Engineering'),
+        ('cs', 'Computer Science'),
+        ('economics', 'Economics'),
+        ('education', 'Education'),
+        ('ee', 'Electrical Engineering'),
+        ('finance', 'Finance'),
+        ('geometry', 'Geometry'),
+        ('interaction', 'Human Computer Interaction'),
+        ('it', 'Information Technology'),
+        ('life', 'Life Science'),
+        ('mechanics', 'Mechanics'),
+        ('linguistics', 'Linguistics'),
         ('literature', 'Literature'),
-        ('art', 'Art')
+        ('math', 'Mathematics'),
+        ('se', 'Software Engineering'),
+        ('philosophy', 'Philosophy'),
+        ('physics', 'Physics'),
+        ('politics', 'Political Science'),
+        ('psycho', 'Psychology'),
+        ('social', 'Social Science'),
+        ('translation', 'Translation'),
+        ('others', 'Others')
     )
 
     user = models.ForeignKey(User)
