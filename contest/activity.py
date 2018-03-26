@@ -28,6 +28,11 @@ class ActivityUserUpdateForm(forms.ModelForm):
         model = ActivityParticipant
         fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'major', 'gender', 'graduate_year']
 
+    def clean_graduate_year(self):
+        if self.cleaned_data["graduate_year"] is not None and \
+                (self.cleaned_data["graduate_year"] < 2000 or self.cleaned_data["graduate_year"] > 2035):
+            raise forms.ValidationError("Graduate year must be between 2000 and 2035")
+
 
 class ActivityUserAdminAddForm(forms.ModelForm):
     class Meta:
