@@ -37,9 +37,9 @@ def get_problem_q_object(kw, all=False, managing=None):
             priv_list = list()
             if not all:
                 priv_list.append(Q(visible=True))
-            if managing:
-                priv_list.append(Q(managers=managing))
-            q &= reduce(or_, priv_list)
+                if managing:
+                    priv_list.append(Q(managers=managing))
+                q &= reduce(or_, priv_list)
             return q
     return None
 
