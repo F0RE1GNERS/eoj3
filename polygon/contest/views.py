@@ -336,8 +336,7 @@ class ContestParticipantCreate(PolygonContestMixin, View):
                 try:
                     username = self._get_username(pk, user_id)
                     email = '%s@fake.ecnu.edu.cn' % username
-                    user = User.objects.create(username=username, email=email,
-                                               magic=random.choice(list(dict(MAGIC_CHOICE).keys())))
+                    user = User.objects.create(username=username, email=email)
                     user.set_password(password)
                     user.save()
                     user.avatar.save('generated.png', Identicon(user.email).get_bytes())

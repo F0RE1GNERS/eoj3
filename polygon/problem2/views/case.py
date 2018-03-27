@@ -130,7 +130,8 @@ class CaseManagementTools(object):
                 new_case.input_file.save("in", ContentFile(b""), save=False)
                 new_case.output_file.save("out", ContentFile(b""), save=False)
                 running_result = runner.run(args=program_args, stdout=new_case.input_file.path,
-                                            max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                                            max_time=revision.time_limit * 5 / 1000,
+                                            max_memory=revision.memory_limit * 3)
                 CaseManagementTools.reformat_file(new_case.input_file.path, revision.well_form_policy)
                 new_case.save_fingerprint(revision.problem_id)
                 ret["case_number"] = case_number
@@ -169,7 +170,8 @@ class CaseManagementTools(object):
                 case.parent_id = case.pk
                 case.pk = None
                 run_result = runner.run(stdin=case.input_file.path, stdout=case.output_file.path,
-                                        max_time=revision.time_limit / 1000, max_memory=revision.memory_limit)
+                                        max_time=revision.time_limit * 3 / 1000,
+                                        max_memory=revision.memory_limit * 2)
                 CaseManagementTools.reformat_file(case.output_file.path, revision.well_form_policy)
                 case.save_fingerprint(revision.problem_id)
                 with transaction.atomic():
