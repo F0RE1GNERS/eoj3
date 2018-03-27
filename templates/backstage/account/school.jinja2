@@ -7,31 +7,26 @@
 
   {% include 'components/message.jinja2' %}
 
-  <table class="ui celled table">
+  <table class="ui celled center aligned table">
     <thead>
       <tr>
         <th colspan="4">
-          <button class="ui right floated primary labeled icon button modal-link" data-target="#school-add">
+          <a href="{{ url('backstage:account_school_add') }}" class="ui right floated primary labeled icon button modal-link">
             <i class="server icon"></i> Add School
-          </button>
+          </a>
         </th>
       </tr>
     </thead>
     <tbody>
       {% for school in school_list %}
         <tr>
-          <td>{{ school.name }}</td>
+          <td>{{ school.pk }}</td>
+          <td><a href="{{ url('backstage:account_school_edit', school.pk) }}">{{ school.name }}</a></td>
+          <td>{{ school.abbr }}</td>
+          <td>{{ school.alias }}</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
-
-  {% call modal(id="school-add", title="Add a school", action=url('backstage:account_school_add')) %}
-    {% csrf_token %}
-    <div class="field">
-      <label>School name:</label>
-      <input type="text" name="name">
-    </div>
-  {% endcall %}
 
 {% endblock %}

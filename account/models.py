@@ -127,6 +127,10 @@ class Payment(models.Model):
 
 class School(models.Model):
     name = models.CharField(max_length=192, unique=True)
+    abbr = models.CharField(max_length=192, unique=True)
+    alias = models.CharField(max_length=192, blank=True)
 
     def __str__(self):
-        return self.name
+        if self.alias:
+            return "%s (%s)" % (self.name, self.alias)
+        else: return self.name

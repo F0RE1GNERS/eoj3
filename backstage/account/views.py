@@ -2,11 +2,15 @@ import json
 
 from django.http import Http404
 from django.shortcuts import HttpResponseRedirect, reverse, HttpResponse
+from django.views.generic import CreateView
+from django.views.generic import FormView
+from django.views.generic import UpdateView
 from django.views.generic.list import ListView, View
 from django.db import transaction
 from django.db.models import Q
 
 from account.models import User, School
+from backstage.account.forms import SchoolForm
 from submission.statistics import get_accept_problem_count
 from ..base_views import BaseBackstageMixin
 
@@ -86,9 +90,18 @@ class AccountSchoolList(BaseBackstageMixin, ListView):
     template_name = 'backstage/account/school.jinja2'
 
 
-class AccountAddSchool(BaseBackstageMixin, View):
-    def post(self, request, *args, **kwargs):
-        with transaction.atomic():
-            if request.POST.get('name'):
-                School.objects.create(name=request.POST.get('name'))
-        return HttpResponseRedirect(reverse('backstage:account_school'))
+class AccountAddSchool(BaseBackstageMixin, CreateView):
+    form_class = SchoolForm
+    template_name = 'backstage/account/school_form.jinja2'
+
+    def get_success_url(self):
+        return reverse('backstage:account_school')
+
+
+class AccountEditSchool(BaseBackstageMixin, UpdateView):
+    form_class = SchoolForm
+    template_name = 'backstage/account/school_form.jinja2'
+    queryset = School.objects.all()
+
+    def get_success_url(self):
+        return reverse('backstage:account_school')
