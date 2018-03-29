@@ -3,6 +3,7 @@ import json
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import Http404
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, reverse, HttpResponse
@@ -40,8 +41,6 @@ class ContestSubmit(BaseContestMixin, View):
 
             if self.contest.status != 0:
                 submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
-                response = {"url": reverse('problem:submission_api',
-                                           kwargs={'pk': problem, 'sid': submission.id})}
             else:
                 submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
                                                contest=self.contest, ip=get_ip(request))
@@ -51,8 +50,8 @@ class ContestSubmit(BaseContestMixin, View):
                     contest_participant.save(update_fields=['star'])
                 if contest_participant.is_disabled:
                     raise ValueError("You have quitted the contest.")
-                response = {"url": reverse('contest:submission_api',
-                                           kwargs={'cid': self.contest.id, 'sid': submission.id})}
+            response = {"url": reverse('contest:submission_api',
+                                       kwargs={'cid': self.contest.id, 'sid': submission.id})}
             judge_submission_on_contest(submission, contest=self.contest)
             return JsonResponse(response)
         except Exception as e:
@@ -90,11 +89,22 @@ class ContestSubmissionClaim(BaseContestMixin, View):
         return HttpResponse()
 
 
+def get_contest_submission(submission_id, contest_id, author_id=None):
+    if author_id is None:
+        submission = get_object_or_404(Submission, pk=submission_id)
+    else:
+        submission = get_object_or_404(Submission, pk=submission_id, author_id=author_id)
+    if submission.contest_id != contest_id and \
+            not ContestProblem.objects.filter(contest_id=contest_id, problem_id=submission.problem_id).exists():
+        raise Http404
+    return submission
+
+
 class ContestSubmissionAPI(BaseContestMixin, View):
     def get(self, request, cid, sid):
         if not request.user.is_authenticated:
             raise PermissionDenied
-        submission = get_object_or_404(Submission, contest_id=cid, author=request.user, pk=sid)
+        submission = get_contest_submission(sid, cid, author_id=request.user.pk)
         if self.contest.case_public and submission.is_judged and \
                 is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
             submission.allow_case_download = True
@@ -108,8 +118,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(ContestSubmissionView, self).get_context_data(**kwargs)
-        data['submission'] = submission = get_object_or_404(Submission, contest_id=self.kwargs.get('cid'),
-                                                            pk=self.kwargs.get('sid'))
+        data['submission'] = submission = get_contest_submission(self.kwargs.get('sid'), self.kwargs.get('cid'))
         submission.contest_problem = self.contest.get_contest_problem(submission.problem_id)
         if submission.author == self.request.user and self.contest.case_public and submission.is_judged and \
                 is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
@@ -153,6 +162,10 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
                                                               "author_id", "author__username",
                                                               "author__magic"). \
                                           filter(author_id=self.request.user.pk, problem_id=problem)[:15]
+            for submission in data['submission_list']:
+                if submission.contest_id is None or submission.contest_id != self.contest.pk:
+                    submission.unofficial = True
+                    submission.contest_id = self.contest.pk
         except ContestProblem.DoesNotExist:
             data['submission_list'] = []
         data['view_more'] = True
@@ -172,6 +185,10 @@ class ContestStatus(BaseContestMixin, StatusList):
     def get_context_data(self, **kwargs):
         data = super(ContestStatus, self).get_context_data(**kwargs)
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
+        for submission in data['submission_list']:
+            if submission.contest_id is None or submission.contest_id != self.contest.pk:
+                submission.unofficial = True
+                submission.contest_id = self.contest.pk
         return data
 
 
