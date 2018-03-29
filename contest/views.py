@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.cache import cache
@@ -35,8 +37,12 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
-        if self.contest.always_running and is_site_closed() and not is_admin_or_root(request.user):
-            raise CloseSiteException
+        if is_site_closed() and not is_admin_or_root(request.user):
+            if self.contest.always_running:
+                raise CloseSiteException
+            if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
+                    <= self.contest.end_time + timedelta(minutes=10):
+                raise CloseSiteException
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_volunteer(self.user)
