@@ -289,7 +289,7 @@ class CaseManagementTools(object):
                 if solution.tag in ('solution_main', 'solution_correct') and got_verdicts != {"OK"}:
                     packed_result.update(success=False,
                                          error="'%s' claims to be correct, but got rejected in tests" % solution.name)
-                if solution.tag == 'solution_tle_or_ok' and got_verdicts != {"TLE", "OK"}:
+                if solution.tag == 'solution_tle_or_ok' and got_verdicts != {"TIME_LIMIT", "OK"}:
                     packed_result.update(success=False, error="'%s' claims to be tle_or_ok, but got %s" % (
                     solution.name, str(got_verdicts)))
                 if solution.tag == 'solution_wa' and 'WRONG_ANSWER' not in got_verdicts:

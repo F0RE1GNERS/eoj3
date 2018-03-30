@@ -158,8 +158,10 @@ class ProblemList(ListView):
             unsolved_problem_set = set(get_attempted_problem_list(self.request.user.id)) - set(
                 get_accept_problem_list(self.request.user.id))
             data['unsolved_submissions'] = unsolved_submissions = []
-            for s in self.request.user.submission_set.exclude(status=SubmissionStatus.ACCEPTED).filter(
-                    problem_id__in=unsolved_problem_set).only("problem_id", "contest_id", "status"):
+            for s in self.request.user.submission_set.select_related("problem"). \
+                    exclude(status=SubmissionStatus.ACCEPTED).filter(
+                problem_id__in=unsolved_problem_set, problem__visible=True). \
+                    only("problem_id", "problem__visible", "contest_id", "status"):
                 if s.problem_id not in unsolved_problem_set:
                     continue
                 if s.contest_id:
