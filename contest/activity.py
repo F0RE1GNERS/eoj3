@@ -38,6 +38,7 @@ class ActivityUserUpdateForm(forms.ModelForm):
         if self.cleaned_data["graduate_year"] is not None and \
                 (self.cleaned_data["graduate_year"] < 2000 or self.cleaned_data["graduate_year"] > 2035):
             raise forms.ValidationError("Graduate year must be between 2000 and 2035")
+        return self.cleaned_data["graduate_year"]
 
 
 class ActivityUserAdminAddForm(forms.ModelForm):
