@@ -12,9 +12,15 @@ from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from account.models import User
+from account.models import User, School
 from account.permissions import is_admin_or_root, StaffRequiredMixin
 from contest.models import Activity, ActivityParticipant
+
+
+class SchoolForm(forms.ModelForm):
+    class Meta:
+        model = School
+        fields = "__all__"
 
 
 class ActivityUpdateForm(forms.ModelForm):
@@ -172,3 +178,11 @@ class ActivityAdminUpdateUserView(StaffRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('contest:activity_participant', kwargs={"pk": self.kwargs["pk"]})
+
+
+class ActivityAddSchoolView(LoginRequiredMixin, CreateView):
+    form_class = SchoolForm
+    template_name = 'contest/activity/school_form.jinja2'
+
+    def get_success_url(self):
+        return self.request.POST.get("next", self.request.path)

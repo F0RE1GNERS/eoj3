@@ -1,4 +1,5 @@
 {% extends 'base.jinja2' %}
+{% from 'components/modal.jinja2' import modal with context %}
 
 {% block title %}Activities - {% endblock %}
 
@@ -45,6 +46,24 @@
   {% endset %}
 
   {% include 'components/form.jinja2' %}
+
+  {% call modal(title="Add a school", id="addSchoolModal", action=url('contest:activity_add_school')) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label for="id_name">English Full Name:</label>
+      <input id="id_name" maxlength="192" name="name" placeholder="East China Normal University" required="" type="text">
+    </div>
+    <div class="field ">
+      <label for="id_abbr">Abbreviation:</label>
+      <input id="id_abbr" maxlength="192" name="abbr" placeholder="ECNU" required="" type="text">
+    </div>
+    <div class="field ">
+      <label for="id_alias">Chinese Name:</label>
+      <input id="id_alias" maxlength="192" name="alias" placeholder="华东师范大学" type="text">
+    </div>
+  {% endcall %}
+
   {% else %}
   <h4 class="ui header">Registration is over. Contact admin if you have any questions.</h4>
   {% endif %}
