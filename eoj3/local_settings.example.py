@@ -24,6 +24,7 @@ EMAIL_USE_TLS = True
 ADMINS = [('ultmaster', 'scottyugochang@hotmail.com'), ('zerol', 'zerolfx0@gmail.com')]
 ADMIN_EMAIL = ""
 IPWARE_PRIVATE_IP_PREFIX = ('202.120.88.',)
+WHITE_LIST_HOST = ["acm.ecnu.edu.cn",]
 
 RUNNER_CONFIG = {
     "cpp": {

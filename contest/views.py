@@ -37,7 +37,8 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
-        if is_site_closed() and not is_admin_or_root(request.user):
+        self.site_closed = is_site_closed(request)
+        if self.site_closed:
             if self.contest.always_running:
                 raise CloseSiteException
             if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
@@ -99,7 +100,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['is_privileged'] = self.privileged
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
-        data['site_closed'] = is_site_closed() and not self.privileged
+        data['site_closed'] = self.site_closed
 
         return data
 

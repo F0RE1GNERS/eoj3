@@ -38,6 +38,7 @@ except ImportError:
     }
     SITE_ID = 1
     ADMIN_LIST = []
+    WHITE_LIST_HOST = ["127.0.0.1",]
     RUNNER_CONFIG = {
         "cpp": {
             "compiler_file": "/usr/bin/g++",

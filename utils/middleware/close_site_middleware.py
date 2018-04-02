@@ -11,7 +11,6 @@ class CloseSiteException(Exception):
 
 class CloseSiteMiddleware(object):
 
-
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -23,7 +22,7 @@ class CloseSiteMiddleware(object):
     def process_view(request, view_func, view_args, view_kwargs):
         force_closed = view_kwargs.pop('force_closed', False)
         try:
-            if force_closed and is_site_closed() and not is_admin_or_root(request.user):
+            if force_closed and is_site_closed(request):
                 raise CloseSiteException
             return view_func(request, *view_args, **view_kwargs)
         except CloseSiteException:
