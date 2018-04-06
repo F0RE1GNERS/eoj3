@@ -108,7 +108,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 if detail.get('verdict') == 0:
                     score += point_query.get(case_list[index], 10)
             submission.status_percent = score / total_score * 100
-            display_details = details + [{}] * max(0, len(case_list) - len(submission.status_detail_list))
+            display_details = details + [{}] * max(0, len(case_list) - len(details))
             submission.status_detail_list = display_details
             submission.status_test = process_failed_test(display_details)
             submission.save(
