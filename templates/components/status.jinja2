@@ -125,7 +125,7 @@
             {% endif %}
           {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
-          <td><h5 class="ui header status-span" data-status="{{ submission.status }}"></h5></td>
+          <td><h5 class="ui header status-span" data-status="{{ submission.status }}" {% if submission.status_private == submission.status %}data-test="{{ submission.status_test }}"{% endif %}></h5></td>
         {% if show_percent %}
           <td>{{ submission.status_percent | round(1) }} %</td>
         {% endif %}

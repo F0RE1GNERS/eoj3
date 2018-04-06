@@ -386,8 +386,11 @@ $.parseStatusDisplay = function () {
     var icon = '<i class="icon circle fitted ' + STATUS_ICON[status] + '"></i>';
     if ($(this).hasClass("with-icon"))
       $(this).html(icon + STATUS[status]);
-    else
-      $(this).html(STATUS[status]);
+    else {
+      if ($(this).data('test'))
+        $(this).html(STATUS[status] + " on test " + $(this).data('test'));
+      else $(this).html(STATUS[status]);
+    }
     $(this).addClass(STATUS_COLOR[status]);
     if (status != 0) {
       $(this).css("font-weight", 600);

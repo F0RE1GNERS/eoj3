@@ -49,6 +49,16 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
                                          status=status, status_private=status, ip=ip)
 
 
+def process_failed_test(details):
+    try:
+        for idx, det in enumerate(details, start=1):
+            if det.get('verdict') != 0:
+                return idx
+        return 0
+    except (TypeError, ValueError, AttributeError):
+        return 0
+
+
 def judge_submission_on_problem(submission, callback=None, **kwargs):
     """
     :type submission: Submission
@@ -98,10 +108,12 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 if detail.get('verdict') == 0:
                     score += point_query.get(case_list[index], 10)
             submission.status_percent = score / total_score * 100
+            submission.status_test = process_failed_test(details)
             submission.status_detail_list = details
             submission.status_detail_list += [{}] * max(0, len(case_list) - len(submission.status_detail_list))
             submission.save(
-                update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent'])
+                update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent',
+                               'status_test'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
                 try:
