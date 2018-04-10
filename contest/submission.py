@@ -203,6 +203,7 @@ class ContestStatusForAll(ContestStatus):
 
 class ContestPenaltyDetail(ContestStatus):
     template_name = 'contest/standings_penalty_detail.jinja2'
+    paginate_by = None
 
     def get_context_data(self, **kwargs):
         if 'user' not in self.request.GET or 'problem' not in self.request.GET:

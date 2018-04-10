@@ -13,7 +13,7 @@ from .manage import DEFAULT_USERNAME
 
 
 def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                            interactor, callback, timeout=900):
+                            interactor, callback, timeout=1200):
     server.last_seen_time = datetime.now()
     server.save(update_fields=['last_seen_time'])
     data = _prepare_judge_json_data(code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
@@ -64,6 +64,7 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
                                                    auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text)
                 break
             timeout_count += interval
+            interval += 0.1
         if timeout_count >= timeout:
             raise RuntimeError("Send judge through socketio timed out.")
     except:
