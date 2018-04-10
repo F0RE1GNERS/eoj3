@@ -332,12 +332,12 @@ AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
 
 Q_CLUSTER = {
     'name': 'eoj_cluster',
-    'workers': 4,
-    'recycle': 10,
-    'timeout': 900,
+    'workers': 16,
+    'recycle': 20,
+    'timeout': 14400,  # 4 hours
     'retry': None,
     'cached': 3600,
-    'queue_limit': 500,
+    'queue_limit': 3000,
     'cpu_affinity': 1,
     'django_redis': 'default',
 }
