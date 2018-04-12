@@ -154,12 +154,17 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     try:
         servers = Server.objects.filter(enabled=True)
         server = random.choice(servers)
-        Thread(target=send_judge_through_watch, args=(server, submission.code, submission.lang, problem.time_limit,
-                                                      problem.memory_limit, kwargs.get('run_until_complete', False),
-                                                      problem.case_list, problem.checker, problem.interactor,
-                                                      on_receive_data),
-               kwargs={'report_file_path': path.join(settings.GENERATE_DIR,
-                                                     'submission-%d' % submission.pk)}) \
-            .start()
+
+        n_args = (server, submission.code, submission.lang, problem.time_limit,
+                  problem.memory_limit, kwargs.get('run_until_complete', False),
+                  problem.case_list, problem.checker, problem.interactor,
+                  on_receive_data)
+        n_kwargs = {'report_file_path': path.join(settings.GENERATE_DIR,
+                                                  'submission-%d' % submission.pk)}
+
+        if kwargs.get('sync'):
+            send_judge_through_watch(*n_args, **n_kwargs)
+        else:
+            Thread(target=send_judge_through_watch, args=n_args, kwargs=n_kwargs).start()
     except:
         on_receive_data(response_fail_with_timestamp())

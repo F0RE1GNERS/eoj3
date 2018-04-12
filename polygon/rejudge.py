@@ -17,9 +17,9 @@ REJUDGE_COUNTER = 'rejudge_counter'
 
 def rejudge_submission(submission, callback=None):
     if submission.contest_id:
-        judge_submission_on_contest(submission, callback)
+        judge_submission_on_contest(submission, callback=callback, sync=True)
     else:
-        judge_submission_on_problem(submission, callback)
+        judge_submission_on_problem(submission, callback=callback, sync=True)
 
 
 def rejudge_submission_set(submission_set):
