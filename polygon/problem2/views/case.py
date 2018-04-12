@@ -151,8 +151,8 @@ class CaseManagementTools(object):
             report.append(ret)
             current_task.status = -2
             current_task.report = json.dumps(report)
-            current_task.save()
         current_task.status = 0 if all(map(lambda r: r["success"], report)) else -1
+        current_task.save()
 
     @staticmethod
     def run_case_output(revision, case_set, solution):
