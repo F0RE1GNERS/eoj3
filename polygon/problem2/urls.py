@@ -86,6 +86,10 @@ urlpatterns += [
         name='revision_case_check'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/pack/$', case.CasePackAsZipView.as_view(),
         name='revision_case_pack'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/toggle/sample/$', case.CaseToggleSampleView.as_view(),
+        name='revision_case_toggle_sample'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/toggle/pretest/$', case.CaseTogglePretestView.as_view(),
+        name='revision_case_toggle_pretest'),
 ]
 
 urlpatterns += [

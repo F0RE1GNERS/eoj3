@@ -23,6 +23,8 @@
                 <a class="item get gather" data-link="{{ url('polygon:revision_case_check', problem.id, revision.id) }}">Run Tests</a>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
                 <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="Move the selected cases after (0 means above all):">Move Selected</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_sample', problem.id, revision.id) }}">Mark/Unmark As Samples</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_pretest', problem.id, revision.id) }}">Mark/Unmark As Pretests</a>
               </div>
             </div>
           </div>

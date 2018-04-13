@@ -341,6 +341,9 @@ class RevisionMultipleCasesMixin(ProblemRevisionMixin):
         if len(self.case_set) != len(self.pk_set):
             raise ValueError("Invalid selected cases")
 
+    def get_redirect_url(self):
+        return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
+
 
 class CaseList(ProblemRevisionMixin, ListView):
     template_name = 'polygon/problem2/case/list.jinja2'
@@ -546,14 +549,36 @@ class CaseMoveOrderView(RevisionMultipleCasesMixin, View):
             insert_pos += 1
         ret = other_case_set[:insert_pos] + list(self.case_set) + other_case_set[insert_pos:]
         NATURALIZE_ORDER(self.revision, ret)
-        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+        return redirect(self.get_redirect_url())
 
 
 class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
         self.revision.cases.remove(*list(self.case_set))
         NATURALIZE_ORDER(self.revision, self.revision.cases.all().order_by("case_number"))
-        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+        return redirect(self.get_redirect_url())
+
+
+class CaseToggleSampleView(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        self.revision.cases.remove(*list(self.case_set))
+        for case in self.case_set:
+            case.in_samples = not case.in_samples
+            case.pk = None
+            case.save()
+            self.revision.cases.add(case)
+        return redirect(self.get_redirect_url())
+
+
+class CaseTogglePretestView(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        self.revision.cases.remove(*list(self.case_set))
+        for case in self.case_set:
+            case.in_pretests = not case.in_pretests
+            case.pk = None
+            case.save()
+            self.revision.cases.add(case)
+        return redirect(self.get_redirect_url())
 
 
 class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
@@ -563,7 +588,7 @@ class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
             async(CaseManagementTools.run_case_output, self.revision, self.case_set, solution)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")
-        return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
+        return redirect(self.get_redirect_url())
 
 
 class CaseCheckView(ProblemRevisionMixin, TemplateView):
