@@ -3,6 +3,10 @@
 
 {% block contest_content %}
 
+  {% if contest.run_tests_during_contest != "all" %}
+    <p><a class="ui primary button post prompt" data-link="{{ url('polygon:contest_system_test', contest.pk) }}">Run System Tests</a></p>
+  {% endif %}
+
   {{ status(rejudge=True, show_ip=True) }}
 
 {% endblock %}

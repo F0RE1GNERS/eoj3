@@ -37,6 +37,12 @@
               Always Running
             </div>
           </div>
+        {% elif contest.pending_system_tests %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              Pending System Tests
+            </div>
+          </div>
         {% else %}
           <div class="ui segment">
             <div class="ui center aligned header">
@@ -44,8 +50,6 @@
                 Contest Running
               {% elif contest.status == -1 %}
                 Contest Pending
-              {% elif contest.pending_system_tests %}
-                Pending System Tests
               {% else %}
                 Contest Ended
               {% endif %}

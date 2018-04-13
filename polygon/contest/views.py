@@ -31,12 +31,14 @@ from problem.statistics import (
     get_problem_accept_user_count, get_problem_accept_user_ratio
 )
 from problem.views import StatusList
+from submission.models import SubmissionStatus
 from utils.identicon import Identicon
 from utils.download import respond_generate_file
 from utils.csv_writer import write_csv
 from utils.permission import is_contest_manager
 from .forms import ContestEditForm
-from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem
+from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, \
+    rejudge_submission_set
 from polygon.base_views import PolygonBaseMixin
 
 
@@ -365,6 +367,22 @@ class RejudgeContestProblemSubmission(PolygonContestMixin, View):
             rejudge_all_submission_on_contest(self.contest)
         else:
             rejudge_all_submission_on_contest_problem(self.contest, get_object_or_404(Problem, pk=my_problem))
+        return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
+
+
+class ContestSystemTestView(PolygonContestMixin, View):
+    def post(self, request, pk):
+        # almost same as rejudge
+
+        # status private?
+        submission_set = self.contest.submission_set.filter(status__in=[SubmissionStatus.ACCEPTED,
+                                                                        SubmissionStatus.JUDGING,
+                                                                        SubmissionStatus.WAITING,
+                                                                        SubmissionStatus.SUBMITTED])\
+            .order_by("create_time")
+
+        if len(submission_set) > 0:
+            Thread(target=rejudge_submission_set, args=(submission_set,)).start()
         return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.id}))
 
 

@@ -8,7 +8,7 @@ from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 class ContestEditForm(forms.ModelForm):
     class Meta:
         model = Contest
-        exclude = ['visible', 'standings_update_time', 'problems', 'participants', "managers", 'system_tested',
+        exclude = ['visible', 'standings_update_time', 'problems', 'participants', "managers",
                    'standings_update_time', 'allowed_lang', 'authors']
         help_texts = {
             'start_time': 'YYYY-MM-DD --:--(:--)',

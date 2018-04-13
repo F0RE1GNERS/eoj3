@@ -130,7 +130,7 @@ class Contest(models.Model):
 
     @property
     def pending_system_tests(self):
-        return self.get_status() > 0 and self.run_tests_during_contest != 'all' and not self.system_tested
+        return self.status > 0 and self.run_tests_during_contest != 'all' and not self.system_tested
 
     @property
     def supported_language_list(self):
