@@ -231,7 +231,8 @@ def get_first_yes(contest: Contest):
         t = dict()
         for contest_problem in contest.contest_problem_list:
             first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
-                                                               status=SubmissionStatus.ACCEPTED).only(
+                                                               status__in=[SubmissionStatus.ACCEPTED,
+                                                                           SubmissionStatus.PRETEST_PASSED]).only(
                 'contest_id', 'problem_id', 'status', 'create_time').last()
             if first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),

@@ -168,7 +168,7 @@ def update_problems(problem_ids, contest_id=0):
     for submission in problem_filter:
         pid = submission.problem_id
         status = submission.status
-        if status == SubmissionStatus.ACCEPTED:
+        if SubmissionStatus.is_accepted(status):
             accept_count[pid] += 1
             accept_user[pid].add(submission.author_id)
         elif status == SubmissionStatus.WRONG_ANSWER:

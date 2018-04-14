@@ -66,7 +66,7 @@ def update_user(user_id, contest_id=0):
         submission_filter = Submission.objects.filter(author_id=user_id, contest_id=contest_id).all()
     else:
         submission_filter = Submission.objects.filter(author_id=user_id).all()
-    ac_filter = submission_filter.filter(status=SubmissionStatus.ACCEPTED).all()
+    ac_filter = submission_filter.filter(status__in=[SubmissionStatus.ACCEPTED, SubmissionStatus.PRETEST_PASSED]).all()
 
     total_count = submission_filter.count()
     total_list = list(submission_filter.order_by().values_list("problem_id", flat=True).distinct())
