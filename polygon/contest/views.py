@@ -378,7 +378,8 @@ class ContestSystemTestView(PolygonContestMixin, View):
         submission_set = self.contest.submission_set.filter(status__in=[SubmissionStatus.ACCEPTED,
                                                                         SubmissionStatus.JUDGING,
                                                                         SubmissionStatus.WAITING,
-                                                                        SubmissionStatus.SUBMITTED])\
+                                                                        SubmissionStatus.SUBMITTED,
+                                                                        SubmissionStatus.PRETEST_PASSED])\
             .order_by("create_time")
 
         if len(submission_set) > 0:
