@@ -6,6 +6,7 @@
     </div>
   </div>
 
+  {% cache 3600 'problem_view#' + problem.pk.__str__() + '#' + problem.update_time.__str__() %}
   <div class="problem-body">
     {% if problem.description %}
       <div class="passage">
@@ -53,6 +54,7 @@
       {{ problem.hint | markdown | safer | safe }}
     {% endif %}
   </div>
+  {% endcache %}
 
   <script>
     $(".sample-content").click(function() {
