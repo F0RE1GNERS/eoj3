@@ -12,13 +12,24 @@
         {{ problem.description | markdown | safer | safe }}
       </div>
     {% endif %}
-    {% if problem.input %}
-      <h3 class="title">Input</h3>
-      {{ problem.input | markdown | safer | safe }}
-    {% endif %}
-    {% if problem.output %}
-      <h3 class="title">Output</h3>
-      {{ problem.output | markdown | safer | safe }}
+    {% if not problem.interactor or (problem.input and problem.output) %}
+      {% if problem.input %}
+        <h3 class="title">Input</h3>
+        {{ problem.input | markdown | safer | safe }}
+      {% endif %}
+      {% if problem.output %}
+        <h3 class="title">Output</h3>
+        {{ problem.output | markdown | safer | safe }}
+      {% endif %}
+    {% else %}
+      {% if problem.input %}
+        <h3 class="title">Interaction</h3>
+        {{ problem.input | markdown | safer | safe }}
+      {% endif %}
+      {% if problem.output %}
+        <h3 class="title">Interaction</h3>
+        {{ problem.output | markdown | safer | safe }}
+      {% endif %}
     {% endif %}
     {% if problem.sample %}
       <div class="passage examples">
