@@ -160,7 +160,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
         n_args = (server, submission.code, submission.lang, problem.time_limit,
                   problem.memory_limit, kwargs.get('run_until_complete', False),
-                  problem.case_list, problem.checker, problem.interactor,
+                  case_list, problem.checker, problem.interactor,
                   on_receive_data)
         n_kwargs = {'report_file_path': path.join(settings.GENERATE_DIR,
                                                   'submission-%d' % submission.pk)}
