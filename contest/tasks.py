@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils import timezone
 from django.db import transaction
 from .models import Contest, ContestParticipant
@@ -19,7 +21,9 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
     sync = kwargs.get('sync', False)
     if contest is None:
         raise ValueError('Judge on "None" contest')
-    cases = 'all' if contest.status > 0 else contest.run_tests_during_contest
+    cases = 'all' if contest.end_time + timedelta(seconds=300) < timezone.now() \
+        else contest.run_tests_during_contest
+    # print(cases)
     run_until_complete = contest.scoring_method == 'oi'
     if not submission.contest:
         cases = 'all'
