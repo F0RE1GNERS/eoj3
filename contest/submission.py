@@ -29,6 +29,9 @@ class ContestSubmit(BaseContestMixin, View):
         try:
             if self.contest.status < 0 and not self.privileged:  # pending contest
                 raise ValueError("Contest is not running.")
+            if self.contest.run_tests_during_contest != 'all' and self.contest.status != 0 and \
+                    not self.contest.system_tested and not self.privileged:  # pending result
+                raise ValueError("Contest is still waiting for system tests. Try again later.")
             lang = request.POST.get('lang', '')
             if lang not in self.contest.supported_language_list:
                 raise ValueError("Invalid language.")
