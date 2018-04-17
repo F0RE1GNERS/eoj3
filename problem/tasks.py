@@ -27,12 +27,14 @@ def upload_problem_to_judge_server(problem, server):
     :type problem: Problem
     :type server: Server
     """
-    return all(upload_case(server, case) for case in problem.case_list) and \
-           (not problem.checker or upload_checker(server, SpecialProgram.objects.get(fingerprint=problem.checker))) and \
-           (not problem.validator or upload_validator(server,
-                                                      SpecialProgram.objects.get(fingerprint=problem.validator))) and \
-           (not problem.interactor or upload_interactor(server,
-                                                        SpecialProgram.objects.get(fingerprint=problem.interactor)))
+    for case in problem.case_list:
+        upload_case(server, case)
+    if problem.checker:
+        upload_checker(server, SpecialProgram.objects.get(fingerprint=problem.checker))
+    if problem.validator:
+        upload_validator(server, SpecialProgram.objects.get(fingerprint=problem.validator))
+    if problem.interactor:
+        upload_interactor(server, SpecialProgram.objects.get(fingerprint=problem.interactor))
 
 
 def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip=''):

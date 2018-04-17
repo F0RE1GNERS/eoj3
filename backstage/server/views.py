@@ -1,4 +1,5 @@
 import threading
+import traceback
 from datetime import datetime
 
 from django.contrib import messages
@@ -97,7 +98,10 @@ class ServerSynchronize(BaseBackstageMixin, View):
             for idx, problem in enumerate(Problem.objects.all(), start=1):
                 cache.set('server_synchronize_status_detail', '%d / %d' % (idx, count), 60)
                 cache.set('server_synchronize_status', idx / count * 100, 60)
-                if not upload_problem_to_judge_server(problem, server):
+                try:
+                    upload_problem_to_judge_server(problem, server)
+                except:
+                    traceback.print_exc()
                     return
             server.last_synchronize_time = datetime.now()
             server.save(update_fields=['last_synchronize_time'])

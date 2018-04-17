@@ -45,7 +45,8 @@ def upload_case(server, case):
             open(path.join(settings.TESTDATA_DIR, case + '.out'), 'rb') as ouf:
         res1 = requests.post(url_input, data=inf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
         res2 = requests.post(url_output, data=ouf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
-    return is_success_response(res1) and is_success_response(res2)
+    if not is_success_response(res1) and is_success_response(res2):
+        raise ValueError("%s; %s" % (res1, res2))
 
 
 def _upload_special_program(server, url, sp):
@@ -58,14 +59,20 @@ def _upload_special_program(server, url, sp):
 
 def upload_checker(server, checker):
     url = server.http_address + '/upload/checker'
-    return is_success_response(_upload_special_program(server, url, checker))
+    res = _upload_special_program(server, url, checker)
+    if not is_success_response(res):
+        raise ValueError(str(res))
 
 
 def upload_validator(server, validator):
     url = server.http_address + '/upload/validator'
-    return is_success_response(_upload_special_program(server, url, validator))
+    res = _upload_special_program(server, url, validator)
+    if not is_success_response(res):
+        raise ValueError(str(res))
 
 
 def upload_interactor(server, interactor):
     url = server.http_address + '/upload/interactor'
-    return is_success_response(_upload_special_program(server, url, interactor))
+    res = _upload_special_program(server, url, interactor)
+    if not is_success_response(res):
+        raise ValueError(str(res))
