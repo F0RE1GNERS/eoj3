@@ -542,7 +542,7 @@ class CaseNaturalizeOrderView(ProblemRevisionMixin, View):
 
 class CaseMoveOrderView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
-        after = int(request.POST.get("answer", 0))
+        after = int(request.POST.get("answer") or 0)
         other_case_set = self.revision.cases.exclude(pk__in=self.pk_set).order_by("case_number")
         insert_pos = 0
         while insert_pos < len(other_case_set) and other_case_set[insert_pos].case_number <= after:

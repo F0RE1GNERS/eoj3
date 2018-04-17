@@ -83,6 +83,8 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
         self.latest_revisions = self.problem.revisions.all().order_by("-revision")[:5]
         if is_problem_manager(self.request.user, self.problem):
             self.permission = 2
+        else:
+            self.permission = 0
 
         self.init_revision(*args, **kwargs)
 
