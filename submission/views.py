@@ -61,8 +61,12 @@ def render_submission_report(pk):
             ans = []
             for line in report_file:
                 meta, *b64s = line.split('|')
-                input, output, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
-                ans.append({'meta': meta, 'input': input, 'output': output, 'answer': answer, 'checker': checker})
+                if len(b64s) == 4:
+                    input, output, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
+                    stderr = ""
+                else:
+                    input, output, stderr, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
+                ans.append({'meta': meta, 'input': input, 'output': output, 'stderr': stderr, 'answer': answer, 'checker': checker})
         t = loader.get_template('components/submission_report.jinja2')
         return t.render(Context({'testcases': ans}))
     except (FileNotFoundError, ValueError):

@@ -20,6 +20,12 @@
         <div class="title">Output</div>
         <pre>{{ case.output }}</pre>
       </div>
+      {% if case.stderr %}
+      <div class="stderr">
+        <div class="title">Stderr</div>
+        <pre>{{ case.stderr }}</pre>
+      </div>
+      {% endif %}
       <div class="answer">
         <div class="title">Answer</div>
         <pre>{{ case.answer }}</pre>
