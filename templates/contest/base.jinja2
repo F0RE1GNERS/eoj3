@@ -18,6 +18,9 @@
     {% if is_volunteer or is_privileged %}
       <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">Balloon</a>
     {% endif %}
+    {% if analysis_available %}
+      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">Analysis</a>
+    {% endif %}
     {% if is_privileged %}
       <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">Manage</a>
     {% endif %}

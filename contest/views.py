@@ -15,6 +15,7 @@ from ipware.ip import get_ip
 
 from account.models import User
 from account.permissions import is_admin_or_root, is_volunteer
+from blog.models import Blog
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
@@ -101,6 +102,9 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
         data['site_closed'] = self.site_closed
+        if self.contest.analysis_blog_id and \
+            Blog.objects.filter(pk=self.contest.analysis_blog_id, visible=True).exists():
+            data['analysis_available'] = True
 
         return data
 
