@@ -45,6 +45,8 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
             if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
                     <= self.contest.end_time + timedelta(minutes=10):
                 raise CloseSiteException
+            if self.contest.public:
+                raise CloseSiteException
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_volunteer(self.user)
