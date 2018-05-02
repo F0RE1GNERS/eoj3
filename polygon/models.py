@@ -41,6 +41,10 @@ class NameValidator(RegexValidator):
     regex = r'^[A-Za-z0-9_-]{2,24}$'
 
 
+class GroupNameValidator(RegexValidator):
+    regex = r'^[A-Za-z0-9_-]{1,24}$'
+
+
 class AliasValidator(RegexValidator):
     regex = r'^[a-z0-9]{2,30}$'
     message = 'Enter a valid alias. Use letters and digits only.'
@@ -132,6 +136,7 @@ class Case(models.Model):
     update_time = models.DateTimeField(auto_now=True)
     activated = models.BooleanField(default=True)
     parent_id = models.IntegerField(default=0)
+    group = models.PositiveIntegerField(default=0)
 
     def save_fingerprint(self, problem_id):
         self.input_file.seek(0)
@@ -186,6 +191,8 @@ class Revision(models.Model):
     well_form_policy = models.BooleanField(default=True)
     status = models.IntegerField(choices=STATUS_CHOICE, default=0)
     parent_id = models.IntegerField(default=0)
+    enable_group = models.BooleanField(default=False)
+    group_dependencies = models.TextField(blank=True)
 
     # when a revision is done, making changes will create a new revision
 

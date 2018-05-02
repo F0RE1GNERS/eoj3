@@ -54,7 +54,7 @@
                 {% endif %}
               </span><br>
               {% if contest.penalty_counts %}
-                <span class="penalty">{{ (d.time / 60) | int }}</span>
+                <span class="penalty">{{ (d.time / 60) | int }}{% if contest.scoring_method != 'acm' and d.attempt > 1 %} ({{ d.attempt - 1 }}){% endif %}</span>
               {% endif %}
             {% else %}
               {% if contest.scoring_method == 'oi' %}

@@ -299,6 +299,8 @@
       Based on COI (Chinese OI) scoring method. All test cases will be judged. Contestant's score on a single problem will be determined by the percentage of <b>weighted</b> sum of all passed test cases. The sum score is simply the <b>weighted</b> sum of score that is earned in each problem.
       {% elif contest.scoring_method == 'cf' %}
       Scoring rule of this contest is very similar to <a href="http://codeforces.com/">Codeforces</a> regular round. Basically, When you solve a problem, you get a score assigned to it. This score drops as time goes by. It will be half the score when the contest ends. 50 points will be lost for each rejected solutions. At least 0.3 times the original score will be earned if the problem is successfully solved at the end.
+      {% elif contest.scoring_method == 'tcmtime' %}
+      This contest uses TCM/TIME Rule. The winner is the participant who correctly solves the greatest number of problems. If several participants solve the same number of problems, then the competitor with the smaller penalty time will rank higher.
       {% endif %}
     </li>
     <li class="item">

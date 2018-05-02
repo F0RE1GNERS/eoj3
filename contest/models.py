@@ -45,7 +45,8 @@ class Contest(models.Model):
     SCORING_METHOD_CHOICE = (
         ('acm', _('ACM Rule')),
         ('oi', _('OI Rule')),
-        ('cf', _('Codeforces Rule'))
+        ('cf', _('School of Data Analysis (SDA) Rule')),
+        ('tcmtime', "TCM/TIME Rule")
     )
 
     TEST_DURING_CONTEST_CHOICE = (
@@ -79,7 +80,7 @@ class Contest(models.Model):
 
     freeze = models.BooleanField(_('The standings will be frozen'), default=False)
     freeze_time = models.DateTimeField(blank=True, null=True)
-    scoring_method = models.CharField(default='acm', max_length=5, choices=SCORING_METHOD_CHOICE)
+    scoring_method = models.CharField(default='acm', max_length=10, choices=SCORING_METHOD_CHOICE)
     run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default=TEST_DURING_CONTEST_CHOICE[0][0])
     allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
 
