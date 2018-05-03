@@ -1,4 +1,5 @@
 from datetime import datetime
+from threading import Thread
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django import forms
@@ -98,8 +99,8 @@ class ActivityParticipantList(StaffRequiredMixin, ListView):
 
 
 class ActivityParticipantConfirmEmailSent(StaffRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        activity = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
+    @staticmethod
+    def run(activity):
         template = loader.get_template('contest/activity/confirmation.jinja2')
         for participant in ActivityParticipant.objects.filter(activity=activity, is_confirmed=False):
             # TODO: hard code
@@ -109,6 +110,10 @@ class ActivityParticipantConfirmEmailSent(StaffRequiredMixin, View):
                                  "&id=" + str(participant.pk)})
             send_mail(subject=activity.title, message='', html_message=template.render(c), from_email=None,
                       recipient_list=[participant.email], fail_silently=True)
+
+    def post(self, request, *args, **kwargs):
+        activity = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
+        Thread(target=self.run, args=(activity,)).start()
         return HttpResponse()
 
 
