@@ -8,7 +8,8 @@ from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, 
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
 from .clarification import ContestClarificationView, ContestClarificationAnswer
 from .activity import ActivityList, ActivityAddView, ActivityUpdateView, ActivityRegisterView, ActivityQuitView, \
-    ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView
+    ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView, \
+    ActivityParticipantConfirmEmailSent, ActivityParticipantConfirmComplete
 
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
@@ -44,4 +45,6 @@ urlpatterns = [
     url(r'^activity/(?P<pk>\d+)/admin/add/$', ActivityAdminAddUserView.as_view(), name='activity_admin_add'),
     url(r'^activity/(?P<pk>\d+)/admin/update/(?P<upk>\d+)/$', ActivityAdminUpdateUserView.as_view(), name='activity_admin_update'),
     url(r'^activity/school/add/$', ActivityAddSchoolView.as_view(), name='activity_add_school'),
+    url(r'^activity/(?P<pk>\d+)/confirm/$', ActivityParticipantConfirmEmailSent.as_view(), name='activity_confirm_email'),
+    url(r'^activity/confirm/complete/$', ActivityParticipantConfirmComplete.as_view(), name='activity_confirm_complete'),
 ]

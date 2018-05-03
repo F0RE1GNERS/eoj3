@@ -3,18 +3,24 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django import forms
 from django.core.exceptions import PermissionDenied
+from django.core.mail import send_mail
 from django.db.models import Count
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template import Context
+from django.template import loader
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
+from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
 from account.models import User, School
 from account.permissions import is_admin_or_root, StaffRequiredMixin
 from contest.models import Activity, ActivityParticipant
+from utils.hash import token_generator
 
 
 class SchoolForm(forms.ModelForm):
@@ -58,7 +64,7 @@ class ActivityUserAdminAddForm(forms.ModelForm):
 class ActivityUserAdminEditForm(forms.ModelForm):
     class Meta:
         model = ActivityParticipant
-        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'is_deleted']
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'is_deleted', 'is_confirmed']
 
 
 class ActivityList(ListView):
@@ -87,7 +93,39 @@ class ActivityParticipantList(StaffRequiredMixin, ListView):
         data["activity"] = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
         data["active_member_count"] = ActivityParticipant.objects.filter(activity=data["activity"], is_deleted=False).count()
         data["member_count"] = ActivityParticipant.objects.filter(activity=data["activity"]).count()
+        data["confirm_count"] = ActivityParticipant.objects.filter(activity=data["activity"], is_deleted=False, is_confirmed=True).count()
         return data
+
+
+class ActivityParticipantConfirmEmailSent(StaffRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        activity = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
+        template = loader.get_template('contest/activity/confirmation.jinja2')
+        for participant in ActivityParticipant.objects.filter(activity=activity, is_confirmed=False, is_deleted=False):
+            # TODO: hard code
+            c = Context({'participant': participant, 'activity': activity,
+                         'link': "https://acm.ecnu.edu.cn" + reverse("contest:activity_confirm_complete") +
+                                 "?t=" + token_generator.make_token(participant.user, participant) +
+                                 "&id=" + str(participant.pk)})
+            send_mail(subject=activity.title, message='', html_message=template.render(c), from_email=None,
+                      recipient_list=[participant.email], fail_silently=True)
+        return HttpResponse()
+
+
+class ActivityParticipantConfirmComplete(TemplateView):
+    template_name = 'contest/activity/confirm_complete.jinja2'
+
+    def get(self, request, *args, **kwargs):
+        if "id" not in request.GET or "t" not in request.GET or not request.GET["id"].isdigit():
+            raise Http404
+        id = request.GET["id"]
+        token = request.GET["t"]
+        participant = get_object_or_404(ActivityParticipant, id=id)
+        if token_generator.check_token(participant.user, token) == participant:
+            participant.is_confirmed = True
+            participant.save(update_fields=['is_confirmed'])
+            return super().get(request, *args, **kwargs)
+        raise Http404
 
 
 class ActivityAddView(StaffRequiredMixin, CreateView):

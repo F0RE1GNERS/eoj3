@@ -310,6 +310,7 @@ class ActivityParticipant(models.Model):
     ), blank=True)
     graduate_year = models.IntegerField(blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
+    is_confirmed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('user', 'activity')
