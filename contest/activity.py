@@ -101,7 +101,7 @@ class ActivityParticipantConfirmEmailSent(StaffRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         activity = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
         template = loader.get_template('contest/activity/confirmation.jinja2')
-        for participant in ActivityParticipant.objects.filter(activity=activity, is_confirmed=False, is_deleted=False):
+        for participant in ActivityParticipant.objects.filter(activity=activity, is_confirmed=False):
             # TODO: hard code
             c = Context({'participant': participant, 'activity': activity,
                          'link': "https://acm.ecnu.edu.cn" + reverse("contest:activity_confirm_complete") +

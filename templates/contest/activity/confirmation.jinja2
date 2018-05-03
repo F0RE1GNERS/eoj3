@@ -2,6 +2,10 @@
 
 <p>感谢报名参加 <b>{{ activity.title }}</b>。</p>
 
+{% if participant.is_deleted %}
+<p><b>您已放弃这次比赛。您收到这封邮件是为了确认您的「放弃」操作。如果存疑，请联系下面的邮箱。</b></p>
+{% endif %}
+
 {{ activity.description | markdown | safe }}
 
 <p>您提供的报名信息如下：</p>
