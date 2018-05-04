@@ -65,7 +65,8 @@ class ActivityUserAdminAddForm(forms.ModelForm):
 class ActivityUserAdminEditForm(forms.ModelForm):
     class Meta:
         model = ActivityParticipant
-        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'is_deleted', 'is_confirmed']
+        fields = ['real_name', 'student_id', 'school', 'email', 'phone', 'major', 'gender', 'graduate_year',
+                  'is_deleted', 'is_confirmed']
 
 
 class ActivityList(ListView):
