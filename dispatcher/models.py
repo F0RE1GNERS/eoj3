@@ -11,6 +11,7 @@ class Server(models.Model):
     last_seen_time = models.DateTimeField(auto_now=True)
     last_synchronize_time = models.DateTimeField(null=True)
     enabled = models.BooleanField(default=False)
+    concurrency = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.name + ' - ' + self.ip
