@@ -10,6 +10,11 @@ def is_contest_manager(user, contest):
     return user.is_authenticated and (is_admin_or_root(user) or contest.managers.filter(pk=user.pk).exists())
 
 
+def is_contest_volunteer(user, contest):
+    return user.is_authenticated and (contest.volunteers.filter(pk=user.pk).exists()
+                                      or is_contest_manager(user, contest))
+
+
 def get_permission_for_submission(user, submission, special_permission=False):
     if user.is_authenticated:
         if submission.contest and is_contest_manager(user, submission.contest):

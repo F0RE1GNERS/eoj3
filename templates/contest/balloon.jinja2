@@ -1,49 +1,38 @@
 {% extends 'contest/base.jinja2' %}
-{% block contest_title %}Status - {% endblock %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_title %}Balloon - {% endblock %}
 {% block contest_content %}
 
-  <div class="content-header">
-    <h2>Online status</h2>
-  </div>
+  {% include 'components/message.jinja2' %}
 
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <thead>
+  <table class="ui unstackable celled center aligned very compact table">
+    <thead>
+      <tr class="">
+        <th class="seven wide">Name</th>
+        <th class="three wide">Problem</th>
+        <th class="four wide">Time</th>
+        <th class="two wide">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for balloon in balloon_list %}
         <tr>
-          <th>Who</th>
-          <th>Comment</th>
-          <th>Problem</th>
-          <th>When</th>
-          <th>Close</th>
+          <td>{{ balloon.username }}</td>
+          <td>{{ balloon.contest_problem.identifier }}</td>
+          <td>{{ balloon.create_time | date("H:i:s") }}</td>
+          <td>{% if balloon.ok %}
+            <a href="{{ url('contest:balloon_claim', contest.pk, balloon.pk) }}">OK</a>
+          {% else %}
+            {% set form_id = "form%d" % balloon.pk %}
+            <form style="margin:0;padding:0" action="{{ url('contest:balloon_claim', contest.pk, balloon.pk) }}" id="{{ form_id }}" method="post">
+              {% csrf_token %}
+              <a class="text red semi-bold" href="javascript:{}" onclick="document.getElementById('{{ form_id }}').submit(); return false;">Waiting</a>
+            </form>
+          {% endif %}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for submission in submission_list %}
-          <tr>
-            <td>{{ username_display(submission.author) }}</td>
-            <td>{{ submission.comment }}</td>
-            <td>{{ submission.contest_problem }}</td>
-            <td>{{ submission.create_time }}</td>
-            <td><span class="text-warning"></span>
-              <a href="javascript:void(0);" class="balloon-link" data-link="
-                 {{ url('contest:balloon_switch', submission.pk) }}">Delivered</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {{ my_paginator() }}
-
-  <script>
-    $(".balloon-link").on('click', function(e) {
-      var link = $(e.target).data('link');
-      $.get(link, {}, function (data) {
-          location.reload();
-        }
-      );
-    });
-  </script>
+      {% endfor %}
+    </tbody>
+  </table>
 
 {% endblock %}

@@ -14,14 +14,14 @@ from django.utils.translation import ugettext_lazy as _
 from ipware.ip import get_ip
 
 from account.models import User
-from account.permissions import is_admin_or_root, is_volunteer
+from account.permissions import is_admin_or_root
 from blog.models import Blog
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
-from utils.permission import is_contest_manager
+from utils.permission import is_contest_manager, is_contest_volunteer
 from utils.site_settings import is_site_closed
 from .models import Contest, ContestProblem, ContestInvitation, ContestParticipant, ContestUserRating
 from .tasks import add_participant_with_invitation
@@ -49,7 +49,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
                 raise CloseSiteException
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
-        self.volunteer = is_volunteer(self.user)
+        self.volunteer = is_contest_volunteer(self.user, self.contest)
         self.registered = False
         if self.user.is_authenticated:
             try:
@@ -76,7 +76,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if self.contest.status < 0:
             self.permission_denied_message = _("Contest hasn't started.")
             return False
-        if self.registered:
+        if self.registered or self.volunteer:
             return True
         else:
             self.permission_denied_message = _("Did you forget to register for the contest?")

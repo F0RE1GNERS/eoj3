@@ -1,16 +1,17 @@
 import json
 
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, reverse, HttpResponse
+from django.shortcuts import get_object_or_404, reverse, HttpResponse, redirect
+from django.views.generic import ListView
 from django.views.generic import View, TemplateView
 from ipware.ip import get_ip
 
-from account.permissions import is_volunteer
 from contest.statistics import invalidate_contest_participant
 from problem.tasks import create_submission
 from problem.views import StatusList
@@ -19,7 +20,7 @@ from submission.views import render_submission, render_submission_report
 from utils.language import LANG_CHOICE
 from utils.permission import get_permission_for_submission
 from utils.permission import is_contest_manager, is_case_download_available
-from .models import ContestProblem
+from .models import ContestProblem, ContestParticipant
 from .tasks import judge_submission_on_contest
 from .views import BaseContestMixin
 
@@ -235,16 +236,65 @@ class ContestMyStatus(ContestStatus):
         return data
 
 
-class ContestBalloon(BaseContestMixin, View):
-    def get(self, request, *args, **kwargs):
-        return HttpResponse()
+BALLOON_CACHE_NAME = "balloon%d|%d"
 
 
-def balloon_switch(request, pk):
-    if not is_volunteer(request.user):
-        raise PermissionDenied("You don't have the access.")
-    with transaction.atomic():
-        submission = Submission.objects.select_for_update().get(pk=pk)
-        submission.addon_info = True
-        submission.save(update_fields=['addon_info'])
-    return HttpResponse(json.dumps({"result": "success"}))
+class ContestBalloon(BaseContestMixin, ListView):
+    paginate_by = None
+    context_object_name = "balloon_list"
+    template_name = 'contest/balloon.jinja2'
+
+    def test_func(self):
+        return super().test_func() and self.volunteer
+
+    def get_queryset(self):
+        contest_participants = {user.user_id: user.comment for user in
+                                ContestParticipant.objects.filter(contest=self.contest).select_related('user',
+                                                                                                       'contest').
+                                    all()}
+        qs = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("problem_id", "author_id",
+                                                                                       "contest_id", "create_time").all()
+        available = set(cache.get_many(list(map(lambda x: BALLOON_CACHE_NAME % (x.contest_id, x.author_id), qs))).keys())
+        self.contest.add_contest_problem_to_submissions(qs)
+        for submission in qs:
+            submission.username = contest_participants.get(submission.author_id, "INVALID")
+            if BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id) in available:
+                submission.ok = True
+        return qs
+
+
+class ContestBalloonClaim(BaseContestMixin, TemplateView):
+    template_name = 'contest/balloon_detail.jinja2'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        try:
+            data['submission'] = submission = self.contest.submission_set.get(pk=self.kwargs["pk"])
+            self.contest.add_contest_problem_to_submissions([submission])
+            submission.username = ContestParticipant.objects.get(user_id=submission.author_id, contest=self.contest).comment
+            data['cache_name'] = BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id)
+            if cache.get(data['cache_name']):
+                submission.ok = True
+            else:
+                submission.ok = False
+            return data
+        except:
+            raise PermissionDenied
+
+    def post(self, request, *args, **kwargs):
+        data = self.get_context_data()
+        if data["submission"].ok:
+            messages.error(request, "Unfortunately, this balloon has been already claimed.")
+            return redirect(reverse('contest:balloon', kwargs={'cid': self.contest.pk}))
+        cache.set(data['cache_name'], True, 86400 * 14)
+        return redirect(self.request.path)
+
+
+class ContestBalloonCancel(BaseContestMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            submission = self.contest.submission_set.get(pk=self.kwargs["pk"])
+            cache.delete(BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id))
+            return redirect(reverse('contest:balloon', kwargs={'cid': self.contest.pk}))
+        except:
+            raise PermissionDenied

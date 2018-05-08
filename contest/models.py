@@ -107,6 +107,7 @@ class Contest(models.Model):
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')
     authors = models.ManyToManyField(User, related_name='written_contests')
+    volunteers = models.ManyToManyField(User, related_name='volunteering_contests')
 
     class Meta:
         ordering = ['-pk']

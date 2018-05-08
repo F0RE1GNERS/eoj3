@@ -95,6 +95,7 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         data = super(ContestEdit, self).get_context_data(**kwargs)
         data['admin_list'] = self.contest.managers.all()
         data['author_list'] = self.contest.authors.all()
+        data['volunteer_list'] = self.contest.volunteers.all()
         return data
 
     def form_valid(self, form):
@@ -135,6 +136,15 @@ class ContestAuthorsManage(PolygonContestMixin, View):
         self.contest.authors.clear()
         for key in my_set:
             self.contest.authors.add(User.objects.get(pk=key))
+        return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
+
+
+class ContestVolunteersManage(PolygonContestMixin, View):
+    def post(self, request, pk):
+        my_set = set(map(int, filter(lambda x: x, request.POST['volunteer'].split(','))))
+        self.contest.volunteers.clear()
+        for key in my_set:
+            self.contest.volunteers.add(User.objects.get(pk=key))
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
 

@@ -17,7 +17,7 @@
       </form>
     </div>
   </div>
-  <div class="ui fluid accordion" style="margin-bottom: 2em;">
+  <div class="ui fluid accordion">
     <div class="title">
       <i class="dropdown icon"></i>
       Edit Admin Access
@@ -27,6 +27,21 @@
         {% csrf_token %}
         <div class="field">
           {{ user_search_multiple(name='admin', exist=admin_list) }}
+        </div>
+        <button class="ui submit button">You Must Save Here</button>
+      </form>
+    </div>
+  </div>
+  <div class="ui fluid accordion" style="margin-bottom: 2em;">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      Edit Volunteer Access
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:contest_volunteer_manage', contest.id) }}">
+        {% csrf_token %}
+        <div class="field">
+          {{ user_search_multiple(name='volunteer', exist=volunteer_list) }}
         </div>
         <button class="ui submit button">You Must Save Here</button>
       </form>
