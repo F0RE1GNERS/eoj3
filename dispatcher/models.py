@@ -12,6 +12,7 @@ class Server(models.Model):
     last_synchronize_time = models.DateTimeField(null=True)
     enabled = models.BooleanField(default=False)
     concurrency = models.PositiveIntegerField(default=1)
+    runtime_multiplier = models.FloatField(default=1)
 
     def __str__(self):
         return self.name + ' - ' + self.ip

@@ -5,7 +5,7 @@ from dispatcher.models import Server
 class ServerEditForm(forms.ModelForm):
     class Meta:
         model = Server
-        fields = ['name', 'ip', 'port', 'token', 'concurrency']
+        fields = ['name', 'ip', 'port', 'token', 'concurrency', 'runtime_multiplier']
         labels = {
             'ip': 'IP Address'
         }
