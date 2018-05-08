@@ -236,7 +236,7 @@ class ContestMyStatus(ContestStatus):
         return data
 
 
-BALLOON_CACHE_NAME = "balloon%d|%d"
+BALLOON_CACHE_NAME = "balloon%d|%d|%d"
 
 
 class ContestBalloon(BaseContestMixin, ListView):
@@ -254,11 +254,11 @@ class ContestBalloon(BaseContestMixin, ListView):
                                     all()}
         qs = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("problem_id", "author_id",
                                                                                        "contest_id", "create_time").all()
-        available = set(cache.get_many(list(map(lambda x: BALLOON_CACHE_NAME % (x.contest_id, x.author_id), qs))).keys())
+        available = set(cache.get_many(list(map(lambda x: BALLOON_CACHE_NAME % (x.contest_id, x.author_id, x.problem_id), qs))).keys())
         self.contest.add_contest_problem_to_submissions(qs)
         for submission in qs:
             submission.username = contest_participants.get(submission.author_id, "INVALID")
-            if BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id) in available:
+            if BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id, submission.problem_id) in available:
                 submission.ok = True
         return qs
 
@@ -272,7 +272,7 @@ class ContestBalloonClaim(BaseContestMixin, TemplateView):
             data['submission'] = submission = self.contest.submission_set.get(pk=self.kwargs["pk"])
             self.contest.add_contest_problem_to_submissions([submission])
             submission.username = ContestParticipant.objects.get(user_id=submission.author_id, contest=self.contest).comment
-            data['cache_name'] = BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id)
+            data['cache_name'] = BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id, submission.problem_id)
             if cache.get(data['cache_name']):
                 submission.ok = True
             else:
@@ -294,7 +294,7 @@ class ContestBalloonCancel(BaseContestMixin, View):
     def post(self, request, *args, **kwargs):
         try:
             submission = self.contest.submission_set.get(pk=self.kwargs["pk"])
-            cache.delete(BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id))
+            cache.delete(BALLOON_CACHE_NAME % (submission.contest_id, submission.author_id, submission.problem_id))
             return redirect(reverse('contest:balloon', kwargs={'cid': self.contest.pk}))
         except:
             raise PermissionDenied
