@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          {% if contest.status == 0 and contest.rated and contest.scoring_method == 'cf' %}
+          {% if contest.status == 0 and contest.rated and contest.scoring_method != 'acm' %}
             <div class="ui segments">
               <div class="ui segment">
                 <h3 class="ui center aligned header">Scoring</h3>
@@ -105,7 +105,9 @@
                   {% for contest_problem in contest_problem_list %}
                     <tr>
                       <td>{{ contest_problem.identifier }}</td>
-                      <td>{{ (contest_problem.weight * (1 + remaining_percent) / 2) | round | int }}</td>
+                      <td>{% if contest.scoring_method == 'cf' %}
+                        {{ (contest_problem.weight * (1 + remaining_percent) / 2) | round | int }}
+                      {% else %}{{ contest_problem.weight }}{% endif %}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
