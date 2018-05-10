@@ -1,4 +1,7 @@
+from threading import Thread
+
 from django.core.exceptions import PermissionDenied
+from django.core.mail import send_mail
 from django.shortcuts import reverse, redirect, get_object_or_404
 from django.views.generic import View
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +13,9 @@ from .views import BaseContestMixin
 
 
 class ContestClarificationView(BaseContestMixin, View):
+    def send_notification_email(self, msg, recipients):
+        send_mail(subject="Contest Question Notification", message=msg, from_email=None, recipient_list=recipients,
+                  fail_silently=True)
 
     def post(self, request, cid):
         if self.contest.status != 0:
@@ -33,6 +39,11 @@ class ContestClarificationView(BaseContestMixin, View):
                         level="warning",
                         target=self.contest,
                         description=text)
+            emails = self.contest.managers.all().values_list("email", flat=True)
+            msg_pre = ["Contest: " + self.contest.title,
+                       "Who: " + request.user.username,
+                       "Question: " + text]
+            Thread(target=self.send_notification_email, args=('\n'.join(msg_pre), list(emails))).start()
         return redirect(reverse("contest:dashboard", kwargs={"cid": self.contest.pk}))
 
 
