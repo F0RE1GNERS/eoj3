@@ -30,7 +30,10 @@ class ProblemList(PolygonBaseMixin, ListView):
     paginate_by = 250
 
     def get_queryset(self):
-        if 'q' in self.request.GET:
+        if 'exact' in self.request.GET:
+            self.search_text = q = self.request.GET['exact']
+            query = Q(pk__exact=q)
+        elif 'q' in self.request.GET:
             self.search_text = q = self.request.GET['q']
             query = Q(title__icontains=q) | Q(alias__icontains=q) | Q(source__icontains=q)
             if q.isdigit():

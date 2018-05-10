@@ -14,7 +14,7 @@
       DISCUSSION{% if discussion_count > 1 %}S{% endif %}
     </a>
     {% if is_privileged %}
-    <a class="item" href="{{ url('polygon:problem_edit', problem.pk) }}">MANAGE</a>
+    <a class="item" href="{{ url('polygon:problem_list_2') }}?exact={{ problem.pk }}">MANAGE</a>
     {% endif %}
   </div>
 
