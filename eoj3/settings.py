@@ -341,3 +341,7 @@ Q_CLUSTER = {
     'cpu_affinity': 1,
     'django_redis': 'default',
 }
+
+
+SUBMISSION_INTERVAL_LIMIT = 5
+SUBMISSION_ATTEMPT_LIMIT = 100

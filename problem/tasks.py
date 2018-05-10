@@ -54,8 +54,13 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
     if not 6 <= len(code) <= 65536:
         raise ValueError("Code is too short or too long.")
     if author.submission_set.exists() and (
-        datetime.now() - author.submission_set.first().create_time).total_seconds() < 5:
+        datetime.now() - author.submission_set.first().create_time).total_seconds() < settings.SUBMISSION_INTERVAL_LIMIT:
         raise ValueError("Please don't resubmit in 5 seconds.")
+    if contest:
+        if contest.submission_set.filter(author=author, problem_id=problem).count() >= settings.SUBMISSION_ATTEMPT_LIMIT:
+            raise ValueError("Running out of attempts.")
+        if contest.submission_set.filter(author=author, problem_id=problem, code=code).exists():
+            raise ValueError("You have submitted exactly the same code before.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
                                          status=status, status_private=status, ip=ip)
