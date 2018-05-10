@@ -206,7 +206,8 @@ class CaseManagementTools(object):
             failed = False
             for case in case_set:
                 output_path = path.join(runner.workspace, "out")
-                run_result = runner.run(stdin=case.input_file.path, stdout=output_path,
+                error_path = path.join(runner.workspace, "err")
+                run_result = runner.run(stdin=case.input_file.path, stdout=output_path, stderr=error_path,
                                         max_time=revision.time_limit * 3 / 1000,
                                         max_memory=revision.memory_limit * 2)
                 with transaction.atomic():
@@ -214,6 +215,7 @@ class CaseManagementTools(object):
                         "case_number": case.case_number,
                         "success": run_result["verdict"] == "OK",
                         "comment": CaseManagementTools.read_abstract(output_path),
+                        "stderr": CaseManagementTools.read_abstract(error_path),
                         "exit_code": run_result["exit_code"]
                     })
                     if run_result["verdict"] != "OK":
