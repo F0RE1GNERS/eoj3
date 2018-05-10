@@ -195,6 +195,39 @@ class CaseManagementTools(object):
         current_task.save()
 
     @staticmethod
+    def validate_case(revision, case_set, validator):
+        """
+        report: similar to generating cases, [{ }, { }, ... { }]
+        """
+        current_task = Task.objects.create(revision=revision, abstract="VALIDATE, %d cases" % len(case_set))
+        try:
+            runner = Runner(validator)
+            result = []
+            failed = False
+            for case in case_set:
+                output_path = path.join(runner.workspace, "out")
+                run_result = runner.run(stdin=case.input_file.path, stdout=output_path,
+                                        max_time=revision.time_limit * 3 / 1000,
+                                        max_memory=revision.memory_limit * 2)
+                with transaction.atomic():
+                    result.append({
+                        "case_number": case.case_number,
+                        "success": run_result["verdict"] == "OK",
+                        "comment": CaseManagementTools.read_abstract(output_path),
+                        "exit_code": run_result["exit_code"]
+                    })
+                    if run_result["verdict"] != "OK":
+                        failed = True
+                    current_task.status = -2
+                    current_task.report = json.dumps(result)
+                    current_task.save()
+            current_task.status = -1 if failed else 0
+        except CompileError as e:
+            current_task.report = json.dumps([{"success": False, "error": e.error}])
+            current_task.status = -1
+        current_task.save()
+
+    @staticmethod
     def read_abstract(file_path, read_size=1024):
         try:
             with open(file_path, "r") as f:
@@ -284,30 +317,33 @@ class CaseManagementTools(object):
 
                     verdict_for_each_solution[solution.id].add(result["verdict"])
                     task_result.append(result)
-            for solution in solution_set:
-                got_verdicts = verdict_for_each_solution[solution.id]
-                if solution.tag in ('solution_main', 'solution_correct') and got_verdicts != {"OK"}:
-                    packed_result.update(success=False,
-                                         error="'%s' claims to be correct, but got rejected in tests" % solution.name)
-                if solution.tag == 'solution_tle_or_ok' and got_verdicts != {"TIME_LIMIT", "OK"}:
-                    packed_result.update(success=False, error="'%s' claims to be tle_or_ok, but got %s" % (
-                    solution.name, str(got_verdicts)))
-                if solution.tag == 'solution_wa' and 'WRONG_ANSWER' not in got_verdicts:
-                    packed_result.update(success=False, error="'%s' claims to be WA, but never got WA" % solution.name)
-                if solution.tag == 'solution_incorrect' and got_verdicts == {"OK"}:
-                    packed_result.update(success=False,
-                                         error="'%s' claims to be incorrect, but is actually correct" % solution.name)
-                if solution.tag == 'solution_fail' and "RUNTIME_ERROR" not in got_verdicts:
-                    packed_result.update(success=False, error="'%s' claims to fail, but didn't fail" % solution.name)
-                solution_based_result = list(filter(lambda x: x["solution"] == solution.id, task_result))
-                solution_time_summary = list(map(lambda x: x["time"], solution_based_result)) + [0]
-                packed_result["summary"][solution.id] = {
-                    "time": max(solution_time_summary),
-                    "sum_time": sum(solution_time_summary),
-                    "memory": max(list(map(lambda x: x["memory"], solution_based_result)) + [0]),
-                    "points": sum(list(map(lambda x: x["points"], solution_based_result)) + [0]) /
-                              max(sum(list(map(lambda x: x["total_points"], solution_based_result)) + [0]), 1) * 100
-                }
+                for solution in solution_set:
+                    got_verdicts = verdict_for_each_solution[solution.id]
+                    if solution.tag in ('solution_main', 'solution_correct') and got_verdicts != {"OK"}:
+                        packed_result.update(success=False,
+                                             error="'%s' claims to be correct, but got rejected in tests" % solution.name)
+                    if solution.tag == 'solution_tle_or_ok' and got_verdicts != {"TIME_LIMIT", "OK"}:
+                        packed_result.update(success=False, error="'%s' claims to be tle_or_ok, but got %s" % (
+                        solution.name, str(got_verdicts)))
+                    if solution.tag == 'solution_wa' and 'WRONG_ANSWER' not in got_verdicts:
+                        packed_result.update(success=False, error="'%s' claims to be WA, but never got WA" % solution.name)
+                    if solution.tag == 'solution_incorrect' and got_verdicts == {"OK"}:
+                        packed_result.update(success=False,
+                                             error="'%s' claims to be incorrect, but is actually correct" % solution.name)
+                    if solution.tag == 'solution_fail' and "RUNTIME_ERROR" not in got_verdicts:
+                        packed_result.update(success=False, error="'%s' claims to fail, but didn't fail" % solution.name)
+                    solution_based_result = list(filter(lambda x: x["solution"] == solution.id, task_result))
+                    solution_time_summary = list(map(lambda x: x["time"], solution_based_result)) + [0]
+                    packed_result["summary"][solution.id] = {
+                        "time": max(solution_time_summary),
+                        "sum_time": sum(solution_time_summary),
+                        "memory": max(list(map(lambda x: x["memory"], solution_based_result)) + [0]),
+                        "points": sum(list(map(lambda x: x["points"], solution_based_result)) + [0]) /
+                                  max(sum(list(map(lambda x: x["total_points"], solution_based_result)) + [0]), 1) * 100
+                    }
+                    current_task.status = -2
+                    current_task.report = json.dumps(packed_result)
+                    current_task.save()
         except CompileError as e:
             packed_result.update(success=False, error=e.error)
         except ValueError as e:
@@ -588,6 +624,18 @@ class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
             async(CaseManagementTools.run_case_output, self.revision, self.case_set, solution)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")
+        return redirect(self.get_redirect_url())
+
+
+class CaseValidateInput(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            validator = self.revision.active_validator
+            if validator is None:
+                raise Program.DoesNotExist
+            async(CaseManagementTools.validate_case, self.revision, self.case_set, validator)
+        except (Program.MultipleObjectsReturned, Program.DoesNotExist):
+            messages.error(request, "Validator should be selected!")
         return redirect(self.get_redirect_url())
 
 

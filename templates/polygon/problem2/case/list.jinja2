@@ -20,6 +20,7 @@
                 <a class="item" href="{{ url('polygon:revision_case_pack', problem.id, revision.id) }}">Download As Zip</a>
                 <div class="header">For selected</div>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Produce Output</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_validate_input', problem.id, revision.id) }}">Validate Input</a>
                 <a class="item get gather" data-link="{{ url('polygon:revision_case_check', problem.id, revision.id) }}">Run Tests</a>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
                 <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="Move the selected cases after (0 means above all):">Move Selected</a>
