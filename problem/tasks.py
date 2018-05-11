@@ -185,9 +185,6 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         n_kwargs = {'report_file_path': path.join(settings.GENERATE_DIR,
                                                   'submission-%d' % submission.pk)}
 
-        if kwargs.get('sync'):
-            send_judge_through_watch(*n_args, **n_kwargs)
-        else:
-            Thread(target=send_judge_through_watch, args=n_args, kwargs=n_kwargs).start()
+        send_judge_through_watch(*n_args, **n_kwargs)
     except:
         on_receive_data(response_fail_with_timestamp())

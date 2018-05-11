@@ -332,7 +332,7 @@ AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
 
 Q_CLUSTER = {
     'name': 'eoj_cluster',
-    'workers': 16,
+    'workers': 24,
     'recycle': 20,
     'timeout': 14400,  # 4 hours
     'retry': None,

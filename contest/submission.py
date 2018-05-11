@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, reverse, HttpResponse, redirect
 from django.views.generic import ListView
 from django.views.generic import View, TemplateView
+from django_q.tasks import async
 from ipware.ip import get_ip
 
 from contest.statistics import invalidate_contest_participant
@@ -56,7 +57,7 @@ class ContestSubmit(BaseContestMixin, View):
                     raise ValueError("You have quitted the contest.")
             response = {"url": reverse('contest:submission_api',
                                        kwargs={'cid': self.contest.id, 'sid': submission.id})}
-            judge_submission_on_contest(submission, contest=self.contest)
+            async(judge_submission_on_contest, submission, contest=self.contest)
             return JsonResponse(response)
         except Exception as e:
             return HttpResponseBadRequest(str(e).encode())

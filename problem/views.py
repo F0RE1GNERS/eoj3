@@ -21,6 +21,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from os import path
 
 from django_comments_xtd.models import XtdComment
+from django_q.tasks import async
 from tagging.models import Tag, TaggedItem, ContentType
 from ipware.ip import get_ip
 
@@ -309,7 +310,7 @@ class ProblemSubmitView(ProblemDetailMixin, View):
                 raise ValueError("Invalid language.")
             submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang, ip=get_ip(request))
             running_complete = bool(is_problem_manager(self.user, self.problem) and request.POST.get('complete'))
-            judge_submission_on_problem(submission, run_until_complete=running_complete)
+            async(judge_submission_on_problem, submission, run_until_complete=running_complete)
             return JsonResponse({"url": reverse('problem:submission_api',
                                                 kwargs={'pk': self.problem.id, 'sid': submission.id})})
         except Exception as e:
