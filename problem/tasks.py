@@ -59,7 +59,7 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
     if contest:
         if contest.submission_set.filter(author=author, problem_id=problem).count() >= settings.SUBMISSION_ATTEMPT_LIMIT:
             raise ValueError("Running out of attempts.")
-        if contest.submission_set.filter(author=author, problem_id=problem, code=code).exists():
+        if contest.submission_set.filter(author=author, problem_id=problem, code=code, lang=lang).exists():
             raise ValueError("You have submitted exactly the same code before.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
