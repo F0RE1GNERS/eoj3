@@ -117,6 +117,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
         self.revision.assets.add(*old_revision.assets.all())
         self.revision.programs.add(*old_revision.programs.all())
         self.revision.cases.add(*old_revision.cases.all())
+        self.revision.task_set.add(*old_revision.task_set.all())
         self.kwargs.update(rpk=self.revision.id)
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
 
