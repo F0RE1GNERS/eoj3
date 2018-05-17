@@ -340,7 +340,7 @@ class StatusList(ListView):
             queryset = self.get_selected_from().select_related('problem', 'author').\
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
                      'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-                     'code_length', 'ip', 'cheat_tag')
+                     'code_length', 'ip', 'cheat_tag', 'status_private', 'status_test')
             if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
