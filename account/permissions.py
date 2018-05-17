@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import AccessMixin
 
 
 def is_admin_or_root(user):
-    return user.is_authenticated and user.is_staff
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 
 class UsernameOrEmailModelBackend(ModelBackend):

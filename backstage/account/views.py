@@ -51,9 +51,8 @@ class AccountPrivilegeSwitch(BaseBackstageMixin, View):
     def post(self, request, pk):
         with transaction.atomic():
             user = User.objects.select_for_update().get(pk=pk)
-            if not user.is_superuser:
-                user.is_staff = not user.is_staff
-                user.save(update_fields=['is_staff'])
+            user.is_staff = not user.is_staff
+            user.save(update_fields=['is_staff'])
         return HttpResponse(json.dumps({'result': 'success'}))
 
 

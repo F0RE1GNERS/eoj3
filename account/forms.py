@@ -62,7 +62,6 @@ class RegisterForm(forms.ModelForm):
         instance.set_password(self.cleaned_data.get('password'))
         if not User.objects.exists():
             instance.is_superuser = True
-            instance.is_staff = True
         instance.save()
         return instance
 

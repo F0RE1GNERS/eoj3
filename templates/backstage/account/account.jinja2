@@ -24,9 +24,7 @@
         <th>Register</th>
         <th>Email</th>
         <th>Who</th>
-        {% if request.user.is_superuser %}
         <th>Privilege</th>
-        {% endif %}
         <th>Active</th>
         <th>Polygon</th>
         <th>Password</th>
@@ -40,9 +38,14 @@
           <td scope="row"> {{ user.date_joined | date('Y-m-d H:i:s') }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.username }}</td>
-        {% if request.user.is_superuser %}
-          <td><a class="post-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">{{ user.is_staff }}</a></td>
-        {% endif %}
+          <td>
+            {% if not request.user.is_superuser %}
+              {{ user.is_staff }}
+            {% else %}
+              <a class="post-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">
+              {{ user.is_staff }}</a>
+            {% endif %}
+          </td>
           <td><a class="post-link" data-link="{{ url('backstage:account_active_switch', user.pk) }}">{{ user.is_active }}</a></td>
           <td><a class="post-link" data-link="{{ url('backstage:account_polygon_switch', user.pk) }}">{{ user.polygon_enabled }}</a></td>
           <td><a class="modal-link" data-action="{{ url('backstage:account_password_change', user.pk) }}" data-target="#changePassword">Reset</a></td>
