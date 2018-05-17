@@ -31,7 +31,7 @@ class AccountList(BaseBackstageMixin, ListView):
         if kw:
             q = Q(username__icontains=kw) | Q(email__icontains=kw)
             queryset = queryset.filter(q)
-        if admin and self.request.user.is_superuser:
+        if admin:
             queryset = queryset.filter(is_staff=True)
         return queryset.order_by(sorted).all()
 
