@@ -72,8 +72,7 @@ class RegisterForm(forms.ModelForm):
         data = super(RegisterForm, self).clean()
 
         priv, pub = get_keys()
-        if not \
-                fixcompare_string(data.get("public_key"), pub.decode()):
+        if not compare_string(data.get("public_key"), pub.decode()):
             raise forms.ValidationError("Public key expired. Refresh the page to continue.")
         try:
             data["password"] = decryptRSA(data["password"], priv).decode()
