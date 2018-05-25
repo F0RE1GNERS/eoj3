@@ -196,7 +196,9 @@ class ContestProblemCreate(PolygonContestMixin, View):
 
         problems = list(filter(lambda x: x, map(lambda x: x.strip(), request.POST['problems'].split(','))))
         for problem in problems:
-            if not is_admin_or_root(request.user) and not request.user.managing_problems.filter(id=problem).exists():
+            if not Problem.objects.filter(id=problem, visible=True).exists() and \
+                    not is_admin_or_root(request.user) and \
+                    not request.user.managing_problems.filter(id=problem).exists():
                 raise PermissionDenied
         for problem in problems:
             if self.contest.contestproblem_set.filter(problem_id=problem).exists():

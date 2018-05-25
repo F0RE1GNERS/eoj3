@@ -99,7 +99,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
 
         d['attempt'] += 1
         d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time, pass_time=pass_time)
-        if first_yes[submission.problem_id] and first_yes[submission.problem_id]['author'] == submission.author_id:
+        if first_yes.get(submission.problem_id) and first_yes[submission.problem_id]['author'] == submission.author_id:
             d['first_blood'] = True
 
     for v in ans.values():
