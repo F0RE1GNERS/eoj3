@@ -453,8 +453,12 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
                     case = Case(create_time=global_create_time,
                                 description="From \"%s\": (%s, %s)" % (form.cleaned_data["batch_file"].name,
                                                                        inf, ouf))
-                    case.input_file.save("in", File(ins), save=False)
-                    case.output_file.save("out", File(ous), save=False)
+                    if self.revision.well_form_policy:
+                        case.input_file.save("in", ContentFile(REFORMAT(ins.read(), True)), save=False)
+                        case.output_file.save("out", ContentFile(REFORMAT(ous.read(), True)), save=False)
+                    else:
+                        case.input_file.save("in", File(ins), save=False)
+                        case.output_file.save("out", File(ous), save=False)
                     case.save_fingerprint(self.problem.id)
                     cases.append(case)
             # TODO: catch exception
