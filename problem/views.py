@@ -489,15 +489,17 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                 submission.is_judged and is_case_download_available(self.request.user, self.kwargs.get('pk')):
             submission.allow_case_download = True
         if self.request.user.is_authenticated and (
-                            submission.author == self.request.user or
-                        is_problem_manager(self.request.user,
-                                           submission.problem) or
+                    submission.author == self.request.user or
+                    is_problem_manager(self.request.user,
+                                       submission.problem) or
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
-                        status=SubmissionStatus.ACCEPTED).exists()):
+                        status=SubmissionStatus.ACCEPTED).exists() or
+                    self.request.user.polygon_enabled):
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
             data['submission_block'] = render_submission(submission, permission=permission)
-            if permission == 2 or (self.request.user == submission.author and submission.report_paid):
+            if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
+                    self.request.user.polygon_enabled:
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''

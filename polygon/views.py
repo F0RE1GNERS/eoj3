@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from account.permissions import is_coach
 from polygon.base_views import PolygonBaseMixin
 from polygon.models import Run
 from polygon.rejudge import rejudge_submission, rejudge_all_submission_on_problem
@@ -16,9 +17,7 @@ from utils.permission import is_problem_manager, is_contest_manager
 
 
 def authorization(user):
-    return False
-    # TODO: open polygon
-    # return get_accept_problem_count(user.id) >= 100
+    return is_coach(user)
 
 
 def home_view(request):

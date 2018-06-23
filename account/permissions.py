@@ -8,6 +8,10 @@ def is_admin_or_root(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 
+def is_coach(user):
+    return user.is_authenticated and user.magic == "red"
+
+
 class UsernameOrEmailModelBackend(ModelBackend):
     def authenticate(self, username=None, password=None, **kwargs):
         UserModel = get_user_model()

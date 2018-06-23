@@ -19,14 +19,15 @@
   <p>To use Polygon, you have to meet at least one of the requirements:</p>
   <ul class="list">
     <li>Be invited</li>
-    <li>Have 100+ Accepted record</li>
+    <li>Have a <span class="text red">RED</span> title.</li>
   </ul>
-  <p>However, Polygon is currently under tests, and only available to the invited users.</p>
+  <p><b>NOTE: Polygon rights also gives you the access to all submissions of problems and finished regular contests, and test data preview.</b></p>
+
   <p>If you have logged in and is authorized to use Polygon, you should see a button below.</p>
   {% if request.user.is_authenticated %}
   <div class="ui container center aligned">
     {% if request.user.polygon_enabled %}
-      <a href="{{ url('polygon:problem_list') }}" class="ui primary button">Already registered. Continue.</a>
+      <a href="{{ url('polygon:problem_list_2') }}" class="ui primary button">Already registered. Continue.</a>
     {% elif polygon_authorized %}
       <a href="{{ url('polygon:register') }}" class="ui primary button">Be a member of Polygon.</a>
     {% else %}
