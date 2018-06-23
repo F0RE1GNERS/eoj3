@@ -499,7 +499,7 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
             data['submission_block'] = render_submission(submission, permission=permission)
             if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
-                    self.request.user.polygon_enabled:
+                    (self.request.user.is_authenticated and self.request.user.polygon_enabled):
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''

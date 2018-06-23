@@ -140,7 +140,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                            status=SubmissionStatus.ACCEPTED).exists() and (
                                 self.contest.status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
-        if self.contest.status > 0 and self.request.user.polygon_enabled:
+        if self.contest.status > 0 and self.request.user.is_authenticated and self.request.user.polygon_enabled:
             authorized = True
         if authorized:
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
