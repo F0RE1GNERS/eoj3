@@ -577,7 +577,11 @@ class CaseFullInputOutputView(RevisionCaseMixin, View):
 
 class CaseNaturalizeOrderView(ProblemRevisionMixin, View):
     def post(self, request, *args, **kwargs):
-        qs = self.revision.cases.all().order_by("case_number")
+        if request.GET.get("group"):
+            qs = self.revision.cases.all().order_by("group", "case_number")
+            qs = list(filter(lambda x: x.group != 0, qs)) + list(filter(lambda x: x.group == 0, qs))
+        else:
+            qs = self.revision.cases.all().order_by("case_number")
         NATURALIZE_ORDER(self.revision, qs)
         return redirect(reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
 
@@ -696,3 +700,14 @@ class CasePackAsZipView(ProblemRevisionMixin, View):
                 zip.write(case.output_file.path, arcname="%d.out" % case.case_number)
         return respond_generate_file(request, file_path,
                                      "PackedTestCases - %s#%d.zip" % (self.problem.alias, self.revision.revision))
+
+
+class CaseAssignGroupView(RevisionMultipleCasesMixin, View):
+    def post(self, request, *args, **kwargs):
+        group_number = int(request.POST.get("answer") or 0)
+        self.revision.cases.remove(*list(self.case_set))
+        for case in self.case_set:
+            case.group = group_number
+            case.save()
+            self.revision.cases.add(case)
+        return redirect(self.get_redirect_url())

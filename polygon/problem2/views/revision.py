@@ -2,10 +2,12 @@ import os
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Max
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -81,18 +83,32 @@ class RevisionCreateView(PolygonProblemMixin, View):
 
         cases_to_copy = self.keep_first_occurrence(
             self.problem.sample_list + self.problem.pretest_list + self.problem.case_list)
-        case_to_pts = dict(zip(self.problem.case_list, self.problem.point_list))
+        if self.problem.group_enabled:
+            case_to_pts = dict()
+            group_list = self.problem.group_list
+            revision.enable_group = True
+            revision.group_points = self.problem.points
+            revision.group_count = max(group_list)
+            revision.group_dependencies = self.problem.group_config
+        else:
+            case_to_pts = dict(zip(self.problem.case_list, self.problem.point_list))
+            group_list = [0] * len(self.problem.case_list)
+        loc = 0
         for idx, fingerprint in enumerate(cases_to_copy, start=1):
             input_path, output_path = get_input_path(fingerprint), get_output_path(fingerprint)
             with open(input_path, "rb") as inf, open(output_path, "rb") as ouf:
                 case = revision.cases.create(fingerprint=fingerprint,
                                              in_samples=fingerprint in self.problem.sample_list,
                                              in_pretests=fingerprint in self.problem.pretest_list,
+                                             activated=fingerprint in self.problem.case_list,
                                              points=int(case_to_pts.get(fingerprint, 0)),
                                              case_number=idx,
-                                             create_time=datetime.now())
+                                             create_time=datetime.now(),
+                                             group=group_list[loc])
                 case.input_file.save("input", File(inf))
                 case.output_file.save("output", File(ouf))
+            if fingerprint in self.problem.case_list:
+                loc += 1
         revision.save()
 
         return redirect(reverse('polygon:revision_update', kwargs={"pk": self.problem.pk, "rpk": revision.pk}))
@@ -150,8 +166,8 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
     """
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        if not self.revision.active_statement:
-            raise ValueError("Must have an active statement")  # this should be included in self-check part
+        if self.errors:
+            return HttpResponse()
         for attr in ("title", "description", "input", "output", "hint"):
             setattr(self.problem, attr, getattr(self.revision.active_statement, attr))
         for t in ("checker", "validator", "interactor"):
@@ -170,6 +186,7 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
                 setattr(self.problem, t, program.fingerprint)
 
         samples, pretests, tests, points = [], [], [], []
+        case_prep = [[] for i in range(self.revision.group_count)]
         for case in self.revision.cases.all().order_by("case_number"):
             if case.in_samples: samples.append(case.fingerprint)
             if case.in_pretests: pretests.append(case.fingerprint)
@@ -180,25 +197,33 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
             if not os.path.exists(problem_case_input):
                 copyfile(case.input_file.path, problem_case_input)
                 copyfile(case.output_file.path, problem_case_output)
-        self.problem.cases = ','.join(tests)
-        self.problem.points = ','.join(map(str, points))
+            if self.revision.enable_group:
+                case_prep[case.group - 1].append(case.fingerprint)
+
+        if self.revision.enable_group:
+            self.problem.cases = ';'.join(map(lambda x: ','.join(x), case_prep))
+            self.problem.points = self.revision.group_points
+            self.problem.group_config = self.revision.group_dependencies
+        else:
+            self.problem.cases = ','.join(tests)
+            self.problem.points = ','.join(map(str, points))
+            self.problem.group_config = '~'   # ~ means nothing here, since nothing is already taken...
         self.problem.pretests = ','.join(pretests)
         self.problem.sample = ','.join(samples)
 
         self.problem.time_limit = self.revision.time_limit
         self.problem.memory_limit = self.revision.memory_limit
 
-        for server in Server.objects.filter(enabled=True).all():
-            try:
+        try:
+            for server in Server.objects.filter(enabled=True).all():
                 upload_problem_to_judge_server(self.problem, server)
-            except:
-                raise ValueError("Upload failed. Please recheck your programs.")
-            server.last_synchronize_time = datetime.now()
-            server.save(update_fields=['last_synchronize_time'])
-
-        self.problem.save()
-        self.revision.status = 1
-        self.revision.save(update_fields=["status"])
+                server.last_synchronize_time = datetime.now()
+                server.save(update_fields=['last_synchronize_time'])
+            self.problem.save()
+            self.revision.status = 1
+            self.revision.save(update_fields=["status"])
+        except Exception as e:
+            messages.error(self.request, "Upload failed: " + str(e))
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
 
 

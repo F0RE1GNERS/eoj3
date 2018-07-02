@@ -92,6 +92,8 @@ urlpatterns += [
         name='revision_case_toggle_sample'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/toggle/pretest/$', case.CaseTogglePretestView.as_view(),
         name='revision_case_toggle_pretest'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/group/assign/$', case.CaseAssignGroupView.as_view(),
+        name='revision_case_group_assign'),
 ]
 
 urlpatterns += [

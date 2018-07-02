@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from tagging.models import Tag
 
@@ -47,7 +49,56 @@ class ProblemEditForm(forms.ModelForm):
 class RevisionUpdateForm(forms.ModelForm):
     class Meta:
         model = Revision
-        fields = ['time_limit', 'memory_limit', 'well_form_policy']
+        fields = ['time_limit', 'memory_limit', 'well_form_policy', 'enable_group', 'group_count',
+                  'group_dependencies', 'group_points']
+        widgets = {
+            "group_dependencies": forms.TextInput(),
+            "group_points": forms.TextInput(),
+        }
+
+    def clean_group_dependencies(self):
+        self.group_dependency_list = []
+        data = self.cleaned_data["group_dependencies"]
+        if not data.strip():
+            return ""
+        try:
+            p = list(filter(lambda x: x, data.strip().split(";")))
+            for t in p:
+                u, v = map(int, t.strip().split(","))
+                if u <= v:
+                    raise forms.ValidationError("Edge must follow topological order.")
+                self.group_dependency_list.append((u, v))
+        except (TypeError, ValueError):
+            raise forms.ValidationError("Please write the dependencies in forms of 1,2;2,3;3,4 or similar, "
+                                        "or left empty if you don't want to use this feature.")
+        return ";".join(map(lambda x: str(x[0]) + "," + str(x[1]), self.group_dependency_list))
+
+    def clean_group_points(self):
+        self.group_point_list = []
+        data = self.cleaned_data["group_points"]
+        if not data.strip():
+            return ""
+        try:
+            p = list(filter(lambda x: x, re.split(r'[;, ]+', data)))
+            self.group_point_list = list(map(lambda x: int(x.strip()), p))
+        except (TypeError, ValueError):
+            raise forms.ValidationError("Please write the group points in forms of 10,20,30,10 or similar, "
+                                        "or left empty if you don't want to use this feature.")
+        return ",".join(map(str, self.group_point_list))
+
+    def clean_group_count(self):
+        self.group_count = self.cleaned_data["group_count"]
+        if self.group_count < 1 or self.group_count > 10:
+            raise forms.ValidationError("Group count should not be lower than 1 or greater than 10.")
+        return self.group_count
+
+    def clean(self):
+        if self.cleaned_data["enable_group"]:
+            if not all([1 <= y <= self.group_count for x in self.group_dependency_list for y in x]):
+                raise forms.ValidationError("Illegal group not in range of 1 to group count.")
+            if len(self.group_point_list) != self.group_count:
+                raise forms.ValidationError("Illegal group points configuration does not match the group count.")
+        return self.cleaned_data
 
 
 class StatementUpdateForm(forms.ModelForm):
@@ -111,7 +162,7 @@ class CaseUpdateInfoForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = ["in_samples", "in_pretests", "points", "output_lock",
-                  "description", "case_number", "activated"]
+                  "description", "case_number", "activated", "group"]
 
 
 class CaseUpdateForm(forms.Form):

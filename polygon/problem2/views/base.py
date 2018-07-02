@@ -134,6 +134,37 @@ class ProblemRevisionMixin(PolygonProblemMixin):
             qs = self.model_class.objects.filter(id__in=ret)
         return False
 
+    def group_well_ordered(self):
+        if not self.revision.enable_group:
+            return True
+        expect_group_number = 1
+        for case in self.revision.cases.all().order_by("case_number"):
+            if case.group != expect_group_number:
+                if case.group == expect_group_number + 1:
+                    expect_group_number += 1
+                else:
+                    return False
+        if expect_group_number != self.revision.group_count:
+            return False
+        return True
+
+    def case_number_well_ordered(self):
+        for idx, case in enumerate(self.revision.cases.all().order_by("case_number"), start=1):
+            if case.case_number != idx:
+                return False
+        return True
+
+    def revision_health_check(self):
+        self.errors = []
+        self.warnings = []
+
+        if not self.group_well_ordered():
+            self.errors.append("Group numbers are NOT well ordered.")
+        if not self.case_number_well_ordered():
+            self.warnings.append("Case numbers are not perfectly ordered.")
+        if not self.revision.active_statement:
+            self.errors.append("Must have an active statement")
+
     def init_revision(self, *args, **kwargs):
         self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
                                                               "active_interactor", "user").filter(pk=kwargs['rpk'])
@@ -142,10 +173,13 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         else: self.revision = self.revision[0]
         if self.revision.user != self.request.user or self.revision.status != 0:
             self.permission = 1
+        self.revision_health_check()
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['revision'] = self.revision
+        data['revision_errors'] = self.errors
+        data['revision_warnings'] = self.warnings
         return data
 
 

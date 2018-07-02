@@ -22,7 +22,7 @@
   </thead>
   <tbody>
     <tr class="center aligned">
-      <th rowspan="2" style="padding:1em">{{ submission.id }}</th>
+      <th rowspan="{% if submission.status_message %}3{% else %}2{% endif %}" style="padding:1em">{{ submission.id }}</th>
     {% if not hide_problem %}
       {% if submission.contest_id and submission.contest_problem %}
         <td><a href="{{ url('contest:problem', submission.contest_id, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
@@ -62,11 +62,11 @@
             <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}"><i class="icon"></i></span>
           {% endfor %}
         </div>
-        {% if submission.status_message %}
-          <pre style="white-space: pre-wrap;">{{ submission.status_message }}</pre>
-        {% endif %}
       </td>
     </tr>
+    {% if submission.status_message %}
+      <tr><td colspan="{{ my_colspan }}"><pre style="white-space: pre-wrap;">{{ submission.status_message }}</pre></td></tr>
+    {% endif %}
   </tbody>
 </table>
 

@@ -22,7 +22,7 @@ def process_runtime(server, data):
 
 
 def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                            interactor, callback, timeout=1800):
+                            interactor, group_config, callback, timeout=1800):
     server.last_seen_time = datetime.now()
     server.save(update_fields=['last_seen_time'])
     data = _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
@@ -37,7 +37,7 @@ def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_
 
 
 def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                             interactor, callback, timeout=900, fallback=True, report_file_path=None):
+                             interactor, group_config, callback, timeout=900, fallback=True, report_file_path=None):
     """
     :param interactor: None or '' if there is no interactor
     :param callback: function, to call when something is returned (possibly preliminary results)
@@ -51,7 +51,8 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     # server.last_seen_time = datetime.now()
     # server.save(update_fields=['last_seen_time'])
 
-    data = _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
+    data = _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor,
+                                    group_config)
     data.update(hold=False)
     judge_url = server.http_address + '/judge'
     watch_url = server.http_address + '/query'
@@ -87,17 +88,22 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
                       fail_silently=True)
             print(msg)
             send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                                    interactor, callback)
+                                    interactor, group_config, callback)
         else:
             callback(response_fail_with_timestamp())
 
 
-def _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor):
+def _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor,
+                             group_config):
     all_params = locals().copy()
     all_params.pop("server")
+    all_params.pop("group_config")
     if not interactor:
         all_params.pop('interactor')
     all_params['max_time'] /= 1000
     all_params['max_time'] *= server.runtime_multiplier
     all_params['fingerprint'] = random_string()
+    if group_config.get("on"):
+        all_params['group_list'] = group_config["group_list"]
+        all_params['group_dependencies'] = group_config["group_dependencies"]
     return all_params

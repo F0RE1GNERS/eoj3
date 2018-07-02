@@ -1,4 +1,5 @@
 import random
+from collections import Counter
 from datetime import datetime
 from threading import Thread
 
@@ -90,14 +91,26 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
     problem = submission.problem
     case_list = []
+    group_config = {"on": False}
     if kwargs.get('case') == 'pretest':
         case_list = problem.pretest_list
     elif kwargs.get('case') == 'sample':
         case_list = problem.sample_list
     if not case_list:  # case list is empty (e.g. something wrong with pretest list)
         case_list = problem.case_list
-    point_query = dict(zip(problem.case_list, problem.point_list))
-    total_score = max(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
+        if problem.group_enabled:
+            # enable group testing only when using whole testset mode
+            group_config["on"] = True
+            group_config["group_list"] = problem.group_list
+            group_config["group_count"] = max(group_config["group_list"])
+            group_config["group_dependencies"] = problem.group_dependencies
+
+    if group_config["on"]:
+        point_query = list(problem.point_list)
+        total_score = max(1, sum(point_query))
+    else:
+        point_query = dict(zip(problem.case_list, problem.point_list))
+        total_score = max(1, sum(map(lambda x: point_query.get(x, 10), case_list)))
     status_for_pretest = kwargs.get('status_for_pretest', False)
 
     def process_accepted(status):
@@ -122,15 +135,16 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.status = SubmissionStatus.SUBMITTED
 
             details = data.get('detail', [])
-            # Add points to details
-            score = 0
-            try:
-                for index, detail in enumerate(details):
-                    if detail.get('verdict') == 0:
-                        score += point_query.get(case_list[index], 10)
-            except:
-                pass
-            submission.status_percent = score / total_score * 100
+            if not group_config["on"]:
+                # Add points to details
+                score = 0
+                try:
+                    for index, detail in enumerate(details):
+                        if detail.get('verdict') == 0:
+                            score += point_query.get(case_list[index], 10)
+                except:
+                    pass
+                submission.status_percent = score / total_score * 100
             display_details = details + [{}] * max(0, len(case_list) - len(details))
             submission.status_detail_list = display_details
             submission.status_test = process_failed_test(display_details)
@@ -139,6 +153,28 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                                'status_test'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
+                if group_config["on"]:
+                    score = 0
+                    records = []
+                    accept_case_counter, total_case_counter = Counter(), Counter()
+                    for index, detail in enumerate(details):
+                        group_id = group_config["group_list"][index]
+                        if detail.get('verdict') == 0:
+                            accept_case_counter[group_id] += 1
+                        total_case_counter[group_id] += 1
+                    for group_id in range(1, group_config["group_count"] + 1):
+                        get_score = 0
+                        if accept_case_counter[group_id] == total_case_counter[group_id]:
+                            get_score = point_query[group_id - 1]
+                        score += get_score
+                        records.append("Subtask #%d: " % group_id +
+                                       "%d/%d cases passed. %d points." % (accept_case_counter[group_id],
+                                                                           total_case_counter[group_id],
+                                                                           get_score))
+                    records.append("Total: %d/%d" % (score, total_score))
+                    submission.status_message = "\n".join(records)
+                    submission.status_percent = score / total_score * 100
+
                 try:
                     submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
                 except ValueError: pass
@@ -147,7 +183,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 try: submission.judge_server = server.id
                 except: pass
 
-                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server'])
+                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message'])
                 difficulty = get_problem_reward(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
@@ -180,7 +216,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
         n_args = (server, submission.code, submission.lang, problem.time_limit,
                   problem.memory_limit, kwargs.get('run_until_complete', False),
-                  case_list, problem.checker, problem.interactor,
+                  case_list, problem.checker, problem.interactor, group_config,
                   on_receive_data)
         n_kwargs = {'report_file_path': path.join(settings.GENERATE_DIR,
                                                   'submission-%d' % submission.pk)}

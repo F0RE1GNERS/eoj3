@@ -37,3 +37,25 @@
   </table>
 
 {% endblock %}
+
+{% block local_script %}
+<script>
+  function clearAndHideSomeInputs() {
+    var option = $("*[name='enable_group']").parent().checkbox("is checked");
+    var namelist = ["group_count", "group_dependencies", "group_points"];
+    for (var i = 0; i < namelist.length; ++i) {
+      var v = $("*[name='" + namelist[i] + "']").parent();
+      if (option) v.show();
+      else {
+        v.hide();
+        v.find("input").val("");
+      }
+    }
+    if (!option) $("*[name='group_count']").val("1");
+  }
+  clearAndHideSomeInputs();
+  $("*[name='enable_group']").on('change', function (e) {
+    clearAndHideSomeInputs();
+  });
+</script>
+{% endblock %}

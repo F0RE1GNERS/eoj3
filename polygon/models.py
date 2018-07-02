@@ -192,7 +192,10 @@ class Revision(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICE, default=0)
     parent_id = models.IntegerField(default=0)
     enable_group = models.BooleanField(default=False)
+    group_count = models.PositiveIntegerField(default=0)
     group_dependencies = models.TextField(blank=True)
+    # group dependencies in the same format as in group format
+    group_points = models.TextField(blank=True)
 
     # when a revision is done, making changes will create a new revision
 

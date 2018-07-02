@@ -124,16 +124,27 @@ class Submission(models.Model):
         r, l = [], self.status_detail_list
         status_dictionary = dict(STATUS_CHOICE)
         count = len(l)
+        re_count, last_group = 1, 0
         for index, s in enumerate(l, start=1):
             u, v = -233, '%d/%d' % (index, count)  # Magic number: display nothing
-            if ('verdict' in s) and SubmissionStatus.is_judged(s['verdict']):
-                u = s['verdict']
-                t = status_dictionary[u]
-                if s['verdict'] == SubmissionStatus.ACCEPTED:
-                    t += ', %.3fs' % s.get('time', 0.0)
-                elif s['verdict'] == SubmissionStatus.RUNTIME_ERROR:
-                    t += ', %s' % s.get('message', 'NaN')
-                v += ': ' + t
+            if 'verdict' in s:
+                if 'group' in s:
+                    if s['group'] != last_group:
+                        re_count = 1
+                    last_group = s['group']
+                    u = s['verdict']
+                    v = '%d-%d' % (s['group'], re_count)
+                    re_count += 1
+                if SubmissionStatus.is_judged(s['verdict']):
+                    u = s['verdict']
+                    t = status_dictionary[u]
+                    if s['verdict'] == SubmissionStatus.ACCEPTED:
+                        t += ', %.3fs' % s.get('time', 0.0)
+                    elif s['verdict'] == SubmissionStatus.RUNTIME_ERROR:
+                        t += ', %s' % s.get('message', 'NaN')
+                    v += ': ' + t
+                elif 'group' in s:
+                    v += ": Skipped"
             r.append((u, v))
         return r
 

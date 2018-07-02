@@ -1,3 +1,5 @@
+import re
+
 from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
@@ -45,6 +47,9 @@ class Problem(models.Model):
     pretests = models.TextField(_('Pretest'), blank=True)
     cases = models.TextField(_('Cases'), blank=True)
     points = models.TextField(_('Points'), blank=True)
+    group_config = models.TextField(_('Group'), blank=True, default='~')
+    # group config in the following format: 1,2;2,3;3,4 (index 1 based)
+    # leave this blank to ignore groups
 
     managers = models.ManyToManyField(User, related_name='managing_problems')
 
@@ -67,7 +72,31 @@ class Problem(models.Model):
 
     @property
     def case_list(self):
-        return list(filter(lambda x: x, self.cases.split(',')))
+        return list(filter(lambda x: x, re.split(r"[,;]", self.cases)))
+
+    @property
+    def group_list(self):
+        if not self.cases:
+            return []
+        # be rigid and careful because group list generation here does not consider spaces or extra punctuations
+        punc = list(filter(lambda x: x in ",;", self.cases + ";"))
+        now, ret = 1, []
+        for p in punc:
+            ret.append(now)
+            if p == ';':
+                now += 1
+        if len(ret) != len(self.case_list):
+            raise AssertionError("Group list should have the same length as case list")
+        return ret
+
+    @property
+    def group_dependencies(self):
+        return list(map(lambda x: tuple(map(int, x.split(","))),
+                        filter(lambda x: x, self.group_config.split(";"))))
+
+    @property
+    def group_enabled(self):
+        return self.group_config != "~"
 
     @property
     def point_list(self):
