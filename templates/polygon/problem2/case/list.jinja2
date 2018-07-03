@@ -4,9 +4,9 @@
 
   {% include 'components/message.jinja2' %}
 
-  <table class="ui celled small very compact table center aligned">
+  <table id="case-list-table" class="ui celled small very compact table center aligned">
     <thead class="full-width">
-      <tr>
+      <tr class="ui sticky">
         <th colspan="{% if revision.enable_group %}11{% else %}10{% endif %}">
           <div class="ui right floated buttons">
             <a href="{{ url('polygon:revision_case_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
@@ -75,3 +75,16 @@
 
 {% endblock %}
 
+
+{% block local_script %}
+  <script>
+  $('.ui.sticky')
+    .sticky({
+      context: '#case-list-table',
+      onStick: function () {
+        $(this).find("th").width($(this).width());
+      }
+    })
+  ;
+  </script>
+{% endblock %}
