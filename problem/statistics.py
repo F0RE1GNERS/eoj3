@@ -1,5 +1,6 @@
 from random import uniform
 from math import log10
+from time import sleep
 
 from django.core.cache import cache
 
@@ -28,26 +29,30 @@ def _get_or_invalidate(problem_id, contest_id, cache_name):
 
 
 def _get_many_or_invalidate(problem_ids, contest_id, cache_template):
-    cache_res = cache.get_many(list(map(lambda x: cache_template.format(problem=x, contest=contest_id),
-                                        problem_ids)))
-    ans = dict()
-    second_attempt = []
-    for problem_id in problem_ids:
-        cache_name = cache_template.format(problem=problem_id, contest=contest_id)
-        if cache_name not in cache_res:
-            second_attempt.append(problem_id)
-        else:
-            ans[problem_id] = cache_res[cache_name]
-    update_problems(second_attempt, contest_id)
-    if second_attempt:
-        res2 = cache.get_many(list(map(lambda x: cache_template.format(problem=x, contest=contest_id),
-                                       second_attempt)))
+    MAX_RETRY = 3
+    for _retry in range(MAX_RETRY):
+        cache_res = cache.get_many(list(map(lambda x: cache_template.format(problem=x, contest=contest_id),
+                                            problem_ids)))
+        ans = dict()
+        second_attempt = []
         for problem_id in problem_ids:
             cache_name = cache_template.format(problem=problem_id, contest=contest_id)
-            if cache_name in res2:
-                ans[problem_id] = res2[cache_name]
-    assert len(ans) == len(problem_ids)
-    return ans
+            if cache_name not in cache_res:
+                second_attempt.append(problem_id)
+            else:
+                ans[problem_id] = cache_res[cache_name]
+        update_problems(second_attempt, contest_id)
+        if second_attempt:
+            res2 = cache.get_many(list(map(lambda x: cache_template.format(problem=x, contest=contest_id),
+                                           second_attempt)))
+            for problem_id in problem_ids:
+                cache_name = cache_template.format(problem=problem_id, contest=contest_id)
+                if cache_name in res2:
+                    ans[problem_id] = res2[cache_name]
+        sleep(1)
+        if len(ans) == len(problem_ids):
+            return ans
+    raise AssertionError("Problem cache invalidate out of attempts")
 
 
 def get_problem_accept_user_count(problem_id, contest_id=0):
