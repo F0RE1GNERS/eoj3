@@ -1,24 +1,28 @@
+import operator
 import os
 import re
+from functools import cmp_to_key
+
+
+def compare(a, b):
+    x, y = a[0], b[0]
+    try:
+        cx = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', x)))
+        cy = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', y)))
+        if operator.eq(cx, cy):
+            raise ArithmeticError
+        return -1 if operator.lt(cx, cy) else 1
+    except Exception:
+        if x == y:
+            return 0
+        return -1 if x < y else 1
+
+
+def special_sort(lst):
+    return list(map(lambda x: x[0], sorted(map(lambda x: (x, 0), lst), key=cmp_to_key(compare))))
 
 
 def sort_data_list_from_directory(directory):
-    import operator
-    from functools import cmp_to_key
-
-    def compare(a, b):
-        x, y = a[0], b[0]
-        try:
-            cx = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', x)))
-            cy = list(map(lambda x: int(x) if x.isdigit() else x, re.split(r'(\d+)', y)))
-            if operator.eq(cx, cy):
-                raise ArithmeticError
-            return -1 if operator.lt(cx, cy) else 1
-        except Exception:
-            if x == y:
-                return 0
-            return -1 if x < y else 1
-
     try:
         raw_namelist = list(filter(lambda x: os.path.split(x)[0] == '', os.listdir(directory)))
         result = []

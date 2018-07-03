@@ -1,5 +1,7 @@
 import json
+import os
 import re
+import shutil
 import zipfile
 from datetime import datetime
 
@@ -34,7 +36,7 @@ from polygon.problem2.runner.exception import CompileError
 from polygon.problem2.views.base import ProblemRevisionMixin
 from utils import random_string
 from utils.download import respond_generate_file
-from utils.file_preview import sort_data_list_from_directory
+from utils.file_preview import sort_data_list_from_directory, special_sort
 
 
 class CaseManagementTools(object):
@@ -461,9 +463,27 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
                         case.output_file.save("out", File(ous), save=False)
                     case.save_fingerprint(self.problem.id)
                     cases.append(case)
-            # TODO: catch exception
+            shutil.rmtree(tmp_directory)
+
         elif option == "batch_input":
-            pass
+            tmp_directory = '/tmp/' + random_string()
+            with zipfile.ZipFile(form.cleaned_data["batch_file"]) as myZip:
+                myZip.extractall(path=tmp_directory)
+            for file in special_sort(os.listdir(tmp_directory)):
+                file_abspath = os.path.join(tmp_directory, file)
+                if os.path.isdir(file_abspath) or file.startswith("."):
+                    continue
+                with open(path.join(tmp_directory, file), 'rb') as in_file:
+                    case = Case(create_time=global_create_time, description="File \"%s\"" % file)
+                    if self.revision.well_form_policy:
+                        case.input_file.save("in", ContentFile(REFORMAT(in_file.read(), True)), save=False)
+                    else:
+                        case.input_file.save("in", File(in_file), save=False)
+                    case.output_file.save("out", ContentFile(""), save=False)
+                    case.save_fingerprint(self.problem.id)
+                    cases.append(case)
+            shutil.rmtree(tmp_directory)
+
         elif option == "gen":
             commands = list(map(lambda x: " ".join(x.split()),
                                 filter(lambda x: x, form.cleaned_data["gen_command"].split("\n"))))
