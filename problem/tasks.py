@@ -41,7 +41,7 @@ def upload_problem_to_judge_server(problem, server):
     :type problem: Problem
     :type server: Server
     """
-    for case in problem.case_list:
+    for case in set(problem.pretest_list + problem.sample_list + problem.case_list):
         upload_case(server, case)
     if problem.checker:
         upload_checker(server, SpecialProgram.objects.get(fingerprint=problem.checker))
