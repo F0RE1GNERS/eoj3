@@ -46,7 +46,8 @@ class Contest(models.Model):
         ('acm', _('ACM Rule')),
         ('oi', _('OI Rule')),
         ('cf', _('School of Data Analysis (SDA) Rule')),
-        ('tcmtime', "TCM/TIME Rule")
+        ('tcmtime', "TCM/TIME Rule"),
+        ('subtask', "Subtask Rule"),
     )
 
     TEST_DURING_CONTEST_CHOICE = (

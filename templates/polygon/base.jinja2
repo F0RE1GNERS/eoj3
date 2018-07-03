@@ -22,14 +22,6 @@
         <i class="flag checkered icon"></i>
         Contest
       </a>
-      <a class="item" href="{{ url('polygon:runs') }}">
-        <i class="server icon"></i>
-        Runs <span class="ui teal label hidden" id="run-number">0</span>
-      </a>
-      <a class="item" href="https://ultmaster.github.io/eoj3/eoj/polygon/">
-        <i class="help circle icon"></i>
-        Help
-      </a>
       <div class="right menu">
         {% if user.is_authenticated %}
           <div class="item">Current: {{ request.user.username }}</div>
