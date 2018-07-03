@@ -17,7 +17,7 @@
       <div class="header">
         Is it possible that you are searching by ID?
       </div>
-      <p>Click <a href="{{ url('polygon:revision_update', suggest_problem.pk, suggest_problem.latest_revision.pk) }}">Problem {{ suggest_problem.pk }}</a> here to go direct to the edit zone.</p>
+      <p>Click <a href="{% if suggest_problem.latest_revision %}{{ url('polygon:revision_update', suggest_problem.pk, suggest_problem.latest_revision.pk) }}{% else %}{{ url('polygon:problem_list_2') }}?exact={{ search_text }}{% endif %}">Problem {{ suggest_problem.pk }}</a> here to go direct to the edit zone.</p>
     </div>
   {% endif %}
 
