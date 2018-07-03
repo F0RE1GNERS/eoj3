@@ -38,6 +38,7 @@ class ProblemList(PolygonBaseMixin, ListView):
             query = Q(title__icontains=q) | Q(alias__icontains=q) | Q(source__icontains=q)
             if q.isdigit():
                 query |= Q(pk__exact=q)
+                self.id_searching_recommendation = q
         else:
             self.search_text = ''
             query = None
@@ -51,26 +52,49 @@ class ProblemList(PolygonBaseMixin, ListView):
         qs = qs.prefetch_related("revisions").annotate(Count('revisions'))
         return qs
 
+    @staticmethod
+    def get_problem_latest_revision(problem):
+        problem.latest_revision, problem.my_latest_revision = None, None
+        for revision in sorted(problem.revisions.all(), key=lambda x: x.create_time, reverse=True):
+            return revision
+
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         for problem in data['problem_list']:
-            problem.latest_revision, problem.my_latest_revision = None, None
-            for revision in sorted(problem.revisions.all(), key=lambda x: x.create_time, reverse=True):
-                problem.latest_revision = revision
-                break
+            problem.latest_revision = self.get_problem_latest_revision(problem)
         data['search_text'] = self.search_text
+        if hasattr(self, "id_searching_recommendation"):
+            pid = self.id_searching_recommendation
+            if Problem.objects.filter(id=pid).exists() and \
+                    is_admin_or_root(self.request.user) or self.request.user.managing_problems.filter(id=pid).exists():
+                data["suggest_problem"] = Problem.objects.get(id=pid)
+                data["suggest_problem"].latest_revision = self.get_problem_latest_revision(data["suggest_problem"])
         return data
 
 
 class ProblemCreate(PolygonBaseMixin, View):
+    def get_unused_problem(self):
+        revised_probs = set(Revision.objects.values_list("problem_id", flat=True))
+        for problem in Problem.objects.all().order_by("id"):
+            if not problem.description and not problem.input and not problem.output and not problem.cases and \
+                    problem.id not in revised_probs:
+                return problem
+        return None
 
     def post(self, request, *args, **kwargs):
-        problem = Problem.objects.create()
-        problem.title = 'Problem #%d' % problem.id
-        problem.alias = 'p%d' % problem.id
-        problem.save(update_fields=['title', 'alias'])
+        problem = self.get_unused_problem()
+        if not problem:
+            problem = Problem.objects.create()
+            problem.title = 'Problem #%d' % problem.id
+            problem.alias = 'p%d' % problem.id
+            problem.save(update_fields=['title', 'alias'])
         problem.managers.add(request.user)
-        return HttpResponse()
+        revision = Revision.objects.create(problem=problem,
+                                           user=self.request.user,
+                                           revision=1,
+                                           time_limit=problem.time_limit,
+                                           memory_limit=problem.memory_limit)
+        return redirect(reverse('polygon:revision_update', kwargs={"pk": problem.pk, "rpk": revision.pk}))
 
 
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
