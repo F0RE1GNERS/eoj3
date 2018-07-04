@@ -385,14 +385,16 @@ class RejudgeContestProblemSubmission(PolygonContestMixin, View):
 class ContestSystemTestView(PolygonContestMixin, View):
     def post(self, request, pk):
         # almost same as rejudge
-
-        # status private?
-        submission_set = self.contest.submission_set.filter(status__in=[SubmissionStatus.ACCEPTED,
-                                                                        SubmissionStatus.JUDGING,
-                                                                        SubmissionStatus.WAITING,
-                                                                        SubmissionStatus.SUBMITTED,
-                                                                        SubmissionStatus.PRETEST_PASSED])\
-            .order_by("create_time")
+        if self.contest.scoring_method in ["subtask", "oi"]:
+            submission_set = self.contest.submission_set.all().order_by("create_time")
+        else:
+            # status private?
+            submission_set = self.contest.submission_set.filter(status__in=[SubmissionStatus.ACCEPTED,
+                                                                            SubmissionStatus.JUDGING,
+                                                                            SubmissionStatus.WAITING,
+                                                                            SubmissionStatus.SUBMITTED,
+                                                                            SubmissionStatus.PRETEST_PASSED])\
+                .order_by("create_time")
 
         if len(submission_set) > 0:
             Thread(target=rejudge_submission_set, args=(submission_set,)).start()
