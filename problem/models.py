@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.core.validators import RegexValidator
@@ -50,6 +51,14 @@ class Problem(models.Model):
     group_config = models.TextField(_('Group'), blank=True, default='~')
     # group config in the following format: 1,2;2,3;3,4 (index 1 based)
     # leave this blank to ignore groups
+    template_config = models.TextField(_('Template'), blank=True, default='{}')
+    level = models.IntegerField(_('Difficulty Level'), choices=(
+        (1, 'Naive'),
+        (2, 'Easy'),
+        (3, 'Medium'),
+        (4, 'Hard'),
+        (5, 'Super')
+    ), default=3)
 
     managers = models.ManyToManyField(User, related_name='managing_problems')
 
@@ -73,6 +82,13 @@ class Problem(models.Model):
     @property
     def case_list(self):
         return list(filter(lambda x: x, re.split(r"[,;]", self.cases)))
+
+    @property
+    def template_dict(self):
+        try:
+            return json.loads(self.template_config)
+        except:
+            return dict()
 
     @property
     def group_list(self):

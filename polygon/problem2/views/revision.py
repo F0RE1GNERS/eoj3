@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -109,6 +110,13 @@ class RevisionCreateView(PolygonProblemMixin, View):
                 case.output_file.save("output", File(ouf))
             if fingerprint in self.problem.case_list:
                 loc += 1
+
+        for language, item in self.problem.template_dict.items():
+            revision.templates.create(language=language,
+                                      template_code=item["template"],
+                                      grader_code=item["grader"],
+                                      create_time=datetime.now())
+
         revision.save()
 
         return redirect(reverse('polygon:revision_update', kwargs={"pk": self.problem.pk, "rpk": revision.pk}))
@@ -133,6 +141,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
         self.revision.assets.add(*old_revision.assets.all())
         self.revision.programs.add(*old_revision.programs.all())
         self.revision.cases.add(*old_revision.cases.all())
+        self.revision.templates.add(*old_revision.templates.all())
         self.revision.task_set.add(*old_revision.task_set.all())
         self.kwargs.update(rpk=self.revision.id)
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
@@ -210,6 +219,12 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
             self.problem.group_config = '~'   # ~ means nothing here, since nothing is already taken...
         self.problem.pretests = ','.join(pretests)
         self.problem.sample = ','.join(samples)
+
+        template_dict = {template.language: {
+            "template": template.template_code,
+            "grader": template.grader_code
+        } for template in self.revision.templates.all()}
+        self.problem.template_config = json.dumps(template_dict)
 
         self.problem.time_limit = self.revision.time_limit
         self.problem.memory_limit = self.revision.memory_limit

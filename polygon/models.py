@@ -5,6 +5,7 @@ from django.db import models
 from account.models import User
 from problem.models import Problem
 from utils.hash import sha_hash, case_hash
+from utils.language import LANG_CHOICE
 
 repo_storage = FileSystemStorage(location=settings.REPO_DIR)
 
@@ -164,6 +165,15 @@ class Case(models.Model):
         return self._read_file_preview(self.output_file)
 
 
+class Template(models.Model):
+    template_code = models.TextField()
+    grader_code = models.TextField()
+    language = models.CharField(max_length=12, choices=LANG_CHOICE, default='cpp')
+    create_time = models.DateTimeField()
+    update_time = models.DateTimeField(auto_now=True)
+    parent_id = models.IntegerField(default=0)
+
+
 class Revision(models.Model):
 
     STATUS_CHOICE = (
@@ -179,6 +189,7 @@ class Revision(models.Model):
     programs = models.ManyToManyField(Program)
     cases = models.ManyToManyField(Case)
     assets = models.ManyToManyField(Asset)
+    templates = models.ManyToManyField(Template)
     active_statement = models.ForeignKey(Statement, on_delete=models.SET_NULL, related_name="stating_revisions", null=True)
     active_checker = models.ForeignKey(Program, on_delete=models.SET_NULL, related_name="checking_revisions", null=True)
     active_validator = models.ForeignKey(Program, on_delete=models.SET_NULL, related_name="validating_revisions", null=True)

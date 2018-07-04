@@ -69,6 +69,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   var code_param = "", code_in_storage_key = "";
   var auto_lang = ele.dropdown('get value') == "auto";
   var detected_lang = "cpp";
+  var template_button = $("#template-button");
 
   function detectLanguage() {
     detected_lang = detectLang(code.val(), all_lang);
@@ -87,6 +88,17 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     detectLanguageDebouncer();
   });
 
+  function updateWithTemplate() {
+    var selector = $("#code_template_" + lang.val());
+    if (selector.length > 0) {
+      template_button.show();
+      code.val(selector.html());
+      code.trigger("change");
+    } else {
+      template_button.hide();
+    }
+  }
+
   function updateStorageKey() {
     var problem_val = problem.val();
     if (problem_val) {
@@ -101,11 +113,13 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
           code.trigger("change");
         });
       }
+      if (!code.val()) updateWithTemplate();
     } else {
       code_in_storage_key = "";
     }
   }
 
+  updateWithTemplate();
   updateStorageKey();
   detectLanguage();
 
@@ -133,6 +147,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     if (window.localStorage) {
       localStorage.setItem("lang", auto_lang ? "auto" : event.target.value);
     }
+    updateWithTemplate();
   });
   problem.on("change", function (event) {
     updateStorageKey();
@@ -164,6 +179,8 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
       detectLanguage(true);
     }
   }, false);
+
+  template_button.on('click', updateWithTemplate);
 }
 
 function scrollToCurrentSubmission() {

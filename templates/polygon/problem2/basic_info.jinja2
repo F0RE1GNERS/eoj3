@@ -19,6 +19,14 @@
       <input type="text" name="source" value="{{ problem.source }}">
     </div>
     <div class="field">
+      <label>Assigned Difficulty Level:</label>
+      <select class="ui selection dropdown" name="level">
+        {% for val, verbose in level_select %}
+        <option value="{{ val }}" {% if val == problem.level %}selected{% endif %}>{{ verbose }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
       <button class="ui button positive">Save</button>
     </div>
   </form>

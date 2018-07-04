@@ -90,6 +90,18 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     """
 
     problem = submission.problem
+    code = submission.code
+
+    # concat code for template judging
+    templates = problem.template_dict
+    if submission.lang in templates:
+        grader_code = templates[submission.lang]["grader"]
+        insert_indicator = "$$template$$"
+        if insert_indicator in grader_code:
+            code = grader_code.replace(insert_indicator, code)
+        else:
+            code = code + '\n\n' + grader_code
+
     case_list = []
     group_config = {"on": False}
     if kwargs.get('case') == 'pretest':
@@ -153,7 +165,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                                'status_test'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
-                if group_config["on"]:
+                if group_config["on"] and data.get('verdict') != SubmissionStatus.COMPILE_ERROR:
                     score = 0
                     records = []
                     accept_case_counter, total_case_counter = Counter(), Counter()
@@ -164,7 +176,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                         total_case_counter[group_id] += 1
                     for group_id in range(1, group_config["group_count"] + 1):
                         get_score = 0
-                        if accept_case_counter[group_id] == total_case_counter[group_id]:
+                        if accept_case_counter[group_id] == total_case_counter[group_id] and \
+                                total_case_counter[group_id] > 0:
                             get_score = point_query[group_id - 1]
                         score += get_score
                         records.append("Subtask #%d: " % group_id +
@@ -214,7 +227,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         servers = Server.objects.filter(enabled=True)
         server = randomly_choose_server(servers)
 
-        n_args = (server, submission.code, submission.lang, problem.time_limit,
+        n_args = (server, code, submission.lang, problem.time_limit,
                   problem.memory_limit, kwargs.get('run_until_complete', False),
                   case_list, problem.checker, problem.interactor, group_config,
                   on_receive_data)

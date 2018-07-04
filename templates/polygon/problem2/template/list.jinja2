@@ -1,0 +1,37 @@
+{% extends 'polygon/problem2/base.jinja2' %}
+
+{% block problem_content %}
+
+  <table class="ui celled table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="7">
+          <a href="{{ url('polygon:revision_template_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
+            <i class="add icon"></i> Add Template
+          </a>
+        </th>
+      </tr>
+      <tr>
+        <th class="collapsing">#</th>
+        <th>Language</th>
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+        <th class="collapsing">Based on</th>
+        <th class="collapsing">Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for template in template_list %}
+        <tr>
+          <td>{{ template.pk }}</td>
+          <td><a href="{{ url('polygon:revision_template_preview', problem.id, revision.id, template.id) }}">{{ template.get_language_display() }}</a></td>
+          <td>{{ template.create_time | date('Y-m-d H:i') }}</td>
+          <td>{{ template.update_time | date('Y-m-d H:i') }}</td>
+          <td>{{ template.parent_id }}</td>
+          <td><a href="{{ url('polygon:revision_template_update', problem.id, revision.id, template.id) }}">Edit</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

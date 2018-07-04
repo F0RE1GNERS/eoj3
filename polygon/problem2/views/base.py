@@ -230,12 +230,14 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['admin_list'] = self.problem.managers.all()
+        data['level_select'] = self.problem._meta.get_field('level').choices
         return data
 
     @transaction.atomic()
     def post(self, request, pk):
         self.problem.alias = request.POST['alias']
         self.problem.source = request.POST['source']
+        self.problem.level = request.POST['level']
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
         self.problem.managers.clear()
         for key in my_set:

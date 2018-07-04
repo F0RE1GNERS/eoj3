@@ -18,6 +18,11 @@
     {% csrf_token %}
     <div class="ui segments" id="submit-form" style="{% if not margin_top %}margin-top: 0{% endif %}">
       <div class="ui compact segment">
+        {% if not contest %}
+          <input name="problem" value="{{ problem.pk }}" type="hidden">
+        {% else %}
+          <input name="problem" value="{{ contest_problem.identifier }}" type="hidden">
+        {% endif %}
         <input id="default-contest" value="{% if contest %}{{ contest.pk }}{% endif %}" type="hidden">
         <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
         <div id="editor" style="height: 400px; position: relative"></div>
@@ -33,6 +38,9 @@
             {% endfor %}
             <div class="item" data-value="auto">Auto: <span class="detected-lang-name">None</span></div>
           </div>
+        </div>
+        <div style="float:left; margin-top:7px; margin-left:15px; color:#777; cursor:pointer" id="template-button">
+          Template
         </div>
       {% if contest and contest_problem %}
         <input name="problem" type="hidden" value="{{ contest_problem.identifier }}">

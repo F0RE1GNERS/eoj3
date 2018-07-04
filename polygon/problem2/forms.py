@@ -3,7 +3,7 @@ import re
 from django import forms
 from tagging.models import Tag
 
-from polygon.models import Statement, Revision, Program, Case, Asset
+from polygon.models import Statement, Revision, Program, Case, Asset, Template
 from problem.models import Problem, SpecialProgram
 from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 
@@ -194,3 +194,9 @@ class AssetUpdateForm(forms.ModelForm):
     class Meta:
         model = Asset
         fields = ["name", "file"]
+
+
+class TemplateUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Template
+        fields = ["language", "template_code", "grader_code"]

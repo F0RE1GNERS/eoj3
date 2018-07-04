@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from polygon.problem2.views import base, asset, case, program, revision, statement, task
+from polygon.problem2.views import base, asset, case, program, revision, statement, task, template
 
 urlpatterns = [
     url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
@@ -94,6 +94,19 @@ urlpatterns += [
         name='revision_case_toggle_pretest'),
     url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/group/assign/$', case.CaseAssignGroupView.as_view(),
         name='revision_case_group_assign'),
+]
+
+urlpatterns += [
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/$', template.TemplateList.as_view(),
+        name='revision_template'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/create/$', template.TemplateCreateView.as_view(),
+        name='revision_template_create'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/(?P<tpk>\d+)/$', template.TemplatePreview.as_view(),
+        name='revision_template_preview'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/(?P<tpk>\d+)/update/$', template.TemplateUpdateView.as_view(),
+        name='revision_template_update'),
+    url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/(?P<tpk>\d+)/delete/$', template.TemplateDeleteView.as_view(),
+        name='revision_template_delete'),
 ]
 
 urlpatterns += [
