@@ -49,9 +49,9 @@ def _get_many_or_invalidate(problem_ids, contest_id, cache_template):
                 cache_name = cache_template.format(problem=problem_id, contest=contest_id)
                 if cache_name in res2:
                     ans[problem_id] = res2[cache_name]
-        sleep(1)
         if len(ans) == len(problem_ids):
             return ans
+        sleep(1)
     raise AssertionError("Problem cache invalidate out of attempts")
 
 
