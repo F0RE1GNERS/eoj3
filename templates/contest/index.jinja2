@@ -78,11 +78,21 @@
         <tr class="center aligned">
           <td class="semi-bold">{{ contest_problem.identifier }}</td>
           <td class="left aligned">
+          {% if contest.always_running %}
+            <span class="label ui horizontal {{ level_colors[contest_problem.problem.level] }}">{{ contest_problem.problem.get_level_display() }}</span>
+          {% endif %}
             <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
             {{ contest_problem.problem.title }}</a>
             {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
               <a style="float: right;" data-tooltip="Practice in problemset" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
+          {% if contest.always_running %}
+            <div style="float:right">
+              {% for tag in contest_problem.tags %}
+                <span class="label ui horizontal">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
           </td>
           <td class="selectable {% if contest_problem.personal_label == 1 %}accepted{% elif contest_problem.personal_label == 2 %}warning{% elif contest_problem.personal_label < 0 %}attempted{% endif %}">
             <a {% if contest_problem.personal_label == 2 %}data-tooltip="Accepted out of this contest" data-inverted=""{% endif %} href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">

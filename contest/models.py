@@ -153,7 +153,7 @@ class Contest(models.Model):
         if not hasattr(self, '_contest_problem_list'):
             self._contest_problem_list = list(self.contestproblem_set.select_related('problem').
                                               defer('problem__description', 'problem__input', 'problem__output',
-                                                    'problem__hint').all())
+                                                    'problem__hint', 'problem__cases').all())
         return self._contest_problem_list
 
     def get_contest_problem(self, problem_id):

@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
@@ -12,11 +13,13 @@ from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
 from django.utils.translation import ugettext_lazy as _
 from ipware.ip import get_ip
+from tagging.models import TaggedItem
 
 from account.models import User
 from account.permissions import is_admin_or_root
 from blog.models import Blog
 from contest.statistics import recalculate_for_participants, get_participant_rank
+from problem.models import Problem
 from problem.statistics import get_many_problem_accept_count
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.language import LANG_CHOICE
@@ -130,6 +133,16 @@ class DashboardView(BaseContestMixin, TemplateView):
             else:
                 data['public_register'] = -1
 
+        # tags
+        if self.contest.always_running:
+            tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
+                                .filter(object_id__in=list(map(lambda x: x.problem_id, data['contest_problem_list'])))
+                                .select_related("tag"))
+            for contest_problem in data['contest_problem_list']:
+                items = list(filter(lambda x: x.object_id == contest_problem.problem_id, tagged_items))
+                if items:
+                    contest_problem.tags = map(lambda x: x.tag.name, items)
+
         data['has_permission'] = super(DashboardView, self).test_func()
         for problem in data['contest_problem_list']:
             problem.personal_label = 0
@@ -177,6 +190,9 @@ class DashboardView(BaseContestMixin, TemplateView):
             problem.accept_count = accept_count[problem.problem_id]
 
         data['authors'] = self.contest.authors.all()
+
+        # color settings
+        data['level_colors'] = ["", "green", "teal", "blue", "orange", "red"]
 
         return data
 
