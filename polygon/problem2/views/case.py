@@ -449,12 +449,23 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
             tmp_directory = '/tmp/' + random_string()
             with zipfile.ZipFile(form.cleaned_data["batch_file"]) as myZip:
                 myZip.extractall(path=tmp_directory)
+            case_config = {}
+            if path.exists(path.join(tmp_directory, "data.json")):
+                with open(path.join(tmp_directory, "data.json")) as json_config:
+                    case_config = json.loads(json_config.read())
             for inf, ouf in sort_data_list_from_directory(tmp_directory):
                 with open(path.join(tmp_directory, inf), 'rb') as ins, open(path.join(tmp_directory, ouf),
                                                                             'rb') as ous:
+                    conf = case_config.get(inf, {})
                     case = Case(create_time=global_create_time,
-                                description="From \"%s\": (%s, %s)" % (form.cleaned_data["batch_file"].name,
-                                                                       inf, ouf))
+                                description=conf.get("description", "From \"%s\": (%s, %s)" %
+                                                     (form.cleaned_data["batch_file"].name, inf, ouf)),
+                                in_samples=conf.get("in_samples", False),
+                                in_pretests=conf.get("in_pretests", False),
+                                activated=conf.get("activated", True),
+                                group=conf.get("group", 0),
+                                output_lock=conf.get("output_lock", False),
+                                points=conf.get("points", 10))
                     if self.revision.well_form_policy:
                         case.input_file.save("in", ContentFile(REFORMAT(ins.read(), True)), save=False)
                         case.output_file.save("out", ContentFile(REFORMAT(ous.read(), True)), save=False)
@@ -714,10 +725,22 @@ class CasePackAsZipView(ProblemRevisionMixin, View):
                 messages.error(request, "Cases refuse to pack because there are two cases with the same case number.")
                 return redirect(self.get_redirect_url())
         file_path = path.join(settings.GENERATE_DIR, random_string())
+        case_config = {}
         with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zip:
             for case in cases:
-                zip.write(case.input_file.path, arcname="%d.in" % case.case_number)
-                zip.write(case.output_file.path, arcname="%d.out" % case.case_number)
+                zip.write(case.input_file.path, arcname="%d" % case.case_number)
+                zip.write(case.output_file.path, arcname="%d.a" % case.case_number)
+                case_config[str(case.case_number)] = {
+                    "in_samples": case.in_samples,
+                    "in_pretests": case.in_pretests,
+                    "activated": case.activated,
+                    "group": case.group,
+                    "output_lock": case.output_lock,
+                    "description": case.description,
+                    "points": case.points
+                }
+            zip.writestr("data.json", json.dumps(case_config, sort_keys=True, indent=2))
+
         return respond_generate_file(request, file_path,
                                      "PackedTestCases - %s#%d.zip" % (self.problem.alias, self.revision.revision))
 
