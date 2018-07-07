@@ -20,7 +20,8 @@ from account.permissions import is_admin_or_root
 from blog.models import Blog
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.models import Problem
-from problem.statistics import get_many_problem_accept_count
+from problem.statistics import get_many_problem_accept_count, get_many_problem_tried_count, get_many_problem_max_score, \
+    get_many_problem_avg_score
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
@@ -184,10 +185,20 @@ class DashboardView(BaseContestMixin, TemplateView):
                 except ContestParticipant.DoesNotExist:
                     pass
 
-        accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
-                                                     self.contest.id)
-        for problem in data['contest_problem_list']:
-            problem.accept_count = accept_count[problem.problem_id]
+        problem_ids = list(map(lambda x: x.problem_id, data['contest_problem_list']))
+        if self.contest.scoring_method != "oi":
+            accept_count = get_many_problem_accept_count(problem_ids, self.contest.id)
+            for problem in data['contest_problem_list']:
+                problem.accept_count = accept_count[problem.problem_id]
+        else:
+            data['enable_scoring'] = True
+            user_count = get_many_problem_tried_count(problem_ids, self.contest.id)
+            max_score = get_many_problem_max_score(problem_ids, self.contest.id)
+            avg_score = get_many_problem_avg_score(problem_ids, self.contest.id)
+            for problem in data['contest_problem_list']:
+                problem.user_count = user_count[problem.problem_id]
+                problem.max_score = int(max_score[problem.problem_id] / 100 * problem.weight)
+                problem.avg_score = int(round(avg_score[problem.problem_id] / 100 * problem.weight, 1))
 
         data['authors'] = self.contest.authors.all()
 

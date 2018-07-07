@@ -14,6 +14,8 @@ PROBLEM_AC_COUNT = 'p{problem}_c{contest}_ac_count'
 PROBLEM_TOTAL_SUB_COUNT = 'p{problem}_c{contest}_all_count'
 PROBLEM_AC_RATIO = 'p{problem}_c{contest}_ac_ratio'
 PROBLEM_DIFFICULTY = 'p{problem}_c{contest}_difficulty'
+PROBLEM_MAX_SCORE = 'p{problem}_c{contest}_max_score'
+PROBLEM_AVG_SCORE = 'p{problem}_c{contest}_avg_score'
 PROBLEM_DIFFICULTY_FOR_REWARD = 'p{problem}_reward'
 PROBLEM_ALL_DIFFICULTY = 'pa_difficulty'
 PROBLEM_ALL_ACCEPT_COUNT = 'pa_ac_count'
@@ -109,6 +111,14 @@ def get_many_problem_tried_count(problem_ids, contest_id=0):
     return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_TOTAL_USER_COUNT)
 
 
+def get_many_problem_max_score(problem_ids, contest_id=0):
+    return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_MAX_SCORE)
+
+
+def get_many_problem_avg_score(problem_ids, contest_id=0):
+    return _get_many_or_invalidate(problem_ids, contest_id, PROBLEM_AVG_SCORE)
+
+
 def get_many_problem_difficulty(problem_ids):
     return _get_many_or_invalidate(problem_ids, 0, PROBLEM_DIFFICULTY)
 
@@ -154,11 +164,11 @@ def update_problems(problem_ids, contest_id=0):
     if contest_id > 0:
         cache_time = FORTNIGHT * uniform(0.6, 1)
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id).\
-            only('problem_id', 'contest_id', 'author_id', 'status')
+            only('problem_id', 'contest_id', 'author_id', 'status', 'status_percent')
     else:
         cache_time = FORTNIGHT * uniform(0.6, 1)
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids). \
-            only('problem_id', 'author_id', 'status')
+            only('problem_id', 'author_id', 'status', 'status_percent')
 
     all_count = {problem_id: 0 for problem_id in problem_ids}
     accept_count = {problem_id: 0 for problem_id in problem_ids}
@@ -166,8 +176,11 @@ def update_problems(problem_ids, contest_id=0):
     tle_count = {problem_id: 0 for problem_id in problem_ids}
     re_count = {problem_id: 0 for problem_id in problem_ids}
     ce_count = {problem_id: 0 for problem_id in problem_ids}
+    max_score = {problem_id: 0 for problem_id in problem_ids}
+    average_score = {problem_id: 0 for problem_id in problem_ids}
     all_user = {problem_id: set() for problem_id in problem_ids}
     accept_user = {problem_id: set() for problem_id in problem_ids}
+    scores = {problem_id: dict() for problem_id in problem_ids}
     cache_res = {}
 
     for submission in problem_filter:
@@ -186,6 +199,8 @@ def update_problems(problem_ids, contest_id=0):
             ce_count[pid] += 1
         all_count[pid] += 1
         all_user[pid].add(submission.author_id)
+        scores[pid].setdefault(submission.author_id, 0.0)
+        scores[pid][submission.author_id] = max(scores[pid][submission.author_id], submission.status_percent)
 
     for problem_id in problem_ids:
         accept_user_count = len(accept_user[problem_id])
@@ -197,6 +212,13 @@ def update_problems(problem_ids, contest_id=0):
             accept_ratio = accept_user_ratio = 0
         difficulty = max(min(5 - (.02 * accept_ratio + .03 * accept_user_ratio) * min(log10(accept_user_count + 1), 1.2)
                              + max(6 - 2 * log10(accept_user_count + 1), 0), 9.9), 0.1)
+        if scores[problem_id]:
+            s = list(scores[problem_id].values())
+            max_score[problem_id] = max(s)
+            average_score[problem_id] = sum(s) / len(s)
+        else:
+            max_score[problem_id] = 0.0
+            average_score[problem_id] = 0.0
         cache_res.update({
             PROBLEM_TOTAL_SUB_COUNT.format(problem=problem_id, contest=contest_id): all_count[problem_id],
             PROBLEM_AC_COUNT.format(problem=problem_id, contest=contest_id): accept_count[problem_id],
@@ -213,7 +235,9 @@ def update_problems(problem_ids, contest_id=0):
                 'ce': ce_count[problem_id],
                 'others': all_count[problem_id] - accept_count[problem_id] - wa_count[problem_id]
                           - tle_count[problem_id] - re_count[problem_id] - ce_count[problem_id],
-            }
+            },
+            PROBLEM_MAX_SCORE.format(problem=problem_id, contest=contest_id): max_score[problem_id],
+            PROBLEM_AVG_SCORE.format(problem=problem_id, contest=contest_id): average_score[problem_id],
         })
 
     cache.set_many(cache_res, cache_time)
