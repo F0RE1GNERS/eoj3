@@ -23,7 +23,7 @@ def judge_submission_on_contest(submission: Submission, callback=None, **kwargs)
         raise ValueError('Judge on "None" contest')
     cases = 'all' if contest.system_tested else contest.run_tests_during_contest
     # print(cases)
-    run_until_complete = contest.scoring_method == 'oi'
+    run_until_complete = contest.scoring_method == 'oi' and not submission.problem.group_enabled
     if not submission.contest:
         cases = 'all'
         _callback = None

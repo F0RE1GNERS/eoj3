@@ -196,7 +196,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 try: submission.judge_server = server.id
                 except: pass
 
-                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message'])
+                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message',
+                                               'status_percent'])
                 difficulty = get_problem_reward(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
