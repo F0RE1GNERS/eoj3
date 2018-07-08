@@ -78,12 +78,13 @@ class TaskPreview(ProblemRevisionMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["task"] = self.revision.task_set.get(id=kwargs["tpk"])
-        tags = ("CHECK", )
+        tags = ("CHECK", "VALIDATE",)
         data["tag"] = "PRETTY"
         for tag in tags:
             if data["task"].abstract.startswith(tag):
                 data["tag"] = tag
                 break
+        print(data["tag"], data["task"].abstract)
 
         data["disable_grid"] = True
         try:
@@ -97,7 +98,9 @@ class TaskPreview(ProblemRevisionMixin, TemplateView):
                                                                       int(self.request.GET["case"]))
                 else:
                     data["report"] = self.process_check_report(data["report"])
-
+            elif data["tag"] == "VALIDATE":
+                pass
+            
         except json.JSONDecodeError:
             data["report"] = {}
             data["task"].pretty_report = ""
