@@ -13,7 +13,7 @@
     {% for row in report %}
       <tr>
       <td>{{ row.case_number }}</td>
-      <td>{% if row.success %}<i class="green checkmark icon"></i>{% else %}<i class="red times icon"></i>{% endif %}</td>
+      <td>{% if row.success %}<i class="large green checkmark icon"></i>{% else %}<i class="large red remove icon"></i>{% endif %}</td>
       <td>{{ row.exit_code }}</td>
       <td class="left aligned"><pre>{{ row.comment }}</pre></td>
       <td class="left aligned"><pre>{{ row.stderr }}</pre></td>
