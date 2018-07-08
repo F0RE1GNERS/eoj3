@@ -4,6 +4,9 @@
 {% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
 {% block contest_content %}
   <div class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</div>
+
+  {% include 'contest/contest_pdf_statement_notice.jinja2' %}
+
   {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
 
   {% if request.user.is_authenticated %}

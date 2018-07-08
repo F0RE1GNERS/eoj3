@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^create/$', v.ContestCreate.as_view(), name='contest_create'),
     url(r'^(?P<pk>\d+)/visible/$', v.ContestToggleVisible.as_view(), name='contest_toggle_visible'),
     url(r'^(?P<pk>\d+)/meta/$', v.ContestEdit.as_view(), name='contest_meta'),
+    url(r'^(?P<pk>\d+)/statement/drop/$', v.ContestDropStatement.as_view(), name='contest_drop_statement'),
     url(r'^(?P<pk>\d+)/access/$', v.ContestAccessManage.as_view(), name='contest_access_manage'),
     url(r'^(?P<pk>\d+)/authors/$', v.ContestAuthorsManage.as_view(), name='contest_author_manage'),
     url(r'^(?P<pk>\d+)/volunteers/$', v.ContestVolunteersManage.as_view(), name='contest_volunteer_manage'),

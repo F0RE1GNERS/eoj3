@@ -105,6 +105,13 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         return redirect(self.request.path)
 
 
+class ContestDropStatement(PolygonContestMixin, View):
+    def post(self, request, *args, **kwargs):
+        self.contest.pdf_statement = None
+        self.contest.save(update_fields=['pdf_statement'])
+        return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(self.contest.id)}))
+
+
 class ContestCreate(PolygonBaseMixin, View):
     def post(self, request, *args, **kwargs):
         contest = Contest.objects.create(title='Contest')
