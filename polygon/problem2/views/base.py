@@ -2,6 +2,7 @@ import traceback
 from itertools import chain
 
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count
 from django.db.models import Q
@@ -49,7 +50,7 @@ class ProblemList(PolygonBaseMixin, ListView):
             qs = self.request.user.managing_problems.all()
         if query:
             qs = qs.filter(query)
-        qs = qs.prefetch_related("revisions").annotate(Count('revisions'))
+        qs = qs.order_by("-update_time").prefetch_related("revisions").annotate(Count('revisions'))
         return qs
 
     @staticmethod
@@ -73,7 +74,8 @@ class ProblemList(PolygonBaseMixin, ListView):
 
 
 class ProblemCreate(PolygonBaseMixin, View):
-    def get_unused_problem(self):
+    @staticmethod
+    def get_unused_problem():
         revised_probs = set(Revision.objects.values_list("problem_id", flat=True))
         for problem in Problem.objects.all().order_by("id"):
             if not problem.description and not problem.input and not problem.output and not problem.cases and \
@@ -95,6 +97,36 @@ class ProblemCreate(PolygonBaseMixin, View):
                                            time_limit=problem.time_limit,
                                            memory_limit=problem.memory_limit)
         return redirect(reverse('polygon:revision_update', kwargs={"pk": problem.pk, "rpk": revision.pk}))
+
+
+class ProblemClone(PolygonBaseMixin, View):
+    def get_unused_problem(self):
+        revised_probs = set(Revision.objects.values_list("problem_id", flat=True))
+        for problem in Problem.objects.all().order_by("id"):
+            if not problem.description and not problem.input and not problem.output and not problem.cases and \
+                    problem.id not in revised_probs:
+                return problem
+        return None
+
+    def post(self, request, *args, **kwargs):
+        try:
+            n = int(request.POST['answer'])
+            problem = Problem.objects.get(pk=n)
+            if not problem.visible and not is_problem_manager(request.user, problem):
+                raise PermissionError
+            new_prob = ProblemCreate.get_unused_problem()
+            if not new_prob:
+                new_prob = Problem.objects.create()
+                new_prob.alias = 'p%d' % problem.id
+                new_prob.save(update_fields=['alias'])
+            new_prob.managers.add(request.user)
+            saved_id = new_prob.pk
+            problem.pk = saved_id
+            problem.save()
+        except:
+            raise PermissionDenied
+
+        return redirect(reverse('polygon:problem_list_2') + "?exact=%d" % saved_id)
 
 
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):

@@ -25,9 +25,14 @@
     <thead class="full-width">
       <tr>
         <th colspan="9">
-          <a class="ui right floated primary labeled icon button post prompt" data-link="{{ url('polygon:problem_create_2') }}">
-            <i class="server icon"></i> Add Problem
-          </a>
+          <div class="ui right floated buttons">
+            <a class="ui button post ask" data-link="{{ url('polygon:problem_clone') }}" data-question="Type in the problem ID you want to clone.">
+              Request Clone
+            </a>
+            <a class="ui primary labeled icon button post prompt" data-link="{{ url('polygon:problem_create_2') }}">
+              <i class="server icon"></i> Add Problem
+            </a>
+          </div>
         </th>
       </tr>
       <tr>
