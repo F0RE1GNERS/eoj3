@@ -108,9 +108,10 @@ $(".post, .get").on('click', function (event) {
   }
   if (button.hasClass("ask")) {
     extra_input["answer"] = prompt(button.data("question") || "");
+    console.log(extra_input["answer"] !== null);
     if (extra_input["answer"] !== null)
       redirect(link, method, extra_input);
-  } if (button.hasClass("prompt")) {
+  } else if (button.hasClass("prompt")) {
     if (confirm("Are you sure about this?"))
       redirect(link, method, extra_input);
   } else {

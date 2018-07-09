@@ -16,6 +16,7 @@ from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import User
 from account.permissions import is_admin_or_root
+from contest.models import Contest
 from polygon.base_views import PolygonBaseMixin
 from polygon.models import Revision
 from polygon.rejudge import rejudge_all_submission_on_problem
@@ -102,22 +103,30 @@ class ProblemCreate(PolygonBaseMixin, View):
 class ProblemClone(PolygonBaseMixin, View):
     def post(self, request, *args, **kwargs):
         try:
-            n = int(request.POST['answer'])
-            problem = Problem.objects.get(pk=n)
-            if not problem.visible and not is_problem_manager(request.user, problem):
-                raise PermissionError
+            n = request.POST['answer']
+            if '-' in n:
+                contest_id, identifier = n.split('-')
+                contest = Contest.objects.get(pk=contest_id)
+                if contest.visible and contest.open_problems and (contest.status > 0 or contest.always_running):
+                    problem = contest.contestproblem_set.get(identifier=identifier).problem
+                else:
+                    raise PermissionError
+            else:
+                problem = Problem.objects.get(pk=n)
+                if not problem.visible and not is_problem_manager(request.user, problem):
+                    raise PermissionError
             new_prob = ProblemCreate.get_unused_problem()
             if not new_prob:
                 new_prob = Problem.objects.create()
-                new_prob.alias = 'p%d' % problem.id
-                new_prob.save(update_fields=['alias'])
             new_prob.managers.add(request.user)
-            saved_id = new_prob.pk
+            saved_id = new_prob.id
             problem.clone_parent = problem.id
-            problem.pk = saved_id
+            problem.id = saved_id
+            problem.alias = 'p%d' % problem.id
             problem.save()
         except:
-            raise PermissionDenied
+            messages.error(request, "Problem does not exist or not available.")
+            return redirect(reverse('polygon:problem_list_2'))
 
         return redirect(reverse('polygon:problem_list_2') + "?exact=%d" % saved_id)
 
