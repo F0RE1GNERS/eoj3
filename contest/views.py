@@ -223,12 +223,12 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
 
         # submit part
         data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
-        if self.request.user.is_authenticated:
-            data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT - self.contest.submission_set.filter(
-                author=self.request.user,
-                problem_id=data['contest_problem'].problem_id).count()
-            if self.contest.status != 0:
-                data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT
+        # if self.request.user.is_authenticated:
+        #     data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT - self.contest.submission_set.filter(
+        #         author=self.request.user,
+        #         problem_id=data['contest_problem'].problem_id).count()
+        #     if self.contest.status != 0:
+        #         data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT
         return data
 
 
