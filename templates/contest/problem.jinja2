@@ -11,11 +11,11 @@
 
   {% if request.user.is_authenticated %}
     <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
-    {% if attempt_left > 0 %}
-      <div class="ui info message">{{ attempt_left }} attempts left.</div>
-    {% else %}
-      <div class="ui error message">Running out of attempts.</div>
-    {% endif %}
+{#    {% if attempt_left > 0 %}#}
+{#      <div class="ui info message">{{ attempt_left }} attempts left.</div>#}
+{#    {% else %}#}
+{#      <div class="ui error message">Running out of attempts.</div>#}
+{#    {% endif %}#}
       {{ submit_view(submit_action=url('contest:submit', contest.pk, contest_problem.identifier), margin_top=True) }}
   {% endif %}
 {% endblock %}
