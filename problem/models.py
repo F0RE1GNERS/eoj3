@@ -52,6 +52,7 @@ class Problem(models.Model):
     # group config in the following format: 1,2;2,3;3,4 (index 1 based)
     # leave this blank to ignore groups
     template_config = models.TextField(_('Template'), blank=True, default='{}')
+    clone_parent = models.PositiveIntegerField(default=0)
     level = models.IntegerField(_('Difficulty Level'), choices=(
         (1, 'Naive'),
         (2, 'Easy'),

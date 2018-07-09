@@ -100,14 +100,6 @@ class ProblemCreate(PolygonBaseMixin, View):
 
 
 class ProblemClone(PolygonBaseMixin, View):
-    def get_unused_problem(self):
-        revised_probs = set(Revision.objects.values_list("problem_id", flat=True))
-        for problem in Problem.objects.all().order_by("id"):
-            if not problem.description and not problem.input and not problem.output and not problem.cases and \
-                    problem.id not in revised_probs:
-                return problem
-        return None
-
     def post(self, request, *args, **kwargs):
         try:
             n = int(request.POST['answer'])
@@ -121,6 +113,7 @@ class ProblemClone(PolygonBaseMixin, View):
                 new_prob.save(update_fields=['alias'])
             new_prob.managers.add(request.user)
             saved_id = new_prob.pk
+            problem.clone_parent = problem.id
             problem.pk = saved_id
             problem.save()
         except:

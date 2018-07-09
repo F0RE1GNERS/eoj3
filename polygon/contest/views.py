@@ -128,6 +128,13 @@ class ContestToggleVisible(PolygonContestMixin, View):
         return HttpResponse()
 
 
+class ContestToggleOpen(PolygonContestMixin, View):
+    def post(self, request, pk):
+        self.contest.open_problems = not self.contest.open_problems
+        self.contest.save(update_fields=['open_problems'])
+        return HttpResponse()
+
+
 class ContestAccessManage(PolygonContestMixin, View):
     def post(self, request, pk):
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
