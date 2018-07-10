@@ -60,7 +60,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   if (window.localStorage && all_lang.indexOf(localStorage.getItem('lang')) >= 0) {
     ele.dropdown('set selected', localStorage.getItem('lang'));
   } else {
-    ele.dropdown('set selected', all_lang[0]);
+    ele.dropdown('set selected', 'auto');
   }
   var editor = ace.edit("editor");
   var lang = $("#id_lang");
