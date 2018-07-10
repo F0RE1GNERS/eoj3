@@ -7,9 +7,11 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
+from django_q.tasks import async
 
 from account.color import update_color
 from account.models import User
+from backstage.models import Email
 from contest.models import Contest, ContestUserRating
 from contest.ratings import calculate_rating_changes, clear_previous_ratings
 from utils.email import send_mail_with_bcc
@@ -25,11 +27,10 @@ class ContestSendInvitationMail(BaseBackstageMixin, TemplateView):
         if not head or not msg:
             messages.add_message(request, messages.ERROR, 'Message cannot be empty.')
         else:
+            Email.objects.create(title=head, content=msg)
             recipient_list = list(filter(lambda x: x, [u.email for u in User.objects.filter(is_active=True,
                                                                                             email_subscription=True).all()]))
-            Thread(target=send_mail_with_bcc, args=(head, msg,),
-                   kwargs=(dict(recipient_list=recipient_list,
-                                fail_silently=True))).start()
+            async(send_mail_with_bcc, head, msg, recipient_list=recipient_list, fail_silently=True)
             messages.add_message(request, messages.SUCCESS, "Email sending task added successfully.")
         return redirect(reverse('backstage:contest_send_invitation'))
 
