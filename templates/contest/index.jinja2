@@ -64,13 +64,15 @@
 
   {% if has_permission %}
 
+    {% include 'contest/contest_pdf_statement_notice.jinja2' %}
+
     {# proble list #}
     <table class="ui unstackable celled table">
       <thead>
         <tr class="center aligned">
           <th class="two wide">#</th>
           <th class="left aligned">Name</th>
-          <th class="three wide">Solved</th>
+          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> / Max / Avg{% else %}Solved{% endif %}</th>
         </tr>
       </thead>
       <tbody>
@@ -94,9 +96,9 @@
             </div>
           {% endif %}
           </td>
-          <td class="selectable {% if contest_problem.personal_label == 1 %}accepted{% elif contest_problem.personal_label == 2 %}warning{% elif contest_problem.personal_label < 0 %}attempted{% endif %}">
+          <td class="selectable {% if enable_scoring %}{% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}warning{% endif %}{% else %}{% if contest_problem.personal_label == 1 %}accepted{% elif contest_problem.personal_label == 2 %}warning{% elif contest_problem.personal_label < 0 %}attempted{% endif %}{% endif %}">
             <a {% if contest_problem.personal_label == 2 %}data-tooltip="Accepted out of this contest" data-inverted=""{% endif %} href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">
-              <i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.accept_count }}
+              {% if enable_scoring %}{{ contest_problem.user_count }} / {{ contest_problem.max_score }} / {{ contest_problem.avg_score }}{% else %}<i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.accept_count }}{% endif %}
             </a>
           </td>
         </tr>

@@ -4,10 +4,18 @@
 {% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
 {% block contest_content %}
   <div class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</div>
+
+  {% include 'contest/contest_pdf_statement_notice.jinja2' %}
+
   {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
 
   {% if request.user.is_authenticated %}
     <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
-  {{ submit_view(submit_action=url('contest:submit', contest.pk, contest_problem.identifier), margin_top=True) }}
+{#    {% if attempt_left > 0 %}#}
+{#      <div class="ui info message">{{ attempt_left }} attempts left.</div>#}
+{#    {% else %}#}
+{#      <div class="ui error message">Running out of attempts.</div>#}
+{#    {% endif %}#}
+      {{ submit_view(submit_action=url('contest:submit', contest.pk, contest_problem.identifier), margin_top=True) }}
   {% endif %}
 {% endblock %}

@@ -2,6 +2,7 @@ import traceback
 from itertools import chain
 
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count
 from django.db.models import Q
@@ -15,6 +16,7 @@ from django.views.generic.base import ContextMixin, TemplateView
 
 from account.models import User
 from account.permissions import is_admin_or_root
+from contest.models import Contest
 from polygon.base_views import PolygonBaseMixin
 from polygon.models import Revision
 from polygon.rejudge import rejudge_all_submission_on_problem
@@ -49,7 +51,7 @@ class ProblemList(PolygonBaseMixin, ListView):
             qs = self.request.user.managing_problems.all()
         if query:
             qs = qs.filter(query)
-        qs = qs.prefetch_related("revisions").annotate(Count('revisions'))
+        qs = qs.order_by("-update_time").prefetch_related("revisions").annotate(Count('revisions'))
         return qs
 
     @staticmethod
@@ -73,7 +75,8 @@ class ProblemList(PolygonBaseMixin, ListView):
 
 
 class ProblemCreate(PolygonBaseMixin, View):
-    def get_unused_problem(self):
+    @staticmethod
+    def get_unused_problem():
         revised_probs = set(Revision.objects.values_list("problem_id", flat=True))
         for problem in Problem.objects.all().order_by("id"):
             if not problem.description and not problem.input and not problem.output and not problem.cases and \
@@ -95,6 +98,38 @@ class ProblemCreate(PolygonBaseMixin, View):
                                            time_limit=problem.time_limit,
                                            memory_limit=problem.memory_limit)
         return redirect(reverse('polygon:revision_update', kwargs={"pk": problem.pk, "rpk": revision.pk}))
+
+
+class ProblemClone(PolygonBaseMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            n = request.POST['answer']
+            if '-' in n:
+                contest_id, identifier = n.split('-')
+                contest = Contest.objects.get(pk=contest_id)
+                if contest.visible and contest.open_problems and (contest.status > 0 or
+                                                                      (contest.always_running and contest.public)):
+                    problem = contest.contestproblem_set.get(identifier=identifier).problem
+                else:
+                    raise PermissionError
+            else:
+                problem = Problem.objects.get(pk=n)
+                if not problem.visible and not is_problem_manager(request.user, problem):
+                    raise PermissionError
+            new_prob = ProblemCreate.get_unused_problem()
+            if not new_prob:
+                new_prob = Problem.objects.create()
+            new_prob.managers.add(request.user)
+            saved_id = new_prob.id
+            problem.clone_parent = problem.id
+            problem.id = saved_id
+            problem.alias = 'p%d' % problem.id
+            problem.save()
+        except:
+            messages.error(request, "Problem does not exist or not available.")
+            return redirect(reverse('polygon:problem_list_2'))
+
+        return redirect(reverse('polygon:problem_list_2') + "?exact=%d" % saved_id)
 
 
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):

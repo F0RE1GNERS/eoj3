@@ -104,6 +104,7 @@ class Contest(models.Model):
     open_problems = models.BooleanField('Publish problems after contest', default=True)
     ip_sensitive = models.BooleanField('Bind IP to user\'s account after first login', default=False)
     analysis_blog_id = models.IntegerField(default=0)   # related to a blog id
+    pdf_statement = models.FileField('PDF Statement', upload_to='contest_statements/%Y%m%d/', null=True, blank=True)
 
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')

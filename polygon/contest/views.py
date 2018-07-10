@@ -105,6 +105,13 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         return redirect(self.request.path)
 
 
+class ContestDropStatement(PolygonContestMixin, View):
+    def post(self, request, *args, **kwargs):
+        self.contest.pdf_statement = None
+        self.contest.save(update_fields=['pdf_statement'])
+        return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(self.contest.id)}))
+
+
 class ContestCreate(PolygonBaseMixin, View):
     def post(self, request, *args, **kwargs):
         contest = Contest.objects.create(title='Contest')
@@ -118,6 +125,13 @@ class ContestToggleVisible(PolygonContestMixin, View):
     def post(self, request, pk):
         self.contest.visible = not self.contest.visible
         self.contest.save(update_fields=['visible'])
+        return HttpResponse()
+
+
+class ContestToggleOpen(PolygonContestMixin, View):
+    def post(self, request, pk):
+        self.contest.open_problems = not self.contest.open_problems
+        self.contest.save(update_fields=['open_problems'])
         return HttpResponse()
 
 

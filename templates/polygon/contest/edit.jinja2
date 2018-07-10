@@ -2,6 +2,15 @@
 
 {% block contest_content %}
 
+  <h3 class="ui dividing header">Summary</h3>
+  <ul class="ui list">
+    <li class="item">Title: {{ contest.title }}</li>
+    <li class="item">PDF Statement: {{ contest.pdf_statement }}, <a class="post prompt" data-link="{{ url('polygon:contest_drop_statement', contest.id) }}">drop PDF statement</a>.</li>
+    <li class="item">Participants: {{ contest.participants.count() }}</li>
+  </ul>
+
+  <h3 class="ui dividing header">Edit</h3>
+
   <div class="ui fluid accordion">
     <div class="title">
       <i class="dropdown icon"></i>
@@ -49,5 +58,6 @@
   </div>
 
   {% include 'components/form.jinja2' %}
+
 
 {% endblock %}

@@ -5,6 +5,7 @@ from polygon.problem2.views import base, asset, case, program, revision, stateme
 urlpatterns = [
     url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
     url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create_2'),
+    url(r'^clone/$', base.ProblemClone.as_view(), name='problem_clone'),
     url(r'^(?P<pk>\d+)/info/$', base.ProblemBasicInfoManage.as_view(), name='problem_basic_info'),
     url(r'^(?P<pk>\d+)/status/$', base.ProblemStatus.as_view(), name='problem_status'),
     url(r'^(?P<pk>\d+)/rejudge/$', base.ProblemRejudge.as_view(), name='rejudge_problem'),

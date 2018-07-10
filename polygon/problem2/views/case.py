@@ -209,7 +209,16 @@ class CaseManagementTools(object):
             for case in case_set:
                 output_path = path.join(runner.workspace, "out")
                 error_path = path.join(runner.workspace, "err")
-                run_result = runner.run(stdin=case.input_file.path, stdout=output_path, stderr=error_path,
+                log_path = path.join(runner.workspace, "log")
+                args = ["--testOverviewLogFileName", log_path]
+                if revision.enable_group:
+                    args.extend(["--group", str(case.group)])
+                if case.in_samples:
+                    args.extend(["--testset", "samples"])
+                elif case.in_pretests:
+                    args.extend(["--testset", "pretests"])
+                run_result = runner.run(args=args,
+                                        stdin=case.input_file.path, stdout=output_path, stderr=error_path,
                                         max_time=revision.time_limit * 3 / 1000,
                                         max_memory=revision.memory_limit * 2)
                 with transaction.atomic():
@@ -218,6 +227,7 @@ class CaseManagementTools(object):
                         "success": run_result["verdict"] == "OK",
                         "comment": CaseManagementTools.read_abstract(output_path),
                         "stderr": CaseManagementTools.read_abstract(error_path),
+                        "log": CaseManagementTools.read_abstract(log_path),
                         "exit_code": run_result["exit_code"]
                     })
                     if run_result["verdict"] != "OK":

@@ -1,11 +1,13 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, View, FormView
@@ -20,8 +22,10 @@ from account.permissions import is_admin_or_root
 from blog.models import Blog
 from contest.statistics import recalculate_for_participants, get_participant_rank
 from problem.models import Problem
-from problem.statistics import get_many_problem_accept_count
+from problem.statistics import get_many_problem_accept_count, get_many_problem_tried_count, get_many_problem_max_score, \
+    get_many_problem_avg_score
 from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager, is_contest_volunteer
@@ -184,10 +188,20 @@ class DashboardView(BaseContestMixin, TemplateView):
                 except ContestParticipant.DoesNotExist:
                     pass
 
-        accept_count = get_many_problem_accept_count(list(map(lambda x: x.problem_id, data['contest_problem_list'])),
-                                                     self.contest.id)
-        for problem in data['contest_problem_list']:
-            problem.accept_count = accept_count[problem.problem_id]
+        problem_ids = list(map(lambda x: x.problem_id, data['contest_problem_list']))
+        if self.contest.scoring_method != "oi":
+            accept_count = get_many_problem_accept_count(problem_ids, self.contest.id)
+            for problem in data['contest_problem_list']:
+                problem.accept_count = accept_count[problem.problem_id]
+        else:
+            data['enable_scoring'] = True
+            user_count = get_many_problem_tried_count(problem_ids, self.contest.id)
+            max_score = get_many_problem_max_score(problem_ids, self.contest.id)
+            avg_score = get_many_problem_avg_score(problem_ids, self.contest.id)
+            for problem in data['contest_problem_list']:
+                problem.user_count = user_count[problem.problem_id]
+                problem.max_score = int(max_score[problem.problem_id] / 100 * problem.weight)
+                problem.avg_score = round(avg_score[problem.problem_id] / 100 * problem.weight, 1)
 
         data['authors'] = self.contest.authors.all()
 
@@ -209,7 +223,18 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
 
         # submit part
         data['lang_choices'] = list(filter(lambda k: k[0] in self.contest.supported_language_list, LANG_CHOICE))
+        # if self.request.user.is_authenticated:
+        #     data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT - self.contest.submission_set.filter(
+        #         author=self.request.user,
+        #         problem_id=data['contest_problem'].problem_id).count()
+        #     if self.contest.status != 0:
+        #         data['attempt_left'] = settings.SUBMISSION_ATTEMPT_LIMIT
         return data
+
+
+class ContestStatements(BaseContestMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self.contest.pdf_statement.read(), content_type="application/pdf")
 
 
 class ContestBoundUser(View):
