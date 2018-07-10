@@ -44,39 +44,6 @@
  */
 var languages = [
   {
-    'language': ['js'],
-    'checkers': [
-      // undefined keyword
-      {pattern: /undefined/g, points: 2},
-      // console.log('ayy lmao')
-      {pattern: /console\.log( )*\(/, points: 2},
-      // Variable declaration
-      {pattern: /(var|const|let)( )+\w+( )*=?/, points: 2},
-      // Array/Object declaration
-      {pattern: /(('|").+('|")( )*|\w+):( )*[{\[]/, points: 2},
-      // === operator
-      {pattern: /===/g, points: 1},
-      // !== operator
-      {pattern: /!==/g, points: 1},
-      // Function definition
-      {pattern: /function\*?(( )+[\$\w]+( )*\(.*\)|( )*\(.*\))/g, points: 1},
-      // null keyword
-      {pattern: /null/g, points: 1},
-      // lambda expression
-      {pattern: /\(.*\)( )*=>( )*.+/, points: 1},
-      // (else )if statement
-      {pattern: /(else )?if( )+\(.+\)/, points: 1},
-      // while loop
-      {pattern: /while( )+\(.+\)/, points: 1},
-      // C style variable declaration.
-      {pattern: /(^|\s)(char|long|int|float|double)( )+\w+( )*=?/, points: -1},
-      // pointer
-      {pattern: /(\w+)( )*\*( )*\w+/, points: -1},
-      // HTML <script> tag
-      {pattern: /<(\/)?script( type=('|")text\/javascript('|"))?>/, points: -50}
-    ]
-  },
-  {
     'language': ['cc14', 'cpp', 'c'],
     'checkers': [
       // Primitive variable declaration.
@@ -210,6 +177,118 @@ var languages = [
     ]
   },
   {
+    'language': ['pas'],
+    'checkers': [
+      // program keyword
+      {pattern: /program/, points: 1, nearTop: true},
+      // var keyword
+      {pattern: /var/, points: 1, nearTop: true},
+      // const keyword
+      {pattern: /const/, points: 1, nearTop: true},
+      // type keyword
+      {pattern: /type/, points: 1, nearTop: true},
+      // uses keyword
+      {pattern: /uses/, points: 1, nearTop: true},
+      // Primitive variable declaration.
+      {pattern: /:( )*(\^)*(byte|shortint|integer|word|longint)/, points: 2},
+      // String declaration.
+      {pattern: /:( )*(\^)*(string|ansistring)/, points: 2},
+      // Array declaration.
+      {pattern: /:( )*array( )*\[-?[0-9]*\.\.-?[0-9]*\]( )*of()*/, points: 1},
+      // Function declaration.
+      {pattern: /function( )*\w+\(.*\)( )*:/, points: 2},
+      // Procedure declaration.
+      {pattern: /procedure( )*\w+\(.*\)( )*;/, points: 2},
+      // Array declaration.
+      {pattern: /:( )*array( )*\[-?[0-9]*\.\.-?[0-9]*\]( )*of()*/, points: 2},
+      // nullptr
+      {pattern: /nil/, points: 2},
+      // new Keyword
+      {pattern: /new \w+(\(.*\))?/, points: 1},
+      // begin keyword
+      {pattern: /begin/, points: 1},
+      // end keyword
+      {pattern: /end/, points: 1},
+      // op keyword
+      {pattern: /:=/, points: 1},
+      // read write function
+      {pattern: /(read|readln|write|writeln)( )*\(.+\)/, points: 1},
+      // (else )if statement
+      {pattern: /(else )?if( )*\(.+\)/, points: 1},
+      // while loop
+      {pattern: /while( )*\(.+\)( )*do/, points: 1},
+      // Java List/ArrayList
+      {pattern: /(List<\w+>|ArrayList<\w*>( )*\(.*\))(( )+[\w]+|;)/, points: -1},
+      // malloc function call
+      {pattern: /malloc\(.+\)/, points: -2},
+      // NULL constant
+      {pattern: /NULL/, points: -1},
+      // Single quote multicharacter string
+      {pattern: /'.{2,}'/, points: -1},
+      // Ignore '\0'
+      {pattern: /'\\0'/, points: -1},
+      // printf function
+      {pattern: /(printf|puts)( )*\(.+\)/, points: -1},
+      // JS variable declaration
+      {pattern: /var( )+\w+( )*=?/, points: -1},
+      // #define macro
+      {pattern: /#define( )+.+/, points: -1},
+      // template usage
+      {pattern: /\w+<\w+>/, points: -1},
+      // void keyword
+      {pattern: /void/g, points: -1},
+      // using namespace something
+      {pattern: /using( )+namespace( )+.+( )*;/, points: -5},
+      // template declaration
+      {pattern: /template( )*<.*>/, points: -2},
+      // std
+      {pattern: /std::\w+/g, points: -2},
+      // if then keyword
+      {pattern: /if( )+(.+)( )*then/, points: 2},
+      // cout/cin/endl
+      {pattern: /(cout|cin|endl)/g, points: -2},
+      // Scope operator
+      {pattern: /\w*::\w+/, points: -1},
+      // Single quote multicharacter string
+      {pattern: /'.{2,}'/, points: -1},
+      // C style include
+      {pattern: /#include( )*(<|")\w+(\.h)?(>|")/, points: -10, nearTop: true}
+    ]
+  },
+  {
+    'language': ['js'],
+    'checkers': [
+      // undefined keyword
+      {pattern: /undefined/g, points: 2},
+      // console.log('ayy lmao')
+      {pattern: /console\.log( )*\(/, points: 2},
+      // Variable declaration
+      {pattern: /(var|const|let)( )+\w+( )*=?/, points: 2},
+      // Array/Object declaration
+      {pattern: /(('|").+('|")( )*|\w+):( )*[{\[]/, points: 2},
+      // === operator
+      {pattern: /===/g, points: 1},
+      // !== operator
+      {pattern: /!==/g, points: 1},
+      // Function definition
+      {pattern: /function\*?(( )+[\$\w]+( )*\(.*\)|( )*\(.*\))/g, points: 1},
+      // null keyword
+      {pattern: /null/g, points: 1},
+      // lambda expression
+      {pattern: /\(.*\)( )*=>( )*.+/, points: 1},
+      // (else )if statement
+      {pattern: /(else )?if( )+\(.+\)/, points: 1},
+      // while loop
+      {pattern: /while( )+\(.+\)/, points: 1},
+      // C style variable declaration.
+      {pattern: /(^|\s)(char|long|int|float|double)( )+\w+( )*=?/, points: -1},
+      // pointer
+      {pattern: /(\w+)( )*\*( )*\w+/, points: -1},
+      // HTML <script> tag
+      {pattern: /<(\/)?script( type=('|")text\/javascript('|"))?>/, points: -50}
+    ]
+  },
+  {
     'language': ['php'],
     'checkers': [
       // PHP tag
@@ -259,11 +338,6 @@ var languages = [
   },
   {
     'language': ['ocaml'],
-    'checkers': [],
-    'disabled': true
-  },
-  {
-    'language': ['pas'],
     'checkers': [],
     'disabled': true
   },
