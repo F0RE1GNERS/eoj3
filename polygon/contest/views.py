@@ -568,3 +568,19 @@ class ContestAntiCheatReport(PolygonContestMixin, View):
                 return HttpResponse(inf.read(), content_type='text/plain; charset=utf-8')
         except:
             return HttpResponse()
+
+
+class ContestParticipantAutoStarView(PolygonContestMixin, View):
+
+    def post(self, request, pk):
+        t = request.GET.get('type')
+        for participant in self.contest.contestparticipant_set.all():
+            starred = False
+            if t == "nosub":
+                starred = not self.contest.submission_set.filter(author_id=participant.user_id).exists()
+            elif t == "nologin":
+                starred = participant.user.last_login is None
+            if starred:
+                participant.star = True
+                participant.save(update_fields=['star'])
+        return redirect(reverse('polygon:contest_participant', kwargs={"pk": self.contest.id}))

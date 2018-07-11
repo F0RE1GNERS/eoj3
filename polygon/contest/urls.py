@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/invitation/download/$', v.ContestInvitationCodeDownload.as_view(),
         name='contest_invitation_download'),
     url(r'^(?P<pk>\d+)/participants/$', v.ContestParticipantList.as_view(), name='contest_participant'),
+    url(r'^(?P<pk>\d+)/participants/star/auto/$', v.ContestParticipantAutoStarView.as_view(), name='contest_participant_auto_star'),
     url(r'^(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/change/$',
         v.ContestParticipantCommentUpdate.as_view(), name='contest_participant_change'),
     url(r'^(?P<pk>\d+)/participants/(?P<participant_pk>\d+)/star/$', v.ContestParticipantStarToggle.as_view(),

@@ -4,9 +4,15 @@
 
   {% include 'components/message.jinja2' %}
 
-  <div class="ui buttons">
+  <div class="ui buttons" style="display:block;margin-bottom:10px;">
     <button class="ui button primary modal-link" data-target="#importNamelistModal">Import from namelist</button>
     <a class="ui button" href="{{ url('polygon:contest_participant_download', contest.pk) }}">Download as csv</a>
+  </div>
+
+  <div class="ui buttons">
+    <a class="ui secondary small button post prompt" data-link="{{ url('polygon:contest_participant_auto_star', contest.pk) }}?type=nosub">Auto star participants with no submissions</a>
+    <div class="or"></div>
+    <a class="ui small button post prompt" data-link="{{ url('polygon:contest_participant_auto_star', contest.pk) }}?type=nologin">with no logins</a>
   </div>
 
   <table class="ui table celled center aligned">

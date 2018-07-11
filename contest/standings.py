@@ -89,7 +89,7 @@ class ContestDownloadStandings(BaseContestMixin, View):
         data = [header]
         for rank in rank_list:
             d = []
-            d.append(str(rank["rank"]) if "rank" in rank else "*")
+            d.append(str(rank["actual_rank"]) if rank.get("actual_rank") else "")
             participant = contest_participants[rank['user']]
             d.append(participant.user.username)
             d.append(participant.comment)
