@@ -20,11 +20,10 @@ from tagging.models import TaggedItem
 from account.models import User
 from account.permissions import is_admin_or_root
 from blog.models import Blog
-from contest.statistics import recalculate_for_participants, get_participant_rank
+from contest.statistics import recalculate_for_participants, get_participant_rank, get_participant_score
 from problem.models import Problem
 from problem.statistics import get_many_problem_accept_count, get_many_problem_tried_count, get_many_problem_max_score, \
-    get_many_problem_avg_score
-from submission.statistics import get_accept_problem_list, get_attempted_problem_list
+    get_many_problem_avg_score, get_accept_problem_list, get_attempted_problem_list
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
@@ -179,9 +178,9 @@ class DashboardView(BaseContestMixin, TemplateView):
                     self_displayed_rank_template = 'display_rank_cp_%d' % user_as_participant.pk
                     data["rank"] = cache.get(self_displayed_rank_template)
                     if data["rank"] is None:
-                        data["rank"] = recalculate_for_participants(self.contest, [self.user.pk], privilege=True).get(self.user.pk)
-                        if not self.contest.standings_disabled:
-                            data["rank"].update(actual_rank=get_participant_rank(self.contest, self.user.pk))
+                        data["rank"] = get_participant_score(self.contest, self.user.pk)
+                        if self.contest.standings_disabled:
+                            data["rank"].pop("actual_rank", None)
                         cache.set(self_displayed_rank_template, data["rank"], 15)
                     if data["rank"] is not None:
                         data["rank"].update(user=user_as_participant)

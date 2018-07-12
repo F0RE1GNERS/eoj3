@@ -7,7 +7,7 @@ from django_comments_xtd.models import XtdComment
 from account.models import User
 from backstage.models import UpdateLog
 from blog.models import Blog
-from submission.statistics import get_accept_problem_count
+from problem.statistics import get_accept_problem_count
 from utils.site_settings import is_site_closed, site_settings_get
 
 

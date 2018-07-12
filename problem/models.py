@@ -185,3 +185,56 @@ class Skill(models.Model):
 class TagInfo(models.Model):
     tag = models.OneToOneField(Tag)
     description = models.TextField(blank=True)
+
+
+class UserStatus(models.Model):
+    user = models.ForeignKey(User, related_name="submission_status")
+    contest_id = models.PositiveIntegerField(db_index=True)
+    total_count = models.PositiveIntegerField()
+    total_list = models.TextField()
+    ac_count = models.PositiveIntegerField()
+    ac_distinct_count = models.PositiveIntegerField()
+    ac_list = models.PositiveIntegerField()
+    update_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'contest_id')
+
+
+class ProblemStatus(models.Model):
+    problem = models.OneToOneField(Problem, related_name="problem_status")
+    difficulty = models.FloatField()
+    ac_user_count = models.PositiveIntegerField()
+    total_user_count = models.PositiveIntegerField()
+
+
+class ProblemContestStatus(models.Model):
+    problem = models.ForeignKey(Problem, related_name="problem_contest_status")
+    contest_id = models.PositiveIntegerField(db_index=True)
+    ac_user_count = models.PositiveIntegerField()
+    total_user_count = models.PositiveIntegerField()
+    ac_count = models.PositiveIntegerField()
+    total_count = models.PositiveIntegerField()
+    difficulty = models.FloatField()
+    max_score = models.FloatField()
+    avg_score = models.FloatField()
+    stats_raw = models.TextField()
+
+    @property
+    def ac_user_ratio(self):
+        return self.ac_user_count / self.all_user_count if self.all_user_count > 0 else 0.0
+
+    @property
+    def ac_ratio(self):
+        return self.ac_count / self.all_count if self.all_count > 0 else 0.0
+
+    @property
+    def stats(self):
+        return json.loads(self.stats_raw)
+
+    @stats.setter
+    def stats(self, stats):
+        self.stats_raw = json.dumps(stats)
+
+    class Meta:
+        unique_together = ('problem', 'contest_id')

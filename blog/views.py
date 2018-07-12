@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from account.models import User
 from account.permissions import is_admin_or_root
 from problem.models import Problem
-from submission.statistics import get_accept_problem_count
+from problem.statistics import get_accept_problem_count
 from utils.comment import CommentForm
 from .forms import BlogEditForm
 from .models import Blog, Comment, BlogLikes, BlogRevision

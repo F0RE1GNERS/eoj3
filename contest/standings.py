@@ -43,16 +43,16 @@ class ContestStandings(BaseContestMixin, ListView):
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
-        return get_contest_rank(self.contest, self.privileged and self.view_hidden)
+        return get_contest_rank(self.contest)
 
     def get_context_data(self, **kwargs):
         data = super(ContestStandings, self).get_context_data(**kwargs)
         contest_participants = {user.user_id: user for user in
-                                ContestParticipant.objects.filter(contest=self.contest).select_related('user',
-                                                                                                       'contest').
+                                ContestParticipant.objects.filter(contest=self.contest).select_related('user').
                                     all()}
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
+        print(data['rank_list'])
         if not self.contest.standings_without_problem:
             data['statistics'] = {
                 'problem': get_contest_problem_ac_submit(list(map(lambda x: x.problem_id,

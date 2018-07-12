@@ -1,3 +1,5 @@
+import json
+
 import shortuuid
 from django.core.validators import EmailValidator
 from django.db import models
@@ -217,13 +219,29 @@ class ContestParticipant(models.Model):
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
-    html_cache = models.TextField(blank=True)
+    detail_raw = models.TextField(blank=True)
     is_disabled = models.BooleanField(default=False)
-    rank = models.IntegerField(blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
+
+    @property
+    def detail(self):
+        try:
+            if hasattr(self, "_detail"):
+                return self._detail
+            if not self.detail_raw:
+                return {}
+            self._detail = {int(k): v for k, v in json.loads(self.detail_raw).items()}
+            return self._detail
+        except:
+            return {}
+
+    @detail.setter
+    def detail(self, d):
+        self.detail_raw = json.dumps(d)
 
     class Meta:
         unique_together = ["user", "contest"]
+        ordering = ("-score", "penalty", "star")
 
 
 class ContestInvitation(models.Model):

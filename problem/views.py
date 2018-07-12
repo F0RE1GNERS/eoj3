@@ -30,7 +30,7 @@ from account.payment import download_case, view_report
 from account.permissions import is_admin_or_root
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission, render_submission_report
-from submission.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
+from problem.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from utils.comment import CommentForm
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE

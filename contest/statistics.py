@@ -1,17 +1,23 @@
+import json
 from threading import Thread
-from time import sleep
 
-from submission.models import SubmissionStatus, Submission
-from .models import Contest, ContestParticipant
-from account.models import User
 from django.core.cache import cache
-from random import uniform
+from django.db import transaction
 
-PARTICIPANT_RANK_DETAIL = 'c{contest}_u{user}_rank_detail'
-PARTICIPANT_RANK_DETAIL_PRIVATE = 'c{contest}_u{user}_rank_detail_private'
-PARTICIPANT_RANK_LIST = 'c{contest}_rank_list'
-CONTEST_FIRST_YES = 'c{contest}_first_yes'
-FORTNIGHT = 86400 * 14
+from submission.models import SubmissionStatus
+from .models import Contest
+
+CONTEST_FIRST_YES = "contest_first_yes_{}"
+
+def RANK_AS_DICT(x):
+    return {
+        "actual_rank": x.actual_rank,
+        "rank": x.rank,
+        "user": x.user_id,
+        "penalty": x.penalty,
+        "score": x.score,
+        "detail": x.detail
+    }
 
 
 def get_penalty(start_time, submit_time):
@@ -23,7 +29,7 @@ def get_penalty(start_time, submit_time):
     return max(int((submit_time - start_time).total_seconds()), 0)
 
 
-def recalculate_for_participants(contest: Contest, user_ids: list, privilege=False):
+def recalculate_for_participants(contest: Contest, user_ids: list):
     """
     :param contest
     :param user_ids
@@ -66,7 +72,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
                                                                                  "contest_id",
                                                                                  "problem_id", "author_id",
                                                                                  "create_time").order_by("create_time"):
-        status = submission.status_private if privilege else submission.status
+        status = submission.status
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
@@ -110,7 +116,58 @@ def recalculate_for_participants(contest: Contest, user_ids: list, privilege=Fal
     return ans
 
 
-def get_contest_rank(contest: Contest, privilege=False):
+def participants_with_rank(contest: Contest):
+    """
+    :param contest:
+    :param privilege:
+    :return: contest participants objects with 2 additional fields:
+        - actual_rank
+        - rank
+
+    actual_rank is the rank considering starred participants
+    """
+
+    CACHE_EXPIRED = 10
+    CACHE_NAME = "contest_{}_participants".format(contest.id)
+    cached_result = cache.get(CACHE_NAME)
+    if cached_result is not None:
+        return cached_result
+
+    def find_key(t):
+        if contest.penalty_counts:
+            return t.score, -t.penalty
+        else:
+            return t.score
+
+    items = contest.contestparticipant_set.all()
+    last_item = None
+    last_actual_item, last_actual_rank = None, 0
+
+    actual_rank_counter = 1
+    for idx, item in enumerate(items, start=1):
+        if last_item and find_key(item) == find_key(last_item):
+            claim_rank = last_item.rank
+        else: claim_rank = idx
+
+        if item.star:
+            # starred
+            actual_rank = 0
+        else:
+            if last_actual_item and find_key(item) == find_key(last_actual_item):
+                actual_rank = last_actual_rank
+            else: actual_rank = actual_rank_counter
+            last_actual_rank, last_actual_item = actual_rank, item
+            actual_rank_counter += 1
+
+        item.rank = claim_rank
+        item.actual_rank = actual_rank
+        last_item = item
+
+    cache.set(CACHE_NAME, items, CACHE_EXPIRED)
+    return items
+
+
+def get_contest_rank(contest: Contest):
     """
     :param contest
     :return [
@@ -127,108 +184,43 @@ def get_contest_rank(contest: Contest, privilege=False):
     Refer to `recalculate_for_participants`.
     Rank is in order.
     """
-    # TODO: support slice
-    lst = get_contest_rank_list(contest, privilege=privilege)
-    details = get_all_contest_participants_detail(contest, privilege=privilege)
-    ans = []
-    for idx, item in enumerate(lst):
-        if item[0] in details:
-            ans.append(details[item[0]])
-            ans[-1].update(rank=item[1], user=item[0], actual_rank=item[2])
-    return ans
-
-
-def get_all_contest_participants_detail(contest: Contest, users=None, privilege=False):
-    cache_template = PARTICIPANT_RANK_DETAIL_PRIVATE if privilege else PARTICIPANT_RANK_DETAIL
-    timeout = 60 if privilege else FORTNIGHT
-    contest_users = users if users else contest.participants_ids
-    cache_names = list(map(lambda x: cache_template.format(contest=contest.pk, user=x), contest_users))
-    cache_res = cache.get_many(cache_names)
-    ans = dict()
-    second_attempt = []
-    for user in contest_users:
-        cache_name = cache_template.format(contest=contest.pk, user=user)
-        if cache_name not in cache_res.keys():
-            second_attempt.append(user)
-        else:
-            ans[user] = cache_res[cache_name]
-    if second_attempt:
-        ans2 = recalculate_for_participants(contest, second_attempt, privilege)
-        cache.set_many({cache_template.format(contest=contest.pk, user=user_id): val for user_id, val in ans2.items()},
-                       timeout * uniform(0.8, 1))
-        ans.update(ans2)
-    return ans
-
-
-def get_contest_rank_list(contest: Contest, privilege=False):
-    """
-    :param contest:
-    :param privilege:
-    :return: [(user_id, rank, actual_rank), ...]
-
-    actual_rank is the rank considering starred participants
-    """
-    def _calculate():
-
-        def find_key(tup):
-            if contest.penalty_counts:
-                return tup[1]['score'], -tup[1]['penalty']
-            else:
-                return tup[1]['score']
-
-        items = sorted(get_all_contest_participants_detail(contest, privilege=privilege).items(),
-                       key=find_key, reverse=True)
-        user_star = {c.user_id: c.star for c in contest.contestparticipant_set.all()}
-        ans = []
-        last_item = None
-        last_actual_item, last_actual_rank = None, 0
-
-        actual_rank_counter = 1
-        for idx, item in enumerate(items, start=1):
-            if last_item and find_key(item) == find_key(last_item):
-                claim_rank = ans[-1][1]
-            else: claim_rank = idx
-
-            if user_star.get(item[0]):
-                # starred
-                actual_rank = 0
-            else:
-                if last_actual_item and find_key(item) == find_key(last_actual_item):
-                    actual_rank = last_actual_rank
-                else: actual_rank = actual_rank_counter
-                last_actual_rank, last_actual_item = actual_rank, item
-                actual_rank_counter += 1
-
-            ans.append((item[0], claim_rank, actual_rank))
-            last_item = item
-
-        return ans
-
-    if not privilege:
-        # Try to use cache
-        cache_name = PARTICIPANT_RANK_LIST.format(contest=contest.pk)
-        t = cache.get(cache_name)
-        if t is None:
-            t = _calculate()
-            cache.set(cache_name, t, FORTNIGHT * uniform(0.6, 1))
-        return t
-    else:
-        return _calculate()
+    return list(map(RANK_AS_DICT, participants_with_rank(contest)))
 
 
 def get_participant_rank(contest: Contest, user_id):
     """
     Get rank in public standings
     """
-    rank_list = get_contest_rank_list(contest)
-    for user, rank, actual_rank in rank_list:
-        if user == user_id:
-            return actual_rank
+    for participant in participants_with_rank(contest):
+        if participant.user_id == user_id:
+            return participant.actual_rank
     return 0
 
 
+def get_participant_score(contest: Contest, user_id):
+    """
+    Return full record of score
+
+    :param contest:
+    :param user_id:
+    :return:
+        {
+            actual_rank: int
+            rank: int
+            user: user_id
+            penalty: ...
+            score: ...
+            detail: ...
+        }
+    """
+    for participant in participants_with_rank(contest):
+        if participant.user_id == user_id:
+            return RANK_AS_DICT(participant)
+    return {}
+
+
 def get_first_yes(contest: Contest):
-    cache_name = CONTEST_FIRST_YES.format(contest=contest.pk)
+    cache_name = CONTEST_FIRST_YES.format(contest.pk)
     t = cache.get(cache_name)
     if t is None:
         t = dict()
@@ -248,22 +240,34 @@ def get_first_yes(contest: Contest):
     return t
 
 
-def invalidate_contest_participant(contest: Contest, user_id):
-    def invalidate_process(timeout):
-        if timeout > 0:
-            sleep(timeout)
-        cache.delete(PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=user_id))
-        cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
+def invalidate_contest_participant(contest: Contest, users=None):
+    if contest.is_frozen:
+        return
 
-    invalidate_process(0)
-    Thread(target=invalidate_process, args=(60, )).start()
-    # refresh after one minute to recalculate for possible mistake due to lack of locks
+    def invalidate_process():
+        with transaction.atomic():
+            if users is None:
+                user_ids = contest.participants_ids
+            elif isinstance(users, int):
+                user_ids = [users]
+            elif isinstance(users, list):
+                user_ids = users
+            else:
+                raise ValueError
+            intermediate = recalculate_for_participants(contest, user_ids)
+            for user_id, res in intermediate.items():
+                user = contest.contestparticipant_set.get(user_id=user_id)
+                user.detail = res["detail"]
+                user.score = res["score"]
+                user.penalty = res["penalty"]
+                user.save(update_fields=["detail_raw", "score", "penalty"])
+
+    Thread(target=invalidate_process).start()
 
 
 def invalidate_contest(contest: Contest):
-    contest_users = contest.participants_ids
-    cache.delete_many(list(map(lambda x: PARTICIPANT_RANK_DETAIL.format(contest=contest.pk, user=x), contest_users)))
-    cache.delete_many(
-        list(map(lambda x: PARTICIPANT_RANK_DETAIL_PRIVATE.format(contest=contest.pk, user=x), contest_users)))
-    cache.delete(PARTICIPANT_RANK_LIST.format(contest=contest.pk))
-    cache.delete(CONTEST_FIRST_YES.format(contest=contest.pk))
+    if contest.is_frozen:
+        return
+
+    invalidate_contest_participant(contest)
+    cache.delete(CONTEST_FIRST_YES.format(contest.pk))

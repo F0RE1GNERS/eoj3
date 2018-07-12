@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from account.models import User, School
 from backstage.account.forms import SchoolForm
-from submission.statistics import get_accept_problem_count
+from problem.statistics import get_accept_problem_count
 from ..base_views import BaseBackstageMixin
 
 

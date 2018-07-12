@@ -15,7 +15,7 @@ from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
 from submission.models import Submission, SubmissionStatus
-from submission.statistics import invalidate_user
+from problem.statistics import invalidate_user
 from utils.detail_formatter import response_fail_with_timestamp
 from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram, ProblemRewardStatus
