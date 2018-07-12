@@ -205,7 +205,7 @@ def get_many_problem_accept_count(problem_ids, contest_id=0):
 
 
 def get_many_problem_tried_count(problem_ids, contest_id=0):
-    return _get_many_or_invalidate_problem(problem_ids, contest_id, "all_user_count")
+    return _get_many_or_invalidate_problem(problem_ids, contest_id, "total_user_count")
 
 
 def get_many_problem_max_score(problem_ids, contest_id=0):

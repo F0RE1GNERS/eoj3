@@ -14,6 +14,7 @@ from django_q.tasks import async
 from ipware.ip import get_ip
 
 from contest.statistics import invalidate_contest_participant
+from problem.statistics import invalidate_problem
 from problem.tasks import create_submission
 from problem.views import StatusList
 from submission.models import Submission, SubmissionStatus
@@ -70,11 +71,11 @@ class ContestSubmissionClaim(BaseContestMixin, View):
     def prepare_submissions(self):
         contest_already_accept = set()
         self.submissions = []
+        self.problem_id_list = self.contest.contestproblem_set.values_list("problem_id", flat=True)
         for submission in self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED, author=self.user).\
                 defer("code", "status_detail", "status_message"):
             contest_already_accept.add(submission.problem_id)
-        aiming_problems = list(filter(lambda x: x not in contest_already_accept,
-                                      self.contest.contestproblem_set.values_list("problem_id", flat=True)))
+        aiming_problems = list(filter(lambda x: x not in contest_already_accept, self.problem_id_list))
         for submission in self.user.submission_set.filter(
                 problem_id__in=aiming_problems, status=SubmissionStatus.ACCEPTED).all():
             if submission.problem_id not in contest_already_accept and submission.lang in self.contest.allowed_lang:
@@ -90,6 +91,7 @@ class ContestSubmissionClaim(BaseContestMixin, View):
                 submission.contest = self.contest
             Submission.objects.bulk_create(self.submissions)
             invalidate_contest_participant(self.contest, self.user.pk)
+            invalidate_problem(self.problem_id_list, self.contest)
             messages.add_message(request, messages.SUCCESS, "%d submissions successfully migrated." % len(self.submissions))
         return HttpResponse()
 
