@@ -238,7 +238,7 @@ def get_problem_stats(problem_id):
 
 def get_contest_problem_ac_submit(problem_ids, contest_id):
     ac_count = _get_many_or_invalidate_problem(problem_ids, contest_id, "ac_count")
-    submit_count = _get_many_or_invalidate_problem(problem_ids, contest_id, "all_count")
+    submit_count = _get_many_or_invalidate_problem(problem_ids, contest_id, "total_count")
     ans = dict()
     for problem in problem_ids:
         ans[problem] = dict(ac=ac_count.get(problem, 0), submit=submit_count.get(problem, 0))
