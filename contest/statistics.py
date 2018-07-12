@@ -240,7 +240,7 @@ def get_first_yes(contest: Contest):
     return t
 
 
-def invalidate_contest_participant(contest: Contest, users=None):
+def invalidate_contest_participant(contest: Contest, users=None, sync=False):
     if contest.is_frozen:
         return
 
@@ -262,12 +262,15 @@ def invalidate_contest_participant(contest: Contest, users=None):
                 user.penalty = res["penalty"]
                 user.save(update_fields=["detail_raw", "score", "penalty"])
 
-    Thread(target=invalidate_process).start()
+    if sync:
+        invalidate_process()
+    else:
+        Thread(target=invalidate_process).start()
 
 
-def invalidate_contest(contest: Contest):
+def invalidate_contest(contest: Contest, sync=False):
     if contest.is_frozen:
         return
 
-    invalidate_contest_participant(contest)
+    invalidate_contest_participant(contest, sync=sync)
     cache.delete(CONTEST_FIRST_YES.format(contest.pk))

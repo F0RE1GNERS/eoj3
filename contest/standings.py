@@ -52,7 +52,7 @@ class ContestStandings(BaseContestMixin, ListView):
                                     all()}
         for rank in data['rank_list']:
             rank.update(user=contest_participants[rank['user']])
-        print(data['rank_list'])
+        # print(data['rank_list'])
         if not self.contest.standings_without_problem:
             data['statistics'] = {
                 'problem': get_contest_problem_ac_submit(list(map(lambda x: x.problem_id,
