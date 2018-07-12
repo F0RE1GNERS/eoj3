@@ -66,7 +66,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
 
     ans = {author_id: dict(detail=dict()) for author_id in user_ids}
     contest_length = get_penalty(contest.start_time, contest.end_time)
-    first_yes = get_first_yes(contest)
+    first_yes = get_first_yes(contest, no_invalidate=True)
 
     for submission in contest.submission_set.filter(author_id__in=user_ids).only("status", "status_private",
                                                                                  "contest_id",
@@ -219,7 +219,17 @@ def get_participant_score(contest: Contest, user_id):
     return {}
 
 
-def get_first_yes(contest: Contest):
+def get_first_yes(contest: Contest, no_invalidate=False):
+    """
+    :param contest:
+    :param no_invalidate: set this to bool to disable invalidate action (prevent endless recursion)
+    :return: {
+        <problem_id>: {
+            time: <int>
+            author: <int>
+        }
+    }
+    """
     cache_name = CONTEST_FIRST_YES.format(contest.pk)
     t = cache.get(cache_name)
     if t is None:
@@ -232,7 +242,8 @@ def get_first_yes(contest: Contest):
             if first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
                                       author=first_accepted_sub.author_id)
-                invalidate_contest_participant(contest, first_accepted_sub.author_id)
+                if not no_invalidate:
+                    invalidate_contest_participant(contest, first_accepted_sub.author_id)
             else:
                 first_accepted = None
             t[contest_problem.problem_id] = first_accepted

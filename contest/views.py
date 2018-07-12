@@ -20,7 +20,7 @@ from tagging.models import TaggedItem
 from account.models import User
 from account.permissions import is_admin_or_root
 from blog.models import Blog
-from contest.statistics import recalculate_for_participants, get_participant_rank, get_participant_score
+from contest.statistics import get_participant_score
 from problem.models import Problem
 from problem.statistics import get_many_problem_accept_count, get_many_problem_tried_count, get_many_problem_max_score, \
     get_many_problem_avg_score, get_accept_problem_list, get_attempted_problem_list
