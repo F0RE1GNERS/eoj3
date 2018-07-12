@@ -15,7 +15,7 @@ from account.models import User
 from account.payment import reward_problem_ac
 from migrate.forms import MigrateForm
 from problem.models import ProblemRewardStatus
-from problem.statistics import get_problem_difficulty, get_problem_reward
+from problem.statistics import get_problem_difficulty, get_problem_reward, invalidate_problem
 from submission.models import Submission, SubmissionStatus
 from .models import OldUser
 
@@ -84,6 +84,8 @@ class MigrationThread(threading.Thread):
                         s = submission
                         s.author = self.new_user
                         s.save(update_fields=["author_id"])
+
+                    invalidate_problem(s.problem_id)
 
                     if s.status == SubmissionStatus.ACCEPTED:
                         # Add reward

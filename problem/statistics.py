@@ -291,7 +291,9 @@ def get_accept_problem_count(user_id, contest_id=0):
 
 
 def get_accept_problem_list(user_id, contest_id=0):
-    return list(map(int, _get_or_invalidate_user(user_id, contest_id, "ac_list").split(',')))
+    t = _get_or_invalidate_user(user_id, contest_id, "ac_list")
+    if not t: return []
+    return list(map(int, t.split(',')))
 
 
 def get_total_submission_count(user_id, contest_id=0):
@@ -299,7 +301,9 @@ def get_total_submission_count(user_id, contest_id=0):
 
 
 def get_attempted_problem_list(user_id, contest_id=0):
-    return list(map(int, _get_or_invalidate_user(user_id, contest_id, "total_list").split(',')))
+    t = _get_or_invalidate_user(user_id, contest_id, "total_list")
+    if not t: return []
+    return list(map(int, t.split(',')))
 
 
 def is_problem_accepted(user, problem):
