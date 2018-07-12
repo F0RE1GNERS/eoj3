@@ -1,0 +1,35 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Update Log - {% endblock %}
+
+{% block page_header %}Update Log{% endblock %}
+
+{% block content %}
+
+  <table class="ui celled center aligned small table">
+    <thead>
+      <tr>
+        <th>Created</th>
+        <th>Type</th>
+        <th>Priority</th>
+        <th>Polygon</th>
+        <th>Content</th>
+        <th>Signature</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in log_list %}
+        <tr>
+          <td scope="row">{{ log.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ log.get_log_type_display() }}</td>
+          <td>{{ log.get_priority_display() }}</td>
+          <td>{{ log.is_about_polygon }}</td>
+          <td>{{ log.content }}</td>
+          <td>{% if log.created_by %}{{ username_display(log.created_by) }}{% endif %}</td>
+          <td><a class="delete-link" data-link="{{ url('backstage:log_delete', log.pk) }}">Delete</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

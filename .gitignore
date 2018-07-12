@@ -15,7 +15,6 @@ cases/
 generate/
 media/
 repo/
-site/
 
 # local settings
 local_settings.py

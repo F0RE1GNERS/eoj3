@@ -11,6 +11,7 @@ from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, 
     ServerUpdateToken, ServerSynchronize
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 from .blog.views import BlogList, BlogRecommendSwitch, BlogVisibleSwitch
+from .log.views import UpdateLogList, UpdateLogCreate, UpdateLogDelete
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
@@ -58,4 +59,8 @@ urlpatterns = [
     url(r'^blog/$', BlogList.as_view(), name='blog'),
     url(r'^blog/(?P<pk>\d+)/visible/$', BlogVisibleSwitch.as_view(), name='blog_visible_switch'),
     url(r'^blog/(?P<pk>\d+)/recommend/$', BlogRecommendSwitch.as_view(), name='blog_recommend_switch'),
+
+    url(r'^log/$', UpdateLogList.as_view(), name='log'),
+    url(r'^log/create/$', UpdateLogCreate.as_view(), name='log_create'),
+    url(r'^log/(?P<pk>\d+)/delete/$', UpdateLogDelete.as_view(), name='log_delete'),
 ]

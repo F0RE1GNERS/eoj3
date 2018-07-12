@@ -91,6 +91,35 @@
       </div>
       {% endif %}
 
+      {% if update_log %}
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Update Log</div>
+        </div>
+        <div class="content">
+          <div class="ui small feed">
+            {% for log in update_log %}
+            <div class="event">
+              <div class="content">
+                {% if log.priority == 0 %}<span class="ui horizontal red label">CRITICAL</span>
+                {% elif log.priority == 1 %}<span class="ui horizontal orange label">HIGH</span>
+                {% elif log.priority == 2 %}<span class="ui horizontal green label">MEDIUM</span>
+                {% elif log.priority == 3 %}<span class="ui horizontal grey label">LOW</span>
+                {% endif %}
+                {{ log.create_time | date('M.d') }} {{ log.get_log_type_display() }}: {{ log.content }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="extra content right aligned">
+          <a href="{{ url('update_log') }}">
+            <i class="sticky note outline icon"></i> More update logs
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
     </div>
 
   </div>

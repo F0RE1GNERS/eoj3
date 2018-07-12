@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from django_comments_xtd.models import XtdComment
 
 from account.models import User
+from backstage.models import UpdateLog
 from blog.models import Blog
 from submission.statistics import get_accept_problem_count
 from utils.site_settings import is_site_closed, site_settings_get
@@ -14,7 +15,8 @@ def home_view(request):
     if request.user.is_authenticated:
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', ''),
-               'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10]}
+               'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
+               'update_log': UpdateLog.objects.all().reverse()[:10]}
         if not is_site_closed(request):
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
@@ -57,6 +59,11 @@ def server_error_view(request):
 
 def faq_view(request):
     return render(request, 'faq.jinja2')
+
+
+def update_log_view(request):
+    return render(request, 'update_log.jinja2',
+                  context={'log_list': UpdateLog.objects.all().select_related("created_by").reverse()})
 
 
 class TestView(TemplateView):
