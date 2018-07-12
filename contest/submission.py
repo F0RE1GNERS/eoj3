@@ -71,7 +71,7 @@ class ContestSubmissionClaim(BaseContestMixin, View):
     def prepare_submissions(self):
         contest_already_accept = set()
         self.submissions = []
-        self.problem_id_list = self.contest.contestproblem_set.values_list("problem_id", flat=True)
+        self.problem_id_list = list(self.contest.contestproblem_set.values_list("problem_id", flat=True))
         for submission in self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED, author=self.user).\
                 defer("code", "status_detail", "status_message"):
             contest_already_accept.add(submission.problem_id)

@@ -1,9 +1,12 @@
 import traceback
+from random import randint
+
 import requests
 import time
 from datetime import datetime
 
 from django.core.mail import send_mail
+from django.core.cache import cache
 from django.conf import settings
 
 from utils.detail_formatter import response_fail_with_timestamp, add_timestamp_to_reply
@@ -23,8 +26,8 @@ def process_runtime(server, data):
 
 def send_judge_through_http(server, code, lang, max_time, max_memory, run_until_complete, cases, checker,
                             interactor, group_config, callback, timeout=1800):
-    server.last_seen_time = datetime.now()
-    server.save(update_fields=['last_seen_time'])
+    # server.last_seen_time = datetime.now()
+    # server.save(update_fields=['last_seen_time'])
     data = _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor)
     url = server.http_address + '/judge'
     try:
@@ -59,6 +62,16 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     watch_report = server.http_address + '/query/report'
     timeout_count = 0
 
+    # enter zone
+    cache_key = "s%d:%d" % (server.pk, randint(0, 1e9))
+    if server.concurrency <= 0:
+        raise ValueError("Server should have concurrency at least 1.")
+    while True:
+        if len(cache.keys("s%d:*" % server.pk)) < server.concurrency:
+            cache.set(cache_key, 1, timeout)
+            break
+        time.sleep(0.5)
+
     try:
         response = add_timestamp_to_reply(requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token),
                                                         timeout=timeout).json())
@@ -91,6 +104,9 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
                                     interactor, group_config, callback)
         else:
             callback(response_fail_with_timestamp())
+
+    # exit zone
+    cache.delete(cache_key)
 
 
 def _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor,
