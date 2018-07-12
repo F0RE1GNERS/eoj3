@@ -14,7 +14,7 @@ from ..base_views import BaseBackstageMixin, BaseCreateView
 class UpdateLogList(BaseBackstageMixin, ListView):
     template_name = 'backstage/log/list.jinja2'
     context_object_name = 'log_list'
-    queryset = UpdateLog.objects.select_related("created_by").reverse()
+    queryset = UpdateLog.objects.select_related("created_by").order_by("-pk")
 
 
 class UpdateLogCreate(BaseCreateView):

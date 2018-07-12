@@ -16,7 +16,7 @@ def home_view(request):
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', ''),
                'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
-               'update_log': UpdateLog.objects.all().reverse()[:10]}
+               'update_log': UpdateLog.objects.all().order_by("-pk")[:10]}
         if not is_site_closed(request):
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
@@ -63,7 +63,7 @@ def faq_view(request):
 
 def update_log_view(request):
     return render(request, 'update_log.jinja2',
-                  context={'log_list': UpdateLog.objects.all().select_related("created_by").reverse()})
+                  context={'log_list': UpdateLog.objects.all().select_related("created_by").order_by("-pk")})
 
 
 class TestView(TemplateView):
