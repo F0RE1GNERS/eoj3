@@ -18,7 +18,8 @@ class UpdateLog(models.Model):
         ('add', 'NEW FEATURE'),
         ('del', 'REMOVE FEATURE'),
         ('ref', 'REFACTOR'),
-        ('upd', 'UPDATE')
+        ('upd', 'UPDATE'),
+        ('enhance', 'ENHANCEMENT'),
     ))
     priority = models.PositiveIntegerField(choices=(
         (0, 'CRITICAL'),

@@ -194,18 +194,11 @@ class UserStatus(models.Model):
     total_list = models.TextField()
     ac_count = models.PositiveIntegerField()
     ac_distinct_count = models.PositiveIntegerField()
-    ac_list = models.PositiveIntegerField()
+    ac_list = models.TextField()
     update_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('user', 'contest_id')
-
-
-class ProblemStatus(models.Model):
-    problem = models.OneToOneField(Problem, related_name="problem_status")
-    difficulty = models.FloatField()
-    ac_user_count = models.PositiveIntegerField()
-    total_user_count = models.PositiveIntegerField()
 
 
 class ProblemContestStatus(models.Model):
@@ -222,11 +215,11 @@ class ProblemContestStatus(models.Model):
 
     @property
     def ac_user_ratio(self):
-        return self.ac_user_count / self.all_user_count if self.all_user_count > 0 else 0.0
+        return self.ac_user_count / self.total_user_count if self.total_user_count > 0 else 0.0
 
     @property
     def ac_ratio(self):
-        return self.ac_count / self.all_count if self.all_count > 0 else 0.0
+        return self.ac_count / self.total_count if self.total_count > 0 else 0.0
 
     @property
     def stats(self):

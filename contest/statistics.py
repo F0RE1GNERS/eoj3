@@ -126,13 +126,6 @@ def participants_with_rank(contest: Contest):
 
     actual_rank is the rank considering starred participants
     """
-
-    CACHE_EXPIRED = 10
-    CACHE_NAME = "contest_{}_participants".format(contest.id)
-    cached_result = cache.get(CACHE_NAME)
-    if cached_result is not None:
-        return cached_result
-
     def find_key(t):
         if contest.penalty_counts:
             return t.score, -t.penalty
@@ -162,8 +155,6 @@ def participants_with_rank(contest: Contest):
         item.rank = claim_rank
         item.actual_rank = actual_rank
         last_item = item
-
-    cache.set(CACHE_NAME, items, CACHE_EXPIRED)
     return items
 
 
