@@ -162,7 +162,7 @@ class ProblemList(ListView):
             for s in self.request.user.submission_set.select_related("problem"). \
                     exclude(status=SubmissionStatus.ACCEPTED).filter(
                 problem_id__in=unsolved_problem_set, problem__visible=True). \
-                    only("problem_id", "problem__visible", "contest_id", "status"):
+                    defer("code", "status_message", "status_detail"):
                 if s.problem_id not in unsolved_problem_set:
                     continue
                 if s.contest_id:
@@ -337,10 +337,8 @@ class StatusList(ListView):
 
     def get_queryset(self):
         try:
-            queryset = self.get_selected_from().select_related('problem', 'author').\
-                only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
-                     'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-                     'code_length', 'ip', 'cheat_tag', 'status_private', 'status_test')
+            queryset = self.get_selected_from().select_related('problem', 'author').defer(
+                "code", "status_message", "status_detail")
             if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
@@ -407,7 +405,8 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
     def get_runtime_distribution(self):
         self.ctx["runtime_dist"] = list(map(
             lambda x: {"runtime": x.status_time, "lang": x.get_lang_display()},
-            self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("id", "lang", "status")
+            self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).defer(
+                "code", "status_message", "status_detail")
         ))
         self.ctx["runtime_band_width"] = self.problem.time_limit / 1000 / 25
         try:
@@ -459,8 +458,7 @@ class ProblemPersonalOlderSubmissionsAPI(UserPassesTestMixin, TemplateView):
         return self.request.user.is_authenticated
 
     def get_context_data(self, **kwargs):
-        submission_set = Submission.objects.only("problem_id", "id", "status", "create_time",
-                                                 "author_id", "author__username", "author__magic"). \
+        submission_set = Submission.objects.defer("code", "status_message", "status_detail"). \
             filter(author_id=self.request.user.pk, problem_id=kwargs.get('pk'))
         return {'submission_list': submission_set}
 

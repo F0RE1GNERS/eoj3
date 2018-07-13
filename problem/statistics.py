@@ -30,11 +30,11 @@ def recalculate_problems(problem_ids, contest_id=0):
     }
     """
     if contest_id:
-        problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id).\
-            only('problem_id', 'contest_id', 'author_id', 'status', 'status_percent')
+        problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id). \
+            defer("code", "status_message", "status_detail")
     else:
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids). \
-            only('problem_id', 'author_id', 'status', 'status_percent')
+            defer("code", "status_message", "status_detail")
 
     all_count = {problem_id: 0 for problem_id in problem_ids}
     accept_count = {problem_id: 0 for problem_id in problem_ids}

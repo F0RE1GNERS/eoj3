@@ -68,10 +68,8 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
     contest_length = get_penalty(contest.start_time, contest.end_time)
     first_yes = get_first_yes(contest, no_invalidate=True)
 
-    for submission in contest.submission_set.filter(author_id__in=user_ids).only("status", "status_private",
-                                                                                 "contest_id",
-                                                                                 "problem_id", "author_id",
-                                                                                 "create_time").order_by("create_time"):
+    for submission in contest.submission_set.filter(author_id__in=user_ids).defer(
+            "code", "status_message", "status_detail").order_by("create_time"):
         status = submission.status
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
@@ -228,8 +226,8 @@ def get_first_yes(contest: Contest, no_invalidate=False):
         for contest_problem in contest.contest_problem_list:
             first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
                                                                status__in=[SubmissionStatus.ACCEPTED,
-                                                                           SubmissionStatus.PRETEST_PASSED]).only(
-                'contest_id', 'problem_id', 'status', 'create_time').last()
+                                                                           SubmissionStatus.PRETEST_PASSED]).\
+                defer("code", "status_message", "status_detail").last()
             if first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
                                       author=first_accepted_sub.author_id)

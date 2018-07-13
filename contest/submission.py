@@ -167,10 +167,7 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
         data = super(ContestMyPastSubmissions, self).get_context_data(**kwargs)
         try:
             problem = self.contest.contestproblem_set.get(identifier=kwargs.get('pid')).problem_id
-            data['submission_list'] = Submission.objects.only("problem_id", "id", "status", "status_private",
-                                                              "status_private", "create_time", "contest_id",
-                                                              "author_id", "author__username",
-                                                              "author__magic"). \
+            data['submission_list'] = Submission.objects.defer("code", "status_message", "status_detail"). \
                                           filter(author_id=self.request.user.pk, problem_id=problem)[:15]
             for submission in data['submission_list']:
                 if submission.contest_id is None or submission.contest_id != self.contest.pk:
@@ -258,8 +255,8 @@ class ContestBalloon(BaseContestMixin, ListView):
                                 ContestParticipant.objects.filter(contest=self.contest).select_related('user',
                                                                                                        'contest').
                                     all()}
-        qs = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED).only("problem_id", "author_id",
-                                                                                       "contest_id", "create_time").all()
+        qs = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED).\
+            defer("code", "status_message", "status_detail").all()
         available = set(cache.get_many(list(map(lambda x: BALLOON_CACHE_NAME % (x.contest_id, x.author_id, x.problem_id), qs))).keys())
         self.contest.add_contest_problem_to_submissions(qs)
         for submission in qs:
