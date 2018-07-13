@@ -83,7 +83,8 @@ class Program(models.Model):
     Program: read only (create a new one when modified)
     """
     LANG_CHOICES = (
-        ('cpp', 'C++'),
+        ('cpp', 'C++11'),
+        ('cc14', 'C++14'),
         ('java', 'Java'),
         ('python', 'Python')
     )
@@ -103,7 +104,7 @@ class Program(models.Model):
     )
 
     name = models.CharField(validators=[NameValidator()], max_length=24)
-    lang = models.CharField(choices=LANG_CHOICES, default='cpp', max_length=12)
+    lang = models.CharField(choices=LANG_CHOICES, default='cc14', max_length=12)
     code = models.TextField(blank=True)
     tag = models.CharField(choices=TAG_CHOICES, default='checker', max_length=24)
     create_time = models.DateTimeField()

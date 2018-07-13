@@ -91,7 +91,7 @@ class ContestSubmissionClaim(BaseContestMixin, View):
                 submission.contest = self.contest
             Submission.objects.bulk_create(self.submissions)
             invalidate_contest_participant(self.contest, self.user.pk)
-            invalidate_problem(self.problem_id_list, self.contest)
+            invalidate_problem(self.problem_id_list, self.contest.pk)
             messages.add_message(request, messages.SUCCESS, "%d submissions successfully migrated." % len(self.submissions))
         return HttpResponse()
 

@@ -66,11 +66,14 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
     cache_key = "s%d:%d" % (server.pk, randint(0, 1e9))
     if server.concurrency <= 0:
         raise ValueError("Server should have concurrency at least 1.")
+    wait_interval = 1.0
     while True:
         if len(cache.keys("s%d:*" % server.pk)) < server.concurrency:
             cache.set(cache_key, 1, timeout)
             break
-        time.sleep(0.5)
+        time.sleep(wait_interval)
+        if wait_interval > 0.2:
+            wait_interval -= 0.01
 
     try:
         response = add_timestamp_to_reply(requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token),

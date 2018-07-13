@@ -9,23 +9,30 @@ LANG_CHOICE = (
     ('python', 'Python 3'),
     ('java', 'Java 8'),
     ('cc14', 'C++14'),
+    ('cc17', 'C++17'),
     ('cs', 'C#'),
     ('py2', 'Python 2'),
+    ('scipy', 'Python (SCI)'),
     ('php', 'PHP 7'),
     ('perl', 'Perl'),
     ('hs', 'Haskell'),
     ('js', 'Javascript'),
     ('ocaml', 'OCaml'),
     ('pypy', 'PyPy'),
+    ('pypy3', 'PyPy 3'),
     ('pas', 'Pascal'),
     ('rs', 'Rust'),
-    ('scala', 'Scala')
+    ('scala', 'Scala'),
+    ('text', 'Text')
 )
 
 LANG_REGULAR_NAME = (
     ('cc14', 'cpp'),
+    ('cc17', 'cpp'),
     ('cs', 'csharp'),
     ('py2', 'python'),
+    ('scipy', 'python'),
+    ('pypy3', 'pypy'),
     ('pas', 'pascal'),
     ('rs', 'rust'),
 )
@@ -37,17 +44,21 @@ LANG_EXT = (
     ('python', 'py'),
     ('java', 'java'),
     ('cc14', 'cpp'),
+    ('cc17', 'cpp'),
     ('cs', 'cs'),
     ('py2', 'py'),
+    ('scipy', 'py'),
     ('php', 'php'),
     ('perl', 'pl'),
     ('hs', 'hs'),
     ('js', 'js'),
     ('ocaml', 'ml'),
     ('pypy', 'py'),
+    ('pypy3', 'py'),
     ('pas', 'pas'),
     ('rs', 'rs'),
     ('scala', 'scala'),
+    ('text', 'txt'),
 )
 
 

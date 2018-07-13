@@ -47,6 +47,13 @@ except ImportError:
             "code_file": "foo.cc",
             "execute_file": "foo",
         },
+        "cc14": {
+            "compiler_file": "/usr/bin/g++",
+            "compiler_args": ["-O2", "-std=c++14", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
+                              "-fmax-errors=3"],
+            "code_file": "foo.cc",
+            "execute_file": "foo",
+        },
         "java": {
             "compiler_file": "/usr/bin/javac",
             "compiler_args": ["-encoding", "utf8", "Main.java"],
@@ -63,6 +70,7 @@ except ImportError:
             "execute_args": ["foo.py"]
         }
     }
+    REPO_DIR = os.path.join(BASE_DIR, "repo")
 
 
 ALLOWED_HOSTS = ['*']
@@ -261,7 +269,6 @@ TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
 MIRROR_DIR = os.path.join(BASE_DIR, "upload/mirror")
 GENERATE_DIR = os.path.join(BASE_DIR, "generate")
-REPO_DIR = os.path.join(BASE_DIR, "repo")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates

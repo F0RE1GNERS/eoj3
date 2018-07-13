@@ -142,7 +142,7 @@ class SpecialProgram(models.Model):
     fingerprint = models.CharField(max_length=64, primary_key=True)
     category = models.CharField(max_length=12, choices=CATEGORIES)
     filename = models.CharField(max_length=64)
-    lang = models.CharField('language', max_length=12, choices=LANG_CHOICE, default='cpp')
+    lang = models.CharField('language', max_length=12, choices=LANG_CHOICE, default='cc14')
     code = models.TextField(blank=True)
     builtin = models.BooleanField(default=False)
 
