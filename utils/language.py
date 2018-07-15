@@ -32,7 +32,7 @@ LANG_REGULAR_NAME = (
     ('cs', 'csharp'),
     ('py2', 'python'),
     ('scipy', 'python'),
-    ('pypy3', 'pypy'),
+    ('pypy3', 'python'),
     ('pas', 'pascal'),
     ('rs', 'rust'),
 )
