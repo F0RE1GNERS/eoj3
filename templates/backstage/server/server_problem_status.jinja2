@@ -25,6 +25,7 @@
       </tr>
     </thead>
     <tbody>
+      {% set outdated_counter = 0 %}
       {% for status in server_problem_status_list %}
         <tr>
           <td class="collapsing">
@@ -34,12 +35,17 @@
           <td>{{ status.problem.alias }}</td>
           <td>{{ status.problem.update_time | date('Y-m-d h:i:s') }}</td>
           <td>{{ status.last_synchronize | date('Y-m-d h:i:s') }}</td>
-          <td>{% if status.problem.update_time < status.last_synchronize %}No{% else %}Yes{% endif %}</td>
+          <td>{% if status.problem.update_time < status.last_synchronize %}No{% else %}Yes{% set outdated_counter = outdated_counter + 1 %}{% endif %}</td>
           <td><a class="post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t={{ status.problem_id }}">Upload</a></td>
           <td>{% if not status.last_status %}OK{% else %}{{ status.last_status }}{% endif %}</td>
         </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="8" class="right aligned">{{ outdated_counter }} problems outdated.</th>
+      </tr>
+    </tfoot>
   </table>
 
 {% endblock %}

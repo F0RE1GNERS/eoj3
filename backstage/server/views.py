@@ -132,7 +132,7 @@ class ServerProblemStatusList(BaseBackstageMixin, ListView):
         self.server = get_object_or_404(Server, pk=self.kwargs["pk"])
         with transaction.atomic():
             does_not_exist = set(Problem.objects.values_list("id", flat=True)) - \
-                             set(ServerProblemStatus.objects.values_list("problem_id", flat=True))
+                             set(self.server.serverproblemstatus_set.all().values_list("problem_id", flat=True))
             for problem in does_not_exist:
                 ServerProblemStatus.objects.create(server=self.server, problem_id=problem)
             self.server.serverproblemstatus_set.filter(problem_id__in=does_not_exist).update(last_synchronize=NEVER)
