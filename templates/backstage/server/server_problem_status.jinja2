@@ -1,0 +1,45 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Server:
+{% endblock %}
+
+{% block backstage_content %}
+
+  <div class="ui buttons">
+  <a class="ui primary button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}">Upload Outdated</a>
+  <a class="ui button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t=all">All</a>
+  </div>
+
+  <table class="ui celled definition small table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Alias</th>
+        <th>Updated</th>
+        <th>Sync</th>
+        <th>Outdated</th>
+        <th>Upload</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for status in server_problem_status_list %}
+        <tr>
+          <td class="collapsing">
+            {{ status.problem_id }}
+          </td>
+          <td>{{ status.problem.title }}</td>
+          <td>{{ status.problem.alias }}</td>
+          <td>{{ status.problem.update_time | date('Y-m-d h:i:s') }}</td>
+          <td>{{ status.last_synchronize | date('Y-m-d h:i:s') }}</td>
+          <td>{% if status.problem.update_time < status.last_synchronize %}No{% else %}Yes{% endif %}</td>
+          <td><a class="post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t={{ status.problem_id }}">Upload</a></td>
+          <td>{% if not status.last_status %}OK{% else %}{{ status.last_status }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

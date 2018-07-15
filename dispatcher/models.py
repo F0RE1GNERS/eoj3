@@ -23,3 +23,13 @@ class Server(models.Model):
     @property
     def http_address(self):
         return 'http://' + self.ip + ':' + str(self.port)
+
+
+class ServerProblemStatus(models.Model):
+    server = models.ForeignKey(Server)
+    problem = models.ForeignKey(Problem)
+    last_status = models.TextField(blank=True)
+    last_synchronize = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('server', 'problem')

@@ -347,6 +347,7 @@ Q_CLUSTER = {
     'queue_limit': 3000,
     'cpu_affinity': 1,
     'django_redis': 'default',
+    'log_level': 'WARNING',
 }
 
 

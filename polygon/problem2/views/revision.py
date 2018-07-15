@@ -17,6 +17,7 @@ from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 from shutil import copyfile
 
+from dispatcher.models import ServerProblemStatus
 from dispatcher.models import Server
 from polygon.models import Revision
 from polygon.problem2.forms import RevisionUpdateForm
@@ -232,6 +233,8 @@ class RevisionConfirmView(ProblemRevisionMixin, View):
         try:
             for server in Server.objects.filter(enabled=True).all():
                 upload_problem_to_judge_server(self.problem, server)
+                status, _ = ServerProblemStatus.objects.get_or_create(problem=self.problem, server=server)
+                status.save()
                 server.last_synchronize_time = datetime.now()
                 server.save(update_fields=['last_synchronize_time'])
             self.problem.save()

@@ -1,6 +1,8 @@
 from django.db import models
 
 from account.models import User
+from dispatcher.models import Server
+from problem.models import Problem
 
 
 class Email(models.Model):

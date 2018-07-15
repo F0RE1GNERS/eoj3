@@ -4,12 +4,15 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.cache import cache
-from django.shortcuts import HttpResponseRedirect, reverse
+from django.db import transaction
+from django.db.models import F
+from django.shortcuts import HttpResponseRedirect, reverse, get_object_or_404
 from django.views.generic import FormView
 from django.views.generic import View
 from django.views.generic.list import ListView
+from django_q.tasks import async
 
-from dispatcher.models import Server
+from dispatcher.models import Server, ServerProblemStatus
 from dispatcher.manage import update_token
 from problem.models import Problem
 from problem.tasks import upload_problem_to_judge_server
@@ -67,9 +70,9 @@ class ServerEnableOrDisable(BaseBackstageMixin, View):
 class ServerDelete(BaseBackstageMixin, View):
 
     def post(self, request, pk):
-        server = Server.objects.get(pk=pk)
-        server.delete()
-        messages.success(request, "Server <strong>%s</strong> is successfully removed." % server.name)
+        # server = Server.objects.get(pk=pk)
+        # server.delete()
+        # messages.success(request, "Server <strong>%s</strong> is successfully removed." % server.name)
         return HttpResponseRedirect(reverse('backstage:server'))
 
 
@@ -89,23 +92,56 @@ class ServerUpdateToken(BaseBackstageMixin, FormView):
         return HttpResponseRedirect(reverse('backstage:server'))
 
 
+def synchronize_func(server, problems):
+    for idx, problem in enumerate(problems, start=1):
+        status, _ = ServerProblemStatus.objects.get_or_create(server=server, problem=problem)
+        try:
+            upload_problem_to_judge_server(problem, server)
+            status.last_status = ''
+        except:
+            status.last_status = traceback.format_exc()
+        status.save()
+    server.last_synchronize_time = datetime.now()
+    server.save(update_fields=['last_synchronize_time'])
+
+
 class ServerSynchronize(BaseBackstageMixin, View):
 
     def post(self, request, pk):
 
-        def synchronize_func(server):
-            count = Problem.objects.all().count()
-            for idx, problem in enumerate(Problem.objects.all(), start=1):
-                cache.set('server_synchronize_status_detail', '%d / %d' % (idx, count), 60)
-                cache.set('server_synchronize_status', idx / count * 100, 60)
-                try:
-                    upload_problem_to_judge_server(problem, server)
-                except:
-                    traceback.print_exc()
-                    return
-            server.last_synchronize_time = datetime.now()
-            server.save(update_fields=['last_synchronize_time'])
+        server = get_object_or_404(Server, pk=pk)
+        if request.GET.get("t") == "all":
+            problems = Problem.objects.all()
+        elif request.GET.get('t', '').isdigit():
+            problems = Problem.objects.filter(pk=request.GET['t'])
+        else:
+            problem_ids = server.serverproblemstatus_set.select_related("problem").\
+                filter(last_synchronize__lt=F('problem__update_time')).values_list("problem_id", flat=True)
+            problems = Problem.objects.filter(id__in=problem_ids)
 
-        server = Server.objects.get(pk=pk)
-        threading.Thread(target=synchronize_func, args=(server,)).start()
+        async(synchronize_func, server, list(problems))
         return HttpResponseRedirect(reverse('backstage:server'))
+
+
+class ServerProblemStatusList(BaseBackstageMixin, ListView):
+    template_name = 'backstage/server/server_problem_status.jinja2'
+    context_object_name = 'server_problem_status_list'
+
+    def get_queryset(self):
+        NEVER = datetime(1990, 1, 1)
+        self.server = get_object_or_404(Server, pk=self.kwargs["pk"])
+        with transaction.atomic():
+            does_not_exist = set(Problem.objects.values_list("id", flat=True)) - \
+                             set(ServerProblemStatus.objects.values_list("problem_id", flat=True))
+            for problem in does_not_exist:
+                ServerProblemStatus.objects.create(server=self.server, problem_id=problem)
+            self.server.serverproblemstatus_set.filter(problem_id__in=does_not_exist).update(last_synchronize=NEVER)
+        return self.server.serverproblemstatus_set.select_related("problem").only("server_id", "problem_id",
+                                                                                  "problem__title", "problem__alias",
+                                                                                  "problem__update_time", "last_status",
+                                                                                  "last_synchronize").all()
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['server'] = self.server
+        return data
