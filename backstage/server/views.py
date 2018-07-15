@@ -2,6 +2,7 @@ import threading
 import traceback
 from datetime import datetime
 
+import multiprocessing
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import transaction
@@ -92,15 +93,19 @@ class ServerUpdateToken(BaseBackstageMixin, FormView):
         return HttpResponseRedirect(reverse('backstage:server'))
 
 
+def sync_and_update_status(server, problem):
+    status, _ = ServerProblemStatus.objects.get_or_create(server=server, problem=problem)
+    try:
+        upload_problem_to_judge_server(problem, server)
+        status.last_status = ''
+    except:
+        status.last_status = traceback.format_exc()
+    status.save()
+
+
 def synchronize_func(server, problems):
-    for idx, problem in enumerate(problems, start=1):
-        status, _ = ServerProblemStatus.objects.get_or_create(server=server, problem=problem)
-        try:
-            upload_problem_to_judge_server(problem, server)
-            status.last_status = ''
-        except:
-            status.last_status = traceback.format_exc()
-        status.save()
+    with multiprocessing.Pool(server.concurrency) as p:
+        p.starmap(sync_and_update_status, [(server, problem) for problem in problems])
     server.last_synchronize_time = datetime.now()
     server.save(update_fields=['last_synchronize_time'])
 
@@ -119,7 +124,7 @@ class ServerSynchronize(BaseBackstageMixin, View):
                 filter(last_synchronize__lt=F('problem__update_time')).values_list("problem_id", flat=True)
             problems = Problem.objects.filter(id__in=problem_ids)
 
-        async(synchronize_func, server, list(problems))
+        threading.Thread(target=synchronize_func, args=(server, list(problems))).start()
         return HttpResponseRedirect(reverse('backstage:server'))
 
 
