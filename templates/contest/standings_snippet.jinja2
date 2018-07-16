@@ -60,7 +60,7 @@
               {% if contest.scoring_method == 'oi' %}
                 {% if d.partial %}
                   <span class="score text black">{{ d.score }}</span>
-                {% if d.score %}
+                {% elif d.score %}
                   <span class="score text yellow">{{ d.score }}</span>
                 {% else %}
                   <span class="score text red">0</span>
