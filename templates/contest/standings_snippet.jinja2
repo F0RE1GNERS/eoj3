@@ -58,6 +58,8 @@
               {% endif %}
             {% else %}
               {% if contest.scoring_method == 'oi' %}
+                {% if d.partial %}
+                  <span class="score text black">{{ d.score }}</span>
                 {% if d.score %}
                   <span class="score text yellow">{{ d.score }}</span>
                 {% else %}

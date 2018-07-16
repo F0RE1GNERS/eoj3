@@ -84,9 +84,6 @@
             Verdict
           {% endif %}
         </th>
-      {% if show_percent %}
-        <th>Percent</th>
-      {% endif %}
       {% if code_length %}
         <th>Length</th>
       {% endif %}
@@ -125,10 +122,7 @@
             {% endif %}
           {% endif %}
           <td>{{ submission.get_lang_display() }}</td>
-          <td><h5 class="ui header status-span" data-status="{{ submission.status }}" {% if submission.status_private == submission.status %}data-test="{{ submission.status_test }}"{% endif %}></h5></td>
-        {% if show_percent %}
-          <td>{{ submission.status_percent | round(1) }} %</td>
-        {% endif %}
+          <td><h5 class="ui header status-span" {% if show_percent %}data-score="{{ submission.status_score }}"{% endif %} data-status="{{ submission.status }}" {% if submission.status_private == submission.status %}data-test="{{ submission.status_test }}"{% endif %}></h5></td>
         {% if code_length %}
           <td>{{ submission.code_length }} B</td>
         {% endif %}

@@ -20,6 +20,7 @@ class SubmissionStatus(object):
     RUNTIME_ERROR = 4
     SYSTEM_ERROR = 5
     COMPILE_ERROR = 6
+    SCORED = 7
     JUDGE_ERROR = 11
     PRETEST_PASSED = 12
 
@@ -35,6 +36,10 @@ class SubmissionStatus(object):
     def is_accepted(status):
         return status == SubmissionStatus.ACCEPTED or status == SubmissionStatus.PRETEST_PASSED
 
+    @staticmethod
+    def is_scored(status):
+        return status == SubmissionStatus.SCORED
+
 
 STATUS_CHOICE = (
     (-4, 'Submitted'),
@@ -48,10 +53,7 @@ STATUS_CHOICE = (
     (4, 'Runtime Error'),
     (5, 'System Error'),
     (6, 'Compile Error'),
-    (7, 'Idleness Limit Exceeded'),
-    (8, 'Time Limit Exceeded'),
-    (11, 'Judge Error'),
-    (12, 'Pretest Passed')
+    (7, 'Scored'),
 )
 
 
@@ -165,8 +167,7 @@ class Submission(models.Model):
         return self.get_status_display() + addition
 
     @property
-    def partial_score(self):
-        if not hasattr(self, '_partial_score'):
-            self._partial_score = sum(
-                map(lambda x: x.get('score', 10) if x.get('verdict', -1) == 0 else 0, self.status_detail_list))
-        return self._partial_score
+    def status_score(self):
+        if hasattr(self, 'contest_problem'):
+            return int(round(self.contest_problem.weight * self.status_percent))
+        return int(round(self.status_percent))

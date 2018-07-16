@@ -149,7 +149,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
             # it is already authorized thus requires special permission to open it
             data['submission_block'] = render_submission(submission,
                                                          permission=permission,
-                                                         show_percent=(self.contest.scoring_method == 'oi'))
+                                                         show_percent=data['show_percent'])
             if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
                     self.request.user.polygon_enabled:
                 data['report_block'] = render_submission_report(submission.pk)
@@ -169,6 +169,7 @@ class ContestMyPastSubmissions(BaseContestMixin, TemplateView):
             problem = self.contest.contestproblem_set.get(identifier=kwargs.get('pid')).problem_id
             data['submission_list'] = Submission.objects.defer("code", "status_message", "status_detail"). \
                                           filter(author_id=self.request.user.pk, problem_id=problem)[:15]
+            self.contest.add_contest_problem_to_submissions(data['submission_list'])
             for submission in data['submission_list']:
                 if submission.contest_id is None or submission.contest_id != self.contest.pk:
                     submission.unofficial = True

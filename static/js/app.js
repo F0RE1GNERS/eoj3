@@ -321,7 +321,7 @@ window.STATUS[3] = 'Memory Limit Exceeded';
 window.STATUS[4] = 'Runtime Error';
 window.STATUS[5] = 'System Error';
 window.STATUS[6] = 'Compile Error';
-window.STATUS[7] = 'Idleness Limit Exceeded';
+window.STATUS[7] = 'Scored';
 window.STATUS[8] = 'Time Limit Exceeded';
 window.STATUS[11] = 'Judge Error';
 window.STATUS[12] = 'Pretest Passed';
@@ -339,7 +339,7 @@ window.STATUS_COLOR[3] = 'orange';
 window.STATUS_COLOR[4] = 'yellow';
 window.STATUS_COLOR[5] = 'violet';
 window.STATUS_COLOR[6] = 'grey';
-window.STATUS_COLOR[7] = 'orange';
+window.STATUS_COLOR[7] = 'black';
 window.STATUS_COLOR[8] = 'orange';
 window.STATUS_COLOR[11] = 'orange';
 window.STATUS_COLOR[12] = 'green';
@@ -357,7 +357,7 @@ window.STATUS_ICON[3] = 'remove';
 window.STATUS_ICON[4] = 'remove';
 window.STATUS_ICON[5] = 'remove';
 window.STATUS_ICON[6] = 'warning';
-window.STATUS_ICON[7] = 'remove';
+window.STATUS_ICON[7] = 'check';
 window.STATUS_ICON[8] = 'remove';
 window.STATUS_ICON[11] = 'remove';
 window.STATUS_ICON[12] = 'check';
@@ -384,10 +384,14 @@ $.parseStatusDisplay = function () {
   $("h5.ui.header.status-span, .status-label").each(function () {
     var status = parseInt($(this).data('status'));
     var icon = '<i class="icon circle fitted ' + STATUS_ICON[status] + '"></i>';
-    if ($(this).hasClass("with-icon"))
-      $(this).html(icon + STATUS[status]);
-    else {
-      if ($(this).data('test'))
+    if ($(this).hasClass("with-icon")) {
+      if ($(this)[0].hasAttribute('data-score'))
+        $(this).html(icon + STATUS[status] + ": " + $(this).data('score'));
+      else $(this).html(icon + STATUS[status]);
+    } else {
+      if ($(this)[0].hasAttribute('data-score'))
+        $(this).html(STATUS[status] + ": " + $(this).data('score'));
+      else if ($(this).data('test'))
         $(this).html(STATUS[status] + " on test " + $(this).data('test'));
       else $(this).html(STATUS[status]);
     }

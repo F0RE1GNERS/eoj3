@@ -45,6 +45,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
                     score: int (individual score for each problem),
                     time: int (first accept solution time, in seconds),
                     first_blood: boolean
+                    partial: boolean
                 }
             }
         }
@@ -74,11 +75,14 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
-                           'waiting': False, 'pass_time': ''})
+                           'waiting': False, 'pass_time': '', 'partial': False})
         d = detail[submission.problem_id]
         if not SubmissionStatus.is_judged(submission.status):
             d['waiting'] = True
             continue
+        if SubmissionStatus.is_scored(submission.status):
+            d['partial'] = True
+
         if not SubmissionStatus.is_penalty(status):
             continue  # This is probably CE or SE ...
         contest_problem = contest.get_contest_problem(submission.problem_id)

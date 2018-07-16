@@ -152,7 +152,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 score = 0
                 try:
                     for index, detail in enumerate(details):
-                        if detail.get('verdict') == 0:
+                        if 'point' in detail:
+                            score += detail['point']
+                        elif detail.get('verdict') == 0:
                             score += point_query.get(case_list[index], 10)
                 except:
                     pass
