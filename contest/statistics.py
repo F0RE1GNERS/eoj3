@@ -92,9 +92,9 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
         pass_time = str(submission.create_time.strftime('%Y-%m-%d %H:%M:%S'))
         time = get_penalty(contest.start_time, submission.create_time)
         score = 0
-        EPS = 1E-2
         if contest.scoring_method == 'oi' or contest.scoring_method == "subtask":
-            score = int(submission.status_percent / 100 * contest_problem.weight + EPS)
+            submission.contest_problem = contest_problem
+            score = submission.status_score
         elif contest.scoring_method == 'acm' and SubmissionStatus.is_accepted(status):
             score = 1
         elif contest.scoring_method == 'cf' and SubmissionStatus.is_accepted(status):

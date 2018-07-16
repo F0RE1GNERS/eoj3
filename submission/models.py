@@ -140,7 +140,7 @@ class Submission(models.Model):
                 if SubmissionStatus.is_judged(s['verdict']):
                     u = s['verdict']
                     t = status_dictionary[u]
-                    if s['verdict'] == SubmissionStatus.ACCEPTED:
+                    if s['verdict'] in (SubmissionStatus.ACCEPTED, SubmissionStatus.SCORED, ):
                         t += ', %.3fs' % s.get('time', 0.0)
                     elif s['verdict'] == SubmissionStatus.RUNTIME_ERROR:
                         t += ', %s' % s.get('message', 'NaN')
@@ -165,5 +165,5 @@ class Submission(models.Model):
     @property
     def status_score(self):
         if hasattr(self, 'contest_problem'):
-            return int(round(self.contest_problem.weight / 100 * self.status_percent))
+            return int(round(self.contest_problem.weight / 100 * self.status_percent + 1E-2))
         return int(round(self.status_percent))
