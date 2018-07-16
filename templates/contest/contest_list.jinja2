@@ -31,7 +31,7 @@
               <div class="item">{{ username_display(author) }}</div>
             {% endfor %}
           </div></td>
-          <td>{% if contest.public %}<i class="green large check icon"></i>{% else %}<i class="orange large remove icon"></i>{% endif %}</td>
+          <td>{% if contest.public %}<i class="green large check icon"></i>{% elif contest.open_problems %}<span data-tooltip="Open after contest"><i class="yellow large clock outline icon"></i></span>{% else %}<i class="orange large remove icon"></i>{% endif %}</td>
           <td>
           {% if contest.status == 0 %}
             <h5 class="ui header red">Running</h5>

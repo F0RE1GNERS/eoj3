@@ -22,7 +22,7 @@ from os import path
 
 from account.models import User, MAGIC_CHOICE
 from account.permissions import is_admin_or_root
-from contest.models import Contest, ContestInvitation, ContestParticipant, ContestClarification
+from contest.models import Contest, ContestInvitation, ContestParticipant, ContestClarification, Activity
 from contest.statistics import invalidate_contest
 from contest.tasks import add_participant_with_invitation
 from problem.models import Problem
@@ -583,4 +583,18 @@ class ContestParticipantAutoStarView(PolygonContestMixin, View):
             if starred:
                 participant.star = True
                 participant.save(update_fields=['star'])
+        return redirect(reverse('polygon:contest_participant', kwargs={"pk": self.contest.id}))
+
+
+class ContestParticipantFromActivity(PolygonContestMixin, View):
+
+    def post(self, request, pk):
+        if request.POST.get("answer") and is_admin_or_root(self.request.user):
+            activity = get_object_or_404(Activity, pk=request.POST["answer"])
+            with transaction.atomic():
+                for participant in activity.activityparticipant_set.filter(is_deleted=False):
+                    p, _ = self.contest.contestparticipant_set.get_or_create(user=participant.user)
+                    if not p.comment:
+                        p.comment = participant.real_name
+                        p.save(update_fields=['comment'])
         return redirect(reverse('polygon:contest_participant', kwargs={"pk": self.contest.id}))
