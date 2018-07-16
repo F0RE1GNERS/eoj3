@@ -147,6 +147,8 @@ class Submission(models.Model):
                     v += ': ' + t
                 elif 'group' in s:
                     v += ": Skipped"
+            if 'point' in s:
+                v += ' (%.1f)' % s['point']
             r.append((u, v))
         return r
 
@@ -160,14 +162,8 @@ class Submission(models.Model):
         else:
             return 'NaN'
 
-    def get_status_display_in_contest(self):
-        addition = ''
-        if self.contest is not None and (self.contest.rule == 'oi' or self.contest.rule == 'oi2') and self.is_judged:
-            addition = ' %d%%' % self.status_percent
-        return self.get_status_display() + addition
-
     @property
     def status_score(self):
         if hasattr(self, 'contest_problem'):
-            return int(round(self.contest_problem.weight * self.status_percent))
+            return int(round(self.contest_problem.weight / 100 * self.status_percent))
         return int(round(self.status_percent))
