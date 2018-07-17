@@ -385,11 +385,11 @@ $.parseStatusDisplay = function () {
     var status = parseInt($(this).data('status'));
     var icon = '<i class="icon circle fitted ' + STATUS_ICON[status] + '"></i>';
     if ($(this).hasClass("with-icon")) {
-      if ($(this)[0].hasAttribute('data-score'))
+      if ($(this).data("sp") || status == 7)
         $(this).html(icon + STATUS[status] + ": " + $(this).data('score'));
       else $(this).html(icon + STATUS[status]);
     } else {
-      if ($(this)[0].hasAttribute('data-score'))
+      if ($(this).data("sp") || status == 7)
         $(this).html(STATUS[status] + ": " + $(this).data('score'));
       else if ($(this).data('test'))
         $(this).html(STATUS[status] + " on test " + $(this).data('test'));

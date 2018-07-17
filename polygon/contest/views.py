@@ -428,6 +428,7 @@ class ContestStatusBackend(PolygonContestMixin, StatusList):
 
     def get_context_data(self, **kwargs):
         data = super(ContestStatusBackend, self).get_context_data(**kwargs)
+        data['show_percent'] = self.contest.scoring_method in ('oi', )
         self.contest.add_contest_problem_to_submissions(data['submission_list'])
         return data
 
