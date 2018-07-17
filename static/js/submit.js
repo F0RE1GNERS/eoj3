@@ -16,11 +16,17 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     'cc14': {
       'mode': 'c_cpp', 'name': 'C++14'
     },
+    'cc17': {
+      'mode': 'c_cpp', 'name': 'C++17'
+    },
     'cs': {
       'mode': 'csharp', 'name': 'C#'
     },
     'py2': {
       'mode': 'python', 'name': 'Python 2'
+    },
+    'scipy': {
+      'mode': 'python', 'name': 'Python (SCI)'
     },
     'php': {
       'mode': 'php', 'name': 'PHP 7'
@@ -40,6 +46,9 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     'pypy': {
       'mode': 'python', 'name': 'PyPy'
     },
+    'pypy3': {
+      'mode': 'python', 'name': 'PyPy 3'
+    },
     'pas': {
       'mode': 'pascal', 'name': 'Pascal'
     },
@@ -49,16 +58,20 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     'scala': {
       'mode': 'scala', 'name': 'Scala'
     },
+    'text': {
+      'mode': 'text', 'name': 'Text'
+    },
     'auto': {
       'mode': 'c_cpp', 'name': 'Detecting'
     }
   };
+  var lang_key = "lang?c=" + $("#default-contest").val();
   var ele = $('.ui.search.dropdown.language');
   var all_lang = ele.find('.item').map(function () {
     return $(this).data('value');
   }).get();
-  if (window.localStorage && all_lang.indexOf(localStorage.getItem('lang')) >= 0) {
-    ele.dropdown('set selected', localStorage.getItem('lang'));
+  if (window.localStorage && all_lang.indexOf(localStorage.getItem(lang_key)) >= 0) {
+    ele.dropdown('set selected', localStorage.getItem(lang_key));
   } else {
     ele.dropdown('set selected', 'auto');
   }
@@ -145,7 +158,7 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
     }
     editor.getSession().setMode("ace/mode/" + map[event.target.value].mode);
     if (window.localStorage) {
-      localStorage.setItem("lang", auto_lang ? "auto" : event.target.value);
+      localStorage.setItem(lang_key, auto_lang ? "auto" : event.target.value);
     }
     updateWithTemplate();
   });
