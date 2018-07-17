@@ -109,8 +109,12 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             # We have to tell whether this is the best
             continue
 
+        if not contest.last_counts:
+            d['score'] = max(d['score'], score)
+        else:
+            d['score'] = score
         d['attempt'] += 1
-        d.update(solved=SubmissionStatus.is_accepted(status), score=score, time=time, pass_time=pass_time)
+        d.update(solved=SubmissionStatus.is_accepted(status), time=time, pass_time=pass_time)
         if first_yes.get(submission.problem_id) and first_yes[submission.problem_id]['author'] == submission.author_id:
             d['first_blood'] = True
 
