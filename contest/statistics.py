@@ -92,6 +92,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
         pass_time = str(submission.create_time.strftime('%Y-%m-%d %H:%M:%S'))
         time = get_penalty(contest.start_time, submission.create_time)
         score = 0
+        EPS = 1E-2
         if contest.scoring_method == 'oi' or contest.scoring_method == "subtask":
             submission.contest_problem = contest_problem
             score = submission.status_score
@@ -102,7 +103,9 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
                             contest_problem.weight * (1 - 0.5 * time / contest_length) - d['attempt'] * 50) + EPS)
         elif contest.scoring_method == 'tcmtime' and SubmissionStatus.is_accepted(status):
             score = contest_problem.weight
-        if not contest.last_counts and (d['solved'] or (d['score'] > 0 and d['score'] >= score)):
+        if not contest.last_counts and \
+                (d['solved'] or (contest.scoring_method != 'oi' and d['score'] > 0 and d['score'] >= score)):
+            # every submission has to be calculated in OI
             # We have to tell whether this is the best
             continue
 
@@ -112,9 +115,13 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             d['first_blood'] = True
 
     for v in ans.values():
-        v.update(penalty=sum(map(lambda x: max(x['attempt'] - 1, 0) * 1200 + x['time'],
-                                 filter(lambda x: x['solved'], v['detail'].values()))),
-                 score=sum(map(lambda x: x['score'], v['detail'].values())))
+        if contest.scoring_method == 'oi':
+            penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
+                              v['detail'].values()))
+        else:
+            penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
+                              filter(lambda x: x['solved'], v['detail'].values())))
+        v.update(penalty=penalty, score=sum(map(lambda x: x['score'], v['detail'].values())))
     return ans
 
 

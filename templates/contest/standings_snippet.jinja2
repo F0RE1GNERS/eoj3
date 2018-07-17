@@ -8,7 +8,7 @@
     <th class="one wide">Penalty</th>
   {% endif %}
   {% if not contest.standings_without_problem %}
-    {% if contest.scoring_method == "acm" %}
+    {% if contest.scoring_method == "acm" or contest_problem_length == 1 %}
       {% for problem in contest.contest_problem_list %}
         <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
       {% endfor %}
@@ -64,6 +64,9 @@
                   <span class="score text yellow">{{ d.score }}</span>
                 {% else %}
                   <span class="score text red">0</span>
+                {% endif %}
+                {% if contest.penalty_counts %}
+                  <span class="penalty">{{ (d.time / 60) | int }} ({{ d.attempt }}){% endif %}</span>
                 {% endif %}
               {% else %}
                 <span class="score negative text red">-{{ d.attempt }}</span>

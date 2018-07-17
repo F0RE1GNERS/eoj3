@@ -199,7 +199,7 @@ class DashboardView(BaseContestMixin, TemplateView):
             avg_score = get_many_problem_avg_score(problem_ids, self.contest.id)
             for problem in data['contest_problem_list']:
                 problem.user_count = user_count[problem.problem_id]
-                problem.max_score = int(max_score[problem.problem_id] / 100 * problem.weight)
+                problem.max_score = int(round(max_score[problem.problem_id] / 100 * problem.weight))
                 problem.avg_score = round(avg_score[problem.problem_id] / 100 * problem.weight, 1)
 
         data['authors'] = self.contest.authors.all()

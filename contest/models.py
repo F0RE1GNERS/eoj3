@@ -94,7 +94,7 @@ class Contest(models.Model):
     allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
 
     last_counts = models.BooleanField('The last submission (instead of the best) will be scored', default=False)  # Treat last submission as valid submission
-    penalty_counts = models.BooleanField('Use penalty to sort participants with the same score', default=True)  # Whether penalty counts in case of the same scores
+    penalty_counts = models.PositiveIntegerField('Penalty by seconds', default=1200)
     standings_without_problem = models.BooleanField('Show standings without a list of solved problems (often used when there is too many problems)',
                                                     default=False)  # Have a standing without specific problems
     standings_public = models.BooleanField('Make standings public even if the contest is private', default=True)

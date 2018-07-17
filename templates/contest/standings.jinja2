@@ -38,7 +38,7 @@
   <div class="ui hidden divider" style="clear:both;"></div>
 
   {% set contest_problem_length = (contest.contest_problem_list | length) %}
-  {% if (contest.contest_problem_list | length) > 9 and not contest.standings_without_problem %}
+  {% if contest_problem_length > 9 and not contest.standings_without_problem %}
     {% set column_style = 'collapsing' %}
   {% else %}
     {% set column_style = 'one wide' %}

@@ -15,7 +15,6 @@
         <th>Polygon</th>
         <th>Content</th>
         <th>Signature</th>
-        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -27,7 +26,6 @@
           <td>{{ log.is_about_polygon }}</td>
           <td>{{ log.content }}</td>
           <td>{% if log.created_by %}{{ username_display(log.created_by) }}{% endif %}</td>
-          <td><a class="delete-link" data-link="{{ url('backstage:log_delete', log.pk) }}">Delete</a></td>
         </tr>
       {% endfor %}
     </tbody>
