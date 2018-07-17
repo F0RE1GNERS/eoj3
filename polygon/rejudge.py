@@ -27,9 +27,11 @@ def rejudge_submission_set(submission_set):
         for submission in submission_set:
             submission.status_private = submission.status = SubmissionStatus.WAITING
             submission.status_test = 0
+            submission.status_percent = 0
             submission.status_detail = ""
             submission.status_message = ""
-            submission.save(update_fields=["status_private", "status", "status_detail", "status_message", "status_test"])
+            submission.save(update_fields=["status_private", "status", "status_detail", "status_message", "status_test",
+                                           "status_percent"])
 
     for submission in submission_set:
         async(rejudge_submission, submission)
