@@ -136,10 +136,6 @@ class Contest(models.Model):
             return -2  # error
 
     @property
-    def length(self):
-        return self.end_time - self.start_time
-
-    @property
     def is_frozen(self):
         if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
             return True
