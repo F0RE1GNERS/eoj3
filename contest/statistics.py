@@ -116,7 +116,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
 
     for v in ans.values():
         if contest.scoring_method == 'oi':
-            penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
+            penalty = sum(map(lambda x: max(x['attempt'], 0) * contest.penalty_counts + x['time'],
                               v['detail'].values()))
         else:
             penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
