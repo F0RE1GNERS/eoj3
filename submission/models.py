@@ -54,6 +54,8 @@ STATUS_CHOICE = (
     (5, 'System Error'),
     (6, 'Compile Error'),
     (7, 'Scored'),
+    (11, 'Judge Error'),
+    (12, 'Pretest Passed'),
 )
 
 
