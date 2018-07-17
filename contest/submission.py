@@ -151,7 +151,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                          permission=permission,
                                                          show_percent=data['show_percent'])
             if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
-                    self.request.user.polygon_enabled:
+                    (self.contest.status > 0 and self.request.user.polygon_enabled) or self.contest.case_public >= 2:
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''
