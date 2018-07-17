@@ -44,7 +44,7 @@
  */
 var languages = [
   {
-    'language': ['cc14', 'cpp', 'c'],
+    'language': ['cc17', 'cc14', 'cpp', 'c'],
     'checkers': [
       // Primitive variable declaration.
       {pattern: /(char|long|int|float|double)( )+\w+( )*=?/, points: 2},
@@ -103,7 +103,7 @@ var languages = [
     ]
   },
   {
-    'language': ['python', 'pypy', 'py2'],
+    'language': ['pypy3', 'python', 'scipy', 'pypy', 'py2'],
     'checkers': [
       // Function definition
       {pattern: /def( )+\w+\(.*\)( )*:/, points: 2},
@@ -322,6 +322,10 @@ var languages = [
     ]
   },
   {
+    'language': ['text'],
+    'checkers': []
+  },
+  {
     'language': ['cs'],
     'checkers': [],
     'disabled': true
@@ -422,6 +426,9 @@ function detectLang(snippet, all_lang) {
         break;
       }
     }
+  }
+  if(max==-1e9) {
+    detected_lang = all_lang[0];
   }
   return detected_lang;
 }
