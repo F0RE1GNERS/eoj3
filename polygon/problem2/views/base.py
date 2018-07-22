@@ -85,7 +85,10 @@ class ProblemCreate(PolygonBaseMixin, View):
         return None
 
     def post(self, request, *args, **kwargs):
-        problem = self.get_unused_problem()
+        if 'force' in request.GET:
+            problem = None
+        else:
+            problem = self.get_unused_problem()
         if not problem:
             problem = Problem.objects.create()
             problem.title = 'Problem #%d' % problem.id
