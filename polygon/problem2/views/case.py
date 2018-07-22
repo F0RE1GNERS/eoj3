@@ -726,6 +726,9 @@ class CasePackAsZipView(ProblemRevisionMixin, View):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
 
     def get(self, request, *args, **kwargs):
+        input_only = False
+        if 'input' in request.GET:
+            input_only = True
         cases = list(self.revision.cases.all().order_by("case_number"))
         if len(cases) == 0:
             messages.error(request, "There are no cases to pack.")
@@ -739,17 +742,19 @@ class CasePackAsZipView(ProblemRevisionMixin, View):
         with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zip:
             for case in cases:
                 zip.write(case.input_file.path, arcname="%d" % case.case_number)
-                zip.write(case.output_file.path, arcname="%d.a" % case.case_number)
-                case_config[str(case.case_number)] = {
-                    "in_samples": case.in_samples,
-                    "in_pretests": case.in_pretests,
-                    "activated": case.activated,
-                    "group": case.group,
-                    "output_lock": case.output_lock,
-                    "description": case.description,
-                    "points": case.points
-                }
-            zip.writestr("data.json", json.dumps(case_config, sort_keys=True, indent=2))
+                if not input_only:
+                    zip.write(case.output_file.path, arcname="%d.a" % case.case_number)
+                    case_config[str(case.case_number)] = {
+                        "in_samples": case.in_samples,
+                        "in_pretests": case.in_pretests,
+                        "activated": case.activated,
+                        "group": case.group,
+                        "output_lock": case.output_lock,
+                        "description": case.description,
+                        "points": case.points
+                    }
+            if not input_only:
+                zip.writestr("data.json", json.dumps(case_config, sort_keys=True, indent=2))
 
         return respond_generate_file(request, file_path,
                                      "PackedTestCases - %s#%d.zip" % (self.problem.alias, self.revision.revision))
