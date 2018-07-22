@@ -1,5 +1,7 @@
 import zipfile
+from collections import Counter
 
+from django.http import HttpResponse
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic.list import ListView
 from django.views.generic import View
@@ -153,3 +155,60 @@ class ContestDownloadCode(BaseContestMixin, View):
                                                           lang_ext_dict.get(submission.lang, 'txt')),
                                  submission.code)
         return respond_generate_file(request, file_path, "ContestCode - %s.zip" % self.contest.title)
+
+
+class ContestStandingsTestSys(BaseContestMixin, View):
+
+    def get_line(self, label, *args):
+        print(args)
+        s = []
+        for x in args:
+            xstr = str(x)
+            if ' ' in xstr or ',' in xstr:
+                s.append('"' + xstr + '"')
+            else:
+                s.append(xstr)
+        return "@" + label + " " + ",".join(s)
+
+    def get(self, request, cid):
+        if not self.privileged:
+            raise PermissionDenied
+        head = ['']
+        head.append(self.get_line('contest', self.contest.title))
+        head.append(self.get_line('contlen', int((self.contest.end_time - self.contest.start_time).total_seconds() / 60)))
+        head.append(self.get_line('problems', self.contest.contestproblem_set.count()))
+        probs = [self.get_line('p', p.identifier, p.problem.title, 20, 0) for p in self.contest.contest_problem_list]
+        available_prob_ids = set(map(lambda x: x.problem_id, self.contest.contest_problem_list))
+        teams = []
+        team_counter = 0
+        team_mapper = dict()
+        for participant in self.contest.contestparticipant_set.select_related("user").all():
+            if participant.comment:
+                name = participant.comment
+            else:
+                name = participant.user.username
+            if self.contest.submission_set.filter(author_id=participant.user_id).exists():
+                team_counter += 1
+                teams.append(self.get_line('t', team_counter, 0, 1, name))
+                team_mapper[participant.user_id] = team_counter
+        subs = []
+        sub_counter = Counter()
+        sub_verdict_converter = {
+            SubmissionStatus.ACCEPTED: "OK",
+            SubmissionStatus.WRONG_ANSWER: "WA",
+            SubmissionStatus.RUNTIME_ERROR: "RT",
+            SubmissionStatus.TIME_LIMIT_EXCEEDED: "TL",
+            SubmissionStatus.MEMORY_LIMIT_EXCEEDED: "ML",
+            SubmissionStatus.COMPILE_ERROR: "CE",
+        }
+        for s in self.contest.submission_set.order_by("create_time").all():
+            if s.problem_id in available_prob_ids:
+                subs.append(self.get_line('s', team_mapper[s.author_id],
+                                          self.contest.get_contest_problem(s.problem_id).identifier,
+                                          sub_counter[(s.author_id, s.problem_id)] + 1,
+                                          max(int((s.create_time - self.contest.start_time).total_seconds()), 0),
+                                          sub_verdict_converter[s.status] if s.status in sub_verdict_converter else "RJ"))
+                sub_counter[(s.author_id, s.problem_id)] += 1
+        head.append(self.get_line("teams", len(teams)))
+        head.append(self.get_line("submissions", len(subs)))
+        return HttpResponse('\n'.join(head + probs + teams + subs), content_type='text/plain')

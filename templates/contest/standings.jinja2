@@ -15,6 +15,9 @@
         <a class="item" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">
           <i class="download icon"></i> Standings as .csv
         </a>
+        <a class="item" href="{{ url('contest:report_testsys', contest.pk) }}" target="_blank">
+          <i class="download icon"></i> Standings (TestSys)
+        </a>
         <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all" target="_blank">
           <i class="code icon"></i> Download All Codes
         </a>

@@ -5,7 +5,8 @@ from .views import ContestList, ContestProblemDetail, ContestBoundUser, Dashboar
 from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon,\
     ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim, \
     ContestStatusForAll, ContestBalloonClaim, ContestBalloonCancel
-from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode
+from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode, \
+    ContestStandingsTestSys
 from .clarification import ContestClarificationView, ContestClarificationAnswer
 from .activity import ActivityList, ActivityAddView, ActivityUpdateView, ActivityRegisterView, ActivityQuitView, \
     ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView, \
@@ -36,6 +37,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/balloon/(?P<pk>\d+)/$', ContestBalloonClaim.as_view(), name='balloon_claim'),
     url(r'^(?P<cid>\d+)/balloon/(?P<pk>\d+)/cancel/$', ContestBalloonCancel.as_view(), name='balloon_cancel'),
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
+    url(r'^(?P<cid>\d+)/report/testsys/$', ContestStandingsTestSys.as_view(), name='report_testsys'),
     url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
 
     url(r'^activity/$', ActivityList.as_view(), name='activity_list'),
