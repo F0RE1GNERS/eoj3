@@ -160,7 +160,6 @@ class ContestDownloadCode(BaseContestMixin, View):
 class ContestStandingsTestSys(BaseContestMixin, View):
 
     def get_line(self, label, *args):
-        print(args)
         s = []
         for x in args:
             xstr = str(x)
@@ -173,6 +172,7 @@ class ContestStandingsTestSys(BaseContestMixin, View):
     def get(self, request, cid):
         if not self.privileged:
             raise PermissionDenied
+
         head = ['']
         head.append(self.get_line('contest', self.contest.title))
         head.append(self.get_line('contlen', int((self.contest.end_time - self.contest.start_time).total_seconds() / 60)))
@@ -211,4 +211,4 @@ class ContestStandingsTestSys(BaseContestMixin, View):
                 sub_counter[(s.author_id, s.problem_id)] += 1
         head.append(self.get_line("teams", len(teams)))
         head.append(self.get_line("submissions", len(subs)))
-        return HttpResponse('\n'.join(head + probs + teams + subs), content_type='text/plain')
+        return HttpResponse('\n'.join(head + probs + teams + subs), content_type='text/plain; charset=utf-8')
