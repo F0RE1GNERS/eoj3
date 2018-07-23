@@ -173,7 +173,7 @@ class ContestStandingsTestSys(BaseContestMixin, View):
         if not self.privileged:
             raise PermissionDenied
 
-        head = ['']
+        head = [chr(26)]
         head.append(self.get_line('contest', self.contest.title))
         head.append(self.get_line('contlen', int((self.contest.end_time - self.contest.start_time).total_seconds() / 60)))
         head.append(self.get_line('problems', self.contest.contestproblem_set.count()))
