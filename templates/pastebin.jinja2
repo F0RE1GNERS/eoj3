@@ -1,0 +1,39 @@
+{% extends 'html_base.jinja2' %}
+
+<title>{% block base_title %}EOJ Pastebin{% endblock %}</title>
+
+{% block _content %}
+  <style>
+    .ui.container {
+      padding-top: 5em;
+      padding-bottom: 15em;
+    }
+    .fixed.launch.button {
+      position: fixed;
+      top: 2.5em;
+      left: 0;
+      width: 55px;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  </style>
+  <div class="ui container">
+    <h1 class="ui header">EOJ Pastebin</h1>
+    <form class="ui form" method="POST">
+    {% csrf_token %}
+      <div class="field">
+        <label>Code</label>
+        <textarea name="code">{% if code %}{{ code }}{% endif %}</textarea>
+      </div>
+      <div class="field">
+        <button class="ui positive button" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

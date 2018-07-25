@@ -1,10 +1,13 @@
 from random import randint
 
-from django.shortcuts import render
+from django.core.cache import cache
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django_comments_xtd.models import XtdComment
 
 from account.models import User
+from account.permissions import StaffRequiredMixin
 from backstage.models import UpdateLog
 from blog.models import Blog
 from problem.statistics import get_accept_problem_count
@@ -68,3 +71,16 @@ def update_log_view(request):
 
 class TestView(TemplateView):
     template_name = 'test.jinja2'
+
+
+class PasteView(StaffRequiredMixin, TemplateView):
+    template_name = 'pastebin.jinja2'
+
+    def post(self, request, *args, **kwargs):
+        cache.set("PASTEBIN1", request.POST["code"], 300)
+        return redirect(reverse('pastebin'))
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['code'] = cache.get("PASTEBIN1")
+        return data

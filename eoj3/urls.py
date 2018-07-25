@@ -13,7 +13,7 @@ import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
 from blog.views import GenericView
-from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, update_log_view
+from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, update_log_view, PasteView
 from home.museum import museum_view
 from problem.views import make_payment_for_full_report, case_download_link
 from utils.site_settings import force_closed
@@ -46,6 +46,7 @@ urlpatterns = [
     url(r'^case/download/$', case_download_link, name='download_case', kwargs=force_closed()),
     url(r'^museum/$', museum_view, name='museum'),
     url(r'^update/$', update_log_view, name='update_log'),
+    url(r'^paste/$', PasteView.as_view(), name='pastebin'),
 ]
 
 urlpatterns += [
