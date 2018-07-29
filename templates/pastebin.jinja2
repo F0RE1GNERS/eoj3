@@ -24,12 +24,36 @@
     {% csrf_token %}
       <div class="field">
         <label>Code</label>
-        <textarea name="code">{% if code %}{{ code }}{% endif %}</textarea>
+        <textarea name="code" rows="12">{% if code %}{{ code }}{% endif %}</textarea>
+      </div>
+      <div class="field">
+        <label>Expire (seconds)</label>
+        <input name="expire" type="number" value="300">
       </div>
       <div class="field">
         <button class="ui positive button" type="submit">Submit</button>
       </div>
     </form>
+
+    <h3 class="ui dividing header">History</h3>
+    <table class="ui center aligned small celled table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Length</th>
+          <th>TTL</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for record in history %}
+        <tr>
+          <td><a href="?id={{ record.id }}">{{ record.id }}</a></td>
+          <td>{{ record.length }}</td>
+          <td>{{ record.ttl }} second(s)</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
   </div>
 
 {% endblock %}

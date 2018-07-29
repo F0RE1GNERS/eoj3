@@ -11,6 +11,7 @@ from account.permissions import StaffRequiredMixin
 from backstage.models import UpdateLog
 from blog.models import Blog
 from problem.statistics import get_accept_problem_count
+from utils.hash import sha_hash
 from utils.site_settings import is_site_closed, site_settings_get
 
 
@@ -77,10 +78,34 @@ class PasteView(StaffRequiredMixin, TemplateView):
     template_name = 'pastebin.jinja2'
 
     def post(self, request, *args, **kwargs):
-        cache.set("PASTEBIN1", request.POST["code"], 300)
-        return redirect(reverse('pastebin'))
+        code = request.POST["code"]
+        expire_seconds = int(request.POST["expire"])
+        h = sha_hash(code)[:8]
+        cache.set("PASTEBIN" + h, code, min(max(expire_seconds, 10), 86400))
+        return redirect(reverse('pastebin') + '?id=' + h)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['code'] = cache.get("PASTEBIN1")
+        data['code'] = None
+
+        chasing = self.request.GET.get('id', '')
+
+        history_keys = cache.keys("PASTEBIN*")
+
+        data['history'] = []
+        for key in history_keys:
+            code = cache.get(key)
+            if code:
+                id = key.lstrip("PASTEBIN")
+                data['history'].append({
+                    'code': code,
+                    'length': len(code),
+                    'id': id,
+                    'ttl': cache.ttl(key)
+                })
+                if id == chasing:
+                    data['code'] = code
+        data['history'].sort(key=lambda x: x['ttl'])
+        if data['history'] and not data['code']:
+            data['code'] = data['history'][0]['code']
         return data
