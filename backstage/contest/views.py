@@ -68,7 +68,7 @@ class ApplyGlobalChangesToRating(BaseBackstageMixin, View):
         user_ratings = {}
 
         with transaction.atomic():
-            User.objects.all().update(rating=1500)
+            User.objects.all().update(rating=0)
             for rating in ContestUserRating.objects.select_related('user').all():
                 if rating.user_id not in user_ratings:
                     user_ratings[rating.user_id] = rating
