@@ -1,6 +1,7 @@
 from threading import Thread
 
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import HttpResponse, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
@@ -46,6 +47,8 @@ class ContestApplyRatingChanges(BaseBackstageMixin, View):
     def post(self, request, cid):
         try:
             contest = get_object_or_404(Contest, pk=cid)
+            if not contest.rated:
+                return HttpResponse()
             calculate_rating_changes(contest)
             messages.success(request, 'Ratings successfully updated.')
         except Exception as e:
@@ -64,11 +67,13 @@ class ApplyGlobalChangesToRating(BaseBackstageMixin, View):
     def post(self, request):
         user_ratings = {}
 
-        for rating in ContestUserRating.objects.select_related('user').all():
-            if rating.user_id not in user_ratings:
-                user_ratings[rating.user_id] = rating
-                rating.user.rating = rating.rating
-                rating.user.save(update_fields=['rating'])
+        with transaction.atomic():
+            User.objects.all().update(rating=1500)
+            for rating in ContestUserRating.objects.select_related('user').all():
+                if rating.user_id not in user_ratings:
+                    user_ratings[rating.user_id] = rating
+                    rating.user.rating = rating.rating
+                    rating.user.save(update_fields=['rating'])
 
         update_color()
         return HttpResponse()
