@@ -47,7 +47,7 @@
           </td>
           <td class="hidden-on-small">{{ problem.difficulty | round(1) }}</td>
           <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
-            <a href="{{ url('problem:statistics', problem.pk) }}"><i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}</a>
+            <a href="{{ url('problem:statistics', problem.pk) }}">{% if problem.accept_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ problem.accept_count }}{% endif %}</a>
           </td>
           {% if comparing %}<td>{% if problem.her_label > 0 %}<i class="large green checkmark icon"></i>{% elif problem.her_label < 0 %}<i class="large red remove icon"></i>{% endif %}</td>{% endif %}
         </tr>
