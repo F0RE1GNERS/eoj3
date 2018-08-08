@@ -56,7 +56,7 @@
 
     <div class="ui hidden divider"></div>
 
-    <table class="ui very basic table">
+    <table class="ui very basic sortable table">
       <thead>
       <tr>
         <th>Name</th>
@@ -105,5 +105,10 @@
 {% endblock %}
 
 {% block script %}
+
+  <script src="/static/js/tablesort.js"></script>
+  <script>
+  $("table").tablesort();
+  </script>
 
 {% endblock %}
