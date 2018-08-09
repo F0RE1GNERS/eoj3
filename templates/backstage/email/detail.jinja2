@@ -27,15 +27,15 @@
   </div>
   </form>
 
-  <table class="ui celled small table center aligned">
+  <table class="ui celled small table center aligned compact">
     <thead>
       <tr>
         <th>User</th>
         <th>Email</th>
+        <th>Report</th>
         <th>Created</th>
         <th>Updated</th>
         <th>Status</th>
-        <th>Report</th>
         <th colspan="2">Action</th>
       </tr>
     </thead>
@@ -44,15 +44,20 @@
         <tr>
           <td>{{ username_display(recipient.user) }}</td>
           <td>{{ recipient.user.email }}</td>
-          <td>{{ recipient.create_time | date('Y-m-d H:i:s') }}</td>
-          <td>{{ recipient.update_time | date('Y-m-d H:i:s') }}</td>
-          <td>{{ recipient.get_status_display() }}</td>
           <td>{% if recipient.error_message %}<a href="{{ url('backstage:email_recipient_error', recipient.id) }}" target="_blank">Available</a>{% endif %}</td>
-          <td><a class="post text red" data-link="{{ url('backstage:email_recipient_delete', recipient.id) }}">Delete</a></td>
-          <td><a class="post" data-link="{{ url('backstage:email_send', email.pk) }}?t={{ recipient.id }}">Send</a></td>
+          <td class="collapsing">{{ recipient.create_time | date('m-d H:i') }}</td>
+          <td class="collapsing">{{ recipient.update_time | date('m-d H:i') }}</td>
+          <td class="collapsing">{{ recipient.get_status_display() }}</td>
+          <td class="collapsing"><a class="post text red" data-link="{{ url('backstage:email_recipient_delete', recipient.id) }}">Delete</a></td>
+          <td class="collapsing"><a class="post" data-link="{{ url('backstage:email_send', email.pk) }}?t={{ recipient.id }}">Send</a></td>
         </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="8" class="right aligned">{{ recipients | length }} recipients available.</th>
+      </tr>
+    </tfoot>
   </table>
 
 {% endblock %}
