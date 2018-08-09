@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from backstage.email.views import EmailCreateView, EmailUpdateView, EmailAddRecipient, EmailDeleteRecipient, \
-    EmailPreview, EmailSend
+    EmailPreview, EmailSend, EmailRecipientErrorReport
 from backstage.email.views import EmailList
 from .account.views import AccountList, AccountPrivilegeSwitch, AccountPasswordChange, AccountPolygonSwitch, AccountActiveSwitch, \
     AccountSchoolList, AccountAddSchool, AccountEditSchool
@@ -72,7 +72,7 @@ urlpatterns = [
     url(r'^email/create/$', EmailCreateView.as_view(), name='email_create'),
     url(r'^email/(?P<eid>\d+)/update/$', EmailUpdateView.as_view(), name='email_update'),
     url(r'^email/(?P<eid>\d+)/recipient/add/$', EmailAddRecipient.as_view(), name='email_recipient_add'),
-    url(r'^email/recipient/(?P<pk>\d+)/error/$', EmailAddRecipient.as_view(), name='email_recipient_error'),
+    url(r'^email/recipient/(?P<pk>\d+)/error/$', EmailRecipientErrorReport.as_view(), name='email_recipient_error'),
     url(r'^email/recipient/(?P<pk>\d+)/delete/$', EmailDeleteRecipient.as_view(),
         name='email_recipient_delete'),
     url(r'^email/(?P<eid>\d+)/preview/$', EmailPreview.as_view(), name='email_preview'),
