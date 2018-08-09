@@ -1,0 +1,41 @@
+{% extends 'backstage/base.jinja2' %}
+{% from 'components/post_link.jinja2' import post_link %}
+{% block content_header %}
+  Emails
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui celled small table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="6">
+          <a href="{{ url('backstage:email_create') }}" class="ui primary labeled icon right floated button">
+            <i class="add icon"></i> Add an Email
+          </a>
+        </th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Content</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for email in email_list %}
+        <tr>
+          <td>{{ email.pk }}</td>
+          <td><a href="{{ url('backstage:email_update', email.pk) }}">{{ email.title }}</a></td>
+          <td>{{ email.content | length }}</td>
+          <td>{{ email.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ email.update_time | date('Y-m-d H:i:s') }}</td>
+          <td>{% if email.created_by %}{{ username_display(email.created_by) }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'backstage/base.jinja2' %}
+{% from 'components/post_link.jinja2' import post_link %}
+{% block content_header %}
+  Email: {{ email.title }}
+{% endblock %}
+
+{% block backstage_content %}
+
+  <div class="ui buttons">
+    <a data-link="{{ url('backstage:email_send', email.pk) }}" class="post ui primary button">Send All</a>
+    <a href="{{ url('backstage:email_preview', email.pk) }}" class="ui secondary button">Email HTML Preview</a>
+  </div>
+
+  <h3 class="ui dividing header">Update Zone</h3>
+
+  {% include 'components/form.jinja2' %}
+
+
+
+  <h3 class="ui dividing header">Recipients</h3>
+
+  <form action="{{ url('backstage:email_recipient_add', email.pk) }}" method="POST">
+  {% csrf_token %}
+  <div class="ui fluid action input">
+    <input type="text" name="text" placeholder="Type the username, use #all# to reference all users...">
+    <button class="ui button" type="submit">Add</button>
+  </div>
+  </form>
+
+  <table class="ui celled small table center aligned">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Status</th>
+        <th>Report</th>
+        <th colspan="2">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for recipient in recipients %}
+        <tr>
+          <td>{{ username_display(recipient.user) }}</td>
+          <td>{{ recipient.user.email }}</td>
+          <td>{{ recipient.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ recipient.update_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ recipient.get_status_display() }}</td>
+          <td>{% if recipient.error_message %}<a href="{{ url('backstage:email_recipient_error', recipient.id) }}" target="_blank">Available</a>{% endif %}</td>
+          <td><a class="post text red" data-link="{{ url('backstage:email_recipient_delete', recipient.id) }}">Delete</a></td>
+          <td><a class="post" data-link="{{ url('backstage:email_send', email.pk) }}?t={{ recipient.id }}">Send</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/polygon.js"></script>
+{% endblock %}
