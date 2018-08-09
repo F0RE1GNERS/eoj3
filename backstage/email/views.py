@@ -123,8 +123,8 @@ class EmailSend(BaseBackstageMixin, View):
     def post(self, request, eid):
         email = get_object_or_404(Email, pk=eid)
         if 't' in self.request.GET:
-            recipients = EmailRecipient.objects.filter(pk=self.request.GET['t']).select_related("user")
+            recipients = EmailRecipient.objects.filter(email=email, pk=self.request.GET['t']).select_related("user")
         else:
-            recipients = EmailRecipient.objects.filter(status=-1).select_related("user")
+            recipients = EmailRecipient.objects.filter(email=email, status=-1).select_related("user")
         async(EmailSend.send, email, list(recipients))
         return redirect(reverse('backstage:email_update', kwargs={'eid': eid}))
