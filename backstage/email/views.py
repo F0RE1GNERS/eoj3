@@ -91,7 +91,7 @@ class EmailDeleteRecipient(BaseBackstageMixin, View):
 
 
 class EmailRecipientErrorReport(BaseBackstageMixin, View):
-    def post(self, request, pk):
+    def get(self, request, pk):
         t = EmailRecipient.objects.get(pk=pk).error_message
         return HttpResponse(t, content_type='text/plain')
 
