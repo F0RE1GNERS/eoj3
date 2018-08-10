@@ -268,22 +268,12 @@
   <h3 class="ui header">
     <i class="info circle icon"></i>
     <div class="content">
-      Contest Information and Rules
-      <div class="sub header">Read this carefully</div>
+      Contest Information
+      <div class="sub header">Only the basics</div>
     </div>
   </h3>
 
   <ul class="ui list">
-    <li class="item">
-    {% if authors %}
-      Contest Authors: {% for author in authors %}{{ username_display(author) }}{% if not loop.last %},{% endif %} {% endfor %}
-    {% else %}
-      Contest authors have not been disclosed yet.
-    {% endif %}
-    </li>
-    <li class="item">
-      Contest Access: {% if contest.public %}<b>Public</b>{% else %}<b>Private</b>{% endif %}
-    </li>
     {% if contest.always_running %}
       <li class="item">
         Contest Duration: <b>Always Running</b>
@@ -300,61 +290,6 @@
       <li class="item">
         Standings frozen after {{ contest.freeze_time | date('Y-m-d H:i:s') }} ({{ contest.freeze_time | naturaltime }}).
       </li>
-    {% endif %}
-    <li class="item">
-      Supported languages: {{ contest.verbose_supported_language_list }}.
-    </li>
-    <li class="item">
-      {% if contest.scoring_method == 'acm' %}
-      Based on traditional ACM-ICPC scoring method. Contestants are ranked according to the most problems solved. Contestants who solve the same number of problems are ranked by penalty, if penalty is calculated.
-      {% elif contest.scoring_method == 'oi' %}
-      Based on COI (Chinese OI) scoring method. All test cases will be judged. Contestant's score on a single problem will be determined by the percentage of <b>weighted</b> sum of all passed test cases. The sum score is simply the <b>weighted</b> sum of score that is earned in each problem.
-      {% elif contest.scoring_method == 'cf' %}
-      Scoring rule of this contest is very similar to <a href="http://codeforces.com/">Codeforces</a> regular round. Basically, When you solve a problem, you get a score assigned to it. This score drops as time goes by. It will be half the score when the contest ends. 50 points will be lost for each rejected solutions. At least 0.3 times the original score will be earned if the problem is successfully solved at the end.
-      {% elif contest.scoring_method == 'tcmtime' %}
-      This contest uses TCM/TIME Rule. The winner is the participant who correctly solves the greatest number of problems. If several participants solve the same number of problems, then the competitor with the smaller penalty time will rank higher.
-      {% elif contest.scoring_method == 'subtask' %}
-      This contest uses Subtask Rule. Each problem has one or multiple subtasks that can be evaluated either independently or dependently.
-      {% endif %}
-    </li>
-    <li class="item">
-      {% if contest.run_tests_during_contest == 'all' %}
-      This contest is full-feedback (solutions are fully judged during the contest).
-      {% elif contest.run_tests_during_contest == 'pretest' %}
-      Only pretests will be judged during the contest. There will be system tests after the contest.
-      {% elif contest.run_tests_during_contest == 'sample' %}
-      Only samples will be judged during the contest. There will be system tests after the contest.
-      {% else %}
-      All solutions will not be judged until the contest ends.
-      {% endif %}
-    </li>
-    <li class="item">
-      {% if contest.allow_code_share == 0 %}
-      Codes are not shared under any circumstances.
-      {% elif contest.allow_code_share == 1 %}
-      Certain codes are available <b>after</b> the contest, if you have solved the problem.
-      {% elif contest.allow_code_share == 2 %}
-      All codes go public after the contest.
-      {% else %}
-      Certain codes are available <b>during</b> the contest, if you have solved the problem.
-      {% endif %}
-    </li>
-    <li class="item">
-      {% if contest.last_counts %}
-        Your <b>latest</b> submission will be scored.
-      {% else %}
-        Your <b>best-scored</b> submission will be scored.
-      {% endif %}
-    </li>
-    <li class="item">
-      {% if contest.penalty_counts %}
-        Penalty will determine the rank among participants with the same score. The total penalty is the sum of the time consumed for each problem solved. The time consumed for a solved problem is the time elapsed from the beginning of the contest to the submittal of the accepted run plus 20 penalty minutes for every rejected run for that problem regardless of submittal time. There is no time consumed for a problem that is not solved.
-      {% else %}
-        Penalty will not be calculated.
-      {% endif %}
-    </li>
-    {% if contest.standings_disabled %}
-      <li class="item">Standings are closed now.</li>
     {% endif %}
   </ul>
   {{ separator() }}
