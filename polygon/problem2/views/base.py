@@ -225,7 +225,17 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         if not self.case_number_well_ordered():
             self.warnings.append("Case numbers are not perfectly ordered.")
         if not self.revision.active_statement:
-            self.errors.append("Must have an active statement")
+            self.errors.append("Must have an active statement.")
+        if not (256 <= self.revision.memory_limit <= 4096):
+            self.errors.append("Memory limit should be between 256MB and 4GB.")
+        if not (500 <= self.revision.time_limit <= 30000):
+            self.errors.append("Time limit should be between 500ms and 30 seconds.")
+        if not self.revision.time_limit * self.revision.cases.count() <= 900000:
+            self.warnings.append("Time limit of all cases exceeds 900 seconds. This brings potential problems that "
+                                 "judge requests will timeout.")
+        if not self.revision.well_form_policy:
+            self.warnings.append("Well form policy is not enabled. This brings potential problems in end-of-line and "
+                                 "unexpected spaces. Make sure you want to do this.")
 
     def init_revision(self, *args, **kwargs):
         self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
