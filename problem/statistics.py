@@ -263,16 +263,17 @@ def invalidate_user(user_id, contest_id=0):
     accept_list = list(ac_filter.order_by().values_list("problem_id", flat=True).distinct())
     accept_diff = len(accept_list)
 
-    if not UserStatus.objects.filter(user_id=user_id, contest_id=contest_id).exists():
-        us = UserStatus(user_id=user_id, contest_id=contest_id)
-    else:
-        us = UserStatus.objects.get(user_id=user_id, contest_id=contest_id)
-    us.total_count = total_count
-    us.total_list = ",".join(map(str, total_list))
-    us.ac_count = accept_count
-    us.ac_list = ",".join(map(str, accept_list))
-    us.ac_distinct_count = accept_diff
-    us.save()
+    with transaction.atomic():
+        if not UserStatus.objects.filter(user_id=user_id, contest_id=contest_id).exists():
+            us = UserStatus(user_id=user_id, contest_id=contest_id)
+        else:
+            us = UserStatus.objects.get(user_id=user_id, contest_id=contest_id)
+        us.total_count = total_count
+        us.total_list = ",".join(map(str, total_list))
+        us.ac_count = accept_count
+        us.ac_list = ",".join(map(str, accept_list))
+        us.ac_distinct_count = accept_diff
+        us.save()
     return us
 
 
