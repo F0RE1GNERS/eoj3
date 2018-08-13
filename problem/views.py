@@ -421,10 +421,10 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
         data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
         data['user_all_count'] = get_problem_all_user_count(self.problem.id)
-        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id)
+        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id) * 100
         data['ac_count'] = get_problem_accept_count(self.problem.id)
         data['all_count'] = get_problem_all_count(self.problem.id)
-        data['ratio'] = get_problem_accept_ratio(self.problem.id)
+        data['ratio'] = get_problem_accept_ratio(self.problem.id) * 100
         data['difficulty'] = get_problem_difficulty(self.problem.id)
         data['stats'] = get_problem_stats(self.problem.id)
         data['param_type'] = self.request.GET.get('type', 'latest')
