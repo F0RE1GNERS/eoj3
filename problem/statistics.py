@@ -5,7 +5,7 @@ from time import sleep
 from django.core.cache import cache
 from django.db import transaction
 
-from problem.models import Problem, ProblemContestStatus, UserStatus
+from problem.models import Problem, ProblemContestStatus, UserStatus, TagInfo
 from submission.models import SubmissionStatus, Submission
 from utils.permission import is_problem_manager
 
@@ -310,3 +310,13 @@ def get_attempted_problem_list(user_id, contest_id=0):
 def is_problem_accepted(user, problem):
     return is_problem_manager(user, problem) or (user.is_authenticated and
            user.submission_set.filter(problem=problem, status=SubmissionStatus.ACCEPTED).exists())
+
+
+def get_children_tag_id(tag: int = -1):
+    tags = {tag}
+    while True:
+        adds = set(TagInfo.objects.filter(parent_id__in=tags).values_list("tag_id", flat=True))
+        if (adds & tags) == adds:
+            break
+        tags |= adds
+    return tags

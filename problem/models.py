@@ -185,6 +185,7 @@ class Skill(models.Model):
 class TagInfo(models.Model):
     tag = models.OneToOneField(Tag)
     description = models.TextField(blank=True)
+    parent_id = models.IntegerField(default=-1)
 
 
 class UserStatus(models.Model):

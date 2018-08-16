@@ -1,4 +1,5 @@
 import json
+from random import randint
 
 from django.db import transaction
 from django.db.models import Q
@@ -13,7 +14,7 @@ from rest_framework.views import APIView
 from tagging.models import Tag, TaggedItem
 
 from backstage.problem.forms import SkillEditForm, SetSourceForm, TagEditForm
-from problem.models import Problem, Skill
+from problem.models import Problem, Skill, TagInfo
 from ..base_views import BaseBackstageMixin, BaseUpdateView
 
 
@@ -44,8 +45,33 @@ class ProblemVisibleSwitch(BaseBackstageMixin, View):
 
 class ProblemTagList(BaseBackstageMixin, ListView):
     template_name = 'backstage/problem/tags.jinja2'
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.select_related("taginfo").all()
     context_object_name = 'tag_list'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        tag_names = {tag.pk: tag.name for tag in Tag.objects.all()}
+        for tag in data['tag_list']:
+            if hasattr(tag, "taginfo"):
+                tag.parent = tag_names.get(tag.taginfo.parent_id, 'N/A')
+        data['tag_tree'] = self.get_formatted_tag_data()
+        return data
+
+    def search_by_tag(self, dep, tag):
+        # return {"name": "...", "children": [] }
+        if dep > 10:
+            raise ValueError("Max Recursive Limit Exceeded")
+
+        children = TagInfo.objects.filter(parent_id=tag).values_list("tag_id", flat=True)
+        if len(children) == 0:
+            return {"name": self.tag_names[tag], "value": randint(3000, 5000)}
+        else:
+            return {"name": self.tag_names[tag], "children": [self.search_by_tag(dep + 1, child) for child in children]}
+
+    def get_formatted_tag_data(self):
+        self.tag_names = {tag.pk: tag.name for tag in Tag.objects.all()}
+        self.tag_names[-1] = "all"
+        return json.dumps(self.search_by_tag(0, -1))
 
 
 class ProblemTagCreate(BaseBackstageMixin, APIView):
