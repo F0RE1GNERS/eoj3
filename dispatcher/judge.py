@@ -11,6 +11,7 @@ from django.conf import settings
 
 from utils.detail_formatter import response_fail_with_timestamp, add_timestamp_to_reply
 from utils import random_string
+from utils.site_settings import nonstop_judge
 
 from .manage import DEFAULT_USERNAME
 
@@ -125,4 +126,6 @@ def _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until
     if group_config.get("on"):
         all_params['group_list'] = group_config["group_list"]
         all_params['group_dependencies'] = group_config["group_dependencies"]
+    if nonstop_judge():
+        all_params['run_until_complete'] = True
     return all_params

@@ -51,3 +51,7 @@ def is_festival():
 
 def force_closed():
     return {"force_closed": True}
+
+
+def nonstop_judge():
+    return site_settings_get("NONSTOP_JUDGE", default=False, use_cache=True)
