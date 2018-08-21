@@ -35,6 +35,7 @@ from utils.comment import CommentForm
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
 from utils.pagination import EndlessListView
+from utils.site_settings import open_all_protocols
 from utils.tagging import edit_string_for_tags
 from .models import Problem, Skill, get_input_path, get_output_path
 from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
@@ -498,7 +499,7 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                     self.request.user.polygon_enabled):
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
             data['submission_block'] = render_submission(submission, permission=permission)
-            if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
+            if permission == 2 or (self.request.user == submission.author and (submission.report_paid or open_all_protocols())) or \
                     (self.request.user.is_authenticated and self.request.user.polygon_enabled):
                 data['report_block'] = render_submission_report(submission.pk)
             else:

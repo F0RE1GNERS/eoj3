@@ -55,3 +55,7 @@ def force_closed():
 
 def nonstop_judge():
     return site_settings_get("NONSTOP_JUDGE", default=False, use_cache=True)
+
+
+def open_all_protocols():
+    return site_settings_get("OPEN_ALL_PROTOCOLS", default=False, use_cache=True)
