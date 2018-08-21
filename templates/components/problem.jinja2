@@ -10,7 +10,7 @@
   <div class="problem-body">
     {% if problem.description %}
       <div class="passage">
-        {{ problem.description | markdown | safer | safe }}
+        {{ problem.description | markdown | safe }}
       </div>
     {% endif %}
     {% if not problem.interactor or (problem.input and problem.output) %}
