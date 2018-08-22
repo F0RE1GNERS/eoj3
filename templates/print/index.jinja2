@@ -1,0 +1,56 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Print Service - {% endblock %}
+
+{% block page_header %}Print Service{% endblock %}
+
+{% block content %}
+
+  {% include 'components/message.jinja2' %}
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Code</label>
+      <textarea name="code" rows="9"></textarea>
+    </div>
+    <div class="field">
+      <label>Comment (20 characters at most)</label>
+      <input name="comment" type="text">
+    </div>
+    <div class="field">
+      <div class="ui checkbox">
+        <input type="checkbox" tabindex="0" name="noprint" class="hidden">
+        <label>Please don't print this.</label>
+      </div>
+    </div>
+    <div class="field">
+      <button class="ui positive button">Submit</button>
+    </div>
+  </form>
+
+  <table class="ui small center aligned celled table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Comment</th>
+        <th>Submitted</th>
+        <th>Status</th>
+        <th>Pages</th>
+        <th>Code</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for code in code_list %}
+      <tr>
+        <td>{{ code.pk }}</td>
+        <td>{{ code.comment }}</td>
+        <td>{{ code.create_time | date('Y-m-d H:i:s') }}</td>
+        <td>{{ code.get_status_display() }}</td>
+        <td>{{ code.pages }}</td>
+        <td><a href="{{ url('print_code_download', code.pk) }}" target="_blank">{{ code.code | length }} bytes</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

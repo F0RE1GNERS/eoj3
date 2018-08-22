@@ -169,3 +169,24 @@ class Submission(models.Model):
         if hasattr(self, 'contest_problem'):
             return int(round(self.contest_problem.weight / 100 * self.status_percent + 1E-2))
         return int(round(self.status_percent))
+
+
+class PrintManager(models.Model):
+    user = models.OneToOneField(User)
+    limit = models.PositiveIntegerField(default=50)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+
+class PrintCode(models.Model):
+    code = models.TextField()
+    user = models.ForeignKey(User)
+    manager = models.ForeignKey(PrintManager)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+    generated_pdf = models.TextField(blank=True)
+    pages = models.PositiveIntegerField(default=1)
+    status = models.IntegerField(choices=(
+        (-1, 'Processing'), (0, 'OK'), (1, 'Failed'), (2, 'Ignore')
+    ), default=-1)
+    comment = models.CharField(blank=True, max_length=64)
