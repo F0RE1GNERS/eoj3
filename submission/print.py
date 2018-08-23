@@ -20,16 +20,17 @@ from utils import random_string
 
 
 def process_code(code: PrintCode):
+    base_dir, gen_dir = settings.BASE_DIR, settings.GENERATE_DIR
+    os.chdir(gen_dir)
     try:
-        base_dir, gen_dir = settings.BASE_DIR, settings.GENERATE_DIR
         with open(os.path.join(base_dir, "submission/assets/template.tex")) as f:
             tex_code = f.read()
             tex_code = tex_code.replace("$$username$$", code.user.username)
             tex_code = tex_code.replace("$$comment$$", code.comment)
             tex_code = tex_code.replace("$$code$$", code.code)
         secret_key = random_string()
-        tex_file_path = os.path.join(gen_dir, secret_key + ".tex")
-        pdf_file_path = os.path.join(gen_dir, secret_key + ".pdf")
+        tex_file_path = secret_key + ".tex"
+        pdf_file_path = secret_key + ".pdf"
         with open(tex_file_path, "w") as f:
             f.write(tex_code)
         subprocess.run(["/usr/bin/xelatex", tex_file_path])
@@ -46,6 +47,7 @@ def process_code(code: PrintCode):
     except:
         traceback.print_exc()
         code.status = 1
+    os.chdir(base_dir)
     code.save()
 
 
