@@ -66,7 +66,7 @@ def process_code(code: PrintCode):
             code.pages = int(pdfinfo_match.group(1))
         code.save()
         if code.pages > code.manager.limit or \
-                code.manager.printcode_set.filter(create_time__gt=datetime.now() - timedelta(days=1)).aggregate(Sum("pages")) > code.manager.limit:
+                code.manager.printcode_set.filter(create_time__gt=datetime.now() - timedelta(days=1)).aggregate(Sum("pages"))["pages__sum"] > code.manager.limit:
             # limit pages
             raise ValueError("Too many pages")
         subprocess.run(["/usr/bin/lp", "-d", "LaserJet", pdf_file_path])
