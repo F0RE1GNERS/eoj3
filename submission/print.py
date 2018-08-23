@@ -40,7 +40,7 @@ def process_code(code: PrintCode):
         if code.pages > 20:
             # limit pages
             raise ValueError("Too many pages")
-        subprocess.run(["/usr/bin/lp", pdf_file_path])
+        subprocess.run(["/usr/bin/lp", "-d", "LaserJet", pdf_file_path])
         code.status = 0
         code.generated_pdf = secret_key
     except:
