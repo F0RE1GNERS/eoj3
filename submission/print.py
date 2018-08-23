@@ -19,21 +19,44 @@ from submission.models import PrintManager, PrintCode
 from utils import random_string
 
 
+def latex_replace(s):
+    d = {
+        "&": "\\&",
+        "%": "\\%",
+        "$": "\\$",
+        "#": "\\#",
+        "_": "\\_",
+        "{": "\\{",
+        "}": "\\}",
+        "~": "\\textasciitilde",
+        "^": "\\textasciicircum",
+        "\\": "\\textbackslash"
+    }
+    res = ''
+    for x in d:
+        if x in d:
+            res += d[x]
+        else: res += x
+    return res
+
+
 def process_code(code: PrintCode):
     base_dir, gen_dir = settings.BASE_DIR, settings.GENERATE_DIR
     os.chdir(gen_dir)
     try:
         with open(os.path.join(base_dir, "submission/assets/template.tex")) as f:
             tex_code = f.read()
-            tex_code = tex_code.replace("$$username$$", code.user.username)
-            tex_code = tex_code.replace("$$comment$$", code.comment)
-            tex_code = tex_code.replace("$$code$$", code.code)
+            tex_code = tex_code.replace("$$username$$", latex_replace(code.user.username))
+            tex_code = tex_code.replace("$$comment$$", latex_replace(code.comment))
+            tex_code = tex_code.replace("$$code$$", code.code.replace("\\end{lstlisting}", ""))
         secret_key = random_string()
         tex_file_path = secret_key + ".tex"
         pdf_file_path = secret_key + ".pdf"
         with open(tex_file_path, "w") as f:
             f.write(tex_code)
-        subprocess.run(["/usr/bin/xelatex", tex_file_path])
+        tex_gen = subprocess.run(["/usr/bin/xelatex", tex_file_path])
+        if tex_gen.returncode != 0 or not os.path.exists(pdf_file_path):
+            raise ValueError("TeX generation failed")
         pdfinfo = subprocess.check_output(["/usr/bin/pdfinfo", pdf_file_path]).decode()
         pdfinfo_match = re.match(r"Pages:\s+(\d+)", pdfinfo)
         if pdfinfo_match:
