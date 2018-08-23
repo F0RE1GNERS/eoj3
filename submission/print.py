@@ -3,10 +3,13 @@ import re
 
 import subprocess
 import traceback
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
+
 from account.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
@@ -33,7 +36,7 @@ def latex_replace(s):
         "\\": "\\textbackslash"
     }
     res = ''
-    for x in d:
+    for x in s:
         if x in d:
             res += d[x]
         else: res += x
@@ -61,7 +64,9 @@ def process_code(code: PrintCode):
         pdfinfo_match = re.match(r"Pages:\s+(\d+)", pdfinfo)
         if pdfinfo_match:
             code.pages = int(pdfinfo_match.group(1))
-        if code.pages > 20:
+        code.save()
+        if code.pages > code.manager.limit or \
+                code.manager.printcode_set.filter(create_time__gt=datetime.now() - timedelta(days=1)).aggregate(Sum("pages")) > code.manager.limit:
             # limit pages
             raise ValueError("Too many pages")
         subprocess.run(["/usr/bin/lp", "-d", "LaserJet", pdf_file_path])
