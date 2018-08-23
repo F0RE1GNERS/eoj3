@@ -108,7 +108,7 @@ class PrintCodeView(LoginRequiredMixin, ListView):
         noprint = request.POST.get('noprint') == 'on'
         if len(code) < 6 or len(code) > 65536:
             messages.error(request, "Length of code is either too short or too long.")
-            return redirect(request.url)
+            return redirect(request.path)
         manager = get_object_or_404(PrintManager, user=self.request.user)
         p = manager.printcode_set.create(code=code, user=self.request.user, comment=comment)
         if noprint:
