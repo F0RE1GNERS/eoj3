@@ -16,7 +16,7 @@ from blog.views import GenericView
 from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, update_log_view, PasteView
 from home.museum import museum_view
 from problem.views import make_payment_for_full_report, case_download_link
-from submission.print import PrintCodeView, PrintCodeDownload, PrintAdminView
+from submission.print import PrintCodeView, PrintCodeDownload, PrintAdminView, PrintPdfDownload
 from utils.site_settings import force_closed
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
@@ -68,6 +68,7 @@ urlpatterns += [
 urlpatterns += [
     url(r'^p/admin/$', PrintAdminView.as_view(), name='print_admin'),
     url(r'^p/code/(?P<pk>\d+)/$', PrintCodeDownload.as_view(), name='print_code_download'),
+    url(r'^p/pdf/(?P<pk>\d+)/$', PrintPdfDownload.as_view(), name='print_pdf_download'),
     url(r'^p/$', PrintCodeView.as_view(), name='print'),
 ]
 

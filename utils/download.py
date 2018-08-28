@@ -35,7 +35,6 @@ def respond_as_attachment(request, file_path, original_filename, document_root=N
 def respond_generate_file(request, file_name, file_name_serve_as=None):
     if file_name_serve_as is None:
         file_name_serve_as = file_name
-    threading.Thread(target=clean_outdated_generated_files).start()
     return respond_as_attachment(request, file_name, file_name_serve_as, settings.GENERATE_DIR)
 
 
