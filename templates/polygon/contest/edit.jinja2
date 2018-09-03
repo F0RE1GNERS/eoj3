@@ -4,9 +4,10 @@
 
   <h3 class="ui dividing header">Summary</h3>
   <ul class="ui list">
-    <li class="item">Title: {{ contest.title }}</li>
-    <li class="item">PDF Statement: {{ contest.pdf_statement }}, <a class="post prompt" data-link="{{ url('polygon:contest_drop_statement', contest.id) }}">drop PDF statement</a>.</li>
-    <li class="item">Participants: {{ contest.participants.count() }}</li>
+    <li class="item"><b>PDF Statement:</b> {{ contest.pdf_statement }}, <a class="post prompt" data-link="{{ url('polygon:contest_drop_statement', contest.id) }}">drop PDF statement</a>.</li>
+    <li class="item"><b>Participants:</b> {{ contest.participants.count() }}</li>
+    <li class="item"><b>Access level:</b> {{ contest.get_access_level_display() }}</li>
+    <li class="item"><b>Common status access level:</b> {{ contest.get_common_status_access_level_display() }}</li>
   </ul>
 
   <h3 class="ui dividing header">Edit</h3>

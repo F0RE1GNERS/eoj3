@@ -77,6 +77,20 @@ class Contest(models.Model):
         (2, _('Ended')),
     )
 
+    ACCESS_LEVEL_OPTIONS = (
+        (0, 'Available only to managers'),
+        (10, 'Available to invited users, problems are always hidden'),
+        (20, 'Available to invited users, problems will be automatically published after contest'),
+        (30, 'Available to everyone, requires registration in advance'),
+        (40, 'Available to everyone')
+    )
+
+    COMMON_STATUS_ACCESS_LEVEL_OPTIONS = (
+        (-10, 'Close common status and standings'),
+        (0, 'Default (follow access level settings)'),
+        (10, 'Make common status and standings always public')
+    )
+
     title = models.CharField(max_length=192)
     description = models.TextField(blank=True)
     allowed_lang = models.CharField(_('Allowed languages'), max_length=192, default=get_language_all_list())
@@ -98,7 +112,7 @@ class Contest(models.Model):
     standings_without_problem = models.BooleanField('Show standings without a list of solved problems (often used when there is too many problems)',
                                                     default=False)  # Have a standing without specific problems
     standings_public = models.BooleanField('Make standings public even if the contest is private', default=True)
-    standings_disabled = models.BooleanField("Users won't be able to see their standings in any case", default=False)
+    standings_disabled = models.BooleanField("Close common status and standings", default=False)
     case_public = models.PositiveIntegerField(choices=CASE_PUBLIC_CHOICE, default=0)
 
     system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
@@ -107,6 +121,8 @@ class Contest(models.Model):
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
+    access_level = models.PositiveIntegerField(default=0, choices=ACCESS_LEVEL_OPTIONS)
+    common_status_access_level = models.IntegerField(default=0, choices=COMMON_STATUS_ACCESS_LEVEL_OPTIONS)
     visible = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
     open_problems = models.BooleanField('Publish problems after contest', default=True)
