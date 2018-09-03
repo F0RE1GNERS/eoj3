@@ -150,7 +150,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                 items = list(filter(lambda x: x.object_id == contest_problem.problem_id, tagged_items))
                 if items:
                     contest_problem.tags = list(map(lambda x: x.tag.name, items))
-                if tag_filter and contest_problem.tags and tag_filter in contest_problem.tags:
+                if tag_filter and hasattr(contest_problem, "tags") and tag_filter in contest_problem.tags:
                     data['tagged_contest_problem_list'].append(contest_problem)
 
         data['has_permission'] = super(DashboardView, self).test_func()
