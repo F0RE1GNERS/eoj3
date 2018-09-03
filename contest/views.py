@@ -51,7 +51,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
             if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
                     <= self.contest.end_time + timedelta(minutes=10):
                 raise CloseSiteException
-            if self.contest.public:
+            if self.contest.access_level >= 30:
                 raise CloseSiteException
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
@@ -69,14 +69,15 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
                 else: self.registered = True
             except ContestParticipant.DoesNotExist:
                 pass
-        if not self.registered and (self.contest.public or (self.contest.open_problems and self.contest.status > 0)):
+        if not self.registered and (self.contest.access_level >= 30
+                                    or (self.contest.access_level >= 20 and self.contest.status > 0)):
             self.registered = True
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
         if self.privileged:
             return True
-        if not self.contest.visible:
+        if self.contest.access_level == 0:
             self.permission_denied_message = _('Contest is not visible.')
             return False
         if self.contest.status < 0:
@@ -123,14 +124,14 @@ class DashboardView(BaseContestMixin, TemplateView):
     def test_func(self):
         if self.privileged:
             return True
-        return self.contest.visible
+        return self.contest.access_level > 0
 
     def get_context_data(self, **kwargs):
         data = super(DashboardView, self).get_context_data(**kwargs)
 
         if self.registered:
             data['registered'] = True
-        if self.user.is_authenticated and self.contest.public and self.contest.rated and self.contest.status == -1:
+        if self.user.is_authenticated and self.contest.access_level == 30 and self.contest.status == -1:
             if self.contest.contestparticipant_set.filter(user=self.user).exists():
                 data['public_register'] = 1
             else:
@@ -179,7 +180,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     data["rank"] = cache.get(self_displayed_rank_template)
                     if data["rank"] is None:
                         data["rank"] = get_participant_score(self.contest, self.user.pk)
-                        if self.contest.standings_disabled:
+                        if self.contest.common_status_access_level < 0:
                             data["rank"].pop("actual_rank", None)
                         cache.set(self_displayed_rank_template, data["rank"], 15)
                     if data["rank"] is not None:
@@ -257,7 +258,7 @@ class ContestPublicToggleRegister(View):
             messages.error(request, 'Please login first.')
         else:
             contest = get_object_or_404(Contest, pk=cid)
-            if contest.public and contest.rated and contest.status == -1:
+            if contest.access_level == 30 and contest.status == -1:
                 with transaction.atomic():
                     if not contest.contestparticipant_set.filter(user=request.user).exists():
                         contest.contestparticipant_set.get_or_create(user=request.user)

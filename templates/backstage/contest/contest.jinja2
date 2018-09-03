@@ -16,7 +16,6 @@
         <th>Title</th>
         <th>Start time</th>
         <th>End time</th>
-        <th>Public</th>
         <th colspan="2">Ratings</th>
       </tr>
     </thead>
@@ -27,7 +26,6 @@
           <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
-          <td>{{ contest.public }}</td>
           <td><a class="post-link" data-link="{{ url('backstage:contest_apply_ratings', contest.pk) }}">Apply</a></td>
           <td><a class="post-link" data-link="{{ url('backstage:contest_withdraw_ratings', contest.pk) }}">Withdraw</a></td>
           {# NOTE: Contest cannot be deleted once created #}

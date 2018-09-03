@@ -66,7 +66,7 @@ def query_blog(kw):
 def query_contest(kw):
     results = list()
     if kw:
-        for contest in Contest.objects.filter(title__icontains=kw, visible=True).all()[:5]:
+        for contest in Contest.objects.filter(title__icontains=kw, access_level__gt=0).all()[:5]:
             results.append(
                 dict(title=escape(contest.title), url=reverse('contest:dashboard', kwargs={"cid": contest.pk})))
     return dict(name='Contest', results=results)

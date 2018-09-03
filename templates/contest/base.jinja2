@@ -11,7 +11,7 @@
     {% if request.user.is_authenticated %}
     <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">My</a>
     {% endif %}
-    {% if not contest.standings_disabled or is_privileged %}
+    {% if contest.common_status_access_level >= 0 or is_privileged %}
       <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">Status</a>
       <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">Standings</a>
     {% endif %}
@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          {% if contest.status == 0 and contest.rated and contest.scoring_method != 'acm' %}
+          {% if contest.status == 0 and contest.scoring_method != 'acm' %}
             <div class="ui segments">
               <div class="ui segment">
                 <h3 class="ui center aligned header">Scoring</h3>

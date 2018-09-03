@@ -25,7 +25,7 @@ class ContestManager(models.Manager):
     def get_status_list(self, show_all=False, filter_user=None, sorting_by_id=False, always_running=None):
         q = models.Q()
         if not show_all:
-            q &= models.Q(visible=True)
+            q &= models.Q(access_level__gt=0)
             if filter_user:
                 q |= models.Q(managers=filter_user)
         if always_running is not None:
@@ -95,7 +95,7 @@ class Contest(models.Model):
     description = models.TextField(blank=True)
     allowed_lang = models.CharField(_('Allowed languages'), max_length=192, default=get_language_all_list())
 
-    always_running = models.BooleanField(default=False)
+    always_running = models.BooleanField('As gym contest (start time and end time will not work)', default=False)
     start_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
     end_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -111,21 +111,15 @@ class Contest(models.Model):
     penalty_counts = models.PositiveIntegerField('Penalty by seconds', default=1200)
     standings_without_problem = models.BooleanField('Show standings without a list of solved problems (often used when there is too many problems)',
                                                     default=False)  # Have a standing without specific problems
-    standings_public = models.BooleanField('Make standings public even if the contest is private', default=True)
-    standings_disabled = models.BooleanField("Close common status and standings", default=False)
     case_public = models.PositiveIntegerField(choices=CASE_PUBLIC_CHOICE, default=0)
 
     system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
-    rated = models.BooleanField(default=False)
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
     access_level = models.PositiveIntegerField(default=0, choices=ACCESS_LEVEL_OPTIONS)
     common_status_access_level = models.IntegerField(default=0, choices=COMMON_STATUS_ACCESS_LEVEL_OPTIONS)
-    visible = models.BooleanField(default=False)
-    public = models.BooleanField(default=False)
-    open_problems = models.BooleanField('Publish problems after contest', default=True)
     ip_sensitive = models.BooleanField('Bind IP to user\'s account after first login', default=False)
     analysis_blog_id = models.IntegerField(default=0)   # related to a blog id
     pdf_statement = models.FileField('PDF Statement', upload_to='contest_statements/%Y%m%d/', null=True, blank=True)

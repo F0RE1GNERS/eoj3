@@ -7,7 +7,7 @@
   <table class="ui celled table center aligned">
     <thead class="full-width">
       <tr>
-        <th colspan="6">
+        <th colspan="5">
           <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Contest
           </button>
@@ -18,8 +18,7 @@
         <th>Start</th>
         <th>End</th>
         <th>Public</th>
-        <th>Open</th>
-        <th>Visible</th>
+        <th>Standings</th>
       </tr>
     </thead>
     <tbody>
@@ -28,17 +27,8 @@
           <td><a href="{{ url('polygon:contest_meta', contest.id) }}">{{ contest.title }}</a></td>
           <td class="collapsing">{{ contest.start_time | date('Y-m-d H:i:s') }}</td>
           <td class="collapsing">{{ contest.end_time | date('Y-m-d H:i:s') }}</td>
-          <td class="collapsing">{{ contest.public }}</td>
-          <td class="collapsing">
-            <div class="ui fitted slider checkbox immediate">
-              <input data-link="{{ url('polygon:contest_toggle_open', contest.id) }}" type="checkbox" {% if contest.open_problems %}checked{% endif %}>
-            </div>
-          </td>
-          <td class="collapsing">
-            <div class="ui fitted slider checkbox immediate">
-              <input data-link="{{ url('polygon:contest_toggle_visible', contest.id) }}" type="checkbox" {% if contest.visible %}checked{% endif %}>
-            </div>
-          </td>
+          <td class="collapsing">{{ contest.access_level }}</td>
+          <td class="collapsing">{{ contest.common_status_access_level }}</td>
         </tr>
       {% endfor %}
     </tbody>

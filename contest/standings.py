@@ -38,9 +38,9 @@ class ContestStandings(BaseContestMixin, ListView):
     def test_func(self):
         if self.privileged:
             return True
-        if not self.contest.visible or self.contest.standings_disabled:
+        if self.contest.access_level == 0 or self.contest.common_status_access_level < 0:
             return False
-        if self.contest.standings_public and self.contest.status >= 0:
+        if self.contest.common_status_access_level > 0 and self.contest.status >= 0:
             return True
         return super(ContestStandings, self).test_func()
 

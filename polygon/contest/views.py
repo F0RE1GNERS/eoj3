@@ -121,20 +121,6 @@ class ContestCreate(PolygonBaseMixin, View):
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
 
 
-class ContestToggleVisible(PolygonContestMixin, View):
-    def post(self, request, pk):
-        self.contest.visible = not self.contest.visible
-        self.contest.save(update_fields=['visible'])
-        return HttpResponse()
-
-
-class ContestToggleOpen(PolygonContestMixin, View):
-    def post(self, request, pk):
-        self.contest.open_problems = not self.contest.open_problems
-        self.contest.save(update_fields=['open_problems'])
-        return HttpResponse()
-
-
 class ContestAccessManage(PolygonContestMixin, View):
     def post(self, request, pk):
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))

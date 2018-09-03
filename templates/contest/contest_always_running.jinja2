@@ -21,14 +21,16 @@
     <tbody>
       {% for contest in contest_list %}
         <tr class="center aligned">
-          <td class="{% if not contest.visible %}deleted{% endif %}"><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
+          <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td><div class="ui list">
             {% for m in contest.managers.all() %}
               <div class="item">{{ username_display(m) }}</div>
             {% endfor %}
           </div></td>
           <td>{{ contest.start_time | date('M. d, Y')}}</td>
-          <td>{% if contest.public %}<i class="green large check icon"></i>{% else %}<i class="orange large remove icon"></i>{% endif %}</td>
+          <td>{% if contest.access_level >= 30 %}<i class="green large check icon"></i>
+          {% elif contest.access_level >= 10 %}<i class="orange large remove icon"></i>
+          {% else %}<i class="red large lock icon"></i>{% endif %}</td>
           <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>
         </tr>
       {% endfor %}

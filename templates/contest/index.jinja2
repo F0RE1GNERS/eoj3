@@ -215,7 +215,7 @@
   {% endif %}
 
   {# score distribution (for rated contest and scoring contest) #}
-  {% if contest.rated and (contest.scoring_method == 'cf' or contest.scoring_method == 'oi') %}
+  {% if contest.access_level == 30 and (contest.scoring_method == 'cf' or contest.scoring_method == 'oi') %}
     <h3 class="ui header">
       <i class="bar chart icon"></i>
       <div class="content">
@@ -293,9 +293,6 @@
     {% endif %}
   </ul>
   {{ separator() }}
-
-  {% if contest.rated %}
-  {% endif %}
 
   {# annoucement #}
 

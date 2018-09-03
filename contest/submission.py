@@ -51,7 +51,7 @@ class ContestSubmit(BaseContestMixin, View):
                 submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
                                                contest=self.contest, ip=get_ip(request))
                 contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
-                if created and self.contest.public and self.contest.rated:
+                if created and self.contest.access_level == 30:
                     contest_participant.star = True
                     contest_participant.save(update_fields=['star'])
                 if contest_participant.is_disabled:
@@ -204,7 +204,7 @@ class ContestStatusForAll(ContestStatus):
     def test_func(self):
         if self.privileged:
             return True
-        if self.contest.standings_disabled:
+        if self.contest.common_status_access_level < 0:
             return False
         return super().test_func()
 

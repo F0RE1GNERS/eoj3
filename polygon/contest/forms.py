@@ -8,7 +8,7 @@ from utils.multiple_choice_field import CommaSeparatedMultipleChoiceField
 class ContestEditForm(forms.ModelForm):
     class Meta:
         model = Contest
-        exclude = ['visible', 'standings_update_time', 'problems', 'participants', "managers",
+        exclude = ['problems', 'participants', "managers",
                    'standings_update_time', 'allowed_lang', 'authors', 'volunteers']
         help_texts = {
             'start_time': 'YYYY-MM-DD --:--(:--)',
@@ -19,7 +19,7 @@ class ContestEditForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'markdown'})
         }
 
-    field_order = ['title', 'description', 'public', 'allowed_lang', 'start_time', 'end_time']
+    field_order = ['title', 'description', 'allowed_lang', 'start_time', 'end_time', 'access_level', 'common_status_access_level']
     allowed_lang = CommaSeparatedMultipleChoiceField(choices=LANG_CHOICE)
 
     def __init__(self, *args, **kwargs):

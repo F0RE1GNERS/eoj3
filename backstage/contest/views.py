@@ -47,7 +47,7 @@ class ContestApplyRatingChanges(BaseBackstageMixin, View):
     def post(self, request, cid):
         try:
             contest = get_object_or_404(Contest, pk=cid)
-            if not contest.rated:
+            if contest.access_level < 30:
                 return HttpResponse()
             calculate_rating_changes(contest)
             messages.success(request, 'Ratings successfully updated.')

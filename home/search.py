@@ -60,7 +60,7 @@ def search_view(request):
                 blog.rank += weight_dict[attr]
 
     # query contests
-    contests = Contest.objects.filter(title__icontains=q, visible=True).extra(select={"rank": 0.7})[:LIMIT]
+    contests = Contest.objects.filter(title__icontains=q, access_level__gt=0).extra(select={"rank": 0.7})[:LIMIT]
 
     LIMIT *= 2
 
