@@ -263,14 +263,21 @@ def invalidate_user(user_id, contest_id=0):
     accept_list = list(ac_filter.order_by().values_list("problem_id", flat=True).distinct())
     accept_diff = len(accept_list)
 
-    us, _ = UserStatus.objects.get_or_create(user_id=user_id, contest_id=contest_id,
-                                             defaults={
-                                                 "total_count": total_count,
-                                                 "total_list": ",".join(map(str, total_list)),
-                                                 "ac_count": accept_count,
-                                                 "ac_list": ",".join(map(str, accept_list)),
-                                                 "ac_distinct_count": accept_diff
-                                             })
+    us, created = UserStatus.objects.get_or_create(user_id=user_id, contest_id=contest_id,
+                                                   defaults={
+                                                       "total_count": total_count,
+                                                       "total_list": ",".join(map(str, total_list)),
+                                                       "ac_count": accept_count,
+                                                       "ac_list": ",".join(map(str, accept_list)),
+                                                       "ac_distinct_count": accept_diff
+                                                   })
+    if not created:
+        us.total_count = total_count
+        us.total_list = ",".join(map(str, total_list))
+        us.ac_count = accept_count
+        us.ac_list = ",".join(map(str, accept_list))
+        us.ac_distinct_count = accept_diff
+        us.save()
     return us
 
 
