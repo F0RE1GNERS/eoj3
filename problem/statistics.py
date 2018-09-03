@@ -263,24 +263,22 @@ def invalidate_user(user_id, contest_id=0):
     accept_list = list(ac_filter.order_by().values_list("problem_id", flat=True).distinct())
     accept_diff = len(accept_list)
 
-    with transaction.atomic():
-        if not UserStatus.objects.filter(user_id=user_id, contest_id=contest_id).exists():
-            us = UserStatus(user_id=user_id, contest_id=contest_id)
-        else:
-            us = UserStatus.objects.get(user_id=user_id, contest_id=contest_id)
-        us.total_count = total_count
-        us.total_list = ",".join(map(str, total_list))
-        us.ac_count = accept_count
-        us.ac_list = ",".join(map(str, accept_list))
-        us.ac_distinct_count = accept_diff
-        us.save()
+    us, _ = UserStatus.objects.get_or_create(user_id=user_id, contest_id=contest_id,
+                                             defaults={
+                                                 "total_count": total_count,
+                                                 "total_list": ",".join(map(str, total_list)),
+                                                 "ac_count": accept_count,
+                                                 "ac_list": ",".join(map(str, accept_list)),
+                                                 "ac_distinct_count": accept_diff
+                                             })
     return us
 
 
 def _get_or_invalidate_user(user_id, contest_id, field_name):
-    if not UserStatus.objects.filter(user_id=user_id, contest_id=contest_id).exists():
+    try:
+        return getattr(UserStatus.objects.get(user_id=user_id, contest_id=contest_id), field_name)
+    except:
         return getattr(invalidate_user(user_id, contest_id), field_name)
-    return getattr(UserStatus.objects.get(user_id=user_id, contest_id=contest_id), field_name)
 
 
 def get_accept_submission_count(user_id, contest_id=0):
