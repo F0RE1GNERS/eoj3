@@ -76,7 +76,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for contest_problem in contest_problem_list %}
+        {% for contest_problem in tagged_contest_problem_list %}
         <tr class="center aligned">
           <td class="semi-bold">{{ contest_problem.identifier }}</td>
           <td class="left aligned">
@@ -91,7 +91,7 @@
           {% if contest.always_running %}
             <div style="float:right">
               {% for tag in contest_problem.tags %}
-                <span class="label ui horizontal">{{ tag }}</span>
+                <a class="label ui horizontal" href="?tag={{ tag }}">{{ tag }}</a>
               {% endfor %}
             </div>
           {% endif %}

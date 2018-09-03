@@ -138,14 +138,20 @@ class DashboardView(BaseContestMixin, TemplateView):
                 data['public_register'] = -1
 
         # tags
+        data['tagged_contest_problem_list'] = data['contest_problem_list']
         if self.contest.always_running:
             tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
                                 .filter(object_id__in=list(map(lambda x: x.problem_id, data['contest_problem_list'])))
                                 .select_related("tag"))
+            tag_filter = self.request.GET.get("tag")
+            if tag_filter:
+                data['tagged_contest_problem_list'] = []
             for contest_problem in data['contest_problem_list']:
                 items = list(filter(lambda x: x.object_id == contest_problem.problem_id, tagged_items))
                 if items:
-                    contest_problem.tags = map(lambda x: x.tag.name, items)
+                    contest_problem.tags = list(map(lambda x: x.tag.name, items))
+                if tag_filter and tag_filter in contest_problem.tags:
+                    data['tagged_contest_problem_list'].append(contest_problem)
 
         data['has_permission'] = super(DashboardView, self).test_func()
         for problem in data['contest_problem_list']:
