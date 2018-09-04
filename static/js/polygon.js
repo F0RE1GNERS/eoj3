@@ -11,6 +11,16 @@ $('.ui.calendar').calendar({
   }
 });
 
+$("#basic-info-button").click(function () {
+  $("#basic-info-modal").modal({
+    autofocus: false,
+    onApprove: function () {
+      $(this).find("form").submit();
+      return false;
+    }
+  }).modal('show');
+});
+
 $('#contest-create-button').click(function () {
   $("#contest-create")
     .modal('show');

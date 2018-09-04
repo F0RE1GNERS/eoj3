@@ -18,7 +18,7 @@ from account.models import User
 from account.permissions import is_admin_or_root
 from contest.models import Contest
 from polygon.base_views import PolygonBaseMixin
-from polygon.models import Revision
+from polygon.models import Revision, FavoriteProblem
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem
 from problem.views import StatusList
@@ -52,6 +52,11 @@ class ProblemList(PolygonBaseMixin, ListView):
         if query:
             qs = qs.filter(query)
         qs = qs.order_by("-update_time").prefetch_related("revisions").annotate(Count('revisions'))
+        favorite_problems = set(FavoriteProblem.objects.filter(user=self.request.user).values_list("problem_id", flat=True))
+        if favorite_problems:
+            for p in qs:
+                p.liked = p.id in favorite_problems
+            qs = sorted(list(qs), key=lambda p: not p.liked)
         return qs
 
     @staticmethod
@@ -172,6 +177,8 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
         data = super().get_context_data(**kwargs)
         data['problem'] = self.problem
         data['latest_revisions'] = self.latest_revisions
+        data['admin_list'] = self.problem.managers.all()
+        data['level_select'] = self.problem._meta.get_field('level').choices
         return data
 
 
@@ -291,4 +298,14 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
         for key in my_set:
             self.problem.managers.add(User.objects.get(pk=key))
         self.problem.save()
-        return redirect(self.request.path)
+        return redirect(request.POST.get('next', self.request.path))
+
+
+class ProblemFavoriteToggle(PolygonProblemMixin, View):
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            if FavoriteProblem.objects.filter(user=request.user, problem=self.problem).exists():
+                FavoriteProblem.objects.filter(user=request.user, problem=self.problem).delete()
+            else:
+                FavoriteProblem.objects.get_or_create(user=request.user, problem=self.problem)
+        return HttpResponse()

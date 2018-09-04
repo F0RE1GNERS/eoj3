@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/info/$', base.ProblemBasicInfoManage.as_view(), name='problem_basic_info'),
     url(r'^(?P<pk>\d+)/status/$', base.ProblemStatus.as_view(), name='problem_status'),
     url(r'^(?P<pk>\d+)/rejudge/$', base.ProblemRejudge.as_view(), name='rejudge_problem'),
+    url(r'^(?P<pk>\d+)/favorite/$', base.ProblemFavoriteToggle.as_view(), name='problem_favorite'),
 ]
 
 urlpatterns += [

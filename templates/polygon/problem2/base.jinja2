@@ -69,10 +69,9 @@
     <div class="four wide column">
       <div class="ui info small message">
         <div class="header">
-          Quick Review
+          Quick Review <a href="javascript:void(0);" id="basic-info-button">[edit]</a>
         </div>
         <ul class="list">
-          <li class="item"><b>Problem ID:</b> {{ problem.pk }}</li>
           <li class="item"><b>Problem Alias:</b> {{ problem.alias }}</li>
           <li class="item"><b>Revision:</b> {{ revision.revision }}</li>
           <li class="item"><b>Statement:</b>
@@ -116,16 +115,61 @@
           </li>
           <li class="item"><b>Time limit:</b> {{ revision.time_limit }} ms</li>
           <li class="item"><b>Memory limit:</b> {{ revision.memory_limit }} MB</li>
+          <li class="item"><b>Managers:</b> {% for manager in admin_list %}{{ manager }} {% endfor %}</li>
+          <li class="item"><b>Difficulty:</b> {{ problem.get_level_display() }}</li>
+          <li class="item"><b>Source: </b>{% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</li>
         </ul>
       </div>
       <a class="ui green fluid small button {% if revision_errors %}disabled{% else %}post prompt{% endif %}" data-link="{{ url('polygon:revision_confirm', problem.id, revision.id) }}" style="margin-bottom: 0.75em">Publish</a>
       <a class="ui fluid small button post prompt" data-link="{{ url('polygon:revision_create', problem.id) }}" style="margin-bottom: 0.75em">Start New Revision From Version Online</a>
-      <a class="ui fluid small button" href="{{ url('polygon:problem_basic_info', problem.id) }}" target="_blank" style="margin-bottom: 0.75em">Update Basic Info</a>
+{#      <a class="ui fluid small button" href="{{ url('polygon:problem_basic_info', problem.id) }}" target="_blank" style="margin-bottom: 0.75em">Update Basic Info</a>#}
       <a class="ui fluid small negative button post prompt" data-link="{{ url('polygon:revision_discard', problem.id, revision.id) }}"  style="margin-bottom: 0.75em">Discard</a>
 
     </div>
   </div>
   {% endif %}
+
+  <div class="ui modal" id="basic-info-modal">
+    <i class="close icon"></i>
+    <div class="header">
+      Problem Metainfo
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:problem_basic_info', problem.pk) }}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <div class="field">
+          <label>Admin List (DO NOT DELETE YOURSELF!):</label>
+          {{ user_search_multiple(name='admin', exist=admin_list) }}
+        </div>
+        <div class="field">
+          <label>Problem Alias:</label>
+          <input type="text" name="alias" value="{{ problem.alias }}">
+        </div>
+        <div class="field">
+          <label>Problem Source:</label>
+          <input type="text" name="source" value="{{ problem.source }}">
+        </div>
+        <div class="field">
+          <label>Assigned Difficulty Level:</label>
+          <select class="ui selection dropdown" name="level">
+            {% for val, verbose in level_select %}
+            <option value="{{ val }}" {% if val == problem.level %}selected{% endif %}>{{ verbose }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="actions">
+      <div class="ui black deny button">
+        Discard
+      </div>
+      <div class="ui positive right labeled icon button">
+        OK
+        <i class="checkmark icon"></i>
+      </div>
+    </div>
+  </div>
 
   {% include 'components/delete_confirmation.jinja2' %}
 

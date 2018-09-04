@@ -230,3 +230,12 @@ class Task(models.Model):
     report = models.TextField(blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+
+class FavoriteProblem(models.Model):
+    user = models.ForeignKey(User, related_name="polygon_favorite_problems")
+    problem = models.ForeignKey(Problem, related_name="polygon_problems_favorite_by")
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'problem')
