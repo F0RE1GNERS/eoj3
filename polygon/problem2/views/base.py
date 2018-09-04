@@ -29,7 +29,7 @@ from utils.permission import is_problem_manager
 class ProblemList(PolygonBaseMixin, ListView):
     template_name = 'polygon/problem2/list.jinja2'
     context_object_name = 'problem_list'
-    paginate_by = 250
+    paginate_by = 100
 
     def get_queryset(self):
         if 'exact' in self.request.GET:
@@ -51,7 +51,8 @@ class ProblemList(PolygonBaseMixin, ListView):
             qs = self.request.user.managing_problems.all()
         if query:
             qs = qs.filter(query)
-        qs = qs.order_by("-update_time").prefetch_related("revisions").annotate(Count('revisions'))
+        qs = qs.only("update_time", "title", "id", "create_time", "source", "alias")\
+            .order_by("-update_time").prefetch_related("revisions").annotate(Count('revisions'))
         favorite_problems = set(FavoriteProblem.objects.filter(user=self.request.user).values_list("problem_id", flat=True))
         if favorite_problems:
             for p in qs:
