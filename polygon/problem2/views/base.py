@@ -1,3 +1,4 @@
+import re
 import traceback
 from itertools import chain
 
@@ -91,6 +92,11 @@ class ProblemCreate(PolygonBaseMixin, View):
         return None
 
     def post(self, request, *args, **kwargs):
+        fallback_url = reverse('polygon:problem_list_2')
+        alias = request.POST.get('answer', '')
+        if not re.match(r'^[a-z0-9]{2,30}$', alias):
+            messages.error(request, "Alias must only contain lower-case letters and digits.")
+            return redirect(fallback_url)
         if 'force' in request.GET:
             problem = None
         else:
@@ -100,6 +106,9 @@ class ProblemCreate(PolygonBaseMixin, View):
             problem.title = 'Problem #%d' % problem.id
             problem.alias = 'p%d' % problem.id
             problem.save(update_fields=['title', 'alias'])
+        problem.memory_limit = 512  # UPD: default memory limit has been raised to 512 MB
+        problem.alias = alias
+        problem.save(update_fields=['memory_limit', 'alias'])
         problem.managers.add(request.user)
         revision = Revision.objects.create(problem=problem,
                                            user=self.request.user,
@@ -292,6 +301,9 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     @transaction.atomic()
     def post(self, request, pk):
         self.problem.alias = request.POST['alias']
+        if not re.match(r'^[a-z0-9]{2,30}$', self.problem.alias):
+            messages.error(request, "Alias must contain only lower-case letters and digits.")
+            return redirect(reverse('polygon:problem_basic_info', kwargs=self.kwargs))
         self.problem.source = request.POST['source']
         self.problem.level = request.POST['level']
         my_set = set(map(int, filter(lambda x: x, request.POST['admin'].split(','))))
