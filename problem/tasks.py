@@ -219,7 +219,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 invalidate_user(submission.author_id, submission.contest_id)
                 invalidate_problem(submission.problem_id, submission.contest_id)
                 if callback:
-                    Thread(target=callback).start()
+                    callback()
                 return True
             return False
         else:

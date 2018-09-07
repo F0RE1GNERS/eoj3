@@ -13,7 +13,7 @@ from threading import Thread
 def judge_submission_on_contest(submission: Submission, callback=None, **kwargs):
 
     def _callback():
-        invalidate_contest_participant(contest, submission.author_id)
+        invalidate_contest_participant(contest, submission.author_id, sync=True)
         if callback:
             callback()
 
