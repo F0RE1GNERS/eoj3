@@ -24,7 +24,7 @@
           <td>{{ invitation.code }}</td>
           <td>{{ invitation.comment }}</td>
           <td><a class="modal-link" data-target="#assignInvitationModal" data-action="{{ url('polygon:contest_invitation_assign', contest.pk, invitation.pk) }}">Assign</a></td>
-          <td><a class="post-link" data-link="{{ url('polygon:contest_invitation_delete', contest.pk, invitation.pk) }}">Delete</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:contest_invitation_delete', contest.pk, invitation.pk) }}">Delete</a></td>
         </tr>
       {% endfor %}
     </tbody>

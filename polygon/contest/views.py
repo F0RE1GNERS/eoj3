@@ -268,7 +268,7 @@ class ContestInvitationDelete(PolygonContestMixin, View):
     def post(self, request, pk, invitation_pk):
         contest = Contest.objects.get(pk=pk)
         contest.contestinvitation_set.get(pk=invitation_pk).delete()
-        return HttpResponseRedirect(request.url)
+        return redirect(reverse('polygon:contest_invitation', kwargs={'pk': contest.pk}))
 
 
 class ContestInvitationAssign(PolygonContestMixin, View):
