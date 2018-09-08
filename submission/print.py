@@ -22,6 +22,7 @@ from account.permissions import StaffRequiredMixin
 from submission.models import PrintManager, PrintCode
 from utils import random_string
 from utils.download import respond_generate_file
+from utils.site_settings import site_settings_get
 from utils.upload import save_uploaded_file_to
 
 
@@ -76,7 +77,7 @@ def process_code(code: PrintCode):
                 code.manager.printcode_set.filter(create_time__gt=datetime.now() - timedelta(days=1)).aggregate(Sum("pages"))["pages__sum"] > code.manager.limit:
             # limit pages
             raise ValueError("Too many pages")
-        subprocess.run(["/usr/bin/lp", "-d", "LaserJet", pdf_file_path])
+        subprocess.run(["/usr/bin/lp", "-d", site_settings_get("PRINTER_NAME", "LaserJet"), pdf_file_path])
         code.status = 0
     except:
         traceback.print_exc()
