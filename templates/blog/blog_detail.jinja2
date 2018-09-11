@@ -24,18 +24,11 @@
 
   {% if blog_revisions %}
   <h3 class="ui dividing header">Past Versions</h3>
-  <table class="ui very basic collapsing celled table">
-    <tbody>
+    <ul class="ui list">
     {% for revision in blog_revisions %}
-      <tr>
-        <td><a href="{{ url('blog:revision_detail', blog.pk, revision.pk) }}">
-          {{ revision.create_time | date('Y-m-d H:i:s') }}
-        </a></td>
-        <td class="right aligned collapsing">{{ username_display(revision.author) }}</td>
-      </tr>
+      <li class="item">#{{ revision.pk }} by {{ username_display(revision.author) }} (<a href="{{ url('blog:revision_detail', blog.pk, revision.pk) }}">{{ revision.create_time | date('Y-m-d H:i:s') }}</a>).</li>
     {% endfor %}
-    </tbody>
-  </table>
+    </ul>
   {% endif %}
 
   <h3 class="ui dividing header">Comments</h3>
