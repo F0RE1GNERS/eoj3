@@ -311,8 +311,8 @@ $(".ui.backend.sortable.table").each(function () {
 // status string
 window.STATUS = {};
 window.STATUS[-4] = 'Submitted';
-window.STATUS[-3] = 'Waiting';
-window.STATUS[-2] = 'Judging';
+window.STATUS[-3] = 'In queue';
+window.STATUS[-2] = 'Running';
 window.STATUS[-1] = 'Wrong answer';
 window.STATUS[0] = 'Accepted';
 window.STATUS[1] = 'Time limit exceeded';

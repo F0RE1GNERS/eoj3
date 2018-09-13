@@ -43,8 +43,8 @@ class SubmissionStatus(object):
 
 STATUS_CHOICE = (
     (-4, 'Submitted'),
-    (-3, 'Waiting'),
-    (-2, 'Judging'),
+    (-3, 'In queue'),
+    (-2, 'Running'),
     (-1, 'Wrong answer'),
     (0, 'Accepted'),
     (1, 'Time limit exceeded'),

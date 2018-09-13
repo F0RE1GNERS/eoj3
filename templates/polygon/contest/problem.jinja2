@@ -37,8 +37,8 @@
           <td>[[ ele.alias ]]</td>
           <td><a :href="'{{ url('polygon:problem_list_2') }}?exact=' + ele.id" target="_blank">[[ ele.title ]]</a></td>
           <td><a href="javascript:void(0)" @click="readjustProblemPoint" :data-id="ele.pid">[[ ele.weight ]]</a></td>
-          <td class="center aligned">[[ ele.ac1 + ' / ' + ele.tot1 + ' (' + ele.ratio1.toFixed(2) + '%)' ]]</td>
-          <td class="center aligned">[[ ele.ac2 + ' / ' + ele.tot2 + ' (' + ele.ratio2.toFixed(2) + '%)' ]]</td>
+          <td class="center aligned">[[ ele.ac1 + ' / ' + ele.tot1 + ' (' + (ele.ratio1*100).toFixed(2) + '%)' ]]</td>
+          <td class="center aligned">[[ ele.ac2 + ' / ' + ele.tot2 + ' (' + (ele.ratio2*100).toFixed(2) + '%)' ]]</td>
           <td class="center aligned"><a href="javascript:void(0)" @click="deleteConfirmation" data-url="{{ url('polygon:contest_problem_delete', contest.id) }}" :data-pid="ele.pid">Delete</a></td>
         </tr>
       </tbody>
