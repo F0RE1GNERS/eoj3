@@ -13,6 +13,9 @@
       {% if user is admin %}
         <a class="item" href="{{ url('backstage:index') }}">Backstage</a>
       {% endif %}
+      {% if user.polygon_enabled %}
+        <a class="item" href="{{ url('polygon:problem_list_2') }}">Polygon</a>
+      {% endif %}
         <a class="item" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
       </div>
     </div>
@@ -51,7 +54,14 @@
   <div class="ui container" id="navbar-large">
     <a class="{{ active('home') }} item" href="{{ url('home') }}">Home</a>
     <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}">Problems</a>
-    <a class="item {{ active('contest:*') }}" href="{{ url('contest:list') }}">Contests</a>
+    <div class="ui dropdown simple item">
+      <div class="text">Contests</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <a class="item" href="{{ url('contest:list') }}">Regular</a>
+        <a class="item" href="{{ url('contest:gym') }}">Gym</a>
+      </div>
+    </div>
     <div class="right menu">
       <div class="ui category search item massive-search">
         <div class="ui transparent icon input">

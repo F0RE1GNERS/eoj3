@@ -67,6 +67,16 @@
     {% if not disable_grid %}
     </div>
     <div class="four wide column">
+      {% if revision.status %}
+      <div class="ui warning message">
+        <div class="header">
+          Read-only Revision!
+        </div>
+        <div class="content">
+          This revision is either done or discarded. Please <a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">fork it</a> to make further changes.
+        </div>
+      </div>
+      {% endif %}
       <div class="ui info small message">
         <div class="header">
           Quick Review <a href="javascript:void(0);" id="basic-info-button">[edit]</a>

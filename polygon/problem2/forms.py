@@ -161,8 +161,12 @@ class CaseCreateForm(forms.Form):
 class CaseUpdateInfoForm(forms.ModelForm):
     class Meta:
         model = Case
-        fields = ["in_samples", "in_pretests", "points", "output_lock",
-                  "description", "case_number", "activated", "group"]
+        fields = ["in_samples", "in_pretests", "activated", "output_lock", "points",
+                  "description", "case_number", "group"]
+        labels = {
+            "activated": "Activated (in final tests)",
+            "output_lock": "Lock output (the test output will not be modified by the system)",
+        }
 
 
 class CaseUpdateForm(forms.Form):

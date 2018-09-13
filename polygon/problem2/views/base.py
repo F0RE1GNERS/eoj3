@@ -253,6 +253,20 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         if not self.revision.well_form_policy:
             self.warnings.append("Well form policy is not enabled. This brings potential problems in end-of-line and "
                                  "unexpected spaces. Make sure you want to do this.")
+        if not self.revision.cases.filter(activated=True).exists():
+            self.errors.append("There is no activated tests for this problem.")
+
+        # check samples always first
+        case_sample_test = list(self.revision.cases.filter(activated=True).order_by("case_number").
+                                values_list("in_samples", flat=True))
+        try:
+            first_not_sample = case_sample_test.index(False)
+            if any(case_sample_test[first_not_sample:]):
+                self.warnings.append("Samples are not first in the tests.")
+        except ValueError:
+            pass
+        if not all(map(lambda case: case.activated, self.revision.cases.filter(in_samples=True))):
+            self.warnings.append("Not all the samples are in final tests.")
 
     def init_revision(self, *args, **kwargs):
         self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
