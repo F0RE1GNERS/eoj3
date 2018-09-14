@@ -74,7 +74,6 @@ class MigrationThread(threading.Thread):
                                                       author=self.new_user,
                                                       judge_end_time=submission.judge_end_time,
                                                       status=submission.status,
-                                                      status_private=submission.status,
                                                       status_percent=submission.status_percent,
                                                       status_detail=submission.status_detail,
                                                       status_time=submission.status_time)

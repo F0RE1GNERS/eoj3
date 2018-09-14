@@ -43,7 +43,7 @@ def submission_code_api(request):
 def render_submission(submission: Submission, permission=1, hide_problem=False, show_percent=False) -> str:
     if permission == 0:
         raise PermissionDenied
-    if permission == 1 and submission.status_private != SubmissionStatus.COMPILE_ERROR and submission.status_message:
+    if permission == 1 and submission.status != SubmissionStatus.COMPILE_ERROR and submission.status_message:
         submission.status_message = ''
     try:
         judge_server = Server.objects.get(pk=submission.judge_server).name

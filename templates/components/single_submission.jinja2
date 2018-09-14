@@ -30,7 +30,7 @@
       <td>{{ submission.get_lang_display() }}</td>
       <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
       <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
-      <td><h5 class="ui header status-span with-icon" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status_private }}"></h5></td>
+      <td><h5 class="ui header status-span with-icon" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}"></h5></td>
       <td>{{ submission.get_time_display() }}</td>
       {% if server %}
       <td>{{ server }}</td>

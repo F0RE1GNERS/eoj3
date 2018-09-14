@@ -66,10 +66,10 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
             raise ValueError("You have submitted exactly the same code before.")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
-                                         status=status, status_private=status, ip=ip)
+                                         status=status, ip=ip)
     else:
         return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
-                                         status=status, status_private=status, ip=ip)
+                                         status=status, ip=ip)
 
 
 def process_failed_test(details):
@@ -86,7 +86,6 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
     """
     :type submission: Submission
     :param callback: function, call when judge result is received
-    :param status_private: make the status private only (when the contest scoreboard is frozen)
     :param case: can be pretest or sample or all
     :return:
     """
@@ -142,11 +141,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 submission.status_message = data['message']
             else:
                 submission.status_message = ''
-            submission.status_private = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
-            if not kwargs.get('status_private'):
-                submission.status = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
-            else:
-                submission.status = SubmissionStatus.SUBMITTED
+            submission.status = process_accepted(data.get('verdict', SubmissionStatus.JUDGING))
 
             details = data.get('detail', [])
             if not group_config["on"]:
@@ -165,8 +160,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             submission.status_detail_list = display_details
             submission.status_test = process_failed_test(display_details)
             submission.save(
-                update_fields=['status_message', 'status_detail', 'status', 'status_private', 'status_percent',
-                               'status_test'])
+                update_fields=['status_message', 'status_detail', 'status', 'status_percent', 'status_test'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
                 if group_config["on"] and data.get('verdict') != SubmissionStatus.COMPILE_ERROR:
@@ -221,9 +215,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 return True
             return False
         else:
-            submission.status = submission.status_private = SubmissionStatus.SYSTEM_ERROR
+            submission.status = SubmissionStatus.SYSTEM_ERROR
             submission.status_message = data['message']
-            submission.save(update_fields=['status', 'status_message', 'status_private'])
+            submission.save(update_fields=['status', 'status_message'])
             return True
 
     try:
