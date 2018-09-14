@@ -202,19 +202,17 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
                 submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message',
                                                'status_percent'])
-                difficulty = get_problem_reward(submission.problem_id)
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward
-                    try:
-                        ProblemRewardStatus.objects.create(problem_id=submission.problem_id,
-                                                           user_id=submission.author_id)
-                        if submission.contest_id:
-                            reward_contest_ac(submission.author, difficulty, submission.contest_id)
+                    _, created = ProblemRewardStatus.objects.get_or_create(problem_id=submission.problem_id,
+                                                                           user_id=submission.author_id)
+                    if created:
+                        if submission.contest_id and not submission.contest.always_running:
+                            reward_contest_ac(submission.author, 50, submission.contest_id)
                         else:
+                            difficulty = get_problem_reward(submission.problem_id)
                             reward_problem_ac(submission.author, difficulty, submission.problem_id)
-                    except db.IntegrityError:
-                        pass
 
                 invalidate_user(submission.author_id, submission.contest_id)
                 invalidate_problem(submission.problem_id, submission.contest_id)
