@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
@@ -240,6 +241,8 @@ class ContestProblemDetail(BaseContestMixin, TemplateView):
 
 class ContestStatements(BaseContestMixin, View):
     def get(self, request, *args, **kwargs):
+        if not self.contest.pdf_statement:
+            raise Http404
         return HttpResponse(self.contest.pdf_statement.read(), content_type="application/pdf")
 
 
