@@ -125,7 +125,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
         else:
             penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
                               filter(lambda x: x['solved'], v['detail'].values())))
-        v.update(penalty=penalty, score=sum(map(lambda x: x['score'], v['detail'].values())))
+        v.update(penalty=max(min(penalty, int(1E9)), 0), score=sum(map(lambda x: x['score'], v['detail'].values())))
     return ans
 
 
