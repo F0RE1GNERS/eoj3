@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django_redis import get_redis_connection
 
-from dispatcher.semaphore import RedisSemaphore
+from dispatcher.semaphore import Semaphore
 from utils import random_string
 from utils.detail_formatter import response_fail_with_timestamp, add_timestamp_to_reply
 from utils.site_settings import nonstop_judge
@@ -50,7 +50,7 @@ def send_judge_through_watch(server, code, lang, max_time, max_memory, run_until
 
     redis_server = get_redis_connection("judge")
 
-    with RedisSemaphore(redis_server, "judge:%d" % server.pk, server.concurrency, timeout_seconds=timeout):
+    with Semaphore(redis_server, namespace="judge:%d" % server.pk, count=server.concurrency):
         try:
             response = add_timestamp_to_reply(requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token),
                                                             timeout=timeout).json())

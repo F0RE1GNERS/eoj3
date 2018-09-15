@@ -1,71 +1,161 @@
-from time import time, sleep
-import uuid
+# -*- coding:utf-8 -*-
+from redis import StrictRedis
+import time
+import sys
+
+__version_info__ = ('0', '2', '2')
 
 
-class RedisSemaphore(object):
+class NotAvailable(Exception):
+    """ Raised when unable to aquire the Semaphore in non-blocking mode
     """
-    Redis base semaphore. Supports timeouts of semaphore locks.
-    Gist: https://gist.github.com/jhorman/8062862
-    """
 
-    def __init__(self, redis, name, limit, timeout_seconds=10):
-        """
-        Timeout specifies how long taken semaphores are valid. Expired semaphores don't count
-        toward the total taken count. Crashed clients therefore will release their locks after
-        timeout seconds.
-        @name Redis key name for zset
-        @limit Number of locks to allow
-        @timeout_seconds How long to allow old locks to persist.
-        """
-        super(RedisSemaphore, self).__init__()
-        self.__redis = redis
-        self.__name = 'semaphore:%s' % name
-        self.__limit = limit
-        self.__timeout = timeout_seconds
-        self.__lock_id = uuid.uuid4().hex
 
-    def __enter__(self, blocking=True, wait_for_seconds=5):
-        """
-        Take out a semaphore. Must be released later. Returns false
-        if a lock couldn't be acquired.
-        @block If true keeps trying to get the lock for timeout seconds.
-        @timeout How long to wait for the lock. Returns false if lock not avail.
-        """
+class Semaphore(object):
 
-        def acquire_lock(transaction):
-            # how many locks are already taken in the set. ignores locks that have timed out.
-            now = time()
-            count = transaction.zcount(self.__name, now-self.__timeout, now+1)
-            # set the pipline back to buffered mode
-            transaction.multi()
-            # if there is space in the set for an additional lock append it to the list
-            if count < self.__limit:
-                # the score of the lock is current time so that locks can expire
-                # ultmaster's comment: strict redis syntax is a little different from redis
-                # the second argument and the third one are thus swapped
-                transaction.zadd(self.__name, time(), self.__lock_id)
-                return True
-            # no space available, return False
+    exists_val = 'ok'
+
+    def __init__(self, client, count, namespace=None, stale_client_timeout=None, blocking=True):
+        self.client = client or StrictRedis()
+        if count < 1:
+            raise ValueError("Parameter 'count' must be larger than 1")
+        self.count = count
+        self.namespace = namespace if namespace else 'SEMAPHORE'
+        self.stale_client_timeout = stale_client_timeout
+        self.is_use_local_time = False
+        self.blocking = blocking
+        self._local_tokens = list()
+
+    def _exists_or_init(self):
+        old_key = self.client.getset(self.check_exists_key, self.exists_val)
+        if old_key:
             return False
+        return self._init()
 
-        # keep trying to get the lock for wait_for_seconds seconds
-        start = time()
-        while (time() - start) < wait_for_seconds:
-            if self.__redis.transaction(acquire_lock, self.__name, value_from_callable=True):
-                now = time()
+    def _init(self):
+        self.client.expire(self.check_exists_key, 10)
+        with self.client.pipeline() as pipe:
+            pipe.multi()
+            pipe.delete(self.grabbed_key, self.available_key)
+            pipe.rpush(self.available_key, *range(self.count))
+            pipe.execute()
+        self.client.persist(self.check_exists_key)
+
+    @property
+    def available_count(self):
+        return self.client.llen(self.available_key)
+
+    def acquire(self, timeout=0, target=None):
+        self._exists_or_init()
+        if self.stale_client_timeout is not None:
+            self.release_stale_locks()
+
+        if self.blocking:
+            pair = self.client.blpop(self.available_key, timeout)
+            if pair is None:
+                raise NotAvailable
+            token = pair[1]
+        else:
+            token = self.client.lpop(self.available_key)
+            if token is None:
+                raise NotAvailable
+
+        self._local_tokens.append(token)
+        self.client.hset(self.grabbed_key, token, self.current_time)
+        if target is not None:
+            try:
+                target(token)
+            finally:
+                self.signal(token)
+        return token
+
+    def release_stale_locks(self, expires=10):
+        token = self.client.getset(self.check_release_locks_key, self.exists_val)
+        if token:
+            return False
+        self.client.expire(self.check_release_locks_key, expires)
+        try:
+            for token, looked_at in dict_items(self.client.hgetall(self.grabbed_key)):
+                timed_out_at = float(looked_at) + self.stale_client_timeout
+                if timed_out_at < self.current_time:
+                    self.signal(token)
+        finally:
+            self.client.delete(self.check_release_locks_key)
+
+    def _is_locked(self, token):
+        return self.client.hexists(self.grabbed_key, token)
+
+    def has_lock(self):
+        for t in self._local_tokens:
+            if self._is_locked(t):
                 return True
-            elif blocking:
-                self.cleanup()
-                sleep(.2)
-
         return False
-    acquire = __enter__
 
-    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
-        """ Release lock by removing from redis sorted set. """
-        self.__redis.zrem(self.__name, self.__lock_id)
-    release = __exit__
+    def release(self):
+        if not self.has_lock():
+            return False
+        return self.signal(self._local_tokens.pop())
 
-    def cleanup(self):
-        """ Removes all locks after timeout expiration from the sorted set. """
-        return self.__redis.zremrangebyscore(self.__name, 0, time()-self.__timeout)
+    def reset(self):
+        self._init()
+
+    def signal(self, token):
+        if token is None:
+            return None
+        with self.client.pipeline() as pipe:
+            pipe.multi()
+            pipe.hdel(self.grabbed_key, token)
+            pipe.lpush(self.available_key, token)
+            pipe.execute()
+            return token
+
+    def get_namespaced_key(self, suffix):
+        return '{0}:{1}'.format(self.namespace, suffix)
+
+    @property
+    def check_exists_key(self):
+        return self._get_and_set_key('_exists_key', 'EXISTS')
+
+    @property
+    def available_key(self):
+        return self._get_and_set_key('_available_key', 'AVAILABLE')
+
+    @property
+    def grabbed_key(self):
+        return self._get_and_set_key('_grabbed_key', 'GRABBED')
+
+    @property
+    def check_release_locks_key(self):
+        return self._get_and_set_key('_release_locks_ley', 'RELEASE_LOCKS')
+
+    def _get_and_set_key(self, key_name, namespace_suffix):
+        if not hasattr(self, key_name):
+            setattr(self, key_name, self.get_namespaced_key(namespace_suffix))
+        return getattr(self, key_name)
+
+    @property
+    def current_time(self):
+        if self.is_use_local_time:
+            return time.time()
+        return float('.'.join(map(str, self.client.time())))
+
+    def __enter__(self):
+        self.acquire()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.release()
+        return True if exc_type is None else False
+
+
+def __py2_dict_items(dic):
+    return dic.iteritems()
+
+
+def __py3_dict_items(dic):
+    return dic.items()
+
+
+dict_items = __py3_dict_items \
+                if sys.version_info.major >= 3 \
+                else __py2_dict_items
