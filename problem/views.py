@@ -474,7 +474,8 @@ class ProblemSubmissionAPI(LoginRequiredMixin, View):
             submission.allow_case_download = True
         return HttpResponse(render_submission(submission,
                                               permission=get_permission_for_submission(request.user, submission),
-                                              hide_problem=True))
+                                              hide_problem=True,
+                                              rejudge_available=False))
 
 
 class ProblemSubmissionView(LoginRequiredMixin, TemplateView):

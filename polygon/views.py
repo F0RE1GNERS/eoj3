@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
+from django_q.tasks import async
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -46,13 +47,17 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
 
     def test_func(self):
         if is_problem_manager(self.request.user, self.submission.problem) or \
-                is_contest_manager(self.request.user, self.submission.contest):
+                (self.submission.contest and is_contest_manager(self.request.user, self.submission.contest)):
             return super(RejudgeSubmission, self).test_func()
         return False
 
     def post(self, request, sid):
-        rejudge_submission(self.submission)
-        return Response()
+        async(rejudge_submission, self.submission)
+        if self.submission.contest_id:
+            nxt = reverse('contest:submission', kwargs={'cid': self.submission.contest_id, 'sid': self.submission.id})
+        else:
+            nxt = reverse('problem:submission', kwargs={'pk': self.submission.problem_id, 'sid': self.submission.id})
+        return redirect(nxt)
 
 
 class RunsList(PolygonBaseMixin, ListView):
