@@ -178,7 +178,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 except ValueError: pass
                 submission.judge_end_time = judge_time
 
-                try: submission.judge_server = server.id
+                try: submission.judge_server = data['server']
                 except: pass
 
                 submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message',

@@ -20,6 +20,7 @@ from .manage import DEFAULT_USERNAME
 
 def process_runtime(server, data):
     try:
+        data["server"] = server.pk
         for item in data["detail"]:
             if "time" in item:
                 item["time"] = round(item["time"] / server.runtime_multiplier, ndigits=3)
