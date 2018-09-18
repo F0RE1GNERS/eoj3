@@ -50,14 +50,18 @@ class ServerList(BaseBackstageMixin, ListView):
         redis_server = get_redis_connection("judge")
         sem = Semaphore(redis_server)
         sem.exists_or_init()
-        data['semaphore_available_count'] = sem.available_count
-        data['semaphore_available_keys'] = redis_server.lrange(sem.available_key, 0, sem.available_count) # 1 more actually
-        data['semaphore_available_keys'] = list(map(lambda s: s.decode(), data['semaphore_available_keys']))
-        data['semaphore_grabbed_keys'] = {}
-        for key, tt in redis_server.hgetall(sem.grabbed_key).items():
-            data['semaphore_grabbed_keys'][key.decode()] = sem.current_time - float(tt.decode())
-        data['server_synchronize_status_detail'] = cache.get('server_synchronize_status_detail', '')
-        data['server_synchronize_status'] = cache.get('server_synchronize_status', 0)
+        try:
+            data['semaphore_available_count'] = sem.available_count
+            data['semaphore_available_keys'] = redis_server.lrange(sem.available_key, 0, sem.available_count) # 1 more actually
+            data['semaphore_available_keys'] = list(map(lambda s: s.decode(), data['semaphore_available_keys']))
+            data['semaphore_grabbed_keys'] = {}
+            for key, tt in redis_server.hgetall(sem.grabbed_key).items():
+                data['semaphore_grabbed_keys'][key.decode()] = sem.current_time - float(tt.decode())
+            data['server_synchronize_status_detail'] = cache.get('server_synchronize_status_detail', '')
+            data['server_synchronize_status'] = cache.get('server_synchronize_status', 0)
+            data['semaphore_ok'] = True
+        except:
+            pass
         return data
 
 
@@ -76,7 +80,10 @@ class ServerEnableOrDisable(BaseBackstageMixin, View):
         server = Server.objects.get(pk=pk)
         server.enabled = not server.enabled
         server.save(update_fields=['enabled'])
-        Semaphore(get_redis_connection("judge")).reset()
+        try:
+            Semaphore(get_redis_connection("judge")).reset()
+        except:
+            pass
         return HttpResponseRedirect(reverse('backstage:server'))
 
 

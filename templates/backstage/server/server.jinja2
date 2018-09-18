@@ -57,6 +57,7 @@
 
   <h3 class="ui dividing header">Semaphore Status</h3>
 
+  {% if semaphore_ok %}
   <ul class="ui list">
     <li class="item">Available count: {{ semaphore_available_count }}</li>
     <li class="item">Available keys: {% for key in semaphore_available_keys %}{{ key }}. {% endfor %}</li>
@@ -68,5 +69,8 @@
       </ul>
     </li>
   </ul>
+  {% else %}
+  Not available
+  {% endif %}
 
 {% endblock %}

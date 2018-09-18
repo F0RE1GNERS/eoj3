@@ -11,6 +11,9 @@ class NotAvailable(Exception):
 
 
 class Semaphore(object):
+    """
+    Modified from: https://github.com/bluele/redis-semaphore/blob/master/redis_semaphore/__init__.py
+    """
 
     exists_val = 'ok'
 
@@ -33,6 +36,8 @@ class Semaphore(object):
         keys = []
         for server in Server.objects.filter(enabled=True):
             keys += list(map(lambda x: "%d:%d" % (server.id, x), range(server.concurrency)))
+        if not keys:
+            keys = ['0:0']  # this will raise no server error
 
         with self.client.pipeline() as pipe:
             pipe.multi()
