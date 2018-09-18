@@ -22,19 +22,6 @@ from .models import Problem, SpecialProgram, ProblemRewardStatus
 from .statistics import get_problem_difficulty, invalidate_problem, get_problem_reward
 
 
-def randomly_choose_server(servers):
-    dsum = sum(map(lambda x: x.concurrency, servers))
-    if dsum == 0:
-        raise ValueError("Fail to choose server")
-    xsum = 0
-    x = random.randint(0, dsum - 1)
-    for server in servers:
-        xsum += server.concurrency
-        if x < xsum:
-            return server
-    raise AssertionError("Fail to choose server")
-
-
 def upload_problem_to_judge_server(problem, server):
     """
     :param problem: the problem to be uploaded
@@ -221,10 +208,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             return True
 
     try:
-        servers = Server.objects.filter(enabled=True)
-        server = randomly_choose_server(servers)
-
-        n_args = (server, code, submission.lang, problem.time_limit,
+        n_args = (code, submission.lang, problem.time_limit,
                   problem.memory_limit, kwargs.get('run_until_complete', False),
                   case_list, problem.checker, problem.interactor, group_config,
                   on_receive_data)

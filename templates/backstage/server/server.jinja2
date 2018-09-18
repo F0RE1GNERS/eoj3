@@ -55,4 +55,18 @@
     </tfoot>
   </table>
 
+  <h3 class="ui dividing header">Semaphore Status</h3>
+
+  <ul class="ui list">
+    <li class="item">Available count: {{ semaphore_available_count }}</li>
+    <li class="item">Available keys: {% for key in semaphore_available_keys %}{{ key }}. {% endfor %}</li>
+    <li class="item">Grabbed keys:
+      <ul class="list">
+        {% for key, val in semaphore_grabbed_keys.items() %}
+          <li class="item">{{ key }}: {{ val | round(6) }} seconds ago</li>
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+
 {% endblock %}
