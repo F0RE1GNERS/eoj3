@@ -59,6 +59,7 @@
 
   {% if semaphore_ok %}
   <ul class="ui list">
+    <li class="item"><a class="post-link" data-link="{{ url('backstage:server_semaphore_reset') }}">Reset All</a></li>
     <li class="item">Available count: {{ semaphore_available_count }}</li>
     <li class="item">Available keys: {% for key in semaphore_available_keys %}{{ key }}. {% endfor %}</li>
     <li class="item">Grabbed keys:

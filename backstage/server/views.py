@@ -169,3 +169,12 @@ class ServerProblemStatusList(BaseBackstageMixin, ListView):
         data = super().get_context_data(**kwargs)
         data['server'] = self.server
         return data
+
+
+class ServerSemaphoreReset(BaseBackstageMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            Semaphore(get_redis_connection("judge")).reset()
+        except:
+            pass
+        return HttpResponseRedirect(reverse('backstage:server'))

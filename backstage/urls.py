@@ -11,7 +11,7 @@ from .contest.views import ContestList, ContestSendInvitationMail, ContestApplyR
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, ProblemTagCreate, ProblemTagEdit, \
     ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate, ProblemSourceBatchEdit, ProblemTagDelete
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
-    ServerUpdateToken, ServerSynchronize, ServerProblemStatusList
+    ServerUpdateToken, ServerSynchronize, ServerProblemStatusList, ServerSemaphoreReset
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 from .blog.views import BlogList, BlogRecommendSwitch, BlogVisibleSwitch
 from .log.views import UpdateLogList, UpdateLogCreate, UpdateLogDelete
@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^server/(?P<pk>\d+)/edit/token/$', ServerUpdateToken.as_view(), name='server_update_token'),
     url(r'^server/(?P<pk>\d+)/status/$', ServerProblemStatusList.as_view(), name='server_problem_status'),
     url(r'^server/(?P<pk>\d+)/synchronize/$', ServerSynchronize.as_view(), name='server_synchronize'),
+    url(r'^server/semaphore/reset/$', ServerSemaphoreReset.as_view(), name='server_semaphore_reset'),
 
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
