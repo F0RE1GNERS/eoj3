@@ -142,6 +142,7 @@ class ProblemClone(PolygonBaseMixin, View):
             problem.clone_parent = problem.id
             problem.id = saved_id
             problem.alias = 'p%d' % problem.id
+            problem.visible = False
             problem.save()
         except:
             messages.error(request, "Problem does not exist or not available.")
