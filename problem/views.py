@@ -37,7 +37,7 @@ from utils.language import LANG_CHOICE
 from utils.pagination import EndlessListView
 from utils.site_settings import open_all_protocols
 from utils.tagging import edit_string_for_tags
-from .models import Problem, Skill, get_input_path, get_output_path
+from .models import Problem, Skill, get_input_path, get_output_path, UserStatus
 from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
 from .statistics import (
     get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
@@ -520,11 +520,14 @@ class Millionaires(ListView):
         return User.objects.only("username", "magic", "score").filter(score__gt=0).exclude(username__contains='#')
 
     def get_context_data(self, **kwargs):
+        user_solved = {r.user_id: r.ac_distinct_count for r in UserStatus.objects.filter(contest_id=0)}
         data = super(Millionaires, self).get_context_data(**kwargs)
         if not self.request.user.is_authenticated:
             data['my_rank'] = 'N/A'
         else:
             data['my_rank'] = User.objects.filter(score__gte=self.request.user.score).exclude(username__contains='#').count()
+        for user in data['rank_list']:
+            user.solved = user_solved.get(user.id, 0)
         return data
 
 
