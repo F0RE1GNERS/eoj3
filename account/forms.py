@@ -23,7 +23,7 @@ class LoginForm(AuthenticationForm):
         self.fields['username'].label = _('Username or Email')
         self.fields['public_key'].initial = get_public_key()
 
-    captcha = CaptchaField()
+    captcha = CaptchaField(label="Let's do some math")
     remember_me = forms.BooleanField(required=False)
     public_key = forms.CharField(widget=forms.HiddenInput())
 
@@ -99,7 +99,7 @@ class RegisterForm(forms.ModelForm):
                                           'require': _('Please repeat your password.')
                                       })
     public_key = forms.CharField(widget=forms.HiddenInput())
-    captcha = CaptchaField()
+    captcha = CaptchaField(label="Let's do some math")
 
 
 class MyPasswordChangeForm(PasswordChangeForm):
