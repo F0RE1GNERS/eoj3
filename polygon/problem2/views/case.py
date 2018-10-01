@@ -418,7 +418,8 @@ class CaseList(ProblemRevisionMixin, ListView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["disable_grid"] = True
+        if not data['revision_readonly']:
+            data["disable_grid"] = True
         return data
 
 

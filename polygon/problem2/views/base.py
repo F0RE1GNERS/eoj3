@@ -134,7 +134,10 @@ class ProblemClone(PolygonBaseMixin, View):
                 problem = Problem.objects.get(pk=n)
                 if not problem.visible and not is_problem_manager(request.user, problem):
                     raise PermissionError
-            new_prob = ProblemCreate.get_unused_problem()
+            if 'force' in request.GET:
+                new_prob = None
+            else:
+                new_prob = ProblemCreate.get_unused_problem()
             if not new_prob:
                 new_prob = Problem.objects.create()
             new_prob.managers.add(request.user)
@@ -284,6 +287,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         data['revision'] = self.revision
         data['revision_errors'] = self.errors
         data['revision_warnings'] = self.warnings
+        data['revision_readonly'] = self.revision.status != 0
         return data
 
 

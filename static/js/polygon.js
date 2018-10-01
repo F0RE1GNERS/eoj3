@@ -1,5 +1,5 @@
 $('.ui.accordion').accordion();
-$('.ui.pointing.dropdown.button').dropdown();
+$('.ui.icon.dropdown.button').dropdown();
 $('.ui.calendar').calendar({
   formatter: {
     date: function (date, settings) {

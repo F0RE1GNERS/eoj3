@@ -6,8 +6,14 @@
 
   <table id="case-list-table" class="ui celled small very compact table center aligned">
     <thead class="full-width">
+      {% set col_width = 7 %}
+      {% if revision.enable_group %}
+      {% set col_width = col_width + 1 %}
+      {% endif %}
+      {% if not revision_readonly %}
+      {% set col_width = col_width + 3 %}
       <tr class="ui sticky">
-        <th colspan="{% if revision.enable_group %}11{% else %}10{% endif %}">
+        <th colspan="{{ col_width }}">
           <div class="ui right floated buttons">
             <a href="{{ url('polygon:revision_case_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
               <i class="add icon"></i> Add Case(s)
@@ -20,8 +26,6 @@
                 {% if revision.enable_group %}
                 <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}?group=1">Regularize Groups</a>
                 {% endif %}
-                <a class="item" href="{{ url('polygon:revision_case_pack', problem.id, revision.id) }}">Download As Zip</a>
-                <a class="item" href="{{ url('polygon:revision_case_pack', problem.id, revision.id) }}?input=1">Download Input Only</a>
                 <div class="header">For selected</div>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Produce Output</a>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_validate_input', problem.id, revision.id) }}">Validate Input</a>
@@ -36,6 +40,7 @@
           </div>
         </th>
       </tr>
+      {% endif %}
       <tr>
         <th class="collapsing"><div class="ui fitted checkbox"><input type="checkbox" name="all"></div></th>
         <th class="collpasing">#</th>
@@ -48,8 +53,10 @@
         {% endif %}
         <th class="collapsing">Created</th>
         <th class="collapsing">Updated</th>
+        {% if not revision_readonly %}
         <th class="collapsing" colspan="2">Edit</th>
         <th class="collapsing">Delete</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -66,9 +73,11 @@
           {% endif %}
           <td>{{ case.create_time | date('H:i M.d') }}</td>
           <td>{{ case.update_time | date('H:i M.d') }}</td>
+        {% if not revision_readonly %}
           <td><a href="{{ url('polygon:revision_case_update_file', problem.id, revision.id, case.id) }}">Data</a></td>
           <td><a href="{{ url('polygon:revision_case_update_info', problem.id, revision.id, case.id) }}">Info</a></td>
           <td><a class="post prompt" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id, case.id) }}">Delete</a></td>
+        {% endif %}
         </tr>
       {% endfor %}
     </tbody>

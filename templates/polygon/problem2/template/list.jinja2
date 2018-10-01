@@ -4,21 +4,27 @@
 
   <table class="ui celled table center aligned">
     <thead class="full-width">
+    {% set col_width = 5 %}
+    {% if not revision_readonly %}
       <tr>
+        {% set col_width = col_width + 2 %}
         <th colspan="7">
           <a href="{{ url('polygon:revision_template_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
             <i class="add icon"></i> Add Template
           </a>
         </th>
       </tr>
+    {% endif %}
       <tr>
         <th class="collapsing">#</th>
         <th>Language</th>
         <th class="collapsing">Created</th>
         <th class="collapsing">Updated</th>
         <th class="collapsing">Based on</th>
+        {% if not revision_readonly %}
         <th class="collapsing">Edit</th>
         <th class="collapsing">Delete</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -29,8 +35,10 @@
           <td>{{ template.create_time | date('Y-m-d H:i') }}</td>
           <td>{{ template.update_time | date('Y-m-d H:i') }}</td>
           <td>{{ template.parent_id }}</td>
+          {% if not revision_readonly %}
           <td><a href="{{ url('polygon:revision_template_update', problem.id, revision.id, template.id) }}">Edit</a></td>
           <td><a class="post prompt" data-link="{{ url('polygon:revision_template_delete', problem.id, revision.id, template.id) }}">Delete</a></td>
+          {% endif %}
         </tr>
       {% endfor %}
     </tbody>
