@@ -146,8 +146,9 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             display_details = details + [{}] * max(0, len(case_list) - len(details))
             submission.status_detail_list = display_details
             submission.status_test = process_failed_test(display_details)
-            submission.save(
-                update_fields=['status_message', 'status_detail', 'status', 'status_percent', 'status_test'])
+            submission.judge_server = data.get('server', 0)
+            submission.save(update_fields=['status_message', 'status_detail','status',
+                                           'status_percent', 'status_test', 'judge_server'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
                 if group_config["on"] and data.get('verdict') != SubmissionStatus.COMPILE_ERROR:
@@ -178,11 +179,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                 except ValueError: pass
                 submission.judge_end_time = judge_time
 
-                try: submission.judge_server = data['server']
-                except: pass
-
-                submission.save(update_fields=['status_time', 'judge_end_time', 'judge_server', 'status_message',
-                                               'status_percent'])
+                submission.save(update_fields=['status_time', 'judge_end_time', 'status_message', 'status_percent'])
 
                 if submission.status == SubmissionStatus.ACCEPTED:
                     # Add reward

@@ -1,6 +1,6 @@
 {% from 'components/modal.jinja2' import modal %}
 
-{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False, anti_cheat=False) %}
+{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False, anti_cheat=False, judge_server=False) %}
 
   <table class="ui celled table center aligned compact unstackable status">
     <thead>
@@ -88,6 +88,9 @@
         <th>Length</th>
       {% endif %}
         <th>Time</th>
+      {% if judge_server %}
+        <th>Judge</th>
+      {% endif %}
       {% if rejudge %}
         <th><a class="modal-link" data-target="#rejudge-confirmation">Rejudge</a></th>
       {% endif %}

@@ -28,6 +28,7 @@ from ipware.ip import get_ip
 from account.models import User, Payment
 from account.payment import download_case, view_report
 from account.permissions import is_admin_or_root
+from dispatcher.models import Server
 from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission, render_submission_report
 from problem.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
@@ -341,7 +342,7 @@ class StatusList(ListView):
             queryset = self.get_selected_from().select_related('problem', 'author'). \
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
                      'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-                     'code_length', 'ip', 'cheat_tag', 'status_test')
+                     'code_length', 'ip', 'cheat_tag', 'status_test', 'judge_server')
             if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
@@ -406,20 +407,15 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
     def get_runtime_distribution(self):
-        self.ctx["runtime_dist"] = list(map(
-            lambda x: {"runtime": x.status_time, "lang": x.get_lang_display()},
-            self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).defer(
-                "code", "status_message", "status_detail")
-        ))
-        self.ctx["runtime_band_width"] = self.problem.time_limit / 1000 / 25
-        try:
-            self.ctx["runtime_band_maximum"] = max(self.problem.time_limit / 1000, max(map(lambda x: x["runtime"],
-                                                                                           self.ctx["runtime_dist"])))
-        except ValueError:
-            self.ctx["runtime_band_maximum"] = self.problem.time_limit / 1000
+        self.ctx["runtime_data"] = self.problem.submission_set.only("lang", "code_length", "status_time").all()
 
     def get_context_data(self, **kwargs):
         self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)
+
+        judge_servers = {server.pk: server.name for server in Server.objects.all()}
+        for s in data['submission_list']:
+            s.judge_server = judge_servers.get(s.judge_server, "N/A")
+
         data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
         data['user_all_count'] = get_problem_all_user_count(self.problem.id)
         data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id) * 100
