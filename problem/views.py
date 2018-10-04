@@ -407,7 +407,11 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
     def get_runtime_distribution(self):
-        self.ctx["runtime_data"] = self.problem.submission_set.only("lang", "code_length", "status_time").all()
+        self.ctx["runtime_data"] = self.problem.submission_set.only("lang", "code_length", "status_time", "author_id")\
+            .filter(status=SubmissionStatus.ACCEPTED)
+        if self.request.user.is_authenticated:
+            for s in self.ctx["runtime_data"]:
+                s.mine = s.author_id == self.request.user.pk
 
     def get_context_data(self, **kwargs):
         self.ctx = data = super(ProblemStatisticsView, self).get_context_data(**kwargs)

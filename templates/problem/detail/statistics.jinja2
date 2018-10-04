@@ -109,7 +109,7 @@
     var myFontFamily = "Open Sans";
 
     var runtimeData = [
-      {% for d in runtime_data %}{lang: "{{ d.get_lang_display() }}", length: {{ d.code_length }}, time: {{ d.status_time }} }, {% endfor %}
+      {% for d in runtime_data %}{lang: "{{ d.get_lang_display() }}", length: {{ d.code_length }}, time: {{ d.status_time }}, mine: {% if d.mine %}true{% else %}false{% endif %} }, {% endfor %}
     ];
 
     var chart = new G2.Chart({
@@ -130,11 +130,19 @@
                '<span style="background-color:{color};" class="g2-tooltip-marker"></span>' +
                '{name}<br/>' + '{value}' + '</li>'
     });
+    chart.legend('lang', {
+      textStyle: {
+        fontFamily: myFontFamily
+      }
+    });
+    chart.legend('mine', false);
     chart.point()
       .position('length*time')
       .color('lang', ["#00b5ad", "#2185d0", "#a333c8", "#6435c9", "#b5cc18", "#fbbd08"])
-      .size(4)
-      .opacity(0.65)
+      .size('mine', function (mine) {
+        return mine ? 7 : 3;
+      })
+      .opacity(0.4)
       .shape('circle')
       .tooltip('lang*length*time', function (lang, length, time) {
         return {
