@@ -81,8 +81,15 @@
   </div>
   <div class="ui hidden divider" style="clear: both;"></div>
 
-  <div class="ui header">CPU Time / Code Length</div>
+  {% if runtime_data %}
+    <h3 class="ui header">
+      <i class="time icon"></i>
+      <div class="content">CPU time vs. Code length
+        <div class="sub header">Your submissions are highlighted.</div>
+      </div>
+    </h3>
   <div id="runtime-distribution"></div>
+  {% endif %}
 
 {% endblock %}
 
@@ -108,8 +115,9 @@
 
     var myFontFamily = "Open Sans";
 
+    {% if runtime_data %}
     var runtimeData = [
-      {% for d in runtime_data %}{lang: "{{ d.get_lang_display() }}", length: {{ d.code_length }}, time: {{ d.status_time }}, mine: {% if d.mine %}true{% else %}false{% endif %} }, {% endfor %}
+      {% for d in runtime_data %}{lang: "{{ d.get_lang_display() }}", length: {{ d.code_length }}, time: {{ d.status_time }}, mine: {% if d.mine %}true{% else %}false{% endif %}, href: "{{ d.link }}" }, {% endfor %}
     ];
 
     var chart = new G2.Chart({
@@ -123,9 +131,9 @@
       "g2-tooltip": {
         fontFamily: myFontFamily
       },
-      crosshairs: {
-        type: 'cross'
-      },
+{#      crosshairs: {#}
+{#        type: 'cross'#}
+{#      },#}
       itemTpl: '<li data-index={index} style="margin-bottom:4px;">' +
                '<span style="background-color:{color};" class="g2-tooltip-marker"></span>' +
                '{name}<br/>' + '{value}' + '</li>'
@@ -142,7 +150,7 @@
       .size('mine', function (mine) {
         return mine ? 7 : 3;
       })
-      .opacity(0.4)
+      .opacity(0.5)
       .shape('circle')
       .tooltip('lang*length*time', function (lang, length, time) {
         return {
@@ -152,7 +160,11 @@
       });
 
     chart.render();
-
+    chart.on("click", function (ev) {
+      if (ev.hasOwnProperty("data") && ev.data.hasOwnProperty("_origin"))
+        location.href = ev.data._origin.href;
+    });
+    {% endif %}
 
   </script>
 {% endblock %}
