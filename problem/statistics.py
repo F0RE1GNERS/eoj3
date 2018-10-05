@@ -5,6 +5,7 @@ from time import sleep
 from django.core.cache import cache
 from django.db import transaction
 
+from contest.models import Contest
 from problem.models import Problem, ProblemContestStatus, UserStatus, TagInfo
 from submission.models import SubmissionStatus, Submission
 from utils.permission import is_problem_manager
@@ -30,7 +31,8 @@ def recalculate_problems(problem_ids, contest_id=0):
     }
     """
     if contest_id:
-        problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id). \
+        contest = Contest.objects.get(pk=contest_id)
+        problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id, create_time__lte=contest.end_time). \
             defer("code", "status_message", "status_detail")
     else:
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids). \

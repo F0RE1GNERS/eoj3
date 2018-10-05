@@ -44,14 +44,13 @@ class ContestSubmit(BaseContestMixin, View):
                 raise ValueError("Invalid problem.")
 
             code = request.POST.get('code', '')
-
-            if self.contest.status != 0:
+            if self.contest.status < 0:
                 submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
             else:
-                submission = create_submission(problem, self.user, request.POST.get('code', ''), lang,
+                submission = create_submission(problem, self.user, code, lang,
                                                contest=self.contest, ip=get_ip(request))
                 contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
-                if created and self.contest.access_level == 30:
+                if created and (self.contest.status != 0 or self.contest.access_level == 30):
                     contest_participant.star = True
                     contest_participant.save(update_fields=['star'])
                 if contest_participant.is_disabled:
