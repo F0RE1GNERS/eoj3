@@ -32,8 +32,10 @@ def recalculate_problems(problem_ids, contest_id=0):
     """
     if contest_id:
         contest = Contest.objects.get(pk=contest_id)
-        problem_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id, create_time__lte=contest.end_time). \
-            defer("code", "status_message", "status_detail")
+        submission_filter = Submission.objects.filter(problem_id__in=problem_ids, contest_id=contest_id)
+        if not contest.always_running:
+            submission_filter = submission_filter.filter(create_time__lte=contest.end_time)
+        problem_filter = submission_filter.defer("code", "status_message", "status_detail")
     else:
         problem_filter = Submission.objects.filter(problem_id__in=problem_ids). \
             defer("code", "status_message", "status_detail")

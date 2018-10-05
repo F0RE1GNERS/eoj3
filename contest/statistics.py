@@ -69,8 +69,10 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
     contest_length = get_penalty(contest.start_time, contest.end_time)
     first_yes = get_first_yes(contest, no_invalidate=True)
 
-    for submission in contest.submission_set.filter(author_id__in=user_ids, create_time__lte=contest.end_time).defer(
-            "code", "status_message", "status_detail").order_by("create_time"):
+    submission_filter = contest.submission_set.filter(author_id__in=user_ids)
+    if not contest.always_running:
+        submission_filter = submission_filter.filter(create_time__lte=contest.end_time)
+    for submission in submission_filter.defer("code", "status_message", "status_detail").order_by("create_time"):
         status = submission.status
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
