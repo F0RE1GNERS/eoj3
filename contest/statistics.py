@@ -121,7 +121,9 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             d['first_blood'] = True
 
     for v in ans.values():
-        if contest.scoring_method == 'oi':
+        if contest.always_running:
+            penalty = 0
+        elif contest.scoring_method == 'oi':
             penalty = sum(map(lambda x: max(x['attempt'], 0) * contest.penalty_counts + x['time'],
                               v['detail'].values()))
         else:
@@ -142,7 +144,7 @@ def participants_with_rank(contest: Contest):
     actual_rank is the rank considering starred participants
     """
     def find_key(t):
-        if contest.penalty_counts:
+        if not contest.always_running and contest.penalty_counts:
             return t.score, -t.penalty
         else:
             return t.score
@@ -246,7 +248,7 @@ def get_first_yes(contest: Contest, no_invalidate=False):
                                                                            SubmissionStatus.PRETEST_PASSED],
                                                                create_time__lte=contest.end_time).\
                 defer("code", "status_message", "status_detail").last()
-            if first_accepted_sub:
+            if not contest.always_running and first_accepted_sub:
                 first_accepted = dict(time=get_penalty(contest.start_time, first_accepted_sub.create_time),
                                       author=first_accepted_sub.author_id)
                 if not no_invalidate:

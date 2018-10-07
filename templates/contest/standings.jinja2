@@ -48,7 +48,7 @@
   {% endif %}
 
   {% set first_column_span = 3 %}
-  {% if contest.penalty_counts %}
+  {% if not contest.always_running and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
   {% endif %}
 
