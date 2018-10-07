@@ -1,8 +1,8 @@
 {% macro display_rank_head(column_style) %}
   {% set first_column_span = 3 %}
-  <th class="{{ column_style }}">#</th>
+  <th style="{{ column_style }}">#</th>
   <th class="ui left aligned">Who</th>
-  <th class="{{ column_style }}">=</th>
+  <th style="{{ column_style }}">=</th>
   {% if not contest.always_running and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
     <th class="one wide">Penalty</th>
@@ -10,11 +10,11 @@
   {% if not contest.standings_without_problem %}
     {% if contest.scoring_method == "acm" or (contest.contest_problem_list | length) == 1 %}
       {% for problem in contest.contest_problem_list %}
-        <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
+        <th style="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
       {% endfor %}
     {% else %}
       {% for problem in contest.contest_problem_list %}
-        <th class="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a><br>{{ problem.weight }}</th>
+        <th style="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a><br>{{ problem.weight }}</th>
       {% endfor %}
     {% endif %}
   {% endif %}

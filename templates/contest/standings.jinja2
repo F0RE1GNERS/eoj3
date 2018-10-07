@@ -41,10 +41,10 @@
   <div class="ui hidden divider" style="clear:both;"></div>
 
   {% set contest_problem_length = (contest.contest_problem_list | length) %}
-  {% if contest_problem_length > 9 and not contest.standings_without_problem %}
-    {% set column_style = 'collapsing' %}
+  {% if contest_problem_length > 10 and not contest.standings_without_problem %}
+    {% set column_style = 'width: %.2f%% white-space: nowrap;' % (67 / contest_problem_length) %}
   {% else %}
-    {% set column_style = 'one wide' %}
+    {% set column_style = 'width: 6.25%' %}
   {% endif %}
 
   {% set first_column_span = 3 %}
@@ -70,7 +70,7 @@
       <tr>
         <th colspan="{{ first_column_span }}"><span class="ui text green">Accepted</span><br>Submitted</th>
         {% for problem in contest.contest_problem_list %}
-          <th class="center aligned {{ column_style }}">
+          <th class="center aligned" style="{{ column_style }}">
             <span class="ui text green">{{ statistics.problem[problem.problem.id].ac }}</span><br>
           {{ statistics.problem[problem.problem.id].submit }}
           </th>
@@ -80,7 +80,7 @@
       <tr>
         <th colspan="{{ first_column_span }}">First Yes</th>
         {% for problem in contest.contest_problem_list %}
-          <th class="center aligned {{ column_style }}">{% if statistics.first_yes[problem.problem.id] %}
+          <th class="center aligned" style="{{ column_style }}">{% if statistics.first_yes[problem.problem.id] %}
             {{ (statistics.first_yes[problem.problem.id].time / 60) | int }}
             {% else %}
               --
