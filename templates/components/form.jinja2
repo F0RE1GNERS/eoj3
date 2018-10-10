@@ -44,7 +44,7 @@
             <option value="{{ key }}" {% if field.initial == key %}selected{% endif %}>{{ val }}</option>
           {% endfor %}
         </select>
-      {% elif field.field.widget.__class__.__name__ == 'UserSelectMultiple' %}
+      {% elif field.field.__class__.__name__ == 'UserSelectMultiple' %}
         {{ field.label_tag() }}
         {{ user_search_multiple(name=field.name) }}  {# TODO: add initial #}
       {% elif field.field.widget.__class__.__name__ == 'SelectMultiple' %}
