@@ -15,3 +15,14 @@ class PasteForm(forms.ModelForm):
         if len(self.cleaned_data["code"]) > 1048576:
             raise forms.ValidationError("The upper limit for the code is 1MB.")
         return self.cleaned_data["code"]
+
+
+class AnonymousPasteForm(forms.ModelForm):
+    class Meta:
+        model = Paste
+        fields = ['code', 'lang', 'expire_after']
+
+    def clean_code(self):
+        if len(self.cleaned_data["code"]) > 1048576:
+            raise forms.ValidationError("The upper limit for the code is 1MB.")
+        return self.cleaned_data["code"]

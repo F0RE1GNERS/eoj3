@@ -3,8 +3,22 @@
 {% block page_header %}EOJ Pastebin{% endblock %}
 
 {% block content %}
+  {% if login_please %}
+    {% set submit_button %}
+    <p>
+    <div class="ui buttons">
+      <button type="submit" class="ui positive button">Submit</button>
+      <a href="{{ url('login') }}?next={{ request.path }}" class="ui primary button">
+        <i class="icon user"></i>
+        Login for Full Access
+      </a>
+    </div>
+    {% endset %}
+  {% endif %}
+
   {% include 'components/form.jinja2' %}
 
+  {% if not login_please %}
   <h2 class="ui dividing header">My Pastes</h2>
 
   <table class="ui table center aligned celled unstackable small">
@@ -39,5 +53,6 @@
     {% endfor %}
     </tbody>
   </table>
+  {% endif %}
 
 {% endblock %}
