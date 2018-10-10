@@ -12,3 +12,9 @@ class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
         if isinstance(value, (tuple, list)):
             return self._split_comma(value[0])
         return super(CommaSeparatedMultipleChoiceField, self).to_python(value)
+
+
+class UserSelectMultiple(CommaSeparatedMultipleChoiceField):
+
+    def validate(self, value):
+        pass

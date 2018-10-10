@@ -1,0 +1,43 @@
+{% extends 'base.jinja2' %}
+
+{% block page_header %}EOJ Pastebin{% endblock %}
+
+{% block content %}
+  {% include 'components/form.jinja2' %}
+
+  <h2 class="ui dividing header">My Pastes</h2>
+
+  <table class="ui table center aligned celled unstackable small">
+    <thead>
+      <tr>
+        <th>Fingerprint</th>
+        <th>Author</th>
+        <th>Language</th>
+        <th>Public</th>
+        <th>Created</th>
+        <th>Invited</th>
+        <th>Expire</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for paste in paste_list %}
+      <tr>
+        <td><a href="{{ url('paste:detail', paste.fingerprint) }}">{{ paste.fingerprint }}</a></td>
+        <td>{{ username_display(paste.created_by) }}</td>
+        <td>{{ paste.get_lang_display() }}</td>
+        <td>{{ paste.get_public_access_display() }}</td>
+        <td>{{ paste.create_time | date('Y-m-d H:i') }}</td>
+        <td><div class="ui list">
+          {% for user in paste.invited_users.all() %}
+            <div class="item">{{ username_display(user) }}</div>
+          {% endfor %}
+        </div></td>
+        <td>{{ paste.get_expire_after_display() }}</td>
+        <td><a class="post prompt" data-link="{{ url('paste:delete', paste.fingerprint) }}">Delete</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

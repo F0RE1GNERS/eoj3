@@ -48,6 +48,7 @@ urlpatterns = [
     url(r'^museum/$', museum_view, name='museum'),
     url(r'^update/$', update_log_view, name='update_log'),
     url(r'^paste/$', PasteView.as_view(), name='pastebin'),
+    url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
 ]
 
 urlpatterns += [

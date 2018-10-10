@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     'polygon',
     'message',
     'filemanager',
+    'paste',
 
     # third-party packages
     'widget_tweaks',
