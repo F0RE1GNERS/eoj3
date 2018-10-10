@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -69,7 +70,10 @@ class PasteDetailView(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        paste = Paste.objects.get(fingerprint=self.kwargs["pk"])
+        try:
+            paste = Paste.objects.get(fingerprint=self.kwargs["pk"])
+        except:
+            raise Http404
         if not self.check_permission(paste, self.request.user):
             raise PermissionDenied
         paste.code_as_html = transform_code_to_html(paste.code, paste.lang)
