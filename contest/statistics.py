@@ -70,7 +70,6 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
     ans = {author_id: dict(detail=dict()) for author_id in user_ids}
     contest_length = get_penalty(contest.start_time, contest.end_time)
     first_yes = get_first_yes(contest, no_invalidate=True)
-    upsolve_enable = set()
 
     submission_filter = contest.submission_set.filter(author_id__in=user_ids)
     for submission in submission_filter.defer("code", "status_message", "status_detail").order_by("create_time"):
@@ -116,7 +115,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
                 d['upsolve'] = abs(d['upsolve'])
 
         if not contest.always_running and submission.create_time > contest.end_time:
-            upsolve_enable.add(submission.problem_id)
+            d['upsolve_enable'] = True
             continue
 
         if contest.last_counts or not \
@@ -135,8 +134,11 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
 
     for v in ans.values():
         for p in v['detail']:
-            if p not in upsolve_enable:
-                v['detail'][p]['upsolve'] = 0
+            d = v['detail'][p]
+            if 'upsolve_enable' not in d:
+                d['upsolve'] = 0
+            else:
+                d.pop('upsolve_enable', None)
         if contest.always_running:
             penalty = 0
         elif contest.scoring_method == 'oi':
