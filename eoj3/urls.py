@@ -36,7 +36,6 @@ urlpatterns = [
     url(r'^problem/', include('problem.urls', namespace='problem'), kwargs=force_closed()),
     url(r'^register/$', RegisterView.as_view(), name='register'),
     url(r'^account/', include('account.urls', namespace='account')),
-    url(r'^generic/(?P<pk>\d+)/$', GenericView.as_view(), name='generic', kwargs=force_closed()),
     url(r'^blog/', include('blog.urls', namespace='blog'), kwargs=force_closed()),
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),

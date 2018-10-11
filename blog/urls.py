@@ -2,6 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^(?P<pk>\d+)/$', views.GenericView.as_view(), name='index'),
     url('^goto/$', views.BlogGoto.as_view(), name='goto'),
     url('^create/$', views.BlogCreate.as_view(), name='create'),
     url('^update/(?P<pk>\d+)/$', views.BlogUpdate.as_view(), name='update'),

@@ -15,3 +15,6 @@ class ProfileView(TemplateView):
     def get_rating_changes(self):
         pass
 
+    def get_heatmap_data(self):
+        pass
+

@@ -20,7 +20,7 @@ from .models import Blog, Comment, BlogLikes, BlogRevision
 
 
 class GenericView(ListView):
-    template_name = 'generic.jinja2'
+    template_name = 'blog/generic.jinja2'
     paginate_by = 50
     context_object_name = 'blog_list'
 
@@ -45,7 +45,7 @@ class GenericView(ListView):
 class BlogGoto(View):
     def post(self, request):
         user = get_object_or_404(User, username=request.POST.get('name', ''))
-        return HttpResponseRedirect(reverse('generic', kwargs={'pk': user.pk}))
+        return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': user.pk}))
 
 
 class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
@@ -111,7 +111,7 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         instance.author = self.request.user
         instance.save()
         instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
-        return HttpResponseRedirect(reverse('generic', kwargs={'pk': self.request.user.pk}))
+        return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': self.request.user.pk}))
 
 
 class BlogUpdate(UpdateView):

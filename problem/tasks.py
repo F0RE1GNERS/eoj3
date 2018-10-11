@@ -45,10 +45,6 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
         datetime.now() - author.submission_set.first().create_time).total_seconds() < settings.SUBMISSION_INTERVAL_LIMIT:
         raise ValueError("Please don't resubmit in 5 seconds.")
     if contest:
-        if contest.submission_set.filter(author=author, problem_id=problem,
-                                         create_time__gt=datetime.now() - timedelta(days=1)).count() \
-                >= settings.SUBMISSION_ATTEMPT_LIMIT:
-            raise ValueError("Running out of attempts.")
         if contest.submission_set.filter(author=author, problem_id=problem, code=code, lang=lang).exists():
             raise ValueError("You have submitted exactly the same code before.")
     if isinstance(problem, (int, str)):

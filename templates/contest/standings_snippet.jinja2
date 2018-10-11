@@ -43,6 +43,13 @@
       {% if d %}
         {% if d.waiting %}
           <td class="penalty-box" data-param="{{ url_param }}"><span class="score text blue"><i class="help icon"></i></td>
+        {% elif d.upsolve %}
+          <td class="penalty-box" data-param="{{ url_param }}">
+            {% if d.partial %}<span class="score text blue">{{ d.upsolve }}</span>
+            {% elif d.upsolve > 0 %}<span class="score text blue">+{% if d.upsolve > 1 %}{{ d.upsolve - 1 }}{% endif %}</span>
+            {% elif d.upsolve < 0 %}<span class="score negative text red">{{ d.upsolve }}</span>
+            {% endif %}
+          </td>
         {% elif d.attempt %}
           <td class="penalty-box {% if d.first_blood %}accepted{% endif %}" data-param="{{ url_param }}">
             {% if d.solved %}

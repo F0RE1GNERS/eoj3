@@ -1,8 +1,5 @@
-{# has a weird name; it means personal profile... #}
-
 {% extends 'base.jinja2' %}
 {% from 'components/profile_card.jinja2' import profile_card with context %}
-{% from 'components/blog_preview.jinja2' import blog_preview %}
 
 {% block title %}Profile - {% endblock %}
 
@@ -38,40 +35,4 @@
 
   </div>
 
-  <div class="ui hidden divider"></div>
-
-  <div id="sub-heatmap">
-    <div class="ui header">Submission Heatmap</div>
-    <div id="cal-heatmap"></div>
-  </div>
-
-{% endblock %}
-
-{% block script %}
-  <script src="/static/node_modules/d3/d3.min.js"></script>
-  <script src="/static/node_modules/cal-heatmap/cal-heatmap.min.js"></script>
-  <script>
-    var yearsAgo = function (year) {
-      now = new Date();
-      now.setYear(now.getFullYear() - year);
-      now.setMonth(now.getMonth() + 1);
-      return now;
-    };
-
-    var cal = new CalHeatMap();
-    var date = new Date();
-    cal.init({
-      start: yearsAgo(1),
-      itemSelector: "#cal-heatmap",
-      itemName: ["submission", "submissions"],
-      domain: "month",
-      subDomain: "day",
-      data: "/api/submission/user/{{ profile.username }}",
-      dataType: "json",
-{#      domainMargin: 5,#}
-      legend: [1, 2, 3, 4],
-      cellSize: 12,
-      legendColors: ["#ecf5e2", "#232181"]
-    });
-  </script>
 {% endblock %}

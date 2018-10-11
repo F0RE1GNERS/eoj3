@@ -4,6 +4,7 @@ from threading import Thread
 from django.core.cache import cache
 from django.db import transaction
 
+from problem.statistics import invalidate_problem
 from submission.models import SubmissionStatus
 from .models import Contest
 
@@ -46,6 +47,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
                     time: int (first accept solution time, in seconds),
                     first_blood: boolean
                     partial: boolean
+                    upsolve: int (positive for accepted, negative for unaccepted, score if partial)
                 }
             }
         }
@@ -68,16 +70,15 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
     ans = {author_id: dict(detail=dict()) for author_id in user_ids}
     contest_length = get_penalty(contest.start_time, contest.end_time)
     first_yes = get_first_yes(contest, no_invalidate=True)
+    upsolve_enable = set()
 
     submission_filter = contest.submission_set.filter(author_id__in=user_ids)
-    if not contest.always_running:
-        submission_filter = submission_filter.filter(create_time__lte=contest.end_time)
     for submission in submission_filter.defer("code", "status_message", "status_detail").order_by("create_time"):
         status = submission.status
         detail = ans[submission.author_id]['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
-                           'waiting': False, 'pass_time': '', 'partial': False})
+                           'waiting': False, 'pass_time': '', 'partial': False, 'upsolve': 0})
         d = detail[submission.problem_id]
         if not SubmissionStatus.is_judged(submission.status):
             d['waiting'] = True
@@ -105,22 +106,37 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
                             contest_problem.weight * (1 - 0.5 * time / contest_length) - d['attempt'] * 50) + EPS)
         elif contest.scoring_method == 'tcmtime' and SubmissionStatus.is_accepted(status):
             score = contest_problem.weight
-        if not contest.last_counts and \
+
+        # upsolve submission
+        if d['partial']:
+            d['upsolve'] = max(d['upsolve'], score)
+        elif d['upsolve'] <= 0:
+            d['upsolve'] -= 1
+            if SubmissionStatus.is_accepted(status):
+                d['upsolve'] = abs(d['upsolve'])
+
+        if not contest.always_running and submission.create_time > contest.end_time:
+            upsolve_enable.add(submission.problem_id)
+            continue
+
+        if contest.last_counts or not \
                 (d['solved'] or (contest.scoring_method != 'oi' and d['score'] > 0 and d['score'] >= score)):
             # every submission has to be calculated in OI
             # We have to tell whether this is the best
-            continue
 
-        if not contest.last_counts:
-            d['score'] = max(d['score'], score)
-        else:
-            d['score'] = score
-        d['attempt'] += 1
-        d.update(solved=SubmissionStatus.is_accepted(status), time=time, pass_time=pass_time)
-        if first_yes.get(submission.problem_id) and first_yes[submission.problem_id]['author'] == submission.author_id:
-            d['first_blood'] = True
+            if not contest.last_counts:
+                d['score'] = max(d['score'], score)
+            else:
+                d['score'] = score
+            d['attempt'] += 1
+            d.update(solved=SubmissionStatus.is_accepted(status), time=time, pass_time=pass_time)
+            if first_yes.get(submission.problem_id) and first_yes[submission.problem_id]['author'] == submission.author_id:
+                d['first_blood'] = True
 
     for v in ans.values():
+        for p in v['detail']:
+            if p not in upsolve_enable:
+                v['detail'][p]['upsolve'] = 0
         if contest.always_running:
             penalty = 0
         elif contest.scoring_method == 'oi':
@@ -289,8 +305,6 @@ def invalidate_contest_participant(contest: Contest, users=None, sync=False):
 
 
 def invalidate_contest(contest: Contest, sync=False):
-    if contest.is_frozen:
-        return
-
     invalidate_contest_participant(contest, sync=sync)
+    invalidate_problem(list(map(lambda problem: problem.id, contest.contest_problem_list)), contest.id)
     cache.delete(CONTEST_FIRST_YES.format(contest.pk))

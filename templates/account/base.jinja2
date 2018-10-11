@@ -6,7 +6,7 @@
 {% block content %}
 
   <div class="ui text menu stackable">
-    <a href="{{ url('generic', request.user.pk) }}" class="item">Me</a>
+    <a href="{{ url('blog:index', request.user.pk) }}" class="item">Me</a>
     <a href="{{ url('account:profile') }}" class="{{ active('account:profile') }} item">Profile</a>
     <a href="{{ url('account:security') }}" class="{{ active('account:security') }} item">Security</a>
     <a href="{{ url('account:preference') }}" class="{{ active('account:preference') }} item">Preferences</a>
