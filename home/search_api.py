@@ -22,7 +22,7 @@ def query_user(kw):
     if kw and len(kw) >= 3:
         for user in User.objects.filter(username__icontains=kw, is_active=True).exclude(username__icontains='#').\
                             all().only('username')[:5]:
-            results.append(dict(title=escape(user.username), url=reverse('blog:index', kwargs=dict(pk=user.pk))))
+            results.append(dict(title=escape(user.username), url=reverse('profile', kwargs=dict(pk=user.pk))))
     return dict(name='User', results=results)
 
 

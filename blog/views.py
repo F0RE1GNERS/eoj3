@@ -45,7 +45,7 @@ class GenericView(ListView):
 class BlogGoto(View):
     def post(self, request):
         user = get_object_or_404(User, username=request.POST.get('name', ''))
-        return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': user.pk}))
+        return HttpResponseRedirect(reverse('profile', kwargs={'pk': user.pk}))
 
 
 class BlogView(UserPassesTestMixin, FormMixin, TemplateView):

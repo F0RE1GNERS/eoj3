@@ -4,6 +4,7 @@
       <div class="text">{{ request.user.username }}</div>
       <i class="dropdown icon"></i>
       <div class="menu">
+        <a class="item" href="{{ url('profile', request.user.pk) }}">Profile</a>
         <a class="item" href="{{ url('blog:index', request.user.pk) }}">Blog</a>
         <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">Submissions</a>
         <a class="item" href="{{ url('account:profile') }}">Settings</a>

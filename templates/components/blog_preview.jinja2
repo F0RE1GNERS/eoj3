@@ -2,7 +2,7 @@
   {# overflow hidden (temporary) #}
   <div class="event" style="overflow-x: hidden;">
     <div class="label">
-      <a href="{{ url('blog:index', blog.author.pk) }}"><img src="{{ blog.author.avatar_small.url }}"></a>
+      <a href="{{ url('profile', blog.author.pk) }}"><img src="{{ blog.author.avatar_small.url }}"></a>
     </div>
     <div class="content">
       <div class="summary">

@@ -2,7 +2,7 @@
   {% for item in comments %}
     {% if (not item.comment.is_removed or item.children) %}
       <div class="comment">
-        <a class="avatar" href="{{ url('blog:index', item.comment.user.pk) }}">
+        <a class="avatar" href="{{ url('profile', item.comment.user.pk) }}">
          <img src="{{ item.comment.user.avatar_small.url }}">
         </a>
         <div class="content">

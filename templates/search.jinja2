@@ -45,7 +45,7 @@
       </div>
     {% elif ret.__class__.__name__ == 'User' %}
       <div class="label">
-        <a href="{{ url('blog:index', ret.pk) }}"><img src="{{ ret.avatar_small.url }}"></a>
+        <a href="{{ url('profile', ret.pk) }}"><img src="{{ ret.avatar_small.url }}"></a>
       </div>
       <div class="content">
         <div class="summary">
