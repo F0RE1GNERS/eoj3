@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from django.db.models import Count
 from django.db.models.functions import TruncDay
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView
@@ -50,6 +51,8 @@ class ProfileView(TemplateView):
             if sub.problem_id not in accepted_problems:
                 accepted_problems.add(sub.problem_id)
                 ret.append(sub)
+                if len(ret) >= 10:
+                    break
         return ret
 
     def get_rating_changes(self):
@@ -96,7 +99,10 @@ class ProfileView(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['profile'] = self.user = User.objects.get(pk=self.kwargs['pk'], is_active=True)
+        try:
+            data['profile'] = self.user = User.objects.get(pk=self.kwargs['pk'], is_active=True)
+        except:
+            raise Http404
         data['blogs'] = self.get_recent_blogs()
         data['contests'] = self.get_recent_contests()
         data['gyms'] = self.get_recent_gyms()
