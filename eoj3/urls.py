@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.static import serve
 
+from account.profile import ProfileView
 from home.search import search_view
 from migrate.views import migrate_view
 from utils.comment import login_required_post_comment
@@ -48,6 +49,7 @@ urlpatterns = [
     url(r'^update/$', update_log_view, name='update_log'),
     url(r'^paste/$', PasteView.as_view(), name='pastebin'),
     url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
+    url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
 ]
 
 urlpatterns += [
