@@ -308,5 +308,5 @@ def invalidate_contest_participant(contest: Contest, users=None, sync=False):
 
 def invalidate_contest(contest: Contest, sync=False):
     invalidate_contest_participant(contest, sync=sync)
-    invalidate_problem(list(map(lambda problem: problem.id, contest.contest_problem_list)), contest.id)
+    invalidate_problem(list(map(lambda p: p.problem_id, contest.contest_problem_list)), contest.id)
     cache.delete(CONTEST_FIRST_YES.format(contest.pk))
