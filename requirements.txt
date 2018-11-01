@@ -2,7 +2,7 @@ amqp==1.4.9
 anyjson==0.3.3
 beautifulsoup4==4.5.3
 billiard==3.3.0.23
-Django==1.11
+Django==1.11.16
 django-jinja==2.2.2
 django-widget-tweaks==1.4.1
 Jinja2==2.9.5
@@ -14,7 +14,7 @@ ordered-set==2.0.1
 Pygments==2.2.0
 python-markdown-math==0.2
 pytz==2016.10
-requests==2.13.0
+requests==2.20.0
 shortuuid==0.5.0
 sqlparse==0.2.2
 vine==1.1.3
