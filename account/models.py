@@ -87,6 +87,9 @@ class User(AbstractUser):
     class Meta:
         ordering = ["-score"]
 
+    def has_coach_access(self):
+        return self.rating > 1500 and self.polygon_enabled
+
 
 class Payment(models.Model):
 

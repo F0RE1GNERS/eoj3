@@ -504,11 +504,11 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                     self.request.user.submission_set.filter(
                         problem_id=self.kwargs.get('pk'),
                         status=SubmissionStatus.ACCEPTED).exists() or
-                    self.request.user.polygon_enabled):
+                    self.request.user.has_coach_access()):
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
             data['submission_block'] = render_submission(submission, permission=permission)
             if permission == 2 or (self.request.user == submission.author and (submission.report_paid or open_all_protocols())) or \
-                    (self.request.user.is_authenticated and self.request.user.polygon_enabled):
+                    (self.request.user.is_authenticated and self.request.user.has_coach_access()):
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''

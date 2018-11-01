@@ -141,7 +141,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                            status=SubmissionStatus.ACCEPTED).exists() and (
                                 self.contest.status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
-        if self.contest.status > 0 and self.request.user.is_authenticated and self.request.user.polygon_enabled:
+        if self.contest.status > 0 and self.request.user.is_authenticated and self.request.user.has_coach_access():
             authorized = True
         if authorized:
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
@@ -150,7 +150,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                          permission=permission,
                                                          show_percent=data['show_percent'])
             if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
-                    (self.contest.status > 0 and self.request.user.polygon_enabled) or self.contest.case_public >= 2:
+                    (self.contest.status > 0 and self.request.user.has_coach_access()) or self.contest.case_public >= 2:
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''
