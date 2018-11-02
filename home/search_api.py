@@ -47,6 +47,7 @@ def get_problem_q_object(kw, all=False, managing=None):
 
 
 def sorted_query(problems, kw):
+    problems = list(problems)
     ret = {p.pk: 0.0 for p in problems}
     for p in problems:
         if str(p.pk) == kw:
