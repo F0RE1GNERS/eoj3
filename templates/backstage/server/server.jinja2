@@ -74,4 +74,8 @@
   Not available
   {% endif %}
 
+  <h3 class="ui dividing header">Crashed Submissions</h3>
+
+  <p>There are {{ crashed_submission_count }} crashed submission(s). <a class="post-link" data-link="{{ url('backstage:rejudge_crashed_submission') }}">Rejudge</a></p>
+
 {% endblock %}

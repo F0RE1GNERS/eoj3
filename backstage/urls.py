@@ -11,7 +11,7 @@ from .contest.views import ContestList, ContestSendInvitationMail, ContestApplyR
 from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, ProblemTagCreate, ProblemTagEdit, \
     ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate, ProblemSourceBatchEdit, ProblemTagDelete
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
-    ServerUpdateToken, ServerSynchronize, ServerProblemStatusList, ServerSemaphoreReset
+    ServerUpdateToken, ServerSynchronize, ServerProblemStatusList, ServerSemaphoreReset, RejudgeAllCrashedSubmission
 from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
 from .blog.views import BlogList, BlogRecommendSwitch, BlogVisibleSwitch
 from .log.views import UpdateLogList, UpdateLogCreate, UpdateLogDelete
@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^server/(?P<pk>\d+)/status/$', ServerProblemStatusList.as_view(), name='server_problem_status'),
     url(r'^server/(?P<pk>\d+)/synchronize/$', ServerSynchronize.as_view(), name='server_synchronize'),
     url(r'^server/semaphore/reset/$', ServerSemaphoreReset.as_view(), name='server_semaphore_reset'),
+    url(r'^server/rejudge/crashed/$', RejudgeAllCrashedSubmission.as_view(), name='rejudge_crashed_submission'),
 
     url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
     url(r'^migrate/$', MigrateList.as_view(), name='migrate'),

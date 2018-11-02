@@ -17,8 +17,10 @@ from django_redis import get_redis_connection
 from dispatcher.models import Server, ServerProblemStatus
 from dispatcher.manage import update_token
 from dispatcher.semaphore import Semaphore
+from polygon.rejudge import rejudge_submission_set
 from problem.models import Problem
 from problem.tasks import upload_problem_to_judge_server
+from submission.models import Submission, SubmissionStatus
 from .forms import ServerEditForm, ServerUpdateTokenForm
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
@@ -62,6 +64,8 @@ class ServerList(BaseBackstageMixin, ListView):
             data['semaphore_ok'] = True
         except:
             pass
+
+        data['crashed_submission_count'] = Submission.objects.filter(status=SubmissionStatus.SYSTEM_ERROR).count()
         return data
 
 
@@ -177,4 +181,13 @@ class ServerSemaphoreReset(BaseBackstageMixin, View):
             Semaphore(get_redis_connection("judge")).reset()
         except:
             pass
+        return HttpResponseRedirect(reverse('backstage:server'))
+
+
+class RejudgeAllCrashedSubmission(BaseBackstageMixin, View):
+    def post(self, request, *args, **kwargs):
+        crashed = Submission.objects.filter(status=SubmissionStatus.SYSTEM_ERROR)
+        if len(crashed) > 0:
+            threading.Thread(target=rejudge_submission_set,
+                             args=(crashed, )).start()
         return HttpResponseRedirect(reverse('backstage:server'))
