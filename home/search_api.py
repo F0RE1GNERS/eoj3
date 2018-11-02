@@ -53,7 +53,7 @@ def sorted_query(problems, kw):
         if str(p.pk) == kw:
             ret[p.pk] += 100
         if p.alias == kw:
-            ret[p.alias] += 50
+            ret[p.pk] += 50
         if p.title == kw:
             ret[p.pk] += 30
     return sorted(problems, key=lambda p: ret[p.pk], reverse=True)[:5]
