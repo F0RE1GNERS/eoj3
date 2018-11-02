@@ -31,6 +31,7 @@ def get_problem_q_object(kw, all=False, managing=None):
         q_list = list()
         if len(kw) >= 2:
             q_list.append(Q(title__icontains=kw))
+            q_list.append(Q(alias__icontains=kw))
         if kw.isdigit():
             q_list.append(Q(pk__exact=kw))
         if q_list:
@@ -45,11 +46,23 @@ def get_problem_q_object(kw, all=False, managing=None):
     return None
 
 
+def sorted_query(problems, kw):
+    ret = {p.pk: 0.0 for p in problems}
+    for p in problems:
+        if str(p.pk) == kw:
+            ret[p.pk] += 100
+        if p.alias == kw:
+            ret[p.alias] += 50
+        if p.title == kw:
+            ret[p.pk] += 30
+    return sorted(problems, key=lambda p: ret[p.pk], reverse=True)[:5]
+
+
 def query_problem(kw, all=False):
     results = list()
     q = get_problem_q_object(kw, all)
     if q:
-        for problem in Problem.objects.defer("description", "input", "output", "hint").filter(q).distinct().all()[:5]:
+        for problem in sorted_query(Problem.objects.defer("description", "input", "output", "hint").filter(q).distinct().all(), kw):
             results.append(dict(title=escape(problem.title),
                                 url=reverse('problem:detail', kwargs=dict(pk=problem.pk))))
     return dict(name='Problem', results=results)
@@ -119,6 +132,6 @@ class SearchProblemAPI(APIView):
         results = list()
         q = get_problem_q_object(kw, is_admin_or_root(request.user), managing)
         if q:
-            for problem in Problem.objects.filter(q).distinct().all()[:5]:
+            for problem in sorted_query(Problem.objects.filter(q).distinct().all(), kw):
                 results.append(dict(name=str(problem), value=problem.pk))
         return Response(dict(success=True, results=results))
