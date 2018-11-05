@@ -39,6 +39,27 @@ from utils.download import respond_generate_file
 from utils.file_preview import sort_data_list_from_directory, special_sort
 
 
+class UpdateManager(object):
+    def __init__(self, object, revision):
+        self.object = object
+        self.revision = revision
+
+    def __enter__(self):
+        if self.object.revision_set.all().count() > 1:
+            # the case is related to a revision other than this one
+            with transaction.atomic():
+                # only for cases now
+                self.revision.cases.remove(self.object)
+                self.object.parent_id = self.object.pk
+                self.object.pk = None
+                self.object.save()
+                self.revision.cases.add(self.object)
+        return self.object
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.object.save()
+
+
 class CaseManagementTools(object):
     white_space_reg = re.compile(r'[\x00-\x20\s]+')
 
@@ -84,18 +105,11 @@ class CaseManagementTools(object):
 
     @staticmethod
     def naturalize_order(revision, case_set):
-        remove_list = []
-        add_list = []
         with transaction.atomic():
             for idx, case in enumerate(case_set, start=1):
                 if idx != case.case_number:
-                    remove_list.append(Case(pk=case.pk))
-                    case.case_number = idx
-                    case.pk = None
-                    case.save()
-                    add_list.append(case)
-            revision.cases.add(*add_list)
-            revision.cases.remove(*remove_list)
+                    with UpdateManager(case, revision) as t:
+                        t.case_number = idx
 
     @staticmethod
     def generate_cases(revision, commands):
@@ -129,8 +143,8 @@ class CaseManagementTools(object):
                 new_case = Case(create_time=datetime.now(),
                                 description="Gen \"%s\"" % command_string,
                                 case_number=case_number)
-                new_case.input_file.save("in", ContentFile(b""), save=False)
-                new_case.output_file.save("out", ContentFile(b""), save=False)
+                new_case.input_file.save("in_" + random_string(), ContentFile(b""), save=False)
+                new_case.output_file.save("out_" + random_string(), ContentFile(b""), save=False)
                 running_result = runner.run(args=program_args, stdout=new_case.input_file.path,
                                             max_time=revision.time_limit * 5 / 1000,
                                             max_memory=revision.memory_limit * 3)
@@ -168,28 +182,25 @@ class CaseManagementTools(object):
             failed = False
             for case in case_set:
                 if case.output_lock: continue  # output content protected
-                case.output_file.save("out", ContentFile(b''), save=False)
-                case.parent_id = case.pk
-                case.pk = None
-                run_result = runner.run(stdin=case.input_file.path, stdout=case.output_file.path,
-                                        max_time=revision.time_limit * 3 / 1000,
-                                        max_memory=revision.memory_limit * 2)
-                CaseManagementTools.reformat_file(case.output_file.path, revision.well_form_policy)
-                case.save_fingerprint(revision.problem_id)
-                with transaction.atomic():
-                    case.save()
-                    revision.cases.remove(Case(pk=case.parent_id))
-                    revision.cases.add(case)
-                    result.append({
-                        "case_number": case.case_number,
-                        "success": run_result["verdict"] == "OK",
-                        "detail": run_result
-                    })
-                    if run_result["verdict"] != "OK":
-                        failed = True
-                    current_task.status = -2
-                    current_task.report = json.dumps(result)
-                    current_task.save()
+                with UpdateManager(case, revision) as case:
+                    case.output_file.save("out_" + random_string(), ContentFile(b''), save=False)
+                    run_result = runner.run(stdin=case.input_file.path, stdout=case.output_file.path,
+                                            max_time=revision.time_limit * 3 / 1000,
+                                            max_memory=revision.memory_limit * 2)
+                    CaseManagementTools.reformat_file(case.output_file.path, revision.well_form_policy)
+                    case.save_fingerprint(revision.problem_id)
+                    with transaction.atomic():
+                        case.save()
+                        result.append({
+                            "case_number": case.case_number,
+                            "success": run_result["verdict"] == "OK",
+                            "detail": run_result
+                        })
+                        if run_result["verdict"] != "OK":
+                            failed = True
+                        current_task.status = -2
+                        current_task.report = json.dumps(result)
+                        current_task.save()
             current_task.status = -1 if failed else 0
         except CompileError as e:
             current_task.report = json.dumps([{"success": False, "error": e.error}])
@@ -543,7 +554,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
             self.revision.cases.add(*cases)
             self.revision.cases.remove(*remove_list)
 
-        messages.success(self.request, "%d case(s) has been added." % len(cases))
+        messages.success(self.request, "%d case(s) has been added. Maybe some other cases are generating." % len(cases))
 
         return redirect(self.get_success_url())
 
@@ -561,20 +572,16 @@ class CaseUpdateFileView(RevisionCaseMixin, FormView):
     def form_valid(self, form):
         with transaction.atomic():
             object = self.get_object()
-            self.revision.cases.remove(object)
             if form.cleaned_data["option"] == "file":
                 input_binary = REFORMAT(form.cleaned_data["input_file"].read(), self.revision.well_form_policy)
                 output_binary = REFORMAT(form.cleaned_data["output_file"].read(), self.revision.well_form_policy)
             else:
                 input_binary = REFORMAT(form.cleaned_data["input_text"].encode(), self.revision.well_form_policy)
                 output_binary = REFORMAT(form.cleaned_data["output_text"].encode(), self.revision.well_form_policy)
-            object.parent_id = object.pk
-            object.pk = None
-            object.input_file.save("in", ContentFile(input_binary), save=False)
-            object.output_file.save("out", ContentFile(output_binary), save=False)
-            object.save_fingerprint(self.problem.id)
-            object.save()
-            self.revision.cases.add(object)
+            with UpdateManager(object, self.revision) as object:
+                object.input_file.save("in", ContentFile(input_binary), save=False)
+                object.output_file.save("out", ContentFile(output_binary), save=False)
+                object.save_fingerprint(self.problem.id)
         return redirect(self.get_success_url())
 
 
@@ -590,11 +597,8 @@ class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
 
     def form_valid(self, form):
         with transaction.atomic():
-            self.revision.cases.remove(self.object)
-            form.instance.parent_id = form.instance.pk
-            form.instance.pk = None
-            self.object = form.save()
-            self.revision.cases.add(self.object)
+            with UpdateManager(self.object, self.revision) as case:
+                case = form.save()
         return redirect(self.get_success_url())
 
 
@@ -649,23 +653,17 @@ class CaseDeleteSelectedView(RevisionMultipleCasesMixin, View):
 
 class CaseToggleSampleView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
-        self.revision.cases.remove(*list(self.case_set))
         for case in self.case_set:
-            case.in_samples = not case.in_samples
-            case.pk = None
-            case.save()
-            self.revision.cases.add(case)
+            with UpdateManager(case, self.revision) as case:
+                case.in_samples = not case.in_samples
         return redirect(self.get_redirect_url())
 
 
 class CaseTogglePretestView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
-        self.revision.cases.remove(*list(self.case_set))
         for case in self.case_set:
-            case.in_pretests = not case.in_pretests
-            case.pk = None
-            case.save()
-            self.revision.cases.add(case)
+            with UpdateManager(case, self.revision) as case:
+                case.in_pretests = not case.in_samples
         return redirect(self.get_redirect_url())
 
 
@@ -764,9 +762,7 @@ class CasePackAsZipView(ProblemRevisionMixin, View):
 class CaseAssignGroupView(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
         group_number = int(request.POST.get("answer") or 0)
-        self.revision.cases.remove(*list(self.case_set))
         for case in self.case_set:
-            case.group = group_number
-            case.save()
-            self.revision.cases.add(case)
+            with UpdateManager(case, self.revision) as case:
+                case.group = group_number
         return redirect(self.get_redirect_url())

@@ -14,6 +14,13 @@ from problem.models import Problem
 BASE_LOCATION = path.dirname(path.abspath(__file__))
 
 
+"""
+The tests has not been updated since the design has been updated.
+So it might not work...
+I kept it here anyway.
+"""
+
+
 class RevisionTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email="something@user.com", username="myusername", is_staff=True, polygon_enabled=True)

@@ -2,9 +2,15 @@
 
 {% extends 'html_base.jinja2' %}
 
-{% block _content %}
+{% block css %}
+  <style>
+    .ui.footer.segment {
+      margin: 0;
+    }
+  </style>
+{% endblock %}
 
-{% include 'components/navbar.jinja2' %}
+{% block _content %}
 
 <div class="pusher">
   <div id="advertisement" class="ui inverted vertical masthead center aligned segment">
@@ -22,7 +28,6 @@
         <a class="active item">Home</a>
         <a class="item" href="{{ url('problem:list') }}">Problems</a>
         <a class="item hidden-on-large" href="{{ url('contest:list') }}">Contests</a>
-        <a class="item hidden-on-large" href="{{ url('faq') }}">Help</a>
         <div class="right item">
           {% if request.user.is_authenticated %}
           <a class="ui inverted button" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
@@ -43,57 +48,6 @@
 
   </div>
 
-  <div class="ui vertical stripe segment">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div class="eight wide column">
-          <h3 class="ui header">Well-tagged Problems</h3>
-          <p>Problems have been well tagged. You can search problems by their names, sources and tags. If you dislike them, you can still turn that off. There can be also task-oriented sources, with which students can easily find their school assignment on just one click.</p>
-        </div>
-        <div class="eight wide column">
-          <h3 class="ui header">New checkers and interactive problems supported</h3>
-          <p>There have always been complaints about the irrationality of the judge system, including the 'time limit exceeded' case which cannot be explained, and 'Presentation Error' becoming 'Wrong Answer' as a frustrating mistake. We are dedicated to solve such problems and special judges are used to prevent these kinds of mistakes from happening.</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="center aligned column">
-          <a class="ui huge button" href="{{ url('problem:list') }}">Check Them Out</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="ui vertical stripe segment">
-    <div class="ui equal width middle aligned stackable grid container">
-      <div class="row">
-        <div class="column">
-          <h3>OI Rules</h3>
-          <p>Interesting OI Problems! Basically, you can submit your program and compete with others. OI Problems are graded according to test cases. It is even possible to gain some score when your algorithm is not completely correct.</p>
-        </div>
-        <div class="column">
-          <h3>ACM Rules</h3>
-          <p>Many traditional problems, based on standard input and output, using the rule of ACM-ICPC contest. You can practice your programming skills here. The verdict will only be Yes or No. Note that it is also widely used in college examinations.</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="center aligned column">
-          <a class="ui huge button" href="{{ url('problem:list') }}">View Contests</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ui vertical stripe segment">
-    <div class="ui text container">
-      <h3 class="ui header">Grabs Your Attention</h3>
-      <p>Instead of focusing on content creation and hard work, we have learned how to master the art of doing nothing by providing massive amounts of whitespace and generic content that can seem massive, monolithic and worth your attention. <em>(What are you talking about?)</em></p>
-      <h4 class="ui horizontal header divider">F.A.Q.</h4>
-      <p>Tell us if you have trouble dancing.</p>
-      <a class="ui large button" href="{{ url('faq') }}">I think I need some help</a>
-    </div>
-
-  </div>
   {% include 'components/footer.jinja2' %}
 </div>
 
@@ -101,8 +55,23 @@
 
 {% block script %}
   <script src="/static/node_modules/typed.js/lib/typed.min.js"></script>
-  <script src="/static/js/type.js"></script>
+
   <script>
+  new Typed('.typed-element', {
+    strings: ["Start coding now.", "#include <bits/stdc++.h>", "class Main {",
+              "a, b = map(int, input().split())", "An AC a day keeps WA away.", "Thousands of problems.",
+              "OI/ACM support.", "Blog as you want.", "It is more than coding."],
+    typeSpeed: 50,
+    backSpeed: 5,
+    startDelay: 500,
+    backDelay: 2000,
+    loop: true,
+    showCursor: true,
+    cursorChar: '|',
+    autoInsertCss: true,
+    contentType: 'null'
+  });
+
   $(document).ready(
     function() {
       $('.masthead')
