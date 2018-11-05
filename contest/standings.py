@@ -84,7 +84,7 @@ class ContestDownloadStandings(BaseContestMixin, View):
                                     all()}
 
         header = ["Rank", "Username", "Info", "Score"]
-        if not self.contest.always_running and self.contest.penalty_counts:
+        if not self.contest.contest_type == 0 and self.contest.penalty_counts:
             header.append("Penalty")
         for problem in self.contest.contest_problem_list:
             header.append(problem.identifier)
@@ -96,7 +96,7 @@ class ContestDownloadStandings(BaseContestMixin, View):
             d.append(participant.user.username)
             d.append(participant.comment)
             d.append(str(rank["score"]))
-            if not self.contest.always_running and self.contest.penalty_counts:
+            if self.contest.contest_type == 0 and self.contest.penalty_counts:
                 d.append(str(rank["penalty"] // 60))
             for problem in self.contest.contest_problem_list:
                 detail = rank["detail"].get(problem.problem_id)
@@ -106,7 +106,7 @@ class ContestDownloadStandings(BaseContestMixin, View):
                         text = str(detail["score"])
                     elif detail["solved"]:
                         text = "+" + str(detail["attempt"] - 1)
-                        if self.contest.always_running:
+                        if self.contest.contest_type == 1:
                             text += '(%s)' % (detail["pass_time"])
                         elif self.contest.penalty_counts:
                             text += "(%d)" % (detail["time"] // 60)

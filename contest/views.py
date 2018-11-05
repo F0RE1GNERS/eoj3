@@ -47,7 +47,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
         self.site_closed = is_site_closed(request)
         if self.site_closed:
-            if self.contest.always_running:
+            if self.contest.contest_type == 1:
                 raise CloseSiteException
             if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
                     <= self.contest.end_time + timedelta(minutes=10):
@@ -95,7 +95,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['contest'] = self.contest
         data['contest_status'] = self.contest.status
         data['current_time'] = timezone.now()
-        if not self.contest.always_running:
+        if self.contest.start_time is not None and self.contest.end_time is not None:
             data['time_remaining'] = 0
             if data['contest_status'] < 0:
                 data['time_remaining'] = (self.contest.start_time - data['current_time']).total_seconds()
@@ -140,7 +140,7 @@ class DashboardView(BaseContestMixin, TemplateView):
 
         # tags
         data['tagged_contest_problem_list'] = data['contest_problem_list']
-        if self.contest.always_running:
+        if self.contest.contest_type == 1:
             tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
                                 .filter(object_id__in=list(map(lambda x: x.problem_id, data['contest_problem_list'])))
                                 .select_related("tag"))
@@ -167,7 +167,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     problem.personal_label = -1
                 else:
                     problem.personal_label = 0
-            if self.contest.always_running:
+            if self.contest.contest_type == 1:
                 all_accept_list = set(get_accept_problem_list(self.request.user.id))
                 for problem in data['contest_problem_list']:
                     if problem.problem_id in all_accept_list and problem.personal_label <= 0:
@@ -180,7 +180,7 @@ class DashboardView(BaseContestMixin, TemplateView):
                     q |= Q(author=self.user)
                 clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
             data["clarifications"] = clarifications
-            if not self.contest.always_running:
+            if self.contest.contest_type == 0:
                 try:
                     user_as_participant = self.contest.contestparticipant_set.select_related('user').get(user_id=self.user.pk)
                     self_displayed_rank_template = 'display_rank_cp_%d' % user_as_participant.pk
@@ -282,18 +282,18 @@ class ContestList(ListView):
     context_object_name = 'contest_list'
 
     def get_queryset(self):
-        return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), always_running=False)
+        return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), contest_type=0)
 
 
-class ContestAlwaysRunningList(ListView):
-    template_name = 'contest/contest_always_running.jinja2'
+class ContestGymList(ListView):
+    template_name = 'contest/contest_gym_list.jinja2'
     paginate_by = 30
     context_object_name = 'contest_list'
 
     def get_queryset(self):
         user = self.request.user if self.request.user.is_authenticated else None
         return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
-                                               sorting_by_id=True, always_running=True)
+                                               sorting_by_id=True, contest_type=1)
 
 
 class ContestRatings(ListView):

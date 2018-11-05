@@ -34,10 +34,22 @@
       </div>
       <div class="four wide column">
         <div class="ui segments">
-        {% if contest.always_running %}
+        {% if not contest.start_time and not contest.end_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              Always Running
+              Open indefinitely
+            </div>
+          </div>
+        {% elif not contest.start_time %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              Deadline: {{ contest.end_time | date('Y-m-d H:i') }}
+            </div>
+          </div>
+        {% elif not contest.end_time %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              Start: {{ contest.start_time | date('Y-m-d H:i') }}
             </div>
           </div>
         {% elif contest.pending_system_tests %}

@@ -63,7 +63,7 @@
         <a href="{{ url('contest:dashboard', ret.pk) }}" class="summary">
           Contest/Gym: {{ ret.title }}
         </a>
-        {% if not ret.always_running %}
+        {% if ret.contest_type == 0 and ret.start_time %}
           <div class="extra text">
             Start: {{ ret.start_time | naturaltime }}
           </div>

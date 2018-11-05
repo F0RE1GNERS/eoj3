@@ -22,14 +22,14 @@ def get_language_all_list():
 
 class ContestManager(models.Manager):
 
-    def get_status_list(self, show_all=False, filter_user=None, sorting_by_id=False, always_running=None):
+    def get_status_list(self, show_all=False, filter_user=None, sorting_by_id=False, contest_type=None):
         q = models.Q()
         if not show_all:
             q &= models.Q(access_level__gt=0)
             if filter_user:
                 q |= models.Q(managers=filter_user)
-        if always_running is not None:
-            q &= models.Q(always_running=always_running)
+        if contest_type is not None:
+            q &= models.Q(contest_type=contest_type)
         contest_list = self.get_queryset().prefetch_related('authors', 'managers').\
             annotate(Count('participants', distinct=True)).filter(q)
 
@@ -80,6 +80,7 @@ class Contest(models.Model):
     ACCESS_LEVEL_OPTIONS = (
         (0, 'Available only to managers'),
         (10, 'Available to invited users, problems are always hidden'),
+        (15, 'Available to invited users, allow for virtual participation after contest'),
         (20, 'Available to invited users, problems will be automatically published after contest'),
         (30, 'Available to everyone, requires registration in advance'),
         (40, 'Available to everyone')
@@ -95,7 +96,10 @@ class Contest(models.Model):
     description = models.TextField(blank=True)
     allowed_lang = models.CharField(_('Allowed languages'), max_length=192, default=get_language_all_list())
 
-    always_running = models.BooleanField('As gym contest (start time and end time will not work)', default=False)
+    contest_type = models.IntegerField(default=0, choices=(
+        (0, 'Regular Round'),
+        (1, 'Exercise in Gym'),
+    ))
     start_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
     end_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -135,15 +139,11 @@ class Contest(models.Model):
     @property
     def status(self):
         now = timezone.now()
-        try:
-            if self.always_running or self.start_time <= now <= self.end_time:
-                return 0  # running
-            elif now < self.start_time:
-                return -1  # pending
-            else:
-                return 1  # ended
-        except:
-            return -2  # error
+        if self.start_time is not None and now < self.start_time:
+            return -1
+        if self.end_time is not None and now > self.end_time:
+            return 1
+        return 0
 
     @property
     def is_frozen(self):
@@ -234,10 +234,11 @@ class ContestParticipant(models.Model):
     hidden_comment = models.TextField(blank=True)
     contest = models.ForeignKey(Contest)
     score = models.IntegerField(default=0)
-    penalty = models.IntegerField(default=0)
+    penalty = models.BigIntegerField(default=0)
     detail_raw = models.TextField(blank=True)
     is_disabled = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
+    join_time = models.DateTimeField(blank=True, null=True) # default: join when contest begins
 
     @property
     def detail(self):

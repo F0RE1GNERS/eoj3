@@ -65,7 +65,7 @@ class ContestSubmit(BaseContestMixin, View):
 
 class ContestSubmissionClaim(BaseContestMixin, View):
     def test_func(self):
-        return self.contest.always_running and super().test_func() and self.user.is_authenticated
+        return self.contest.contest_type == 1 and super().test_func() and self.user.is_authenticated
 
     def prepare_submissions(self):
         contest_already_accept = set()
@@ -227,7 +227,7 @@ class ContestMyStatus(ContestStatus):
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
-        if not self.contest.always_running and self.contest.status == 0 and not self.privileged:
+        if not self.contest.contest_type == 1 and self.contest.status == 0 and not self.privileged:
             return self.contest.submission_set.filter(author=self.user).all()
         else:
             return self.user.submission_set.filter(

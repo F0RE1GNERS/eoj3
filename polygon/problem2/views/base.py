@@ -126,7 +126,7 @@ class ProblemClone(PolygonBaseMixin, View):
                 contest_id, identifier = n.split('-')
                 contest = Contest.objects.get(pk=contest_id)
                 if (contest.access_level >= 20 and contest.status > 0) or \
-                        (contest.access_level >= 30 and contest.always_running):
+                        (contest.access_level >= 30 and contest.status >= 0 and not contest.end_time):
                     problem = contest.contestproblem_set.get(identifier=identifier).problem
                 else:
                     raise PermissionError

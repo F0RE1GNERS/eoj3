@@ -26,7 +26,7 @@ class ProfileView(TemplateView):
     def get_recent_contests(self):
         ret = self.user.contestparticipant_set.select_related("contest").filter(contest__access_level__gt=0,
                                                                                 contest__common_status_access_level__gte=0,
-                                                                                contest__always_running=False,
+                                                                                contest__contest_type=0,
                                                                                 star=False). \
                    order_by("-contest__start_time")[:5]
         for cp in ret:
@@ -36,7 +36,7 @@ class ProfileView(TemplateView):
 
     def get_recent_gyms(self):
         ret = self.user.contestparticipant_set.select_related("contest").filter(contest__access_level__gt=0,
-                                                                                contest__always_running=True). \
+                                                                                contest__contest_type=1). \
                    order_by("-contest__create_time")[:5]
         for cp in ret:
             try:

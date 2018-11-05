@@ -182,7 +182,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                     _, created = ProblemRewardStatus.objects.get_or_create(problem_id=submission.problem_id,
                                                                            user_id=submission.author_id)
                     if created:
-                        if submission.contest_id and not submission.contest.always_running:
+                        if submission.contest_id and submission.contest.contest_type == 0:
                             reward_contest_ac(submission.author, 50, submission.contest_id)
                         else:
                             difficulty = get_problem_reward(submission.problem_id)

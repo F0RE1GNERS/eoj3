@@ -48,7 +48,7 @@
   {% endif %}
 
   {% set first_column_span = 3 %}
-  {% if not contest.always_running and contest.penalty_counts %}
+  {% if contest.contest_type == 0 and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
   {% endif %}
 
@@ -76,7 +76,7 @@
           </th>
         {% endfor %}
       </tr>
-      {% if not contest.always_running %}
+      {% if contest.contest_type == 0 %}
       <tr>
         <th colspan="{{ first_column_span }}">First Yes</th>
         {% for problem in contest.contest_problem_list %}

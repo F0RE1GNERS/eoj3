@@ -11,7 +11,7 @@
     <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my_accepted" target="_blank">
       Download Accepted
     </a>
-    {% if contest.always_running %}
+    {% if contest.contest_type == 1 %}
       <a class="item post-link" data-link="{{ url('contest:my_claim', contest.pk) }}">
         Claim Accepted
       </a>

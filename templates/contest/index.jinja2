@@ -80,15 +80,15 @@
         <tr class="center aligned">
           <td class="semi-bold">{{ contest_problem.identifier }}</td>
           <td class="left aligned">
-          {% if contest.always_running %}
+          {% if contest.contest_type == 1 %}
             <span class="label ui horizontal {{ level_colors[contest_problem.problem.level] }}">{{ contest_problem.problem.get_level_display() }}</span>
           {% endif %}
             <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
-              {{ contest_problem.problem.title }}</a>{% if not contest.always_running %} <span class="text grey" style="font-size: .7em;">({{ contest_problem.problem.time_limit / 1000 | round(1) }} sec / {{ contest_problem.problem.memory_limit }} MB)</span>{% endif %}
+              {{ contest_problem.problem.title }}</a>{% if contest.contest_type == 0 %} <span class="text grey" style="font-size: .7em;">({{ contest_problem.problem.time_limit / 1000 | round(1) }} sec / {{ contest_problem.problem.memory_limit }} MB)</span>{% endif %}
             {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
               <a style="float: right;" data-tooltip="Practice in problemset" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
-          {% if contest.always_running %}
+          {% if contest.contest_type == 1 %}
             <div style="float:right">
               {% for tag in contest_problem.tags %}
                 <a class="label ui horizontal" href="?tag={{ tag }}">{{ tag }}</a>
@@ -274,9 +274,12 @@
   </h3>
 
   <ul class="ui list">
-    {% if contest.always_running %}
+    {% if not contest.start_time or not contest.end_time %}
       <li class="item">
-        Contest Duration: <b>Always Running</b>
+        Start time: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}Indefinitely{% endif %}
+      </li>
+      <li class="item">
+        Finish time: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}Indefinitely{% endif %}
       </li>
     {% else %}
       <li class="item">
