@@ -27,6 +27,8 @@ def get_penalty(start_time, submit_time):
     :param submit_time: time in DateTimeField
     :return: penalty in seconds
     """
+    if start_time is None or submit_time is None:
+        return 0
     return max(int((submit_time - start_time).total_seconds()), 0)
 
 

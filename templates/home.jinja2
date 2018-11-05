@@ -26,8 +26,8 @@
     <div class="ui container">
       <div class="ui large secondary inverted pointing menu">
         <a class="active item">Home</a>
-        <a class="item" href="{{ url('problem:list') }}">Problems</a>
-        <a class="item hidden-on-large" href="{{ url('contest:list') }}">Contests</a>
+        <a class="item" href="{{ url('problem:list') }}">题目</a>
+        <a class="item hidden-on-large" href="{{ url('contest:list') }}">竞赛</a>
         <div class="right item">
           {% if request.user.is_authenticated %}
           <a class="ui inverted button" href="{{ url('logout') }}?next={{ request.path }}">Logout</a>
@@ -58,9 +58,8 @@
 
   <script>
   new Typed('.typed-element', {
-    strings: ["Start coding now.", "#include <bits/stdc++.h>", "class Main {",
-              "a, b = map(int, input().split())", "An AC a day keeps WA away.", "Thousands of problems.",
-              "OI/ACM support.", "Blog as you want.", "It is more than coding."],
+    strings: ["华东师范大学在线评测系统", "正在汉化", "征集首页标语",
+              "投稿至页脚邮箱", "或加群 691713742", "入群问题答案区分大小写且不带空格"],
     typeSpeed: 50,
     backSpeed: 5,
     startDelay: 500,

@@ -1,7 +1,7 @@
 {% extends 'contest/base.jinja2' %}
 {% from 'components/problem.jinja2' import problem_view with context %}
 {% from 'components/submit.jinja2' import submit_view with context %}
-{% block contest_title %}Problem {{ contest_problem.identifier }} - {% endblock %}
+{% block contest_title %}{{ contest_problem.identifier }}. {{ problem.title }} - {% endblock %}
 {% block contest_content %}
   <div class="ui header">{{ contest_problem.identifier }}. {{ problem.title }}</div>
 

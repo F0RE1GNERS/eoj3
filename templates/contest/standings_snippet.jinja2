@@ -1,11 +1,11 @@
 {% macro display_rank_head(column_style) %}
   {% set first_column_span = 3 %}
   <th style="{{ column_style }}">#</th>
-  <th class="ui left aligned">Who</th>
+  <th class="ui left aligned"></th>
   <th style="{{ column_style }}">=</th>
   {% if not contest.contest_type == 0 and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
-    <th class="one wide">Penalty</th>
+    <th class="one wide">罚时</th>
   {% endif %}
   {% if not contest.standings_without_problem %}
     {% if contest.scoring_method == "acm" or (contest.contest_problem_list | length) == 1 %}

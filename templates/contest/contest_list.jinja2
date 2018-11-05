@@ -1,8 +1,8 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}Contests - {% endblock %}
+{% block title %}竞赛 - {% endblock %}
 
-{% block page_header %}Contests{% endblock %}
+{% block page_header %}竞赛{% endblock %}
 
 {% block content %}
 
@@ -11,13 +11,13 @@
   <table class="ui celled table">
     <thead>
       <tr class="center aligned">
-        <th class="six wide">Name</th>
-        <th>Start</th>
-        <th>Length</th>
-        <th>Writers</th>
-        <th class="collapsing">Public</th>
-        <th class="collapsing">Status</th>
-        <th class="collapsing">Standings</th>
+        <th class="six wide">标题</th>
+        <th>开始</th>
+        <th>时长</th>
+        <th>命题</th>
+        <th class="collapsing">公开</th>
+        <th class="collapsing">状态</th>
+        <th class="collapsing">榜单</th>
       </tr>
     </thead>
     <tbody>
@@ -37,15 +37,15 @@
           {% else %}<i class="red large lock icon"></i>{% endif %}</td>
           <td>
           {% if contest.status == 0 %}
-            <h5 class="ui header red">Running</h5>
+            <h5 class="ui header red">进行中</h5>
           {% elif contest.status == -1 %}
             {% if contest.access_level == 30 %}
-              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">Register »</a>
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">注册 »</a>
             {% else %}
-              <h5 class="ui header teal">Pending</h5>
+              <h5 class="ui header teal">尚未开始</h5>
             {% endif %}
           {% else %}
-            Ended
+            已结束
           {% endif %}
           </td>
           <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>
