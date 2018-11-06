@@ -1,13 +1,13 @@
 {% extends 'problem/base.jinja2' %}
 
-{% block title %}Problem Set - {% endblock %}
+{% block title %}题目集 - {% endblock %}
 
 {% block problem_content %}
 <div class="ui stackable grid">
 <div class="twelve wide column">
   {% if comparing %}
     <h5 class="ui header">
-      <div class="sub header">Your are currently comparing with {{ username_display(compare_user) }}</div>
+      <div class="sub header">你正在与 {{ username_display(compare_user) }} 比较。</div>
     </h5>
   {% endif %}
 
@@ -15,10 +15,10 @@
     <thead>
       <tr>
         <th class="center aligned one wide" data-key="id" data-order="ascending">#</th>
-        <th data-key="name" data-order="ascending">Name</th>
-        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">Reward</th>
-        <th class="center aligned two wide" data-key="sol" data-order="ascending">Solved</th>
-        {% if comparing %}<th class="center aligned two wide" data-key="she" data-order="ascending">He/She</th>{% endif %}
+        <th data-key="name" data-order="ascending">标题</th>
+        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">奖励</th>
+        <th class="center aligned two wide" data-key="sol" data-order="ascending">通过人数</th>
+        {% if comparing %}<th class="center aligned two wide" data-key="she" data-order="ascending">TA</th>{% endif %}
       </tr>
     </thead>
     <tbody>
@@ -59,7 +59,7 @@
 <div class="four wide column">
     <div class="ui fluid card">
       <div class="content">
-        <div class="header">Tags</div>
+        <div class="header">标签</div>
       </div>
       <div class="content">
         <div id="word-cloud"></div>
@@ -68,7 +68,7 @@
   {% if unsolved_submissions %}
     <div class="ui fluid card">
       <div class="content">
-        <div class="header">Recent unsolved</div>
+        <div class="header">最近没通过的</div>
       </div>
       <div class="content">
         <div class="ui feed">
@@ -80,7 +80,7 @@
                 {% endif %}</span> →
                 {% if not s.contest_id %}<a href="{{ url('problem:submission', s.problem_id, s.id) }}">
                 {% else %}<a href="{{ url('contest:submission', s.contest_id, s.id) }}">
-                {% endif %}Sub. #{{ s.id }}</a>. &nbsp;&nbsp;
+                {% endif %}提交 #{{ s.id }}</a>. &nbsp;&nbsp;
                 <span class="date">{{ s.create_time | naturaltime }}</span>
               </div>
             </div>
@@ -92,7 +92,7 @@
   {% if request.user.is_authenticated %}
     <div class="ui fluid card">
       <div class="content">
-        <div class="header">Compare with</div>
+        <div class="header">与用户比较</div>
       </div>
       <div class="content">
         <form style="margin-bottom:0;" id="compare-form" action="{{ url('problem:compare_with') }}" method="POST">

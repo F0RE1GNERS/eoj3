@@ -1,7 +1,7 @@
 {% if public_edit_access %}
 <div class="ui fluid card" id="problem-tags">
   <div class="content">
-    <div class="header">Problem Tags</div>
+    <div class="header">标签</div>
   </div>
   <div class="content">
     <div class="description">
@@ -12,7 +12,7 @@
           <div class="ui multiple search selection dropdown maximum-5">
             <input name="tags" type="hidden" value="{{ tags }}">
             <i class="dropdown icon"></i>
-            <div class="default text">Select Tags</div>
+            <div class="default text">选择标签</div>
             <div class="menu">
               {% for val in tags_choices %}
                 <div class="item" data-value="{{ val }}">{{ val }}</div>
@@ -28,7 +28,7 @@
 {% elif show_tags %}
 <div class="ui fluid card" id="problem-tag">
   <div class="content">
-    <div class="header">Problem Tags</div>
+    <div class="header">标签</div>
   </div>
   <div class="content">
     <div class="description">

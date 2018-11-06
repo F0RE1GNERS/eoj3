@@ -6,7 +6,7 @@
     </div>
     <div class="content">
       <div class="summary">
-        {{ username_display(blog.author) }} posted {{ blog.title }}
+        {{ username_display(blog.author) }}: {{ blog.title }}
         <div class="date">
           {{ blog.edit_time | naturaltime }}
         </div>
@@ -16,12 +16,12 @@
         {% cache 3600 'blog_preview#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
           {{ blog.text | markdown | get_intro }}
         {% endcache %}
-        <a href="{{ url('blog:detail', blog.pk) }}">...more</a>
+        <a href="{{ url('blog:detail', blog.pk) }}">...更多</a>
       </div>
       <div class="meta">
         <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
           <i class="heart icon {% if blog.likes__flag != 1  %} empty {% endif %}"></i>
-          <span>{{ blog.likes__count }}</span> Likes
+          <span>{{ blog.likes__count }}</span> 个赞
         </a>
       </div>
     </div>

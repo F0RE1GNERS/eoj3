@@ -9,7 +9,7 @@
   {% endif %}
 
     <div class="ui error message">
-      <div class="header">Should check something!</div>
+      <div class="header">提交失败！</div>
       <ul class="list">
         <li id="error-message-goes-here"></li>
       </ul>
@@ -36,7 +36,7 @@
             {% for identifier, display in lang_choices %}
             <div class="item" data-value="{{ identifier }}">{{ display }}</div>
             {% endfor %}
-            <div class="item" data-value="auto">Auto: <span class="detected-lang-name">None</span></div>
+            <div class="item" data-value="auto">自动: <span class="detected-lang-name">无</span></div>
           </div>
         </div>
         <div style="float:left; margin-top:7px; margin-left:15px; color:#777; cursor:pointer" id="template-button">
@@ -46,7 +46,7 @@
         <input name="problem" type="hidden" value="{{ contest_problem.identifier }}">
       {% endif %}
         <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
-           <i class="icon send"></i> Submit
+           <i class="icon send"></i> 提交
         </button>
       </div>
     </div>
