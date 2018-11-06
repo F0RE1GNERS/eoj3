@@ -45,7 +45,7 @@ def deprecate_current_app(func):
 
 def _get_login_redirect_url(request, redirect_to):
     # Ensure the user-originating redirection URL is safe.
-    if not is_safe_url(url=redirect_to, host=request.get_host()):
+    if not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
         return resolve_url(settings.LOGIN_REDIRECT_URL)
     return redirect_to
 
@@ -114,9 +114,9 @@ def logout(request, next_page=None,
             redirect_field_name in request.GET):
         next_page = request.POST.get(redirect_field_name,
                                      request.GET.get(redirect_field_name))
-        # Security check -- don't allow redirection to a different host.
-        if not is_safe_url(url=next_page, host=request.get_host()):
-            next_page = request.path
+        # # Security check -- don't allow redirection to a different host.
+        # if not is_safe_url(url=next_page, host=request.get_host()):
+        #     next_page = request.path
 
     if next_page:
         # Redirect to this page until the session has been cleared.

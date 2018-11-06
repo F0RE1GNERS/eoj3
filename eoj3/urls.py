@@ -3,12 +3,12 @@ import re
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth import logout
 from django.views.static import serve
 
 from account.profile import ProfileView
 from home.search import search_view
 from migrate.views import migrate_view
+from utils.auth_view import logout
 from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 

@@ -265,7 +265,7 @@ def get_first_yes(contest: Contest, no_invalidate=False):
         t = dict()
         end_time = contest.end_time
         if end_time is None:
-            end_time = datetime.max
+            end_time = datetime(2099, 12, 31)
         for contest_problem in contest.contest_problem_list:
             first_accepted_sub = contest.submission_set.filter(problem_id=contest_problem.problem_id,
                                                                status__in=[SubmissionStatus.ACCEPTED,
