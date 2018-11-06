@@ -8,24 +8,24 @@
 
   {% if is_privileged %}
   <div class="ui right floated buttons">
-    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>Refresh</a>
+    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>重新计算榜单</a>
     <div class="ui simple dropdown icon button">
       <i class="settings icon"></i>
       <div class="menu">
         <a class="item" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">
-          <i class="download icon"></i> Standings as .csv
+          <i class="download icon"></i> 导出为 csv
         </a>
         <a class="item" href="{{ url('contest:report_testsys', contest.pk) }}" target="_blank">
-          <i class="download icon"></i> Standings (TestSys)
+          <i class="download icon"></i> 导出为 TestSys
         </a>
         <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all" target="_blank">
-          <i class="code icon"></i> Download All Codes
+          <i class="code icon"></i> 下载所有代码
         </a>
         <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all_accepted" target="_blank">
-          <i class="checkmark icon"></i> Accepted Codes
+          <i class="checkmark icon"></i> 下载通过代码
         </a>
         <a class="item" href="?privilege=true" target="_blank">
-          <i class="bar chart icon"></i> Final Standings
+          <i class="bar chart icon"></i> 终榜
         </a>
       </div>
     </div>
@@ -68,7 +68,7 @@
   {% if not contest.standings_without_problem %}
     <tfoot>
       <tr>
-        <th colspan="{{ first_column_span }}"><span class="ui text green">Accepted</span><br>Submitted</th>
+        <th colspan="{{ first_column_span }}"><span class="ui text green">通过</span><br>提交</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">
             <span class="ui text green">{{ statistics.problem[problem.problem.id].ac }}</span><br>
@@ -78,7 +78,7 @@
       </tr>
       {% if contest.contest_type == 0 %}
       <tr>
-        <th colspan="{{ first_column_span }}">First Yes</th>
+        <th colspan="{{ first_column_span }}">一血</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">{% if statistics.first_yes[problem.problem.id] %}
             {{ (statistics.first_yes[problem.problem.id].time / 60) | int }}

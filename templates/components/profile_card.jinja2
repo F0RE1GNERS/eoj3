@@ -8,15 +8,15 @@
       <span class="header">{{ profile.get_username_display() }}{% if profile.pk == request.user.pk %}
         <a href="{{ url('account:profile') }}"><i class="ui icon edit"></i></a>{% endif %}</span>
       <div class="meta">
-        <span class="date">Joined in {{ profile.date_joined | naturaltime }}</span>
+        <span class="date">于 {{ profile.date_joined | naturaltime }} 注册</span>
       </div>
       <div class="description">
-        Currently working/studying at {{ profile.school }}.
+        目前在 {{ profile.school }} 学习 / 工作。
         {% if profile.motto %}<br><b>{{ profile.motto }}</b>{% endif %}
       </div>
     </div>
     <div class="extra content">
-      <a href="{{ url('problem:status') }}?user={{ profile.pk }}">{{ solved }} problems solved.</a>
+      <a href="{{ url('problem:status') }}?user={{ profile.pk }}">已解出 {{ solved }} 道题目。</a>
     </div>
   </div>
 

@@ -35,7 +35,7 @@
         </div>
       {% elif field.field.widget.__class__.__name__ == 'Select' %}
         {% if field.name == 'school' %}
-          <label>School: <a data-target="#addSchoolModal" class="modal-link">Cannot find your school?</a></label>
+          <label>学校: <a data-target="#addSchoolModal" class="modal-link">找不到你所在的学校？</a></label>
         {% else %}
           {{ field.label_tag() }}
         {% endif %}

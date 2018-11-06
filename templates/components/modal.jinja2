@@ -1,4 +1,4 @@
-{% macro modal(title, size="tiny", action=None, id="modal", negative_button_name="Close", button_name="OK") %}
+{% macro modal(title, size="tiny", action=None, id="modal", negative_button_name="关闭", button_name="确定") %}
   <div class="ui basic {{ size }} modal" id="{{ id }}">
     <div class="ui header">{{ title }}</div>
     <div class="content">

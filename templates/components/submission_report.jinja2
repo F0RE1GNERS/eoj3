@@ -2,15 +2,15 @@
 <div class="ui header">
   <i class="ordered list icon"></i>
   <div class="content">
-    Judge Protocol
-    <div class="sub header">At most 512 bytes are displayed.</div>
+    评测报告
+    <div class="sub header">仅保留前 512 字节。</div>
   </div>
 </div>
 
 <div class="submission-report">
   <div class="passage examples">
   {% for case in testcases %}
-    <div class="indicator"><b>Test #{{ loop.index }}: {{ case.meta }}</b></div>
+    <div class="indicator"><b>测试点 #{{ loop.index }}: {{ case.meta }}</b></div>
     <div class="example">
       <div class="input">
         <div class="title">Input</div>

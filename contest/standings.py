@@ -69,7 +69,7 @@ class ContestUpdateStandings(BaseContestMixin, View):
     def get(self, request, cid):
         if not self.privileged:
             raise PermissionDenied
-        invalidate_contest(self.contest)
+        invalidate_contest(self.contest, sync=True)
         return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
 
 

@@ -5,15 +5,15 @@
     <tr class="center aligned">
       <th>#</th>
       {% if not hide_problem %}
-      <th>Problem</th>
+      <th>题目</th>
       {% endif %}
-      <th>Language</th>
-      <th>Sent</th>
-      <th>Judged</th>
-      <th>Verdict</th>
+      <th>语言</th>
+      <th>提交时间</th>
+      <th>评测时间</th>
+      <th>判定结果</th>
       <th>CPU</th>
       {% if server %}
-      <th>Judge</th>
+      <th>评测机</th>
       {% endif %}
       {% if rejudge_authorized %}
       <th></th>
@@ -39,7 +39,7 @@
       <td>{{ server }}</td>
       {% endif %}
       {% if rejudge_authorized %}
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">Rejudge</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">重测</a></td>
       {% endif %}
     </tr>
     <tr>
@@ -72,9 +72,9 @@
     <i class="circle help outline icon"></i>
     <div class="content">
       <div class="header">
-        Need some help?
+        是否需要帮助？
       </div>
-      <p>Buy full debug report to see what's wrong.</p>
+      <p>用 EMB 购买完成的评测报告。</p>
     </div>
   </a>
 {% endif %}

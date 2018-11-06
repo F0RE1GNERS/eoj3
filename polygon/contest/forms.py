@@ -52,6 +52,9 @@ class ContestEditForm(forms.ModelForm):
         if cleaned_data.get('contest_type') == 0:
             if not start_time or not end_time or (end_time - start_time).total_seconds() < 300 or (end_time - start_time).total_seconds() > 86400 * 14:
                 raise forms.ValidationError("A regular round should last longer than 5 minutes and less than 14 days.", code='invalid')
+        else:
+            if cleaned_data['scoring_method'] not in ("oi", "acm",):
+                raise forms.ValidationError("作业只支持 OI 和 ACM 赛制。", code='invalid')
         cleaned_data['start_time'] = start_time
         cleaned_data['end_time'] = end_time
         if cleaned_data.get('freeze'):

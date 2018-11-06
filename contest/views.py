@@ -14,7 +14,6 @@ from django.utils import timezone
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.list import ListView
-from django.utils.translation import ugettext_lazy as _
 from ipware.ip import get_ip
 from tagging.models import TaggedItem
 
@@ -57,7 +56,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.user = request.user
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_contest_volunteer(self.user, self.contest)
-        self.registered = False
+        self.registered, self.vp_available = False, False
         if self.user.is_authenticated:
             try:
                 participant = self.contest.contestparticipant_set.get(user=self.user)
@@ -76,21 +75,23 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if not self.registered and (self.contest.access_level >= 30
                                     or (self.contest.access_level >= 20 and self.contest.status > 0)):
             self.registered = True
+        if not self.registered and self.user.is_authenticated and self.contest.access_level >= 15 and self.contest.contest_type == 0:
+            self.vp_available = True
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
         if self.privileged:
             return True
         if self.contest.access_level == 0:
-            self.permission_denied_message = _('Contest is not visible.')
+            self.permission_denied_message = "比赛只对管理员可见。"
             return False
         if self.contest.status < 0:
-            self.permission_denied_message = _("Contest hasn't started.")
+            self.permission_denied_message = "尚未开始。"
             return False
         if self.registered or self.volunteer:
             return True
         else:
-            self.permission_denied_message = _("Did you forget to register for the contest?")
+            self.permission_denied_message = "你是不是忘了注册？"
             return False
 
     def get_context_data(self, **kwargs):
@@ -115,6 +116,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['is_volunteer'] = self.volunteer
         data['show_percent'] = self.contest.scoring_method == 'oi'
         data['site_closed'] = self.site_closed
+        data['vp_available'] = self.vp_available
         if self.contest.analysis_blog_id and \
             Blog.objects.filter(pk=self.contest.analysis_blog_id, visible=True).exists():
             data['analysis_available'] = True
@@ -252,22 +254,22 @@ class ContestStatements(BaseContestMixin, View):
 class ContestBoundUser(View):
     def post(self, request, cid):
         if not request.user.is_authenticated:
-            messages.error(request, 'Please login first.')
+            messages.error(request, "请先登录。")
         else:
             invitation_code = request.POST.get('code', '')
             try:
                 invitation = ContestInvitation.objects.get(code=invitation_code)
                 add_participant_with_invitation(cid, invitation.pk, request.user)
-                messages.success(request, _('You have successfully joined this contest.'))
+                messages.success(request, "你已成功加入。")
             except ContestInvitation.DoesNotExist:
-                messages.error(request, _('There seems to be something wrong with your invitation code.'))
+                messages.error(request, "邀请码有误。")
         return HttpResponseRedirect(reverse('contest:dashboard', kwargs={'cid': cid}))
 
 
 class ContestPublicToggleRegister(View):
     def post(self, request, cid):
         if not request.user.is_authenticated:
-            messages.error(request, 'Please login first.')
+            messages.error(request, "请先登录。")
         else:
             contest = get_object_or_404(Contest, pk=cid)
             if contest.access_level == 30 and contest.status == -1:

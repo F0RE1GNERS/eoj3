@@ -1,6 +1,6 @@
 {% if contest.pdf_statement %}
 <div class="ui success message">
-  <div class="header">PDF Statement is available.</div>
-  <div class="content">You can <a href="{{ url('contest:statements', contest.pk) }}">download the statement here</a>.</div>
+  <div class="header">PDF 题面可用</div>
+  <div class="content">你可以在<a href="{{ url('contest:statements', contest.pk) }}">这里下载</a>。</div>
 </div>
 {% endif %}

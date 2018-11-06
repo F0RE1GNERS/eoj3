@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 
 from django.core.cache import cache
@@ -7,7 +7,7 @@ from django.db import transaction
 
 from problem.statistics import invalidate_problem
 from submission.models import SubmissionStatus
-from .models import Contest
+from .models import Contest, ContestParticipant
 
 CONTEST_FIRST_YES = "contest_first_yes_{}"
 
@@ -33,25 +33,23 @@ def get_penalty(start_time, submit_time):
     return max(int((submit_time - start_time).total_seconds()), 0)
 
 
-def recalculate_for_participants(contest: Contest, user_ids: list):
+def recalculate_for_participants(contest: Contest, participant: ContestParticipant):
     """
     :param contest
     :param user_ids
     :param privilege: privilege will cause the calculation works for all submissions even after board frozen
     :return {
-        <user_id>: {
-            penalty: int (seconds),
-            score: int,
-            detail: {
-                <problem_id>: {
-                    solved: boolean
-                    attempt: int (submission count including the first accepted one),
-                    score: int (individual score for each problem),
-                    time: int (first accept solution time, in seconds),
-                    first_blood: boolean
-                    partial: boolean
-                    upsolve: int (positive for accepted, negative for unaccepted, score if partial)
-                }
+        penalty: int (seconds),
+        score: int,
+        detail: {
+            <problem_id>: {
+                solved: boolean
+                attempt: int (submission count including the first accepted one),
+                score: int (individual score for each problem),
+                time: int (first accept solution time, in seconds),
+                first_blood: boolean
+                partial: boolean
+                upsolve: int (positive for accepted, negative for unaccepted, score if partial)
             }
         }
     }
@@ -70,14 +68,25 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
     3) The final score, once accepted will not be lower than 30% of the total score.
     """
 
-    ans = {author_id: dict(detail=dict()) for author_id in user_ids}
-    contest_length = get_penalty(contest.start_time, contest.end_time)
+    ans = {"detail": dict()}
+
+    start_time = contest.start_time
+    end_time = contest.end_time
+    INF = int(1E18)
+    if contest.start_time is None or contest.end_time is None:
+        contest_length = INF
+    else:
+        contest_length = (contest.end_time - contest.start_time).total_seconds()
+        if participant.join_time is not None:
+            start_time = participant.join_time
+            end_time = start_time + timedelta(seconds=contest_length)
+
     first_yes = get_first_yes(contest, no_invalidate=True)
 
-    submission_filter = contest.submission_set.filter(author_id__in=user_ids)
+    submission_filter = contest.submission_set.filter(author_id=participant.user_id)
     for submission in submission_filter.defer("code", "status_message", "status_detail").order_by("create_time"):
         status = submission.status
-        detail = ans[submission.author_id]['detail']
+        detail = ans['detail']
         detail.setdefault(submission.problem_id,
                           {'solved': False, 'attempt': 0, 'score': 0, 'first_blood': False, 'time': 0,
                            'waiting': False, 'pass_time': '', 'partial': False, 'upsolve': 0})
@@ -95,7 +104,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             continue
 
         pass_time = str(submission.create_time.strftime('%Y-%m-%d %H:%M:%S'))
-        time = get_penalty(contest.start_time, submission.create_time)
+        time = get_penalty(start_time, submission.create_time)
         score = 0
         EPS = 1E-2
         if contest.scoring_method == 'oi' or contest.scoring_method == "subtask":
@@ -117,7 +126,7 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             if SubmissionStatus.is_accepted(status):
                 d['upsolve'] = abs(d['upsolve'])
 
-        if contest.end_time is not None and submission.create_time > contest.end_time:
+        if end_time is not None and submission.create_time > end_time:
             d['upsolve_enable'] = True
             continue
 
@@ -135,22 +144,21 @@ def recalculate_for_participants(contest: Contest, user_ids: list):
             if first_yes.get(submission.problem_id) and first_yes[submission.problem_id]['author'] == submission.author_id:
                 d['first_blood'] = True
 
-    for v in ans.values():
-        for p in v['detail']:
-            d = v['detail'][p]
-            if 'upsolve_enable' not in d:
-                d['upsolve'] = 0
-            else:
-                d.pop('upsolve_enable', None)
-        if contest.start_time is not None:
-            penalty = 0
-        elif contest.scoring_method == 'oi':
-            penalty = sum(map(lambda x: max(x['attempt'], 0) * contest.penalty_counts + x['time'],
-                              v['detail'].values()))
+    for p in ans['detail']:
+        d = ans['detail'][p]
+        if 'upsolve_enable' not in d:
+            d['upsolve'] = 0
         else:
-            penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
-                              filter(lambda x: x['solved'], v['detail'].values())))
-        v.update(penalty=penalty, score=sum(map(lambda x: x['score'], v['detail'].values())))
+            d.pop('upsolve_enable', None)
+    if start_time is None:
+        penalty = 0
+    elif contest.scoring_method == 'oi':
+        penalty = sum(map(lambda x: max(x['attempt'], 0) * contest.penalty_counts + x['time'],
+                          ans['detail'].values()))
+    else:
+        penalty = sum(map(lambda x: max(x['attempt'] - 1, 0) * contest.penalty_counts + x['time'],
+                          filter(lambda x: x['solved'], ans['detail'].values())))
+    ans.update(penalty=penalty, score=sum(map(lambda x: x['score'], ans['detail'].values())))
     return ans
 
 
@@ -285,26 +293,37 @@ def get_first_yes(contest: Contest, no_invalidate=False):
 
 
 def invalidate_contest_participant(contest: Contest, users=None, sync=False):
+    """
+    :param contest:
+    :param users:
+        None: all participants
+        int: primary key of a User instance
+        list: list of primary keys of User instances
+    :param sync:
+    :return: None
+
+    The process will get contest participant object from the user instances and save them to database
+    """
     if contest.is_frozen:
         return
 
     def invalidate_process():
         with transaction.atomic():
             if users is None:
-                user_ids = contest.participants_ids
+                participants = contest.contestparticipant_set.all()
             elif isinstance(users, int):
-                user_ids = [users]
+                participants = contest.contestparticipant_set.filter(user_id=users)
             elif isinstance(users, list):
-                user_ids = users
+                participants = contest.contestparticipant_set.filter(user_id__in=users)
             else:
                 raise ValueError
-            intermediate = recalculate_for_participants(contest, user_ids)
-            for user_id, res in intermediate.items():
-                user = contest.contestparticipant_set.get(user_id=user_id)
-                user.detail = res["detail"]
-                user.score = res["score"]
-                user.penalty = res["penalty"]
-                user.save(update_fields=["detail_raw", "score", "penalty"])
+
+            for p in participants:
+                res = recalculate_for_participants(contest, p)
+                p.detail = res["detail"]
+                p.score = res["score"]
+                p.penalty = res["penalty"]
+                p.save(update_fields=["detail_raw", "score", "penalty"])
 
     if sync:
         invalidate_process()

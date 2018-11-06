@@ -12,7 +12,7 @@
           </div>
           <div class="text">
             {% if item.comment.is_removed %}
-              [Deleted]
+              [已删除]
             {% else %}
               {{ item.comment.comment | markdown | safer | safe }}
             {% endif %}
@@ -20,7 +20,7 @@
           {% if not item.comment.is_removed %}
             <div class="actions">
               {% if item.comment.level < 1 %}
-                <a class="reply" data-pk="{{ item.comment.pk }}">Reply</a>
+                <a class="reply" data-pk="{{ item.comment.pk }}">回复</a>
               {% endif %}
               {% if allow_feedback %}
                 <a class="like-link" data-link="{{ url('comments-xtd-api-feedback') }}" data-comment="{{ item.comment.pk }}" data-flag="like">

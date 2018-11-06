@@ -18,18 +18,18 @@
         <i class="privacy icon"></i>
         <div class="content">
           权限受限
-          <div class="sub header">This contest is private. You can either</div>
+          <div class="sub header">你可以有两种选择：</div>
         </div>
       </h3>
       <ul class="ui list">
-        <li class="item">Enter a valid invitation code to join the contest, OR</li>
-        <li class="item">Re-login with the given account.</li>
+        <li class="item">输入一个合法的邀请码把自己拉进去；或</li>
+        <li class="item">使用一个已经加入的账户登录。</li>
       </ul>
       <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
         {% csrf_token %}
         <div class="ui action fluid input">
-          <input type="text" name="code" placeholder="If you have an invitation code..." style="font-family:monospace">
-          <button type="submit" class="ui button">Join the contest</button>
+          <input type="text" name="code" placeholder="邀请码在此填入..." style="font-family:monospace">
+          <button type="submit" class="ui button">加入</button>
         </div>
       </form>
     </div>
@@ -40,23 +40,23 @@
     {# public rated contest registration #}
     <div class="ui info message">
       <div class="header">
-        Rated contest requires registration.
+        积分比赛需要提前注册
       </div>
       <ul class="list">
-        <li>You need to register, before the contest begins, to be rated in this contest.</li>
-        <li>If you fail to register, you can still participate in the contest, but you will be an un-rated participant (by automatically starred).</li>
-        <li>You can cancel your registration before the contest begins. But if you don't, you <b>will be considered a participant</b> in the contest, and be rated, even if you haven't submit any solution.</li>
+        <li>你必须在赛前注册才能参与积分。</li>
+        <li>如果你没有注册，你仍可以参赛，但将会自动打星。</li>
+        <li>你可以在赛前取消注册。如果你没有取消注册而且没有作出任何提交，我们会在赛后计算积分前进行打星操作。</li>
       </ul>
     </div>
     {% if public_register == -1 %}
     <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
       {% csrf_token %}
-      <button class="fluid ui primary button">OK, Register</button>
+      <button class="fluid ui primary button">确认注册</button>
     </form>
     {% else %}
     <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
       {% csrf_token %}
-      <button class="fluid ui red button">Cancel my registration</button>
+      <button class="fluid ui red button">取消注册</button>
     </form>
     {% endif %}
     {{ separator() }}
@@ -71,8 +71,8 @@
       <thead>
         <tr class="center aligned">
           <th class="two wide">#</th>
-          <th class="left aligned">Name</th>
-          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> / Max / Avg{% else %}Solved{% endif %}</th>
+          <th class="left aligned">标题</th>
+          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> / 最高 / 平均{% else %}通过人数{% endif %}</th>
         </tr>
       </thead>
       <tbody>
@@ -86,7 +86,7 @@
             <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
               {{ contest_problem.problem.title }}</a>{% if contest.contest_type == 0 %} <span class="text grey" style="font-size: .7em;">({{ contest_problem.problem.time_limit / 1000 | round(1) }} sec / {{ contest_problem.problem.memory_limit }} MB)</span>{% endif %}
             {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
-              <a style="float: right;" data-tooltip="Practice in problemset" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
+              <a style="float: right;" data-tooltip="在题目集中练习" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
           {% if contest.contest_type == 1 %}
             <div style="float:right">
@@ -114,8 +114,8 @@
       <h3 class="ui header">
         <i class="student icon"></i>
         <div class="content">
-          My Score
-          <div class="sub header">Might be cached for a few seconds.</div>
+          我的成绩
+          <div class="sub header">可能会有几秒钟的缓存。</div>
         </div>
       </h3>
 
@@ -144,23 +144,23 @@
     <h3 class="ui header">
       <i class="help circle icon"></i>
       <div class="content">
-        Clarifications
-        <div class="sub header">Ask questions and receive notifications</div>
+        提问与通知
+        <div class="sub header">你在这里提出的问题只有你自己可见</div>
       </div>
     </h3>
     {% if is_privileged %}
-      {% set clarification_modal_name = "Post a notification" %}
+      {% set clarification_modal_name = "发送全体通知" %}
     {% else %}
-      {% set clarification_modal_name = "Ask a question" %}
+      {% set clarification_modal_name = "提问" %}
     {% endif %}
 
     <table class="ui celled table">
       <thead>
         <tr class="center aligned">
-          <th class="collapsing">Time</th>
-          <th class="collapsing">User</th>
-          <th>Questions</th>
-          <th>Answers</th>
+          <th class="collapsing">时间</th>
+          <th class="collapsing">用户</th>
+          <th>问题</th>
+          <th>回答</th>
         </tr>
       </thead>
       <tbody>
@@ -206,7 +206,7 @@
     {% call modal("Answer a question", action=url('contest:clarification', contest.pk), id="clarificationAnswerModal") %}
       {% csrf_token %}
       <div class="field">
-        <label>Edit your answer here:</label>
+        <label>添加回答：</label>
         <textarea name="text"></textarea>
       </div>
     {% endcall %}
@@ -222,13 +222,13 @@
         Point Values
       </div>
     </h3>
-    <p>This will be a <b>rated</b> contest and here are the points for each problem:</p>
+    <p>本场比赛将影响积分排名。</p>
     <div class="ui grid">
       <div class="sixteen wide mobile twelve wide tablet eight wide computer column">
         <table class="ui unstackable center aligned striped celled table">
           <thead>
             <tr>
-              <th>Task</th><th>Score</th>
+              <th>题目</th><th>得分</th>
             </tr>
           </thead>
           <tbody>
@@ -241,7 +241,7 @@
           </tbody>
         </table>
       </div>
-      <p>The information above is subject to change before the contest.</p>
+      <p>上述信息可能在赛前更改。</p>
     </div>
 
 
@@ -252,8 +252,8 @@
     <h3 class="ui header">
       <i class="announcement icon"></i>
       <div class="content">
-        Announcement
-        <div class="sub header">Contest writer has something to say</div>
+        公告
+        <div class="sub header">请留意阅读</div>
       </div>
     </h3>
 
@@ -268,30 +268,30 @@
   <h3 class="ui header">
     <i class="info circle icon"></i>
     <div class="content">
-      Contest Information
-      <div class="sub header">Only the basics</div>
+      基本信息
+{#      <div class="sub header">Only the basics</div>#}
     </div>
   </h3>
 
   <ul class="ui list">
     {% if not contest.start_time or not contest.end_time %}
       <li class="item">
-        Start time: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}Indefinitely{% endif %}
+        开始时间: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
       </li>
       <li class="item">
-        Finish time: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}Indefinitely{% endif %}
+        结束时间: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
       </li>
     {% else %}
       <li class="item">
-        Contest Duration: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
+        时长: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
       </li>
       <li class="item">
-        Start time: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
+        开始时间: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
       </li>
     {% endif %}
     {% if contest.freeze %}
       <li class="item">
-        Standings frozen after {{ contest.freeze_time | date('Y-m-d H:i:s') }} ({{ contest.freeze_time | naturaltime }}).
+        榜单在 {{ contest.freeze_time | date('Y-m-d H:i:s') }} 关闭 ({{ contest.freeze_time | naturaltime }})。
       </li>
     {% endif %}
   </ul>

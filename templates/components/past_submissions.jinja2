@@ -2,18 +2,18 @@
 
 {% if submission_list %}
   <h3 class="ui horizontal divider header">
-    PAST SUBMISSIONS
+    近期提交记录
   </h3>
 
   <table class="ui celled table striped center aligned compact">
     <thead>
       <tr>
         <th>#</th>
-        <th>Sent</th>
-        <th>Judged</th>
-        <th>Lang</th>
-        <th>Verdict</th>
-        <th>Time</th>
+        <th>提交时间</th>
+        <th>评测时间</th>
+        <th>语言</th>
+        <th>判定结果</th>
+        <th>CPU</th>
       </tr>
     </thead>
     <tbody>
@@ -37,7 +37,7 @@
     </tbody>
   </table>
   {% if view_more %}
-    <a href="{{ url('contest:my', contest.pk) }}" class="ui right floated primary button">View All <i class="right chevron icon"></i></a>
+    <a href="{{ url('contest:my', contest.pk) }}" class="ui right floated primary button">查看所有提交 <i class="right chevron icon"></i></a>
   {% endif %}
 
 {% endif %}

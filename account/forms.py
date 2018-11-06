@@ -28,6 +28,13 @@ class LoginForm(AuthenticationForm):
     remember_me = forms.BooleanField(required=False)
     public_key = forms.CharField(widget=forms.HiddenInput())
 
+    error_messages = {
+        'invalid_login': _(
+            "请输入正确的用户名和密码。注意区分大小写。"
+        ),
+        'inactive': "该账户已失效。",
+    }
+
     def clean(self):
         priv, pub = get_keys()
         if not compare_string(self.cleaned_data.get("public_key"), pub.decode()):
