@@ -3,7 +3,7 @@
   <th style="{{ column_style }}">#</th>
   <th class="ui left aligned"></th>
   <th style="{{ column_style }}">=</th>
-  {% if not contest.contest_type == 0 and contest.penalty_counts %}
+  {% if contest.contest_type == 0 and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
     <th class="one wide">罚时</th>
   {% endif %}
