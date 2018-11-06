@@ -13,7 +13,7 @@
   {% csrf_token %}
   <input type="hidden" name="next" value="{{ request.get_full_path() }}">
   <div class="ui error message">
-    <div class="header">Should check something!</div>
+    <div class="header">存在问题！</div>
     <ul class="list">
       {% for field in form %}
         {% for error in field.errors %}
@@ -52,7 +52,7 @@
         <div class="ui multiple selection search dropdown">
           <input name="{{ field.name }}" type="hidden" value="{{ field.initial }}">
           <i class="dropdown icon"></i>
-          <div class="default text">Select Multiple</div>
+          <div class="default text">选择多个</div>
           <div class="menu">
             {% for key, val in field.field.widget.choices %}
               <div class="item" data-value="{{ key }}">{{ val }}</div>
@@ -88,7 +88,7 @@
   {% if submit_button %}
     {{ submit_button }}
   {% else %}
-    <button type="submit" class="ui positive button">Submit</button>
+    <button type="submit" class="ui positive button">确定</button>
   {% endif %}
 </form>
 

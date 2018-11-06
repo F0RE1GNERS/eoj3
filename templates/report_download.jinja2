@@ -1,22 +1,15 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}Download Case - {% endblock %}
+{% block title %}下载报告 - {% endblock %}
 
-{% block page_header %}Download Case{% endblock %}
+{% block page_header %}下载报告{% endblock %}
 
 {% block content %}
-  <p>You are paying this because you are trying to debug <b>Submission #{{ submission }}.</b></p>
+  <p>请确认支付 <b>{{ price | round(1) }}</b> EMB 以获取<b>提交 #{{ submission }}</b>的评测报告。</p>
   <form class="ui form" method="POST">
-    <div class="ui info message">
-      <div class="header">Please read this:</div>
-      <ul class="list">
-        <li>You will pay <b>{{ price | round(1) }} EMB</b> to buy the full debug report.</li>
-        <li>You will be redirected to payment page and given a link once you pay.</li>
-      </ul>
-    </div>
     {% csrf_token %}
     <input type="hidden" name="sub" value="{{ submission }}">
-    <button type="submit" class="ui positive button">Okay, I'm sure.</button>
+    <button type="submit" class="ui positive button">确定</button>
   </form>
 
 {% endblock %}

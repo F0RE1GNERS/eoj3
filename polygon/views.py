@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
-from django_q.tasks import async
+from django_q.tasks import async_task
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -52,7 +52,7 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
         return False
 
     def post(self, request, sid):
-        async(rejudge_submission, self.submission)
+        async_task(rejudge_submission, self.submission)
         if self.submission.contest_id:
             nxt = reverse('contest:submission', kwargs={'cid': self.submission.contest_id, 'sid': self.submission.id})
         else:

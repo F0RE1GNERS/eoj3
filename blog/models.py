@@ -27,9 +27,9 @@ class BlogQuerySet(models.QuerySet):
 
 
 class BlogRevision(models.Model):
-    title = models.CharField('Title', max_length=128)
-    text = models.TextField('Text')
-    author = models.ForeignKey(User)
+    title = models.CharField(max_length=128)
+    text = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -37,18 +37,18 @@ class BlogRevision(models.Model):
 
 
 class Blog(models.Model):
-    title = models.CharField('Title', max_length=128)
-    text = models.TextField('Text')
-    author = models.ForeignKey(User)
+    title = models.CharField('标题', max_length=128)
+    text = models.TextField('内容')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    visible = models.BooleanField('Accessible to all users', default=True)
-    create_time = models.DateTimeField('Created time', auto_now_add=True)
-    edit_time = models.DateTimeField('Edit time', auto_now=True)
+    visible = models.BooleanField('所有用户可见', default=True)
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    edit_time = models.DateTimeField('修改时间', auto_now=True)
 
     likes = models.ManyToManyField(User, through='BlogLikes', related_name='blog_user_like')
     recommend = models.BooleanField(default=False)
     revisions = models.ManyToManyField(BlogRevision)
-    hide_revisions = models.BooleanField('Hide history versions', default=False)
+    hide_revisions = models.BooleanField('历史版本仅自己可见', default=False)
 
     objects = BlogQuerySet.as_manager()
 
@@ -59,24 +59,25 @@ class Blog(models.Model):
 class BlogLikes(models.Model):
 
     BLOG_LIKE_FLAGS = (
-        ('like', _('Like Blog')),
-        ('dislike', _('Dislike Blog'))
+        ('like', '点赞'),
+        ('dislike', '点踩')
     )
 
-    blog = models.ForeignKey(Blog)
-    user = models.ForeignKey(User)
-    flag = models.CharField("Flag", max_length=8, choices=BLOG_LIKE_FLAGS)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    flag = models.CharField(max_length=8, choices=BLOG_LIKE_FLAGS)
 
     class Meta:
         unique_together = ('blog', 'user')
 
 
 class Comment(models.Model):
-    text = models.TextField(_('Text'))
-    author = models.ForeignKey(User)
+    # DEPRECATED
+    text = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(_('Created time'), auto_now_add=True)
-    blog = models.ForeignKey(Blog, null=True)
-    problem = models.ForeignKey(Problem, null=True)
+    blog = models.ForeignKey(Blog, on_delete=models.SET_NULL, null=True)
+    problem = models.ForeignKey(Problem, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         ordering = ["-create_time"]

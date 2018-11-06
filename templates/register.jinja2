@@ -1,13 +1,13 @@
 {% extends 'base.jinja2' %}
 
-{% block page_header %}Create an account{% endblock %}
+{% block page_header %}注册{% endblock %}
 
 {% block content %}
 
   <div class="container">
     {% include 'components/form.jinja2' %}
   </div>
-  <p><a href="{{ url('login') }}">Already have an account?</a></p>
+  <p><a href="{{ url('login') }}">已有账户？</a></p>
 
 {% endblock %}
 

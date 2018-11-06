@@ -6,8 +6,6 @@
 
 {% block content %}
 
-  {% include 'contest/contest_list_header.jinja2' %}
-
   <table class="ui celled table">
     <thead>
       <tr class="center aligned">
@@ -15,6 +13,7 @@
         <th>教师</th>
         <th class="collapsing">开始</th>
         <th class="collapsing">截止</th>
+        <th class="collapsing">状态</th>
         <th class="collapsing">公开</th>
         <th class="collapsing">学生</th>
       </tr>
@@ -34,6 +33,19 @@
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
         {% endif %}
+          <td>
+          {% if contest.status == 0 %}
+            <h5 class="ui header red">进行中</h5>
+          {% elif contest.status == -1 %}
+            {% if contest.access_level == 30 %}
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">注册 »</a>
+            {% else %}
+              <h5 class="ui header teal">尚未开始</h5>
+            {% endif %}
+          {% else %}
+            已结束
+          {% endif %}
+          </td>
           <td>{% if contest.access_level >= 30 %}<i class="green large check icon"></i>
           {% elif contest.access_level >= 10 %}<i class="orange large remove icon"></i>
           {% else %}<i class="red large lock icon"></i>{% endif %}</td>

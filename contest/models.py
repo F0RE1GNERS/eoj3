@@ -45,88 +45,82 @@ class ContestManager(models.Manager):
 class Contest(models.Model):
 
     SCORING_METHOD_CHOICE = (
-        ('acm', _('ACM Rule')),
-        ('oi', _('OI Rule')),
-        ('cf', _('School of Data Analysis (SDA) Rule')),
-        ('tcmtime', "TCM/TIME Rule"),
-        ('subtask', "Subtask Rule"),
+        ('acm', "ACM 赛制"),
+        ('oi', "OI 赛制"),
+        ('cf', "School of Data Analysis (SDA) 赛制 (Codeforces...)"),
+        ('tcmtime', "TCM/TIME 赛制 (GCJ...)"),
     )
 
     TEST_DURING_CONTEST_CHOICE = (
-        ('all', _('All')),
-        ('pretest', _('Pretests')),
-        ('sample', _('Samples')),
-        ('none', _('None'))
+        ('all', "所有测试点"),
+        ('pretest', "只测试 Pretests"),
+        ('sample', "只测试样例"),
+        ('none', "不作测试")
     )
 
     CODE_SHARE_CHOICE = (
-        (0, _('Forbidden')),
-        (1, _('Share code after contest for AC users')),
-        (2, _('Share code after contest for all')),
-        (3, _('Share code after AC during contest')),
+        (0, "不允许"),
+        (1, "代码在赛后对 AC 用户公开（默认）"),
+        (2, "代码在赛后完全公开"),
+        (3, "代码在比赛过程中对 AC 用户公开"),
     )
 
     CASE_PUBLIC_CHOICE = (
-        (0, 'Forbidden'),
-        (1, 'Tests are visible if paid'),
-        (2, 'Tests are always visible'),
-    )
-
-    CONTEST_STATUS_CHOICE = (
-        (1, _('Running')),
-        (2, _('Ended')),
+        (0, '不允许'),
+        (1, '评测报告有偿公开'),
+        (2, '评测报告总是开放'),
     )
 
     ACCESS_LEVEL_OPTIONS = (
-        (0, 'Available only to managers'),
-        (10, 'Available to invited users, problems are always hidden'),
-        (15, 'Available to invited users, allow for virtual participation after contest'),
-        (20, 'Available to invited users, problems will be automatically published after contest'),
-        (30, 'Available to everyone, requires registration in advance'),
-        (40, 'Available to everyone')
+        (0, '仅比赛管理员可见'),
+        (10, '仅受邀用户可见，赛后题目不公开'),
+        (15, '仅受邀用户可见，赛后允许虚拟参赛'),
+        (20, '仅受邀用户可见，赛后题目直接公开'),
+        (30, '公开，需要比赛前注册'),
+        (40, '公开')
     )
 
     COMMON_STATUS_ACCESS_LEVEL_OPTIONS = (
-        (-10, 'Close common status and standings'),
-        (0, 'Default (follow access level settings)'),
-        (10, 'Make common status and standings always public')
+        (-10, '不可见'),
+        (0, '默认'),
+        (10, '总是可见')
     )
 
-    title = models.CharField(max_length=192)
-    description = models.TextField(blank=True)
-    allowed_lang = models.CharField(_('Allowed languages'), max_length=192, default=get_language_all_list())
+    title = models.CharField("标题", max_length=192)
+    description = models.TextField("描述", blank=True)
+    allowed_lang = models.CharField("允许语言", max_length=192, default=get_language_all_list())
 
     contest_type = models.IntegerField(default=0, choices=(
-        (0, 'Regular Round'),
-        (1, 'Exercise in Gym'),
+        (0, '常规比赛'),
+        (1, '作业'),
     ))
-    start_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    end_time = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    create_time = models.DateTimeField(auto_now_add=True)
-    standings_update_time = models.DateTimeField(blank=True, null=True)
+    start_time = models.DateTimeField("开始时间", blank=True, null=True, default=timezone.now)
+    end_time = models.DateTimeField("结束时间", blank=True, null=True, default=timezone.now)
+    create_time = models.DateTimeField("创建时间", auto_now_add=True)
+    standings_update_time = models.DateTimeField("榜单更新时间", blank=True, null=True)
 
-    freeze = models.BooleanField(_('The standings will be frozen'), default=False)
-    freeze_time = models.DateTimeField(blank=True, null=True)
-    scoring_method = models.CharField(default='acm', max_length=10, choices=SCORING_METHOD_CHOICE)
-    run_tests_during_contest = models.CharField(max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default=TEST_DURING_CONTEST_CHOICE[0][0])
-    allow_code_share = models.IntegerField(default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
+    freeze = models.BooleanField("是否封榜", default=False)
+    freeze_time = models.DateTimeField("封榜时间", blank=True, null=True)
+    scoring_method = models.CharField("计分规则", default='acm', max_length=10, choices=SCORING_METHOD_CHOICE)
+    run_tests_during_contest = models.CharField("比赛过程中对代码进行评测", max_length=10, choices=TEST_DURING_CONTEST_CHOICE, default=TEST_DURING_CONTEST_CHOICE[0][0])
+    allow_code_share = models.IntegerField("允许代码共享", default=1, choices=CODE_SHARE_CHOICE)  # Can view others' codes after AC
 
-    last_counts = models.BooleanField('The last submission (instead of the best) will be scored', default=False)  # Treat last submission as valid submission
-    penalty_counts = models.PositiveIntegerField('Penalty by seconds', default=1200)
-    standings_without_problem = models.BooleanField('Show standings without a list of solved problems (often used when there is too many problems)',
+    last_counts = models.BooleanField("认为最后一次提交有效（默认使用成绩最好的）", default=False)  # Treat last submission as valid submission
+    penalty_counts = models.PositiveIntegerField('错误提交罚时（秒）', default=1200)
+    standings_without_problem = models.BooleanField('排行榜上不显示具体题目的通过情况',
                                                     default=False)  # Have a standing without specific problems
     case_public = models.PositiveIntegerField(choices=CASE_PUBLIC_CHOICE, default=0)
 
-    system_tested = models.BooleanField(default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
+    system_tested = models.BooleanField("系统测试准备就绪", default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
 
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
-    access_level = models.PositiveIntegerField(default=0, choices=ACCESS_LEVEL_OPTIONS)
-    common_status_access_level = models.IntegerField(default=0, choices=COMMON_STATUS_ACCESS_LEVEL_OPTIONS)
-    ip_sensitive = models.BooleanField('Bind IP to user\'s account after first login', default=False)
-    analysis_blog_id = models.IntegerField(default=0)   # related to a blog id
-    pdf_statement = models.FileField('PDF Statement', upload_to='contest_statements/%Y%m%d/', null=True, blank=True)
+    access_level = models.PositiveIntegerField("访问控制", default=0, choices=ACCESS_LEVEL_OPTIONS)
+    common_status_access_level = models.IntegerField("所有提交和榜单的访问控制", default=0, choices=COMMON_STATUS_ACCESS_LEVEL_OPTIONS)
+    ip_sensitive = models.BooleanField("首次登录绑定 IP", default=False)
+    analysis_blog_id = models.IntegerField("题解博客 ID", default=0)   # related to a blog id
+    pdf_statement = models.FileField('PDF 题面', upload_to='contest_statements/%Y%m%d/', null=True, blank=True)
 
     objects = ContestManager()
     managers = models.ManyToManyField(User, related_name='managing_contests')
@@ -198,8 +192,8 @@ class Contest(models.Model):
 
 
 class ContestProblem(models.Model):
-    problem = models.ForeignKey(Problem)
-    contest = models.ForeignKey(Contest)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     identifier = models.CharField(max_length=12)
     weight = models.IntegerField(default=100)
 
@@ -213,11 +207,11 @@ class ContestProblem(models.Model):
 
 class ContestClarification(models.Model):
 
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     text = models.TextField(blank=True)
     time = models.DateTimeField(auto_now=True)
     important = models.BooleanField(default=False)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     answer = models.TextField(blank=True)
 
     class Meta:
@@ -228,17 +222,18 @@ class ContestClarification(models.Model):
 
 
 class ContestParticipant(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     star = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     hidden_comment = models.TextField(blank=True)
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
     penalty = models.BigIntegerField(default=0)
     detail_raw = models.TextField(blank=True)
     is_disabled = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     join_time = models.DateTimeField(blank=True, null=True) # default: join when contest begins
+    is_confirmed = models.BooleanField(default=False)
 
     @property
     def detail(self):
@@ -258,12 +253,12 @@ class ContestParticipant(models.Model):
 
     class Meta:
         unique_together = ["user", "contest"]
-        ordering = ("-score", "penalty", "star")
+        ordering = ("-is_confirmed", "-score", "penalty", "star")
 
 
 class ContestInvitation(models.Model):
 
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     star = models.BooleanField(default=False)
     code = models.CharField(max_length=24)
     comment = models.TextField(blank=True)
@@ -275,8 +270,8 @@ class ContestInvitation(models.Model):
 
 class ContestUserRating(models.Model):
     rating = models.IntegerField(default=1500)
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     solved = models.IntegerField()
     rank = models.IntegerField()
     modified = models.DateTimeField()
@@ -290,65 +285,64 @@ class ContestUserRating(models.Model):
 
 
 class Activity(models.Model):
-    title = models.CharField(unique=True, max_length=192)
-    description = models.TextField(blank=True)
-    author = models.ForeignKey(User)
+    title = models.CharField("标题", unique=True, max_length=192)
+    description = models.TextField("内容", blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now_add=True)
-    register_start_time = models.DateTimeField(blank=True)
-    register_end_time = models.DateTimeField(blank=True)
+    register_start_time = models.DateTimeField("开始注册时间", blank=True)
+    register_end_time = models.DateTimeField("结束注册时间", blank=True)
     participants = models.ManyToManyField(User, through='ActivityParticipant', related_name="activities")
 
 
 class ActivityParticipant(models.Model):
     MAJOR_CHOICES = (
-        ('art', 'Art'),
-        ('accounting', 'Accounting'),
-        ('business', 'Business'),
-        ('business_admin', 'Business Administration'),
-        ('chemistry', 'Chemistry'),
-        ('commerce', 'Commerce'),
-        ('communication', 'Communications'),
-        ('ce', 'Computer Engineering'),
-        ('cs', 'Computer Science'),
-        ('economics', 'Economics'),
-        ('education', 'Education'),
-        ('ee', 'Electrical Engineering'),
-        ('finance', 'Finance'),
-        ('geometry', 'Geometry'),
-        ('interaction', 'Human Computer Interaction'),
-        ('it', 'Information Technology'),
-        ('life', 'Life Science'),
-        ('mechanics', 'Mechanics'),
-        ('linguistics', 'Linguistics'),
-        ('literature', 'Literature'),
-        ('math', 'Mathematics'),
-        ('se', 'Software Engineering'),
-        ('philosophy', 'Philosophy'),
-        ('physics', 'Physics'),
-        ('politics', 'Political Science'),
-        ('psycho', 'Psychology'),
-        ('social', 'Social Science'),
-        ('translation', 'Translation'),
-        ('others', 'Others')
+        ('art', '艺术'),
+        ('accounting', '会计'),
+        ('business', '商业'),
+        ('business_admin', '工商管理'),
+        ('chemistry', '化学'),
+        ('communication', '通信'),
+        ('ce', '计算机工程'),
+        ('cs', '计算机科学'),
+        ('economics', '经济'),
+        ('education', '教育'),
+        ('ee', '电子工程'),
+        ('finance', '金融'),
+        ('geology', '地理'),
+        ('interaction', '人机交互'),
+        ('it', '信息技术'),
+        ('life', '生命科学'),
+        ('mechanics', '机械'),
+        ('linguistics', '语言学'),
+        ('literature', '文学'),
+        ('math', '数学'),
+        ('se', '软件工程'),
+        ('philosophy', '哲学'),
+        ('physics', '物理'),
+        ('politics', '政治学'),
+        ('psycho', '心理学'),
+        ('social', '社会学'),
+        ('translation', '翻译'),
+        ('others', '其他')
     )
 
-    user = models.ForeignKey(User)
-    activity = models.ForeignKey(Activity)
-    real_name = models.CharField(max_length=30)
-    student_id = models.CharField(max_length=30)
-    school = models.ForeignKey(School)
-    email = models.CharField(max_length=192, validators=[EmailValidator()])
-    phone = models.CharField(max_length=30, blank=True)
-    major = models.CharField(max_length=30, choices=MAJOR_CHOICES, blank=True)
-    gender = models.CharField(max_length=5, choices=(
-        ('m', 'Male'),
-        ('f', 'Female'),
-        ('d', 'Declined to answer')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    real_name = models.CharField("真实姓名", max_length=30)
+    student_id = models.CharField("学号", max_length=30)
+    school = models.ForeignKey(School, verbose_name="学校", on_delete=models.CASCADE)
+    email = models.CharField("电子邮箱", max_length=192, validators=[EmailValidator()])
+    phone = models.CharField("电话", max_length=30, blank=True)
+    major = models.CharField("专业", max_length=30, choices=MAJOR_CHOICES, blank=True)
+    gender = models.CharField("性别", max_length=5, choices=(
+        ('m', '男'),
+        ('f', '女'),
+        ('d', '拒绝回答')
     ), blank=True)
-    graduate_year = models.IntegerField(blank=True, null=True)
-    is_deleted = models.BooleanField(default=False)
-    is_confirmed = models.BooleanField(default=False)
+    graduate_year = models.IntegerField("毕业年份", blank=True, null=True)
+    is_deleted = models.BooleanField("已删除", default=False)
+    is_confirmed = models.BooleanField("已确认", default=False)
 
     class Meta:
         unique_together = ('user', 'activity')

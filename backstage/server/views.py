@@ -11,7 +11,7 @@ from django.shortcuts import HttpResponseRedirect, reverse, get_object_or_404
 from django.views.generic import FormView
 from django.views.generic import View
 from django.views.generic.list import ListView
-from django_q.tasks import async
+from django_q.tasks import async_task
 from django_redis import get_redis_connection
 
 from dispatcher.models import Server, ServerProblemStatus

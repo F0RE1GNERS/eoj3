@@ -12,6 +12,8 @@ from .activity import ActivityList, ActivityAddView, ActivityUpdateView, Activit
     ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView, \
     ActivityParticipantConfirmEmailSent, ActivityParticipantConfirmComplete
 
+app_name = "contest"
+
 urlpatterns = [
     url(r'^$', ContestList.as_view(), name='list'),
     url(r'^gym/$', ContestGymList.as_view(), name='gym'),

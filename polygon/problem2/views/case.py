@@ -27,7 +27,7 @@ from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 from os import path
 
-from django_q.tasks import async
+from django_q.tasks import async_task
 
 from polygon.models import Case, Program, Task
 from polygon.problem2.forms import CaseUpdateForm, CaseCreateForm, CaseUpdateInfoForm
@@ -520,7 +520,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
         elif option == "gen":
             commands = list(map(lambda x: " ".join(x.split()),
                                 filter(lambda x: x, form.cleaned_data["gen_command"].split("\n"))))
-            async(CaseManagementTools.generate_cases, self.revision, commands)
+            async_task(CaseManagementTools.generate_cases, self.revision, commands)
 
         # process case numbers
         remove_list = []
@@ -671,7 +671,7 @@ class CaseRunSelectedOutput(RevisionMultipleCasesMixin, View):
     def post(self, request, *args, **kwargs):
         try:
             solution = self.revision.programs.get(tag="solution_main")
-            async(CaseManagementTools.run_case_output, self.revision, self.case_set, solution)
+            async_task(CaseManagementTools.run_case_output, self.revision, self.case_set, solution)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "There should be exactly one main correct solution!")
         return redirect(self.get_redirect_url())
@@ -683,7 +683,7 @@ class CaseValidateInput(RevisionMultipleCasesMixin, View):
             validator = self.revision.active_validator
             if validator is None:
                 raise Program.DoesNotExist
-            async(CaseManagementTools.validate_case, self.revision, self.case_set, validator)
+            async_task(CaseManagementTools.validate_case, self.revision, self.case_set, validator)
         except (Program.MultipleObjectsReturned, Program.DoesNotExist):
             messages.error(request, "Validator should be selected!")
         return redirect(self.get_redirect_url())
@@ -716,7 +716,7 @@ class CaseCheckView(ProblemRevisionMixin, TemplateView):
         program_set = self.revision.programs.filter(pk__in=program_pk_set)
         if len(case_pk_set) != len(case_set) or len(program_pk_set) != len(program_set):
             messages.error(request, "Invalid selected cases or solutions.")
-        async(CaseManagementTools.check_case, self.revision, case_set, program_set, self.revision.active_checker)
+        async_task(CaseManagementTools.check_case, self.revision, case_set, program_set, self.revision.active_checker)
         return redirect(reverse('polygon:revision_task', kwargs={'pk': self.problem.id, 'rpk': self.revision.id}))
 
 

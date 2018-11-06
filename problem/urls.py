@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 import problem.views as v
 
+app_name = "problem"
 
 urlpatterns = [
     url(r'^$', v.ProblemList.as_view(), name='list'),

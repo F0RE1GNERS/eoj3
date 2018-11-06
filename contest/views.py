@@ -68,6 +68,9 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
                         participant.save(update_fields=['ip_address'])
                     self.registered = current_ip == participant.ip_address
                 else: self.registered = True
+                if not participant.is_confirmed:
+                    participant.is_confirmed = True
+                    participant.save(update_fields=['is_confirmed'])
             except ContestParticipant.DoesNotExist:
                 pass
         if not self.registered and (self.contest.access_level >= 30

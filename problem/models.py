@@ -128,8 +128,8 @@ register(Problem)
 
 
 class ProblemRewardStatus(models.Model):
-    user = models.ForeignKey(User)
-    problem = models.ForeignKey(Problem)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('user', 'problem')
@@ -183,13 +183,13 @@ class Skill(models.Model):
 
 
 class TagInfo(models.Model):
-    tag = models.OneToOneField(Tag)
+    tag = models.OneToOneField(Tag, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     parent_id = models.IntegerField(default=-1)
 
 
 class UserStatus(models.Model):
-    user = models.ForeignKey(User, related_name="submission_status")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="submission_status")
     contest_id = models.PositiveIntegerField(db_index=True)
     total_count = models.PositiveIntegerField()
     total_list = models.TextField()
@@ -203,7 +203,7 @@ class UserStatus(models.Model):
 
 
 class ProblemContestStatus(models.Model):
-    problem = models.ForeignKey(Problem, related_name="problem_contest_status")
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="problem_contest_status")
     contest_id = models.PositiveIntegerField(db_index=True)
     ac_user_count = models.PositiveIntegerField()
     total_user_count = models.PositiveIntegerField()

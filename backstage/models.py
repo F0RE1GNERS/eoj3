@@ -15,8 +15,8 @@ class Email(models.Model):
 
 
 class EmailRecipient(models.Model):
-    email = models.ForeignKey(Email)
-    user = models.ForeignKey(User)
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.IntegerField(choices=(
         (-1, 'Pending'),
         (0, 'OK'),
@@ -30,12 +30,12 @@ class EmailRecipient(models.Model):
 class UpdateLog(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     log_type = models.CharField(max_length=10, choices=(
-        ('fix', 'BUG FIX'),
-        ('add', 'NEW FEATURE'),
-        ('del', 'REMOVE FEATURE'),
-        ('ref', 'REFACTOR'),
-        ('upd', 'UPDATE'),
-        ('enhance', 'ENHANCEMENT'),
+        ('fix', '问题修复'),
+        ('add', '新功能'),
+        ('del', '删除功能'),
+        ('ref', '重构'),
+        ('upd', '更新'),
+        ('enhance', '加强'),
     ))
     priority = models.PositiveIntegerField(choices=(
         (0, 'CRITICAL'),

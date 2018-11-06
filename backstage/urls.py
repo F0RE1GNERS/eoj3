@@ -16,6 +16,8 @@ from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, Old
 from .blog.views import BlogList, BlogRecommendSwitch, BlogVisibleSwitch
 from .log.views import UpdateLogList, UpdateLogCreate, UpdateLogDelete
 
+app_name = "backstage"
+
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
 

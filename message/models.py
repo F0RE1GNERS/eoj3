@@ -25,8 +25,8 @@ class Conversation(models.Model):
 
 
 class UserConversation(models.Model):
-    user = models.ForeignKey(User)
-    conversation = models.ForeignKey(Conversation)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     unread = models.BooleanField(default=True)
 
     class Meta:
@@ -35,9 +35,9 @@ class UserConversation(models.Model):
 
 class Message(models.Model):
     content = models.TextField('content', blank=True)
-    sender = models.ForeignKey(User, related_name='sent_messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     sent_time = models.DateTimeField(auto_now_add=True)
-    conversation = models.ForeignKey(Conversation, related_name='messages', null=True)
+    conversation = models.ForeignKey(Conversation, on_delete=models.SET_NULL, related_name='messages', null=True)
 
 
 

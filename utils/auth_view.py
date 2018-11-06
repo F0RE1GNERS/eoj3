@@ -17,7 +17,6 @@ from django.http import HttpResponseRedirect, QueryDict
 from django.shortcuts import resolve_url
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.deprecation import RemovedInDjango20Warning
 from django.utils.encoding import force_text
 from django.utils.http import is_safe_url, urlsafe_base64_decode
 from django.utils.six.moves.urllib.parse import urlparse, urlunparse
@@ -36,12 +35,6 @@ def deprecate_current_app(func):
     @functools.wraps(func)
     def inner(*args, **kwargs):
         if 'current_app' in kwargs:
-            warnings.warn(
-                "Passing `current_app` as a keyword argument is deprecated. "
-                "Instead the caller of `{0}` should set "
-                "`request.current_app`.".format(func.__name__),
-                RemovedInDjango20Warning
-            )
             current_app = kwargs.pop('current_app')
             request = kwargs.get('request', None)
             if request and current_app is not None:

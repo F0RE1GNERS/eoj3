@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.core.cache import cache
-from django_q.tasks import async
+from django_q.tasks import async_task
 
 from contest.models import Contest
 from problem.models import Problem
@@ -33,7 +33,7 @@ def rejudge_submission_set(submission_set):
             submission.save(update_fields=["status", "status_detail", "status_message", "status_test", "status_percent"])
 
     for submission in submission_set:
-        async(rejudge_submission, submission)
+        async_task(rejudge_submission, submission)
 
 
 def rejudge_all_submission_on_contest(contest: Contest):

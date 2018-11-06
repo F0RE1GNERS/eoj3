@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, reverse, HttpResponse, redirect
 from django.views.generic import ListView
 from django.views.generic import View, TemplateView
-from django_q.tasks import async
+from django_q.tasks import async_task
 from ipware.ip import get_ip
 
 from contest.statistics import invalidate_contest_participant
@@ -31,21 +31,23 @@ class ContestSubmit(BaseContestMixin, View):
     def post(self, request, cid, pid):
         try:
             if self.contest.status < 0 and not self.privileged:  # pending contest
-                raise ValueError("Contest is not running.")
+                raise ValueError("比赛尚未开始。")
             if self.contest.run_tests_during_contest != 'all' and self.contest.status != 0 and \
                     not self.contest.system_tested and not self.privileged:  # pending result
-                raise ValueError("Contest is still waiting for system tests. Try again later.")
+                raise ValueError("比赛仍在等待系统测试。")
             lang = request.POST.get('lang', '')
             if lang not in self.contest.supported_language_list:
-                raise ValueError("Invalid language.")
+                raise ValueError("语言无效。")
             try:
                 problem = self.contest.contestproblem_set.get(identifier=pid).problem_id
             except ContestProblem.DoesNotExist:
-                raise ValueError("Invalid problem.")
+                raise ValueError("题目无效。")
 
             code = request.POST.get('code', '')
             if self.contest.status < 0:
                 submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
+            elif self.contest.status > 0 and self.contest.contest_type == 1:
+                raise ValueError("不在提交时间内。")
             else:
                 submission = create_submission(problem, self.user, code, lang,
                                                contest=self.contest, ip=get_ip(request))
@@ -54,10 +56,10 @@ class ContestSubmit(BaseContestMixin, View):
                     contest_participant.star = True
                     contest_participant.save(update_fields=['star'])
                 if contest_participant.is_disabled:
-                    raise ValueError("You have quitted the contest.")
+                    raise ValueError("你已退出比赛。")
             response = {"url": reverse('contest:submission_api',
                                        kwargs={'cid': self.contest.id, 'sid': submission.id})}
-            async(judge_submission_on_contest, submission, contest=self.contest)
+            async_task(judge_submission_on_contest, submission, contest=self.contest)
             return JsonResponse(response)
         except Exception as e:
             return HttpResponseBadRequest(str(e).encode())
@@ -91,7 +93,7 @@ class ContestSubmissionClaim(BaseContestMixin, View):
             Submission.objects.bulk_create(self.submissions)
             invalidate_contest_participant(self.contest, self.user.pk)
             invalidate_problem(self.problem_id_list, self.contest.pk)
-            messages.add_message(request, messages.SUCCESS, "%d submissions successfully migrated." % len(self.submissions))
+            messages.add_message(request, messages.SUCCESS, "%d 份提交已经成功迁移。" % len(self.submissions))
         return HttpResponse()
 
 
@@ -287,7 +289,7 @@ class ContestBalloonClaim(BaseContestMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         data = self.get_context_data()
         if data["submission"].ok:
-            messages.error(request, "Unfortunately, this balloon has been already claimed.")
+            messages.error(request, "气球已被认领。")
             return redirect(reverse('contest:balloon', kwargs={'cid': self.contest.pk}))
         cache.set(data['cache_name'], True, 86400 * 14)
         return redirect(self.request.path)

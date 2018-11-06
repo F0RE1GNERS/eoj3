@@ -23,8 +23,9 @@ class DownHeaderExtension(Extension):
         }
         super(DownHeaderExtension, self).__init__(**kwargs)
 
-    def extendMarkdown(self, md, md_globals):
-        if 'downheader' not in md.treeprocessors.keys():
+    def extendMarkdown(self, md):
+        print(md.treeprocessors[0])
+        if 'downheader' not in md.treeprocessors:
             treeprocessor = DownHeaderTreeProcessor(self.getConfig('levels'))
             md.treeprocessors.add('downheader', treeprocessor, '_end')
 

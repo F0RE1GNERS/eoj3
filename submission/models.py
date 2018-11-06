@@ -61,10 +61,10 @@ STATUS_CHOICE = (
 
 class Submission(models.Model):
 
-    lang = models.CharField('Language', max_length=12, choices=LANG_CHOICE, default='cpp')
-    code = models.TextField('Code', blank=True)
-    problem = models.ForeignKey(Problem)
-    author = models.ForeignKey(User)
+    lang = models.CharField(max_length=12, choices=LANG_CHOICE, default='cpp')
+    code = models.TextField(blank=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     create_time = models.DateTimeField(auto_now_add=True, db_index=True)
     judge_end_time = models.DateTimeField(blank=True, null=True)
@@ -81,7 +81,7 @@ class Submission(models.Model):
     judge_server = models.IntegerField(default=0)
 
     # if contest is null, then it is visible outside
-    contest = models.ForeignKey(Contest, null=True)
+    contest = models.ForeignKey(Contest, on_delete=models.SET_NULL, null=True)
 
     addon_info = models.BooleanField(default=False)   # balloon
     ip = models.GenericIPAddressField(blank=True, null=True)
@@ -171,7 +171,7 @@ class Submission(models.Model):
 
 
 class PrintManager(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     limit = models.PositiveIntegerField(default=50)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
@@ -179,8 +179,8 @@ class PrintManager(models.Model):
 
 class PrintCode(models.Model):
     code = models.TextField()
-    user = models.ForeignKey(User)
-    manager = models.ForeignKey(PrintManager)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    manager = models.ForeignKey(PrintManager, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
     generated_pdf = models.TextField(blank=True)

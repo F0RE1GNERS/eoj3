@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import UpdateView
 from django.views.generic.list import ListView
-from django_q.tasks import async
+from django_q.tasks import async_task
 
 from account.models import User
 from backstage.models import Email, EmailRecipient
@@ -126,5 +126,5 @@ class EmailSend(BaseBackstageMixin, View):
             recipients = EmailRecipient.objects.filter(email=email, pk=self.request.GET['t']).select_related("user")
         else:
             recipients = EmailRecipient.objects.filter(email=email, status=-1).select_related("user")
-        async(EmailSend.send, email, list(recipients))
+        async_task(EmailSend.send, email, list(recipients))
         return redirect(reverse('backstage:email_update', kwargs={'eid': eid}))

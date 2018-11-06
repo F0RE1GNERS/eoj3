@@ -3,7 +3,7 @@ import re
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.views import logout
+from django.contrib.auth import logout
 from django.views.static import serve
 
 from account.profile import ProfileView
@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^search/$', search_view, name='search', kwargs=force_closed()),
     url(r'^mirror/', include('filemanager.urls', namespace='filemanager')),
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('eoj3.api_urls', namespace='api')),
+    url(r'^api/', include('api.urls', namespace='api')),
     url(r'^$', home_view, name='home'),
     url(r'^faq/$', faq_view, name='faq'),
     url(r'^problem/', include('problem.urls', namespace='problem'), kwargs=force_closed()),

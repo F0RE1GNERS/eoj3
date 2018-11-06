@@ -19,14 +19,15 @@ class ContestEditForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'markdown'})
         }
 
-    field_order = ['title', 'description', 'allowed_lang', 'contest_type', 'how_long', 'start_time', 'end_time', 'access_level', 'common_status_access_level']
+    field_order = ['title', 'description', 'allowed_lang', 'contest_type', 'how_long', 'start_time', 'end_time', 'access_level', 'common_status_access_level',
+                   'pdf_statement']
     allowed_lang = CommaSeparatedMultipleChoiceField(choices=LANG_CHOICE)
     how_long = forms.ChoiceField(choices=(
-        (3, 'Start time to end time'),
-        (1, 'Start time to forever'),
-        (2, 'Set the deadline'),
-        (0, 'Indefinitely'),
-    ))
+        (3, '从开始时间到结束时间'),
+        (1, '只设置开始时间'),
+        (2, '只设置截止时间'),
+        (0, '永远开放'),
+    ), label='时间设置 (只对作业有效)')
 
     def __init__(self, *args, **kwargs):
         super(ContestEditForm, self).__init__(*args, **kwargs)

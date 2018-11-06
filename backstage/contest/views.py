@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
-from django_q.tasks import async
+from django_q.tasks import async_task
 
 from account.color import update_color
 from account.models import User
@@ -31,7 +31,7 @@ class ContestSendInvitationMail(BaseBackstageMixin, TemplateView):
             Email.objects.create(title=head, content=msg)
             recipient_list = list(filter(lambda x: x, [u.email for u in User.objects.filter(is_active=True,
                                                                                             email_subscription=True).all()]))
-            async(send_mail_with_bcc, head, msg, recipient_list=recipient_list, fail_silently=True)
+            async_task(send_mail_with_bcc, head, msg, recipient_list=recipient_list, fail_silently=True)
             messages.add_message(request, messages.SUCCESS, "Email sending task added successfully.")
         return redirect(reverse('backstage:contest_send_invitation'))
 

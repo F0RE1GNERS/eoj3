@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sites',
 
+    'api',
     'home',
     'account',
     'dispatcher',

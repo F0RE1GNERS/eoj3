@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "blog"
+
 urlpatterns = [
     url(r'^(?P<pk>\d+)/$', views.GenericView.as_view(), name='index'),
     url('^goto/$', views.BlogGoto.as_view(), name='goto'),

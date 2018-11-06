@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 
 import polygon.views as v
 
+app_name = "polygon"
+
 urlpatterns = [
     url(r'^$', v.home_view, name='home'),
     url(r'^register/$', v.register_view, name='register'),

@@ -1,7 +1,7 @@
 {% extends 'base.jinja2' %}
 {% from 'components/profile_card.jinja2' import profile_card with context %}
 
-{% block title %}Profile - {% endblock %}
+{% block title %}个人档案 - {% endblock %}
 
 {% block css %}
 <style>
@@ -21,7 +21,7 @@
 </style>
 {% endblock %}
 
-{% block page_header %}Profile: {{ username_display(profile, additional_class="bold") }}{% endblock %}
+{% block page_header %}个人档案: {{ username_display(profile, additional_class="bold") }}{% endblock %}
 
 {% block content %}
 
@@ -34,12 +34,12 @@
     {% if rating_changes %}
       <div id="rating-changes"></div>
     {% else %}
-      <p>He/She hasn't participated in any rated contest yet.</p>
+      <p>TA 没有参加任何积分比赛。</p>
     {% endif %}
 
       <div class="section">
-        <h2 class="ui header">Recent Blogs</h2>
-        <a href="{{ url('blog:index', profile.pk) }}" class="ui right primary basic button">All My Blogs</a>
+        <h2 class="ui header">近期博客</h2>
+        <a href="{{ url('blog:index', profile.pk) }}" class="ui right primary basic button">更多</a>
 
         <table class="ui center aligned table">
           <thead>
@@ -63,17 +63,17 @@
 
 
       <div class="section">
-        <h2 class="ui header">Recent Contests</h2>
-        <a href="{{ url('contest:list') }}" class="ui right primary basic button">More Contests</a>
+        <h2 class="ui header">近期比赛</h2>
+        <a href="{{ url('contest:list') }}" class="ui right primary basic button">更多</a>
 
         <table class="ui center aligned table">
           <thead>
           <tr>
             <th>#</th>
-            <th>Title</th>
-            <th>When</th>
-            <th>Score</th>
-            <th>Rank</th>
+            <th>标题</th>
+            <th>时间</th>
+            <th>得分</th>
+            <th>排名</th>
           </tr>
           </thead>
           <tbody>
@@ -92,17 +92,16 @@
 
 
       <div class="section">
-        <h2 class="ui header">Recent Gyms</h2>
+        <h2 class="ui header">近期作业</h2>
 
         <table class="ui center aligned table">
           <thead>
           <tr>
             <th>#</th>
-            <th>Title</th>
-            <th>Created</th>
-            <th>Last Submits</th>
-            <th>Score</th>
-            <th>As</th>
+            <th>标题</th>
+            <th>最后提交</th>
+            <th>得分</th>
+            <th>注册</th>
           </tr>
           </thead>
           <tbody>
@@ -110,7 +109,6 @@
             <tr>
               <td>{{ c.contest.id }}</td>
               <td><a href="{{ url('contest:dashboard', c.contest.id) }}">{{ c.contest.title }}</a></td>
-              <td>{{ c.contest.create_time | naturaltime }}</td>
               <td>{% if c.last_submission %}{{ c.last_submission.create_time | naturaltime }}{% endif %}</td>
               <td>{{ c.score }}</td>
               <td>{{ c.comment }}</td>
@@ -130,7 +128,7 @@
   </div>
 
   <div class="section">
-    <h2 class="ui header">Submission Heatmap</h2>
+    <h2 class="ui header">近一年的提交</h2>
 
     <div id="heatmap"></div>
 
@@ -138,16 +136,16 @@
 
 
   <div class="section">
-    <h2 class="ui header">Recently Solved in Problemset</h2>
+    <h2 class="ui header">题目集中的提交</h2>
     <a href="{{ url('problem:status') }}?user={{ profile.pk }}" class="ui right primary basic button">All My Submissions</a>
 
     <table class="ui center aligned table">
       <thead>
       <tr>
-        <th>Problem</th>
-        <th>Run ID</th>
-        <th>When</th>
-        <th>Lang</th>
+        <th>题目</th>
+        <th>运行编号</th>
+        <th>时间</th>
+        <th>语言</th>
         <th>CPU</th>
       </tr>
       </thead>

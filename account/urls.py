@@ -4,6 +4,8 @@ from utils.site_settings import force_closed
 from . import views
 from .payment import PaymentList
 
+app_name = "account"
+
 urlpatterns = [
     url(r'^settings/profile/$', views.UpdateProfileView.as_view(), name='profile', kwargs=force_closed()),
     url(r'^settings/security/$', views.my_password_change, name='security', kwargs=force_closed()),

@@ -1,10 +1,13 @@
-from django.conf import settings
 from django.conf.urls import url
 
 from home import search_api
+from message.views import ConversationAPI
+from message.views import ReplyAPI
 from submission.views import submission_code_api, submission_count_api
 from utils.markdown3 import markdown_convert_api
-from message.views import ReplyAPI, ConversationAPI
+
+app_name = "api"
+
 
 urlpatterns = [
     url(r'^submission/$', submission_code_api),
@@ -16,13 +19,3 @@ urlpatterns = [
     url(r'^message/reply/(?P<pk>\d+)/$', ReplyAPI.as_view()),
     url(r'^message/c/(?P<pk>\d+)/$', ConversationAPI.as_view()),
 ]
-
-
-if settings.DEBUG:
-    from home.api_views import RegisterAPI, LoginAPI
-    urlpatterns += [
-        url(r'^register', RegisterAPI.as_view()),
-        url(r'^login', LoginAPI.as_view()),
-    ]
-
-
