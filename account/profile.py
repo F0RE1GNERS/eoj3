@@ -76,7 +76,6 @@ class ProfileView(TemplateView):
             min_date += timedelta(days=1)
         for r in query_ret:
             stat_dict[r["date"]] += r["count"]
-        print(stat_dict)
 
         ret = []
         week_number_dict = dict()
