@@ -50,15 +50,15 @@ def home_view(request):
 
 
 def forbidden_view(request, exception):
-    return render(request, 'error/403.jinja2', context={"exception": exception})
+    return render(request, 'error/403.jinja2', context={"exception": exception}, status=403)
 
 
 def not_found_view(request):
-    return render(request, 'error/404.jinja2')
+    return render(request, 'error/404.jinja2', status=404)
 
 
 def server_error_view(request):
-    return render(request, 'error/500.jinja2')
+    return render(request, 'error/500.jinja2', status=500)
 
 
 def faq_view(request):
