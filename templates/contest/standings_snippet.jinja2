@@ -25,10 +25,7 @@
     <td class="ui left aligned">
       <h5 class="ui header" style="margin-top:0; {% if not rank.user.user.magic %}font-weight:normal;{% endif %}">
         <div class="content">
-          {% if rank.user.star %}* {% endif %}{{ username_display(rank.user.user) }}
-          {% if rank.user.comment %}
-            <div class="sub header">{{ rank.user.comment }}</div>
-          {% endif %}
+          {% if rank.user.star %}* {% endif %}{% if rank.user.comment %}<span style="font-weight:600">{{ rank.user.comment }}</span><div class="sub header">{{ username_display(rank.user.user) }}</div>{% else %}{{ username_display(rank.user.user) }}{% endif %}
         </div>
       </h5>
     </td>
@@ -51,7 +48,7 @@
             {% endif %}
           </td>
         {% elif d.attempt %}
-          <td class="penalty-box {% if d.first_blood %}accepted{% endif %}" data-param="{{ url_param }}">
+          <td class="penalty-box {% if rank.user.user.pk == problem.first_yes_by %}accepted{% endif %}" data-param="{{ url_param }}">
             {% if d.solved %}
               <span class="score text green">
                 {% if contest.scoring_method == 'acm' %}

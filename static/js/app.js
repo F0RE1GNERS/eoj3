@@ -323,6 +323,7 @@ window.STATUS[5] = 'Denial of judgement';
 window.STATUS[6] = 'Compilation error';
 window.STATUS[7] = 'Partial score';
 window.STATUS[8] = 'Time limit exceeded';
+window.STATUS[10] = 'Rejected';
 window.STATUS[11] = 'Checker error';
 window.STATUS[12] = 'Pretest passed';
 
@@ -341,6 +342,7 @@ window.STATUS_COLOR[5] = 'violet';
 window.STATUS_COLOR[6] = 'grey';
 window.STATUS_COLOR[7] = 'black';
 window.STATUS_COLOR[8] = 'orange';
+window.STATUS_COLOR[10] = 'red';
 window.STATUS_COLOR[11] = 'orange';
 window.STATUS_COLOR[12] = 'green';
 
@@ -359,6 +361,7 @@ window.STATUS_ICON[5] = 'remove';
 window.STATUS_ICON[6] = 'warning';
 window.STATUS_ICON[7] = 'check';
 window.STATUS_ICON[8] = 'remove';
+window.STATUS_ICON[10] = 'remove';
 window.STATUS_ICON[11] = 'remove';
 window.STATUS_ICON[12] = 'check';
 

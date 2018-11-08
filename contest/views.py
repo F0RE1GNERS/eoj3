@@ -1,8 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import transaction
@@ -11,8 +10,8 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, View, FormView
-from django.views.generic.base import TemplateResponseMixin, ContextMixin
+from django.views.generic import TemplateView, View
+from django.views.generic.base import ContextMixin
 from django.views.generic.list import ListView
 from ipware.ip import get_ip
 from tagging.models import TaggedItem
@@ -20,11 +19,9 @@ from tagging.models import TaggedItem
 from account.models import User
 from account.permissions import is_admin_or_root
 from blog.models import Blog
-from contest.statistics import get_participant_score
+from contest.statistics import get_participant_score, calculate_problems
 from problem.models import Problem
-from problem.statistics import get_many_problem_accept_count, get_many_problem_tried_count, get_many_problem_max_score, \
-    get_many_problem_avg_score, get_accept_problem_list, get_attempted_problem_list
-from utils.download import respond_as_attachment
+from problem.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.language import LANG_CHOICE
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager, is_contest_volunteer
@@ -57,19 +54,26 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_contest_volunteer(self.user, self.contest)
         self.registered, self.vp_available = False, False
+        self.progress, self.participant = None, None
+        self.participate_start_time = self.contest.start_time       # the start time for the participant
+        self.participate_end_time = self.contest.end_time           # the end time for the participant
+        self.participate_contest_status = self.contest.status       # the contest status for the participant
+        self.virtual_participating = False
         if self.user.is_authenticated:
             try:
-                participant = self.contest.contestparticipant_set.get(user=self.user)
+                self.participant = self.contest.contestparticipant_set.get(user=self.user)
+                self.participate_start_time = self.participant.start_time(self.contest)
+                self.participate_end_time = self.participant.end_time(self.contest)
+                self.participate_contest_status = self.participant.status(self.contest)
+                self.progress = datetime.now() - self.participate_start_time
+                self.virtual_participating = self.participant.join_time is not None and self.participate_contest_status == 0
                 if self.contest.ip_sensitive:
                     current_ip = get_ip(request)
-                    if participant.ip_address is None:
-                        participant.ip_address = current_ip
-                        participant.save(update_fields=['ip_address'])
-                    self.registered = current_ip == participant.ip_address
+                    if self.participant.ip_address is None:
+                        self.participant.ip_address = current_ip
+                        self.participant.save(update_fields=['ip_address'])
+                    self.registered = current_ip == self.participant.ip_address
                 else: self.registered = True
-                if not participant.is_confirmed:
-                    participant.is_confirmed = True
-                    participant.save(update_fields=['is_confirmed'])
             except ContestParticipant.DoesNotExist:
                 pass
         if not self.registered and (self.contest.access_level >= 30
@@ -97,17 +101,17 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
     def get_context_data(self, **kwargs):
         data = super(BaseContestMixin, self).get_context_data(**kwargs)
         data['contest'] = self.contest
-        data['contest_status'] = self.contest.status
-        data['current_time'] = timezone.now()
-        if self.contest.start_time is not None and self.contest.end_time is not None:
+        data['participate_contest_status'] = self.participate_contest_status
+        data['current_time'] = datetime.now()
+        if self.contest.length is not None:
             data['time_remaining'] = 0
-            if data['contest_status'] < 0:
-                data['time_remaining'] = (self.contest.start_time - data['current_time']).total_seconds()
-            elif data['contest_status'] == 0:
-                data['time_remaining'] = (self.contest.end_time - data['current_time']).total_seconds()
+            if self.participate_contest_status < 0:
+                data['time_remaining'] = (self.participate_start_time - data['current_time']).total_seconds()
+            elif self.participate_contest_status == 0:
+                data['time_remaining'] = (self.participate_end_time - data['current_time']).total_seconds()
             data['time_all'], data['remaining_percent'] = 0, 0
-            if data['contest_status'] == 0:
-                data['time_all'] = (self.contest.end_time - self.contest.start_time).total_seconds()
+            if self.participate_contest_status == 0:
+                data['time_all'] = self.contest.length.total_seconds()
                 if data['time_all'] > 0:
                     data['remaining_percent'] = data['time_remaining'] / data['time_all']
         data['contest_problem_list'] = self.contest.contest_problem_list
@@ -186,34 +190,29 @@ class DashboardView(BaseContestMixin, TemplateView):
                 clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
             data["clarifications"] = clarifications
             if self.contest.contest_type == 0:
-                try:
-                    user_as_participant = self.contest.contestparticipant_set.select_related('user').get(user_id=self.user.pk)
-                    self_displayed_rank_template = 'display_rank_cp_%d' % user_as_participant.pk
+                if self.participant is not None:
+                    self_displayed_rank_template = 'display_rank_cp_%d' % self.participant.pk
                     data["rank"] = cache.get(self_displayed_rank_template)
                     if data["rank"] is None:
-                        data["rank"] = get_participant_score(self.contest, self.user.pk)
+                        if self.virtual_participating:
+                            data["rank"] = get_participant_score(self.contest, self.user.pk, self.progress)
+                        else:
+                            data["rank"] = get_participant_score(self.contest, self.user.pk)
                         if self.contest.common_status_access_level < 0:
                             data["rank"].pop("actual_rank", None)
                         cache.set(self_displayed_rank_template, data["rank"], 15)
                     if data["rank"] is not None:
-                        data["rank"].update(user=user_as_participant)
-                except ContestParticipant.DoesNotExist:
-                    pass
+                        data["rank"].update(user=self.participant)
 
-        problem_ids = list(map(lambda x: x.problem_id, data['contest_problem_list']))
-        if self.contest.scoring_method != "oi":
-            accept_count = get_many_problem_accept_count(problem_ids, self.contest.id)
-            for problem in data['contest_problem_list']:
-                problem.accept_count = accept_count[problem.problem_id]
-        else:
+        # make sure problem status is correct (for VP purpose)
+        if self.virtual_participating:
+            calculate_problems(self.contest, self.contest.contest_problem_list, self.progress)
+        # `contest.contest_problem_list` is data["contest_problem_list"]. Same thing.
+        if self.contest.scoring_method == "oi":
             data['enable_scoring'] = True
-            user_count = get_many_problem_tried_count(problem_ids, self.contest.id)
-            max_score = get_many_problem_max_score(problem_ids, self.contest.id)
-            avg_score = get_many_problem_avg_score(problem_ids, self.contest.id)
             for problem in data['contest_problem_list']:
-                problem.user_count = user_count[problem.problem_id]
-                problem.max_score = int(round(max_score[problem.problem_id] / 100 * problem.weight))
-                problem.avg_score = round(avg_score[problem.problem_id] / 100 * problem.weight, 1)
+                problem.max_score = int(round(problem.max_score / 100 * problem.weight))
+                problem.avg_score = round(problem.avg_score / 100 * problem.weight, 1)
 
         data['authors'] = self.contest.authors.all()
 

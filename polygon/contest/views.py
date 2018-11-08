@@ -1,14 +1,12 @@
 import json
-import random
+from os import path
 from threading import Thread
 
-import names
 import shortuuid
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
@@ -16,30 +14,25 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, FormView
 from django.views.generic.list import ListView
-from os import path
 
-from account.models import User, MAGIC_CHOICE
+from account.models import User
 from account.permissions import is_admin_or_root
 from contest.models import Contest, ContestInvitation, ContestParticipant, ContestClarification, Activity
 from contest.statistics import invalidate_contest
 from contest.tasks import add_participant_with_invitation
-from problem.models import Problem
-from problem.statistics import (
-    get_problem_accept_count, get_problem_accept_ratio, get_problem_all_count, get_problem_all_user_count,
-    get_problem_accept_user_count, get_problem_accept_user_ratio
-)
-from problem.views import StatusList
-from submission.models import SubmissionStatus
-from utils.identicon import Identicon
-from utils.download import respond_generate_file
-from utils.csv_writer import write_csv
-from utils.permission import is_contest_manager
-from .forms import ContestEditForm
+from polygon.base_views import PolygonBaseMixin
 from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, \
     rejudge_submission_set
-from polygon.base_views import PolygonBaseMixin
+from problem.models import Problem
+from problem.views import StatusList
+from submission.util import SubmissionStatus
+from utils.csv_writer import write_csv
+from utils.download import respond_generate_file
+from utils.identicon import Identicon
+from utils.permission import is_contest_manager
+from .forms import ContestEditForm, TestSysUploadForm
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
@@ -102,6 +95,17 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         instance = form.save(commit=False)
         instance.allowed_lang = ','.join(form.cleaned_data['allowed_lang'])
         instance.save()
+        if instance.finite:
+            with transaction.atomic():
+                participants = {p.user_id: p for p in instance.contestparticipant_set.all()}
+                for sub in instance.submission_set.all():
+                    start = participants[sub.author_id].start_time(instance)
+                    end = start + instance.length
+                    if start <= sub.create_time <= end:
+                        sub.contest_time = sub.create_time - start
+                    else:
+                        sub.contest_time = None
+                    sub.save(update_fields=["contest_time"])
         return redirect(self.request.path)
 
 
@@ -153,23 +157,19 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if 'data' in request.GET:
-            problems = self.contest.contestproblem_set.select_related('problem').all()
+            problems = self.contest.contest_problem_list
             data = []
             SUB_FIELDS = ["title", "id", "alias"]
-            STATISTIC_FIELDS = [
-                ('ac1', get_problem_accept_count),
-                ('ac2', get_problem_accept_user_count),
-                ('tot1', get_problem_all_count),
-                ('tot2', get_problem_all_user_count),
-                ('ratio1', get_problem_accept_ratio),
-                ('ratio2', get_problem_accept_user_ratio),
-            ]
             for problem in problems:
                 d = {k: getattr(problem.problem, k) for k in SUB_FIELDS}
                 d.update(pid=problem.id, identifier=problem.identifier, weight=problem.weight)
-                d.update({k: v(problem.problem_id, self.contest.id) for k, v in STATISTIC_FIELDS})
+                d["user_ac"] = problem.ac_user_count
+                d["user_tot"] = problem.total_user_count
+                d["ac"] = problem.ac_count
+                d["tot"] = problem.total_count
+                d["user_ratio"] = problem.user_ratio
+                d["ratio"] = problem.ratio
                 data.append(d)
-            data.sort(key=lambda x: x['identifier'])
             return HttpResponse(json.dumps(data))
         return super(ContestProblemManage, self).get(request, *args, **kwargs)
 
@@ -585,3 +585,10 @@ class ContestParticipantFromActivity(PolygonContestMixin, View):
                         p.comment = participant.real_name
                         p.save(update_fields=['comment'])
         return redirect(reverse('polygon:contest_participant', kwargs={"pk": self.contest.id}))
+
+
+class ContestGhostRecordImport(PolygonContestMixin, FormView):
+    form_class = TestSysUploadForm
+
+    def form_valid(self, form):
+        pass

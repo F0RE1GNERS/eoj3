@@ -71,8 +71,8 @@
         <th colspan="{{ first_column_span }}"><span class="ui text green">通过</span><br>提交</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">
-            <span class="ui text green">{{ statistics.problem[problem.problem.id].ac }}</span><br>
-          {{ statistics.problem[problem.problem.id].submit }}
+            <span class="ui text green">{{ problem.ac_count }}</span><br>
+          {{ problem.total_count }}
           </th>
         {% endfor %}
       </tr>
@@ -80,8 +80,8 @@
       <tr>
         <th colspan="{{ first_column_span }}">一血</th>
         {% for problem in contest.contest_problem_list %}
-          <th class="center aligned" style="{{ column_style }}">{% if statistics.first_yes[problem.problem.id] %}
-            {{ (statistics.first_yes[problem.problem.id].time / 60) | int }}
+          <th class="center aligned" style="{{ column_style }}">{% if problem.first_yes_time %}
+            {{ (problem.first_yes_time.total_seconds() / 60) | int }}
             {% else %}
               --
           {% endif %}</th>

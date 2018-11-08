@@ -1,25 +1,20 @@
-import random
 from collections import Counter
-from datetime import datetime, timedelta
-from threading import Thread
-
-from django import db
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from datetime import datetime
 from os import path
+
+from django.conf import settings
 
 from account.models import User
 from account.payment import reward_problem_ac, reward_contest_ac
 from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
-from submission.models import Submission, SubmissionStatus
 from problem.statistics import invalidate_user
+from submission.models import Submission
+from submission.util import SubmissionStatus
 from utils.detail_formatter import response_fail_with_timestamp
-from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram, ProblemRewardStatus
-from .statistics import get_problem_difficulty, invalidate_problem, get_problem_reward
+from .statistics import invalidate_problem
 
 
 def upload_problem_to_judge_server(problem, server):
@@ -185,11 +180,10 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                         if submission.contest_id and submission.contest.contest_type == 0:
                             reward_contest_ac(submission.author, 50, submission.contest_id)
                         else:
-                            difficulty = get_problem_reward(submission.problem_id)
-                            reward_problem_ac(submission.author, difficulty, submission.problem_id)
+                            reward_problem_ac(submission.author, problem.reward, submission.problem_id)
 
                 invalidate_user(submission.author_id, submission.contest_id)
-                invalidate_problem(submission.problem_id, submission.contest_id)
+                invalidate_problem(submission.problem)
                 if callback:
                     callback()
                 return True

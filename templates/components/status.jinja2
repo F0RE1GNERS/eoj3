@@ -109,7 +109,11 @@
           <td>
           {% if not submission.contest_id %}<a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}{% else %}<a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}{% endif %}{% if not all_valid and (submission.unofficial or (contest and submission.contest_id != contest.pk) or (not contest and submission.contest_id)) %}*{% endif %}
           </a></td>
+        {% if submission.contest_time and participate_contest_status == 0 %}
+          <td>{{ submission.contest_time | timedelta(True) }}</td>
+        {% else %}
           <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+        {% endif %}
         {% if not hide_users %}
           <td>{{ username_display(submission.author) }}</td>
         {% endif %}

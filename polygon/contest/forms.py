@@ -62,3 +62,7 @@ class ContestEditForm(forms.ModelForm):
             if not (start_time <= freeze_time <= end_time):
                 raise forms.ValidationError('Freeze time is not legal', code='invalid')
         return cleaned_data
+
+
+class TestSysUploadForm(forms.ModelForm):
+    testsys_log = forms.FileField(required=False)

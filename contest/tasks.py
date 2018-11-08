@@ -1,19 +1,19 @@
-from datetime import timedelta
-
-from django.utils import timezone
-from django.db import transaction
-from .models import Contest, ContestParticipant
-from account.models import User
-from problem.tasks import judge_submission_on_problem
-from submission.models import SubmissionStatus, Submission
-from .statistics import invalidate_contest, invalidate_contest_participant
 from threading import Thread
+
+from django.db import transaction
+
+from problem.tasks import judge_submission_on_problem
+from submission.models import Submission
+from submission.util import SubmissionStatus
+from .models import Contest, ContestParticipant
+from .statistics import invalidate_contest, invalidate_contest_participant, invalidate_contest_problem
 
 
 def judge_submission_on_contest(submission: Submission, callback=None, **kwargs):
 
     def _callback():
-        invalidate_contest_participant(contest, submission.author_id, sync=True)
+        invalidate_contest_participant(contest, submission.author_id)
+        invalidate_contest_problem(contest, submission.problem_id)
         if callback:
             callback()
 

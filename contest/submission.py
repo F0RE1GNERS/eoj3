@@ -14,10 +14,12 @@ from django_q.tasks import async_task
 from ipware.ip import get_ip
 
 from contest.statistics import invalidate_contest_participant
+from problem.models import Problem
 from problem.statistics import invalidate_problem
 from problem.tasks import create_submission
 from problem.views import StatusList
-from submission.models import Submission, SubmissionStatus
+from submission.models import Submission
+from submission.util import SubmissionStatus
 from submission.views import render_submission, render_submission_report
 from utils.language import LANG_CHOICE
 from utils.permission import get_permission_for_submission
@@ -46,12 +48,20 @@ class ContestSubmit(BaseContestMixin, View):
             code = request.POST.get('code', '')
             if self.contest.status < 0:
                 submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
-            elif self.contest.status > 0 and self.contest.contest_type == 1:
-                raise ValueError("不在提交时间内。")
+            elif self.contest.status != 0 and self.contest.contest_type == 1:
+                raise ValueError("你已经错过了作业提交时间。")
             else:
                 submission = create_submission(problem, self.user, code, lang,
                                                contest=self.contest, ip=get_ip(request))
                 contest_participant, created = self.contest.contestparticipant_set.get_or_create(user=self.user)
+
+                if self.contest.contest_type == 0:
+                    start_time = contest_participant.start_time(self.contest)
+                    end_time = start_time + self.contest.length
+                    if start_time <= submission.create_time <= end_time:
+                        submission.contest_time = submission.create_time - start_time
+                        submission.save(update_fields=["contest_time"])
+
                 if created and (self.contest.status != 0 or self.contest.access_level == 30):
                     contest_participant.star = True
                     contest_participant.save(update_fields=['star'])
@@ -92,7 +102,8 @@ class ContestSubmissionClaim(BaseContestMixin, View):
                 submission.contest = self.contest
             Submission.objects.bulk_create(self.submissions)
             invalidate_contest_participant(self.contest, self.user.pk)
-            invalidate_problem(self.problem_id_list, self.contest.pk)
+            for problem in Problem.objects.filter(pk__in=self.problem_id_list):
+                invalidate_problem(problem)
             messages.add_message(request, messages.SUCCESS, "%d 份提交已经成功迁移。" % len(self.submissions))
         return HttpResponse()
 
@@ -186,7 +197,15 @@ class ContestStatus(BaseContestMixin, StatusList):
     contest_submission_visible = True
 
     def get_selected_from(self):
+        if self.participate_contest_status == 0:
+            return self.contest.submission_set.filter(contest_time__lte=self.progress)
         return self.contest.submission_set.all()
+
+    def get_ordering(self):
+        if self.participate_contest_status == 0:
+            return "-contest_time"
+        else:
+            return None
 
     def reinterpret_problem_identifier(self, value):
         return self.contest.contestproblem_set.get(identifier=value).problem_id

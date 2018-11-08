@@ -10,6 +10,8 @@ from tagging.models import Tag
 
 from account.models import User
 from tagging.registry import register
+
+from submission.util import SubmissionStatus
 from utils.language import LANG_CHOICE
 from django.utils.translation import ugettext_lazy as _
 
@@ -62,6 +64,12 @@ class Problem(models.Model):
     ), default=3)
 
     managers = models.ManyToManyField(User, related_name='managing_problems')
+
+    ac_user_count = models.PositiveIntegerField(default=0)
+    total_user_count = models.PositiveIntegerField(default=0)
+    ac_count = models.PositiveIntegerField(default=0)
+    total_count = models.PositiveIntegerField(default=0)
+    reward = models.FloatField(default=9.9)
 
     def __str__(self):
         return '%d. %s' % (self.pk, self.title)
@@ -122,6 +130,29 @@ class Problem(models.Model):
     @property
     def sample_display(self):
         return [get_input_and_output_for_case(case) for case in self.sample_list]
+
+    def _status_count(self, status):
+        return self.submission_set.filter(status=status).values("id").count()
+
+    @property
+    def ac_user_ratio(self):
+        return self.ac_user_count / self.total_user_count if self.total_user_count > 0 else 0.0
+
+    @property
+    def ac_ratio(self):
+        return self.ac_count / self.total_count if self.total_count > 0 else 0.0
+
+    @property
+    def stats(self):
+        ret = {
+            "ac": self.ac_count,
+            "wa": self._status_count(SubmissionStatus.WRONG_ANSWER),
+            "tle": self._status_count(SubmissionStatus.TIME_LIMIT_EXCEEDED),
+            "re": self._status_count(SubmissionStatus.RUNTIME_ERROR),
+            "ce": self._status_count(SubmissionStatus.COMPILE_ERROR)
+        }
+        ret["others"] = self.total_count - sum(ret.values())
+        return ret
 
 
 register(Problem)
@@ -200,35 +231,3 @@ class UserStatus(models.Model):
 
     class Meta:
         unique_together = ('user', 'contest_id')
-
-
-class ProblemContestStatus(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="problem_contest_status")
-    contest_id = models.PositiveIntegerField(db_index=True)
-    ac_user_count = models.PositiveIntegerField()
-    total_user_count = models.PositiveIntegerField()
-    ac_count = models.PositiveIntegerField()
-    total_count = models.PositiveIntegerField()
-    difficulty = models.FloatField()
-    max_score = models.FloatField()
-    avg_score = models.FloatField()
-    stats_raw = models.TextField()
-
-    @property
-    def ac_user_ratio(self):
-        return self.ac_user_count / self.total_user_count if self.total_user_count > 0 else 0.0
-
-    @property
-    def ac_ratio(self):
-        return self.ac_count / self.total_count if self.total_count > 0 else 0.0
-
-    @property
-    def stats(self):
-        return json.loads(self.stats_raw)
-
-    @stats.setter
-    def stats(self, stats):
-        self.stats_raw = json.dumps(stats)
-
-    class Meta:
-        unique_together = ('problem', 'contest_id')
