@@ -344,7 +344,7 @@ COMMENT_MAX_LENGTH = 3000
 NOTIFICATIONS_SOFT_DELETE = True
 
 
-# AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
+AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
 
 
 Q_CLUSTER = {
