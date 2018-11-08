@@ -25,7 +25,6 @@ from .models import User
 from django.contrib.auth.decorators import login_required
 # from utils.models import get_site_settings
 from utils.identicon import Identicon
-from migrate.views import verify_old_user, MigrationThread
 try:
     from eoj3.local_settings import ADMIN_EMAIL_LIST
 except ImportError:

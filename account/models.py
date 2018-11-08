@@ -71,7 +71,7 @@ class User(AbstractUser):
     polygon_enabled = models.BooleanField(default=False)
     score = models.FloatField(default=0)
     username_change_attempt = models.IntegerField(default=0)
-    email_subscription = models.BooleanField(default=True)
+    email_subscription = models.BooleanField("邮件订阅", default=True)
     rating = models.IntegerField(default=0)
 
     def __str__(self):

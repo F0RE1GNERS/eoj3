@@ -6,24 +6,24 @@
 
   <div class="ui form">
     <div class="field">
-      <label>Username:</label>
+      <label>用户名:</label>
       <div class="ui action input">
         <input type="text" value="{{ user.username }}" readonly>
-        <button class="ui button modal-link" data-target="#modify-username-modal">Modify</button>
+        <button class="ui button modal-link" data-target="#modify-username-modal">修改</button>
       </div>
     </div>
   </div>
 
   <div class="ui hidden divider"></div>
 
-  {% call modal("Modify Username", id="modify-username-modal", action=url('account:change_username')) %}
+  {% call modal("修改用户名", id="modify-username-modal", action=url('account:change_username')) %}
     <div class="ui form">
       {% csrf_token %}
       <div class="field">
-        <label>Enter your new username:</label>
-        <input type="text" name="username" placeholder="It should be longer than 6.">
+        <label>你的新用户名:</label>
+        <input type="text" name="username" placeholder="长度不能小于 6 个字符。">
       </div>
-      <p>This is your {{ user.username_change_attempt + 1 }}(th) attempt to change your username. It will cost {{ (user.username_change_attempt ** 2) * 100 }} EMBs.</p>
+      <p>这是你第 {{ user.username_change_attempt + 1 }} 次修改用户名的尝试，这将会消耗 {{ (user.username_change_attempt ** 2) * 100 }} EMB.</p>
     </div>
   {% endcall %}
 
