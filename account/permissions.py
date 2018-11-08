@@ -13,16 +13,15 @@ def is_coach(user):
 
 
 class UsernameOrEmailModelBackend(ModelBackend):
-    def authenticate(self, username=None, password=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
-        if '@' in username:
-            kwargs = {'email': username}
-        else:
-            kwargs = {'username': username}
+        if username is None:
+            username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
-            user = UserModel.objects.get(**kwargs)
-            if user.check_password(password):
-                return user
+            if '@' not in username:
+                user = UserModel.objects.get(username=username)
+            else:
+                user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
             UserModel().set_password(password)
         else:

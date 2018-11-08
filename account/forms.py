@@ -20,7 +20,7 @@ def compare_string(a, b):
 class LoginForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         super(LoginForm, self).__init__(request, *args, **kwargs)
-        self.fields['username'].label = '用户名'
+        self.fields['username'].label = '用户名或邮箱'
         self.fields['password'].label = '密码'
         self.fields['public_key'].initial = get_public_key()
 
