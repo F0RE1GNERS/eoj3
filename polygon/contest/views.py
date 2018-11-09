@@ -95,7 +95,7 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         instance = form.save(commit=False)
         instance.allowed_lang = ','.join(form.cleaned_data['allowed_lang'])
         instance.save()
-        if instance.finite:
+        if instance.contest_type == 0:
             with transaction.atomic():
                 participants = {p.user_id: p for p in instance.contestparticipant_set.all()}
                 for sub in instance.submission_set.all():
