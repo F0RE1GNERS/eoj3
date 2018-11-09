@@ -231,6 +231,7 @@ def participants_with_rank(contest: Contest, snapshot: timedelta=None):
     items = contest.contestparticipant_set.all()
     if snapshot is not None:
         calculate_participants(contest, items, snapshot)
+        items = sorted(list(items), key=lambda i: (not i.is_confirmed, -i.score, i.penalty, not i.star))
     last_item = None
     last_actual_item, last_actual_rank = None, 0
 

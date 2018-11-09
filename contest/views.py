@@ -8,8 +8,9 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
 from django.utils import timezone
+from django.utils.dateparse import parse_time, parse_datetime
 from django.views.generic import TemplateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.list import ListView
@@ -54,7 +55,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_contest_volunteer(self.user, self.contest)
         self.registered, self.vp_available = False, False
-        self.virtual_progress, self.participant = None, None
+        self.virtual_progress, self.participant = None, None        # virtual participation undergoing
         self.participate_start_time = self.contest.start_time       # the start time for the participant
         self.participate_end_time = self.contest.end_time           # the end time for the participant
         self.participate_contest_status = self.contest.status       # the contest status for the participant
@@ -78,7 +79,8 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if not self.registered and (self.contest.access_level >= 30
                                     or (self.contest.access_level >= 20 and self.contest.status > 0)):
             self.registered = True
-        if not self.registered and self.user.is_authenticated and self.contest.access_level >= 15 and self.contest.contest_type == 0:
+        if self.participant is None and self.user.is_authenticated and self.contest.access_level >= 15 and \
+                        self.contest.contest_type == 0 and self.contest.status > 0:
             self.vp_available = True
         return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
 
@@ -88,7 +90,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if self.contest.access_level == 0:
             self.permission_denied_message = "比赛只对管理员可见。"
             return False
-        if self.contest.status < 0:
+        if self.participate_contest_status < 0:
             self.permission_denied_message = "尚未开始。"
             return False
         if self.registered or self.volunteer:
@@ -120,6 +122,10 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         data['show_percent'] = self.contest.scoring_method == 'oi'
         data['site_closed'] = self.site_closed
         data['vp_available'] = self.vp_available
+        if self.vp_available:
+            ref_time = datetime.now() + timedelta(minutes=6)
+            data['vp_start_time'] = datetime(ref_time.year, ref_time.month, ref_time.day, ref_time.hour,
+                                             ref_time.minute - ref_time.minute % 5).strftime('%Y-%m-%d %H:%M')
         if self.contest.analysis_blog_id and \
             Blog.objects.filter(pk=self.contest.analysis_blog_id, visible=True).exists():
             data['analysis_available'] = True
@@ -334,3 +340,21 @@ class ContestRatings(ListView):
                 data['max_rating'] = max(data['max_rating'], max(map(lambda x: x.rating, data['rating_list'])))
                 data['min_rating'] = min(data['min_rating'], max(map(lambda x: x.rating, data['rating_list'])))
         return data
+
+
+class ContestVirtualParticipantJoin(BaseContestMixin, View):
+
+    def test_func(self):
+        return self.vp_available
+
+    def post(self, request, *args, **kwargs):
+        start_time = parse_datetime(request.POST["time"])
+        redirect_link = reverse('contest:dashboard', kwargs={'cid': self.contest.pk})
+        if start_time <= datetime.now():
+            messages.error(request, "输入时间应晚于当前时间。")
+            return redirect(redirect_link)
+        if start_time - datetime.now() > timedelta(days=1):
+            messages.error(request, "不支持预约 24 小时以后的比赛。")
+            return redirect(redirect_link)
+        self.contest.contestparticipant_set.create(user=self.request.user, join_time=start_time)
+        return redirect(redirect_link)

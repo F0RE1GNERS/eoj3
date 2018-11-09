@@ -1,4 +1,6 @@
 import json
+import re
+from datetime import timedelta
 from os import path
 from threading import Thread
 
@@ -8,6 +10,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
+from django.forms import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
 from django.shortcuts import get_object_or_404, redirect
@@ -589,6 +592,110 @@ class ContestParticipantFromActivity(PolygonContestMixin, View):
 
 class ContestGhostRecordImport(PolygonContestMixin, FormView):
     form_class = TestSysUploadForm
+    template_name = 'polygon/contest/ghost_import.jinja2'
+
+    def parse_line(self, line):
+        if line.startswith("@"):
+            try:
+                directive, content = re.split(r'\s+', line[1:], 1)
+                ret, cur = [], ''
+                quote_count = False
+                for i in range(len(content)):
+                    if content[i] == ',' and not quote_count:
+                        ret.append(cur.strip())
+                        cur = ''
+                    elif content[i] == '"':
+                        quote_count = not quote_count
+                    else:
+                        cur += content[i]
+                assert not quote_count
+                ret.append(cur.strip())
+                return (directive.lower(), ret)
+            except:
+                return None
+        return None
 
     def form_valid(self, form):
-        pass
+        line_counter = 0
+        verdict_map = {
+            "OK": SubmissionStatus.ACCEPTED,
+            "WA": SubmissionStatus.WRONG_ANSWER,
+            "RT": SubmissionStatus.RUNTIME_ERROR,
+            "TL": SubmissionStatus.TIME_LIMIT_EXCEEDED,
+            "ML": SubmissionStatus.MEMORY_LIMIT_EXCEEDED,
+            "CE": SubmissionStatus.COMPILE_ERROR,
+            "RJ": SubmissionStatus.REJECTED,
+        }
+        try:
+            participant_count = 0
+            team_name_map = dict()
+            team_id_map = dict()
+            submissions = []
+            for line in form.cleaned_data["testsys_log"].split("\n"):
+                line_counter += 1
+                parse_result = self.parse_line(line)
+                if parse_result is None:
+                    continue
+                directive, args = parse_result
+                print(directive, args)
+                if directive == "teams":
+                    participant_count = int(args[0])
+                    if participant_count >= 10000:
+                        raise Exception("队伍数量过多。")
+                elif directive == "t":
+                    team_number = args[0]
+                    if len(team_name_map) >= participant_count:
+                        raise Exception("队伍 %s 已经超出了场地容量 %d。" % (team_number, participant_count))
+                    if team_number in team_name_map:
+                        raise Exception("队伍 %s 重复注册了。")
+                    l = len(team_name_map) + 1
+                    team_name_map[team_number] = (args[3], l)
+                elif directive == "s":
+                    team_number = args[0]
+                    time_seconds = int(args[3])
+                    verdict = verdict_map[args[4]]
+                    if team_number not in team_name_map:
+                        raise Exception("队伍 %s 没有注册过。" % team_number)
+                    if not (0 <= time_seconds <= int(round(self.contest.length.total_seconds()))):
+                        raise Exception("提交时间 %d 不在范围内。" % time_seconds)
+                    candidate_problem_list = list(filter(lambda x: x.identifier == args[1], self.contest.contest_problem_list))
+                    if len(candidate_problem_list) != 1:
+                        raise Exception("'%s' 没找到或者找到了多个相应的题目。" % args[1])
+                    problem_id = candidate_problem_list[0].problem_id
+                    submit_time = self.contest.start_time + timedelta(seconds=time_seconds)
+                    submissions.append((team_number, problem_id, submit_time, verdict))
+
+            if len(team_name_map) != participant_count:
+                raise Exception("队伍信息与队伍数量不一致。")
+
+            if participant_count == 0 or len(submissions) == 0:
+                raise Exception("没有参赛者或没有提交。")
+
+            with transaction.atomic():
+                user_ids = list(User.objects.filter(username__icontains='ghost#').values_list("id", flat=True))
+                self.contest.contestparticipant_set.filter(user_id__in=user_ids).delete()
+                self.contest.submission_set.filter(author_id__in=user_ids).delete()
+                for team_name, team_id in team_name_map.values():
+                    user, _ = User.objects.get_or_create(username=self.get_ghost_username(team_id),
+                                                         email=self.get_ghost_username(team_id) + "@ghost.ecnu.edu.cn")
+                    user.set_unusable_password()
+                    user.save()
+                    team_id_map[team_id] = user.id
+                    self.contest.contestparticipant_set.create(user=user, comment=team_name)
+                for team_number, problem_id, submit_time, verdict in submissions:
+                    _, team_id = team_name_map[team_number]
+                    s = self.contest.submission_set.create(author_id=team_id_map[team_id],
+                                                           status=verdict, problem_id=problem_id,
+                                                           contest_time=submit_time - self.contest.start_time,
+                                                           lang=None, status_time=None,
+                                                           status_percent=100 if verdict == SubmissionStatus.ACCEPTED else 0)
+                    s.create_time = submit_time
+                    s.save(update_fields=["create_time"])
+
+            return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.pk}))
+        except Exception as e:
+            messages.error(self.request, "在第 %d 行有错误：" % line_counter + str(e))
+            return redirect(self.request.path)
+
+    def get_ghost_username(self, num):
+        return "ghost#%04d" % num

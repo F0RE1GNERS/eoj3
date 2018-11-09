@@ -51,7 +51,7 @@ class ContestEditForm(forms.ModelForm):
             end_time = None
         if cleaned_data.get('contest_type') == 0:
             if not start_time or not end_time or (end_time - start_time).total_seconds() < 300 or (end_time - start_time).total_seconds() > 86400 * 14:
-                raise forms.ValidationError("A regular round should last longer than 5 minutes and less than 14 days.", code='invalid')
+                raise forms.ValidationError("一场比赛时长应该在 5 分钟到 14 天之间。", code='invalid')
         else:
             if cleaned_data['scoring_method'] not in ("oi", "acm",):
                 raise forms.ValidationError("作业只支持 OI 和 ACM 赛制。", code='invalid')
@@ -60,9 +60,9 @@ class ContestEditForm(forms.ModelForm):
         if cleaned_data.get('freeze'):
             freeze_time = cleaned_data.get('freeze_time')
             if not (start_time <= freeze_time <= end_time):
-                raise forms.ValidationError('Freeze time is not legal', code='invalid')
+                raise forms.ValidationError('封榜时间非法。', code='invalid')
         return cleaned_data
 
 
-class TestSysUploadForm(forms.ModelForm):
-    testsys_log = forms.FileField(required=False)
+class TestSysUploadForm(forms.Form):
+    testsys_log = forms.CharField(widget=forms.Textarea(), label="以 TestSys 格式存储的比赛提交记录", required=False)

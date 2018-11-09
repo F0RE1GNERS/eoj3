@@ -128,10 +128,10 @@
               {% endif %}
             {% endif %}
           {% endif %}
-          <td>{{ submission.get_lang_display() }}</td>
+          <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
           <td><h5 class="ui header status-span" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}" data-test="{{ submission.status_test }}"></h5></td>
         {% if code_length %}
-          <td>{{ submission.code_length }} B</td>
+          <td>{% if submission.code_length %}{{ submission.code_length }} B{% else %}N/A{% endif %}</td>
         {% endif %}
           <td>{{ submission.get_time_display() }}</td>
         {% if rejudge %}

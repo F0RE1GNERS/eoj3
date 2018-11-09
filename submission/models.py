@@ -12,7 +12,7 @@ from utils.time import datetime_display
 
 class Submission(models.Model):
 
-    lang = models.CharField(max_length=12, choices=LANG_CHOICE, default='cpp')
+    lang = models.CharField(max_length=12, choices=LANG_CHOICE, default='cpp', null=True)
     code = models.TextField(blank=True)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -25,10 +25,10 @@ class Submission(models.Model):
     # Private Status has to be accurate, because you yourself know more than others
     # add empty dict to detail list if there are still cases to judge
     status_detail = models.TextField(blank=True)
-    status_time = models.FloatField(default=0)
+    status_time = models.FloatField(blank=True, null=True)
     status_message = models.TextField(blank=True)
     status_test = models.PositiveIntegerField(default=0)
-    code_length = models.PositiveIntegerField(default=0)
+    code_length = models.PositiveIntegerField(blank=True, null=True)
     judge_server = models.IntegerField(default=0)
 
     # if contest is null, then it is visible outside
@@ -110,10 +110,11 @@ class Submission(models.Model):
         return SubmissionStatus.is_judged(self.status)
 
     def get_time_display(self):
-        if self.status >= SubmissionStatus.WRONG_ANSWER and self.status != SubmissionStatus.COMPILE_ERROR:
+        if self.status_time is not None and self.status >= SubmissionStatus.WRONG_ANSWER and \
+                        self.status != SubmissionStatus.COMPILE_ERROR:
             return '%.3f' % self.status_time
         else:
-            return 'NaN'
+            return 'N/A'
 
     @property
     def status_score(self):

@@ -11,14 +11,43 @@
 
   {% include 'components/message.jinja2' %}
 
-  {% if not registered and contest.status <= 0 %}
+  {% if vp_available %}
+    <div>
+      <h3 class="ui header">
+        <i class="privacy icon"></i>
+        <div class="content">
+          虚拟参赛
+          <div class="sub header">模拟真实参赛环境</div>
+        </div>
+      </h3>
+      <ul class="ui list">
+        <li class="item">你应确保你没有提前看过或做过题。</li>
+        <li class="item">你的成绩会被计入排行榜。</li>
+      </ul>
+      <form class="ui form" action="{{ url('contest:vp_join', contest.pk) }}" method="post">
+        {% csrf_token %}
+        <div class="field">
+          <div class="ui calendar">
+            <div class="ui input left icon">
+              <i class="calendar icon"></i>
+              <input type="text" placeholder="Date/Time" value="{{ vp_start_time }}" name="time">
+            </div>
+          </div>
+        </div>
+        <div class="field"><button type="submit" class="ui positive button">确认参赛</button></div>
+      </form>
+    </div>
+    {{ separator() }}
+  {% endif %}
+
+  {% if not registered and participate_contest_status <= 0 %}
     {# private contest registration #}
     <div>
       <h3 class="ui header">
         <i class="privacy icon"></i>
         <div class="content">
           权限受限
-          <div class="sub header">你可以有两种选择：</div>
+          <div class="sub header">你可以有两种选择。</div>
         </div>
       </h3>
       <ul class="ui list">

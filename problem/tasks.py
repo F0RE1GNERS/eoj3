@@ -35,13 +35,13 @@ def upload_problem_to_judge_server(problem, server):
 
 def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip=''):
     if not 6 <= len(code) <= 65536:
-        raise ValueError("Code is too short or too long.")
+        raise ValueError("代码太短或者太长了。")
     if author.submission_set.exists() and (
         datetime.now() - author.submission_set.first().create_time).total_seconds() < settings.SUBMISSION_INTERVAL_LIMIT:
-        raise ValueError("Please don't resubmit in 5 seconds.")
+        raise ValueError("请不要在五秒内重复提交。")
     if contest:
         if contest.submission_set.filter(author=author, problem_id=problem, code=code, lang=lang).exists():
-            raise ValueError("You have submitted exactly the same code before.")
+            raise ValueError("你以前交过完全一样的代码。")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
                                          status=status, ip=ip)

@@ -41,6 +41,7 @@ urlpatterns = [
         name='contest_participant_download'),
     url(r'^(?P<pk>\d+)/participants/import/$', v.ContestParticipantFromActivity.as_view(),
         name='contest_participant_activity'),
+    url(r'^(?P<pk>\d+)/ghost/import/$', v.ContestGhostRecordImport.as_view(), name='ghost_import'),
     url(r'^(?P<pk>\d+)/status/$', v.ContestStatusBackend.as_view(), name='contest_status'),
     url(r'^(?P<pk>\d+)/rejudge/$', v.RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
     url(r'^(?P<pk>\d+)/system-test/', v.ContestSystemTestView.as_view(), name='contest_system_test'),
