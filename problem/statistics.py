@@ -7,11 +7,12 @@ from utils.permission import is_problem_manager
 
 
 def invalidate_problem(problem: Problem, save=True):
-    problem.ac_user_count = problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).values(
-        "author_id").distinct().count()
-    problem.total_user_count = problem.submission_set.all().values("author_id").distinct().count()
-    problem.ac_count = problem._status_count(SubmissionStatus.ACCEPTED)
-    problem.total_count = problem.submission_set.all().values("id").count()
+    query_list = list(problem.submission_set.all().values("author_id", "status"))
+    ac_list = list(filter(lambda x: x["status"] == SubmissionStatus.ACCEPTED, query_list))
+    problem.ac_user_count = len(set(map(lambda x: x["author_id"], ac_list)))
+    problem.total_user_count = len(set(map(lambda x: x["author_id"], query_list)))
+    problem.ac_count = len(ac_list)
+    problem.total_count = len(query_list)
     problem.reward =  max(min(5 - (.02 * problem.ac_ratio + .03 * problem.ac_user_ratio) * min(log10(problem.ac_user_count + 1), 1.2)
                              + max(6 - 2 * log10(problem.ac_user_count + 1), 0), 9.9), 0.1)
     for field in problem._meta.local_fields:
