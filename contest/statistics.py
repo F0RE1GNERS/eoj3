@@ -73,7 +73,7 @@ def calculate_problems(contest: Contest, problems: list, snapshot: timedelta=Non
         p.total_count = pstat["tot"]
         p.first_yes_time = pstat["first_yes_time"]
         p.first_yes_by = pstat["first_yes_by"]
-        p.max_score = max(pstat["user_tot"].values())
+        p.max_score = max(pstat["user_tot"].values()) if p.total_user_count > 0 else 0.0
         p.avg_score = sum(pstat["user_tot"].values()) / p.total_user_count if p.total_user_count > 0 else 0.0
 
     return ans
