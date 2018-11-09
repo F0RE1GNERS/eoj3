@@ -57,7 +57,7 @@ def not_found_view(request, exception):
     return render(request, 'error/404.jinja2', status=404)
 
 
-def server_error_view(request, exception):
+def server_error_view(request, **kwargs):
     return render(request, 'error/500.jinja2', status=500)
 
 
