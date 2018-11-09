@@ -54,19 +54,18 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         self.privileged = is_contest_manager(self.user, self.contest)
         self.volunteer = is_contest_volunteer(self.user, self.contest)
         self.registered, self.vp_available = False, False
-        self.progress, self.participant = None, None
+        self.virtual_progress, self.participant = None, None
         self.participate_start_time = self.contest.start_time       # the start time for the participant
         self.participate_end_time = self.contest.end_time           # the end time for the participant
         self.participate_contest_status = self.contest.status       # the contest status for the participant
-        self.virtual_participating = False
         if self.user.is_authenticated:
             try:
                 self.participant = self.contest.contestparticipant_set.get(user=self.user)
                 self.participate_start_time = self.participant.start_time(self.contest)
                 self.participate_end_time = self.participant.end_time(self.contest)
                 self.participate_contest_status = self.participant.status(self.contest)
-                self.progress = datetime.now() - self.participate_start_time
-                self.virtual_participating = self.participant.join_time is not None and self.participate_contest_status == 0
+                if self.participant.join_time is not None and self.participate_contest_status == 0:
+                    self.virtual_progress = datetime.now() - self.participate_start_time
                 if self.contest.ip_sensitive:
                     current_ip = get_ip(request)
                     if self.participant.ip_address is None:
@@ -194,8 +193,8 @@ class DashboardView(BaseContestMixin, TemplateView):
                     self_displayed_rank_template = 'display_rank_cp_%d' % self.participant.pk
                     data["rank"] = cache.get(self_displayed_rank_template)
                     if data["rank"] is None:
-                        if self.virtual_participating:
-                            data["rank"] = get_participant_score(self.contest, self.user.pk, self.progress)
+                        if self.virtual_progress is not None:
+                            data["rank"] = get_participant_score(self.contest, self.user.pk, self.virtual_progress)
                         else:
                             data["rank"] = get_participant_score(self.contest, self.user.pk)
                         if self.contest.common_status_access_level < 0:
@@ -205,8 +204,8 @@ class DashboardView(BaseContestMixin, TemplateView):
                         data["rank"].update(user=self.participant)
 
         # make sure problem status is correct (for VP purpose)
-        if self.virtual_participating:
-            calculate_problems(self.contest, self.contest.contest_problem_list, self.progress)
+        if self.virtual_progress is not None:
+            calculate_problems(self.contest, self.contest.contest_problem_list, self.virtual_progress)
         # `contest.contest_problem_list` is data["contest_problem_list"]. Same thing.
         if self.contest.scoring_method == "oi":
             data['enable_scoring'] = True

@@ -43,8 +43,8 @@ class ContestStandings(BaseContestMixin, ListView):
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
-        if self.virtual_participating:
-            return get_contest_rank(self.contest, self.progress)
+        if self.virtual_progress is not None:
+            return get_contest_rank(self.contest, self.virtual_progress)
         return get_contest_rank(self.contest)
 
     def get_context_data(self, **kwargs):
@@ -57,8 +57,8 @@ class ContestStandings(BaseContestMixin, ListView):
             rank.update(user=contest_participants[rank['user']])
         if not self.contest.standings_without_problem:
             problems = self.contest.contest_problem_list # to make sure we get a cache
-            if self.virtual_participating:
-                calculate_problems(self.contest, problems, self.progress)
+            if self.virtual_progress is not None:
+                calculate_problems(self.contest, problems, self.virtual_progress)
         return data
 
 
