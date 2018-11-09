@@ -197,15 +197,15 @@ class ContestStatus(BaseContestMixin, StatusList):
     contest_submission_visible = True
 
     def get_selected_from(self):
-        if self.participate_contest_status == 0:
+        if self.contest.contest_type == 0 and self.participate_contest_status == 0:
             return self.contest.submission_set.filter(contest_time__lte=self.progress)
         return self.contest.submission_set.all()
 
     def get_ordering(self):
-        if self.participate_contest_status == 0:
+        if self.contest.contest_type == 0 and self.participate_contest_status == 0:
             return "-contest_time"
         else:
-            return None
+            return "-create_time"
 
     def reinterpret_problem_identifier(self, value):
         return self.contest.contestproblem_set.get(identifier=value).problem_id

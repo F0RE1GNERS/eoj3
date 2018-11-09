@@ -318,7 +318,7 @@ class StatusList(ListView):
         return value
 
     def get_ordering(self):
-        return None
+        return "-create_time"
 
     def get_queryset(self):
         try:
