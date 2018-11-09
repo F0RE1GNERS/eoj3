@@ -278,9 +278,11 @@ class ContestParticipant(models.Model):
         return real_time - self.start_time(contest)
 
     def status(self, contest: Contest):
-        if datetime.now() < self.start_time(contest):
+        start_time = self.start_time(contest)
+        end_time = self.end_time(contest)
+        if start_time is not None and datetime.now() < start_time:
             return -1
-        if datetime.now() > self.end_time(contest):
+        if end_time is not None and datetime.now() > end_time:
             return 1
         return 0
 
