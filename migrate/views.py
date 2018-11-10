@@ -2,12 +2,10 @@ import threading
 import traceback
 from hashlib import sha1
 
-from django import db
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.forms import ValidationError
 from django.db import transaction
 from django.shortcuts import render
 
@@ -15,8 +13,9 @@ from account.models import User
 from account.payment import reward_problem_ac
 from migrate.forms import MigrateForm
 from problem.models import ProblemRewardStatus
-from problem.statistics import get_problem_difficulty, get_problem_reward, invalidate_problem
-from submission.models import Submission, SubmissionStatus
+from problem.statistics import invalidate_problem
+from submission.models import Submission
+from submission.util import SubmissionStatus
 from .models import OldUser
 
 
@@ -85,14 +84,14 @@ class MigrationThread(threading.Thread):
                         s.author = self.new_user
                         s.save(update_fields=["author_id"])
 
-                    invalidate_problem(s.problem_id)
+                    invalidate_problem(s.problem)
 
                     if s.status == SubmissionStatus.ACCEPTED:
                         # Add reward
                         _, created = ProblemRewardStatus.objects.get_or_create(problem_id=s.problem_id,
                                                                                user_id=self.new_user.id)
                         if created:
-                            reward_problem_ac(self.new_user, get_problem_reward(s.problem_id), s.problem_id)
+                            reward_problem_ac(self.new_user, s.problem.reward, s.problem_id)
 
                 self.old_user.is_active = False
                 self.old_user.save(update_fields=['is_active'])

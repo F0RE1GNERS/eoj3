@@ -1,45 +1,41 @@
 import json
-import random
+import re
+from datetime import timedelta
+from os import path
 from threading import Thread
 
-import names
 import shortuuid
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
 from django.db import IntegrityError, transaction
+from django.forms import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, FormView
 from django.views.generic.list import ListView
-from os import path
 
-from account.models import User, MAGIC_CHOICE
+from account.models import User
 from account.permissions import is_admin_or_root
 from contest.models import Contest, ContestInvitation, ContestParticipant, ContestClarification, Activity
 from contest.statistics import invalidate_contest
 from contest.tasks import add_participant_with_invitation
-from problem.models import Problem
-from problem.statistics import (
-    get_problem_accept_count, get_problem_accept_ratio, get_problem_all_count, get_problem_all_user_count,
-    get_problem_accept_user_count, get_problem_accept_user_ratio
-)
-from problem.views import StatusList
-from submission.models import SubmissionStatus
-from utils.identicon import Identicon
-from utils.download import respond_generate_file
-from utils.csv_writer import write_csv
-from utils.permission import is_contest_manager
-from .forms import ContestEditForm
+from polygon.base_views import PolygonBaseMixin
 from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, \
     rejudge_submission_set
-from polygon.base_views import PolygonBaseMixin
+from problem.models import Problem
+from problem.views import StatusList
+from submission.util import SubmissionStatus
+from utils.csv_writer import write_csv
+from utils.download import respond_generate_file
+from utils.identicon import Identicon
+from utils.permission import is_contest_manager
+from .forms import ContestEditForm, TestSysUploadForm
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
@@ -102,6 +98,17 @@ class ContestEdit(PolygonContestMixin, UpdateView):
         instance = form.save(commit=False)
         instance.allowed_lang = ','.join(form.cleaned_data['allowed_lang'])
         instance.save()
+        if instance.contest_type == 0:
+            with transaction.atomic():
+                participants = {p.user_id: p for p in instance.contestparticipant_set.all()}
+                for sub in instance.submission_set.all():
+                    start = participants[sub.author_id].start_time(instance)
+                    end = start + instance.length
+                    if start <= sub.create_time <= end:
+                        sub.contest_time = sub.create_time - start
+                    else:
+                        sub.contest_time = None
+                    sub.save(update_fields=["contest_time"])
         return redirect(self.request.path)
 
 
@@ -153,23 +160,19 @@ class ContestProblemManage(PolygonContestMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if 'data' in request.GET:
-            problems = self.contest.contestproblem_set.select_related('problem').all()
+            problems = self.contest.contest_problem_list
             data = []
             SUB_FIELDS = ["title", "id", "alias"]
-            STATISTIC_FIELDS = [
-                ('ac1', get_problem_accept_count),
-                ('ac2', get_problem_accept_user_count),
-                ('tot1', get_problem_all_count),
-                ('tot2', get_problem_all_user_count),
-                ('ratio1', get_problem_accept_ratio),
-                ('ratio2', get_problem_accept_user_ratio),
-            ]
             for problem in problems:
                 d = {k: getattr(problem.problem, k) for k in SUB_FIELDS}
                 d.update(pid=problem.id, identifier=problem.identifier, weight=problem.weight)
-                d.update({k: v(problem.problem_id, self.contest.id) for k, v in STATISTIC_FIELDS})
+                d["user_ac"] = problem.ac_user_count
+                d["user_tot"] = problem.total_user_count
+                d["ac"] = problem.ac_count
+                d["tot"] = problem.total_count
+                d["user_ratio"] = problem.user_ratio
+                d["ratio"] = problem.ratio
                 data.append(d)
-            data.sort(key=lambda x: x['identifier'])
             return HttpResponse(json.dumps(data))
         return super(ContestProblemManage, self).get(request, *args, **kwargs)
 
@@ -585,3 +588,114 @@ class ContestParticipantFromActivity(PolygonContestMixin, View):
                         p.comment = participant.real_name
                         p.save(update_fields=['comment'])
         return redirect(reverse('polygon:contest_participant', kwargs={"pk": self.contest.id}))
+
+
+class ContestGhostRecordImport(PolygonContestMixin, FormView):
+    form_class = TestSysUploadForm
+    template_name = 'polygon/contest/ghost_import.jinja2'
+
+    def parse_line(self, line):
+        if line.startswith("@"):
+            try:
+                directive, content = re.split(r'\s+', line[1:], 1)
+                ret, cur = [], ''
+                quote_count = False
+                for i in range(len(content)):
+                    if content[i] == ',' and not quote_count:
+                        ret.append(cur.strip())
+                        cur = ''
+                    elif content[i] == '"':
+                        quote_count = not quote_count
+                    else:
+                        cur += content[i]
+                assert not quote_count
+                ret.append(cur.strip())
+                return (directive.lower(), ret)
+            except:
+                return None
+        return None
+
+    def form_valid(self, form):
+        line_counter = 0
+        verdict_map = {
+            "OK": SubmissionStatus.ACCEPTED,
+            "WA": SubmissionStatus.WRONG_ANSWER,
+            "RT": SubmissionStatus.RUNTIME_ERROR,
+            "TL": SubmissionStatus.TIME_LIMIT_EXCEEDED,
+            "ML": SubmissionStatus.MEMORY_LIMIT_EXCEEDED,
+            "CE": SubmissionStatus.COMPILE_ERROR,
+            "RJ": SubmissionStatus.REJECTED,
+        }
+        try:
+            participant_count = 0
+            team_name_map = dict()
+            team_id_map = dict()
+            submissions = []
+            for line in form.cleaned_data["testsys_log"].split("\n"):
+                line_counter += 1
+                parse_result = self.parse_line(line)
+                if parse_result is None:
+                    continue
+                directive, args = parse_result
+                print(directive, args)
+                if directive == "teams":
+                    participant_count = int(args[0])
+                    if participant_count >= 10000:
+                        raise Exception("队伍数量过多。")
+                elif directive == "t":
+                    team_number = args[0]
+                    if len(team_name_map) >= participant_count:
+                        raise Exception("队伍 %s 已经超出了场地容量 %d。" % (team_number, participant_count))
+                    if team_number in team_name_map:
+                        raise Exception("队伍 %s 重复注册了。")
+                    l = len(team_name_map) + 1
+                    team_name_map[team_number] = (args[3], l)
+                elif directive == "s":
+                    team_number = args[0]
+                    time_seconds = int(args[3])
+                    verdict = verdict_map[args[4]]
+                    if team_number not in team_name_map:
+                        raise Exception("队伍 %s 没有注册过。" % team_number)
+                    if not (0 <= time_seconds <= int(round(self.contest.length.total_seconds()))):
+                        raise Exception("提交时间 %d 不在范围内。" % time_seconds)
+                    candidate_problem_list = list(filter(lambda x: x.identifier == args[1], self.contest.contest_problem_list))
+                    if len(candidate_problem_list) != 1:
+                        raise Exception("'%s' 没找到或者找到了多个相应的题目。" % args[1])
+                    problem_id = candidate_problem_list[0].problem_id
+                    submit_time = self.contest.start_time + timedelta(seconds=time_seconds)
+                    submissions.append((team_number, problem_id, submit_time, verdict))
+
+            if len(team_name_map) != participant_count:
+                raise Exception("队伍信息与队伍数量不一致。")
+
+            if participant_count == 0 or len(submissions) == 0:
+                raise Exception("没有参赛者或没有提交。")
+
+            with transaction.atomic():
+                user_ids = list(User.objects.filter(username__icontains='ghost#').values_list("id", flat=True))
+                self.contest.contestparticipant_set.filter(user_id__in=user_ids).delete()
+                self.contest.submission_set.filter(author_id__in=user_ids).delete()
+                for team_name, team_id in team_name_map.values():
+                    user, _ = User.objects.get_or_create(username=self.get_ghost_username(team_id),
+                                                         email=self.get_ghost_username(team_id) + "@ghost.ecnu.edu.cn")
+                    user.set_unusable_password()
+                    user.save()
+                    team_id_map[team_id] = user.id
+                    self.contest.contestparticipant_set.create(user=user, comment=team_name)
+                for team_number, problem_id, submit_time, verdict in submissions:
+                    _, team_id = team_name_map[team_number]
+                    s = self.contest.submission_set.create(author_id=team_id_map[team_id],
+                                                           status=verdict, problem_id=problem_id,
+                                                           contest_time=submit_time - self.contest.start_time,
+                                                           lang=None, status_time=None,
+                                                           status_percent=100 if verdict == SubmissionStatus.ACCEPTED else 0)
+                    s.create_time = submit_time
+                    s.save(update_fields=["create_time"])
+
+            return redirect(reverse('polygon:contest_status', kwargs={'pk': self.contest.pk}))
+        except Exception as e:
+            messages.error(self.request, "在第 %d 行有错误：" % line_counter + str(e))
+            return redirect(self.request.path)
+
+    def get_ghost_username(self, num):
+        return "ghost#%04d" % num

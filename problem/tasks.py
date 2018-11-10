@@ -1,25 +1,20 @@
-import random
 from collections import Counter
-from datetime import datetime, timedelta
-from threading import Thread
-
-from django import db
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from datetime import datetime
 from os import path
+
+from django.conf import settings
 
 from account.models import User
 from account.payment import reward_problem_ac, reward_contest_ac
 from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
-from submission.models import Submission, SubmissionStatus
 from problem.statistics import invalidate_user
+from submission.models import Submission
+from submission.util import SubmissionStatus
 from utils.detail_formatter import response_fail_with_timestamp
-from utils.language import LANG_CHOICE
 from .models import Problem, SpecialProgram, ProblemRewardStatus
-from .statistics import get_problem_difficulty, invalidate_problem, get_problem_reward
+from .statistics import invalidate_problem
 
 
 def upload_problem_to_judge_server(problem, server):
@@ -40,13 +35,13 @@ def upload_problem_to_judge_server(problem, server):
 
 def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip=''):
     if not 6 <= len(code) <= 65536:
-        raise ValueError("Code is too short or too long.")
+        raise ValueError("代码太短或者太长了。")
     if author.submission_set.exists() and (
         datetime.now() - author.submission_set.first().create_time).total_seconds() < settings.SUBMISSION_INTERVAL_LIMIT:
-        raise ValueError("Please don't resubmit in 5 seconds.")
+        raise ValueError("请不要在五秒内重复提交。")
     if contest:
         if contest.submission_set.filter(author=author, problem_id=problem, code=code, lang=lang).exists():
-            raise ValueError("You have submitted exactly the same code before.")
+            raise ValueError("你以前交过完全一样的代码。")
     if isinstance(problem, (int, str)):
         return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
                                          status=status, ip=ip)
@@ -182,14 +177,13 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                     _, created = ProblemRewardStatus.objects.get_or_create(problem_id=submission.problem_id,
                                                                            user_id=submission.author_id)
                     if created:
-                        if submission.contest_id and submission.contest.contest_type == 0:
-                            reward_contest_ac(submission.author, 50, submission.contest_id)
+                        if submission.contest_time is not None:
+                            reward_contest_ac(submission.author, 4 * problem.level ** 2, submission.contest_id)
                         else:
-                            difficulty = get_problem_reward(submission.problem_id)
-                            reward_problem_ac(submission.author, difficulty, submission.problem_id)
+                            reward_problem_ac(submission.author, problem.reward, submission.problem_id)
 
                 invalidate_user(submission.author_id, submission.contest_id)
-                invalidate_problem(submission.problem_id, submission.contest_id)
+                invalidate_problem(submission.problem)
                 if callback:
                     callback()
                 return True

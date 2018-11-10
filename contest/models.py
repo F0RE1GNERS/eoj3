@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import shortuuid
 from django.core.validators import EmailValidator
@@ -37,8 +38,6 @@ class ContestManager(models.Manager):
             contest_list = contest_list.order_by("-pk").distinct()
         else:
             contest_list = contest_list.order_by("-start_time").distinct()
-            for contest in contest_list:
-                contest.length = contest.end_time - contest.start_time
         return contest_list
 
 
@@ -140,6 +139,16 @@ class Contest(models.Model):
         return 0
 
     @property
+    def finite(self):
+        return self.start_time is not None and self.end_time is not None
+
+    @property
+    def length(self):
+        if not self.finite:
+            return None
+        return self.end_time - self.start_time
+
+    @property
     def is_frozen(self):
         if self.freeze and self.freeze_time <= timezone.now() <= self.end_time:
             return True
@@ -197,9 +206,26 @@ class ContestProblem(models.Model):
     identifier = models.CharField(max_length=12)
     weight = models.IntegerField(default=100)
 
+    ac_user_count = models.PositiveIntegerField(default=0)
+    total_user_count = models.PositiveIntegerField(default=0)
+    ac_count = models.PositiveIntegerField(default=0)
+    total_count = models.PositiveIntegerField(default=0)
+    first_yes_time = models.DurationField(null=True, blank=True)
+    first_yes_by = models.PositiveIntegerField(null=True, blank=True)
+    max_score = models.FloatField(default=0)
+    avg_score = models.FloatField(default=0)
+
     class Meta:
         unique_together = ('problem', 'contest')
         ordering = ['identifier']
+
+    @property
+    def user_ratio(self):
+        return self.ac_user_count / self.total_user_count if self.total_user_count > 0 else 0.0
+
+    @property
+    def ratio(self):
+        return self.ac_count / self.total_count if self.total_count > 0 else 0.0
 
     def __str__(self):
         return self.identifier + '. ' + self.problem.title
@@ -234,6 +260,31 @@ class ContestParticipant(models.Model):
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     join_time = models.DateTimeField(blank=True, null=True) # default: join when contest begins
     is_confirmed = models.BooleanField(default=False)
+
+    def start_time(self, contest: Contest):
+        # the contest should be a cached contest
+        if self.join_time is None:
+            return contest.start_time
+        else:
+            return self.join_time
+
+    def end_time(self, contest: Contest):
+        st = self.start_time(contest)
+        if st is None or contest.end_time is None:
+            return contest.end_time
+        return st + (contest.end_time - contest.start_time)
+
+    def as_contest_time(self, contest: Contest, real_time):
+        return real_time - self.start_time(contest)
+
+    def status(self, contest: Contest):
+        start_time = self.start_time(contest)
+        end_time = self.end_time(contest)
+        if start_time is not None and datetime.now() < start_time:
+            return -1
+        if end_time is not None and datetime.now() > end_time:
+            return 1
+        return 0
 
     @property
     def detail(self):

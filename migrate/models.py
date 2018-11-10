@@ -1,5 +1,6 @@
 from django.db import models
-from submission.models import SubmissionStatus, STATUS_CHOICE
+from submission.models import STATUS_CHOICE
+from submission.util import SubmissionStatus, STATUS_CHOICE
 from utils.language import LANG_CHOICE
 
 

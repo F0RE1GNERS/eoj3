@@ -2,7 +2,7 @@ import re
 
 import datetime
 from django_jinja import library
-from submission.models import STATUS_CHOICE
+from submission.util import STATUS_CHOICE
 import utils.markdown3 as md3
 from bs4 import BeautifulSoup
 from utils.xss_filter import XssHtml
@@ -14,10 +14,15 @@ def status_choice(value):
 
 
 @library.filter(name='timedelta')
-def timedelta_format(value):
+def timedelta_format(value, full=False):
     days, seconds = value.days, value.seconds
     hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
+    minutes, seconds = divmod(seconds % 3600, 60)
+    if full:
+        if days == 0:
+            return "{:02}:{:02}:{:02}".format(hours, minutes, seconds)
+        else:
+            return "{}:{:02}:{:02}:{:02}".format(days, hours, minutes, seconds)
     if days == 0:
         return "{}:{:02}".format(hours, minutes)
     else:

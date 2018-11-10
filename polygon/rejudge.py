@@ -6,7 +6,7 @@ from contest.models import Contest
 from problem.models import Problem
 from contest.tasks import judge_submission_on_contest
 from problem.tasks import judge_submission_on_problem
-from submission.models import SubmissionStatus
+from submission.util import SubmissionStatus
 from time import sleep
 from threading import Thread
 

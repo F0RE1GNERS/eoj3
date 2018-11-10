@@ -235,7 +235,7 @@ def static_file_modify():
 @jinja2.contextfunction
 @library.render_with("components/username_display.jinja2")
 def username_display(context, user, *args, **kwargs):
-    legend = in_contest = False
+    legend = in_contest = ghost = False
     username = user.username
     if '#' in username:
         if username.endswith('old'):
@@ -245,11 +245,14 @@ def username_display(context, user, *args, **kwargs):
             pos = username.find('#')
             in_contest = username[1:pos]
             username = username[1:]
+        elif username.startswith("ghost"):
+            ghost = True
     return {
         'color': user.magic,
         'user_id': user.pk,
         'username': username,
         'legend': legend,
         'in_contest': in_contest,
+        'ghost': ghost,
         'additional_class': kwargs.pop('additional_class', '')
     }

@@ -10,7 +10,7 @@
 
   <div class="ui segment">
     <div class="ui simple dropdown top right attached label">
-      <i class="code icon"></i> {{ submission.get_lang_display() }}
+      <i class="code icon"></i> {% if submission.lang %}{{ submission.get_lang_display() }}{% endif %}
       <div class="menu">
         <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
 {#      {% if not submission.contest %}#}

@@ -20,7 +20,8 @@ from dispatcher.semaphore import Semaphore
 from polygon.rejudge import rejudge_submission_set
 from problem.models import Problem
 from problem.tasks import upload_problem_to_judge_server
-from submission.models import Submission, SubmissionStatus
+from submission.models import Submission
+from submission.util import SubmissionStatus
 from .forms import ServerEditForm, ServerUpdateTokenForm
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 

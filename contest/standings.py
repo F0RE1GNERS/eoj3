@@ -1,24 +1,22 @@
 import zipfile
 from collections import Counter
-
-from django.http import HttpResponse
-from django.shortcuts import render, HttpResponseRedirect, reverse
-from django.views.generic.list import ListView
-from django.views.generic import View
-from django.core.exceptions import PermissionDenied
-from django.views import static
 from os import path
 
-from problem.statistics import get_contest_problem_ac_submit
-from submission.models import SubmissionStatus
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+from django.shortcuts import HttpResponseRedirect, reverse
+from django.views.generic import View
+from django.views.generic.list import ListView
+
+from submission.util import SubmissionStatus
 from utils import random_string
-from utils.language import LANG_EXT
-from .models import ContestParticipant
-from .views import BaseContestMixin
-from .statistics import get_contest_rank, get_participant_rank, invalidate_contest, get_first_yes
 from utils.csv_writer import write_csv
 from utils.download import respond_generate_file
-from django.conf import settings
+from utils.language import LANG_EXT
+from .models import ContestParticipant
+from .statistics import get_contest_rank, invalidate_contest, calculate_problems
+from .views import BaseContestMixin
 
 
 class ContestStandings(BaseContestMixin, ListView):
@@ -45,6 +43,8 @@ class ContestStandings(BaseContestMixin, ListView):
         return super(ContestStandings, self).test_func()
 
     def get_queryset(self):
+        if self.virtual_progress is not None:
+            return get_contest_rank(self.contest, self.virtual_progress)
         return get_contest_rank(self.contest)
 
     def get_context_data(self, **kwargs):
@@ -53,15 +53,12 @@ class ContestStandings(BaseContestMixin, ListView):
                                 ContestParticipant.objects.filter(contest=self.contest).select_related('user').
                                     all()}
         for rank in data['rank_list']:
+            # convert user_id to actual user
             rank.update(user=contest_participants[rank['user']])
-        # print(data['rank_list'])
         if not self.contest.standings_without_problem:
-            data['statistics'] = {
-                'problem': get_contest_problem_ac_submit(list(map(lambda x: x.problem_id,
-                                                                  self.contest.contest_problem_list)),
-                                                         self.contest.pk),
-                'first_yes': get_first_yes(self.contest)
-            }
+            problems = self.contest.contest_problem_list # to make sure we get a cache
+            if self.virtual_progress is not None:
+                calculate_problems(self.contest, problems, self.virtual_progress)
         return data
 
 
@@ -69,7 +66,7 @@ class ContestUpdateStandings(BaseContestMixin, View):
     def get(self, request, cid):
         if not self.privileged:
             raise PermissionDenied
-        invalidate_contest(self.contest, sync=True)
+        invalidate_contest(self.contest)
         return HttpResponseRedirect(reverse('contest:standings', kwargs={'cid': cid}))
 
 
@@ -160,6 +157,7 @@ class ContestDownloadCode(BaseContestMixin, View):
 class ContestStandingsTestSys(BaseContestMixin, View):
 
     def get_line(self, label, *args):
+        # NOT ALLOWING " in the comment
         s = []
         for x in args:
             xstr = str(x)
@@ -201,12 +199,12 @@ class ContestStandingsTestSys(BaseContestMixin, View):
             SubmissionStatus.MEMORY_LIMIT_EXCEEDED: "ML",
             SubmissionStatus.COMPILE_ERROR: "CE",
         }
-        for s in self.contest.submission_set.order_by("create_time").all():
+        for s in self.contest.submission_set.exclude(contest_time__isnull=True).order_by("contest_time").all():
             if s.problem_id in available_prob_ids:
                 subs.append(self.get_line('s', team_mapper[s.author_id],
                                           self.contest.get_contest_problem(s.problem_id).identifier,
                                           sub_counter[(s.author_id, s.problem_id)] + 1,
-                                          max(int((s.create_time - self.contest.start_time).total_seconds()), 0),
+                                          max(int(s.contest_time.total_seconds()), 0),
                                           sub_verdict_converter[s.status] if s.status in sub_verdict_converter else "RJ"))
                 sub_counter[(s.author_id, s.problem_id)] += 1
         head.append(self.get_line("teams", len(teams)))

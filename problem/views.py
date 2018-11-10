@@ -1,15 +1,12 @@
-import json
 from collections import defaultdict
-from datetime import datetime, timedelta
+from os import path
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
-from django.conf import settings
-from django.db.models.functions import TruncDate
-from django.db.models.functions import TruncMonth
-from django.db.models.functions import TruncYear
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
@@ -17,34 +14,26 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.list import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from os import path
-
 from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
-from tagging.models import Tag, TaggedItem, ContentType
 from ipware.ip import get_ip
+from tagging.models import Tag, TaggedItem, ContentType
 
 from account.models import User, Payment
-from account.payment import download_case, view_report
+from account.payment import view_report
 from account.permissions import is_admin_or_root
 from dispatcher.models import Server
-from submission.models import Submission, SubmissionStatus, STATUS_CHOICE
-from submission.views import render_submission, render_submission_report
 from problem.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
+from submission.models import Submission
+from submission.util import SubmissionStatus, STATUS_CHOICE
+from submission.views import render_submission, render_submission_report
 from utils.comment import CommentForm
 from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
-from utils.pagination import EndlessListView
+from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
 from utils.site_settings import open_all_protocols
 from utils.tagging import edit_string_for_tags
 from .models import Problem, Skill, get_input_path, get_output_path, UserStatus
-from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
-from .statistics import (
-    get_many_problem_accept_count, get_problem_accept_count, get_problem_accept_ratio, get_problem_accept_user_count,
-    get_problem_accept_user_ratio, get_problem_all_count, get_problem_all_user_count, get_many_problem_difficulty,
-    get_problem_difficulty, get_problem_stats,
-    get_all_problem_difficulty, get_all_accept_count, get_all_tried_user_count)
 from .tasks import create_submission, judge_submission_on_problem
 
 
@@ -109,15 +98,11 @@ class ProblemList(ListView):
             if order_a == 'ascending': ret = ret.order_by('update_time')
             else: ret = ret.order_by('-update_time')
         elif order_c == 'rw':
-            if order_a == 'descending': reverse = True
-            else: reverse = False
-            all_reward = get_all_problem_difficulty()
-            ret = sorted(ret, key=lambda x: all_reward.get(x.id, 0.0), reverse=reverse)
+            if order_a == 'descending': ret = ret.order_by("-reward")
+            else: ret = ret.order_by("reward")
         elif order_c == 'sol':
-            if order_a == 'descending': reverse = True
-            else: reverse = False
-            all_solved, all_tried = get_all_accept_count(), get_all_tried_user_count()
-            ret = sorted(ret, key=lambda x: (all_solved.get(x.id, 0), -all_tried.get(x.id, 0)), reverse=reverse)
+            if order_a == 'descending': ret = ret.order_by("-ac_user_count")
+            else: ret = ret.order_by("ac_user_count")
         elif order_c == 'she' and self.comparing:
             if order_a == 'ascending': reverse = False
             else: reverse = True
@@ -179,11 +164,6 @@ class ProblemList(ListView):
 
         # Get Accepted of all users
         problem_ids = list(map(lambda x: x.id, data['problem_list']))
-        accept_count = get_many_problem_accept_count(problem_ids)
-        difficulties = get_many_problem_difficulty(problem_ids)
-        for problem in data['problem_list']:
-            problem.accept_count = accept_count[problem.id]
-            problem.difficulty = difficulties[problem.id]
 
         # Get tags
         tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
@@ -261,12 +241,12 @@ class ProblemView(ProblemDetailMixin, TemplateView):
 
     def get_stats(self):
         data = {
-            'user_ac_count': get_problem_accept_user_count(self.problem.id),
-            'user_all_count': get_problem_all_user_count(self.problem.id),
-            'ac_count': get_problem_accept_count(self.problem.id),
-            'all_count': get_problem_all_count(self.problem.id),
-            'difficulty': get_problem_difficulty(self.problem.id),
-            'stats': get_problem_stats(self.problem.id),
+            'user_ac_count': self.problem.ac_user_count,
+            'user_all_count': self.problem.total_user_count,
+            'ac_count': self.problem.ac_count,
+            'all_count': self.problem.total_count,
+            'difficulty': self.problem.reward,
+            'stats': self.problem.stats,
         }
         try:
             last_sub_time = self.problem.submission_set.first().create_time
@@ -337,12 +317,15 @@ class StatusList(ListView):
     def reinterpret_problem_identifier(self, value):
         return value
 
+    def get_ordering(self):
+        return "-create_time"
+
     def get_queryset(self):
         try:
             queryset = self.get_selected_from().select_related('problem', 'author'). \
                 only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
                      'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-                     'code_length', 'ip', 'cheat_tag', 'status_test', 'judge_server')
+                     'code_length', 'ip', 'cheat_tag', 'status_test', 'judge_server', 'contest_time')
             if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
                 queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
@@ -354,6 +337,12 @@ class StatusList(ListView):
                 queryset = queryset.filter(lang=self.request.GET['lang'])
             if self.allow_verdict_query and 'verdict' in self.request.GET:
                 queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
+
+            ordering = self.get_ordering()
+            if ordering is not None:
+                if isinstance(ordering, str):
+                    ordering = (ordering,)
+                queryset = queryset.order_by(*ordering)
 
             if self.distinct_by_author:
                 author_set = set()
@@ -407,9 +396,10 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
             return self.problem.submission_set.filter(status=SubmissionStatus.ACCEPTED).order_by("-create_time")
 
     def get_runtime_distribution(self):
+        exclude_q = Q(code_length__isnull=True) | Q(status_time__isnull=True)
         self.ctx["runtime_data"] = self.problem.submission_set.only("lang", "code_length", "status_time", "author_id",
                                                                     "contest_id", "problem_id")\
-            .filter(status=SubmissionStatus.ACCEPTED)
+            .filter(status=SubmissionStatus.ACCEPTED).exclude(exclude_q)
         if self.request.user.is_authenticated:
             for s in self.ctx["runtime_data"]:
                 s.mine = s.author_id == self.request.user.pk
@@ -427,14 +417,14 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
         for s in data['submission_list']:
             s.judge_server = judge_servers.get(s.judge_server, "N/A")
 
-        data['user_ac_count'] = get_problem_accept_user_count(self.problem.id)
-        data['user_all_count'] = get_problem_all_user_count(self.problem.id)
-        data['user_ratio'] = get_problem_accept_user_ratio(self.problem.id) * 100
-        data['ac_count'] = get_problem_accept_count(self.problem.id)
-        data['all_count'] = get_problem_all_count(self.problem.id)
-        data['ratio'] = get_problem_accept_ratio(self.problem.id) * 100
-        data['difficulty'] = get_problem_difficulty(self.problem.id)
-        data['stats'] = get_problem_stats(self.problem.id)
+        data['user_ac_count'] = self.problem.ac_user_count
+        data['user_all_count'] = self.problem.total_user_count
+        data['user_ratio'] = self.problem.ac_user_ratio * 100
+        data['ac_count'] = self.problem.ac_count
+        data['all_count'] = self.problem.total_count
+        data['ratio'] = self.problem.ac_ratio * 100
+        data['difficulty'] = self.problem.reward
+        data['stats'] = self.problem.stats
         data['param_type'] = self.request.GET.get('type', 'latest')
         data['tags'] = edit_string_for_tags(self.problem.tags)
         data['tags_choices'] = Tag.objects.all().values_list("name", flat=True)
@@ -585,7 +575,7 @@ def make_payment_for_full_report(request):
                 raise PermissionDenied("This submission does not belong to you.")
             if submission.contest_id and not submission.contest.case_public:
                 raise PermissionDenied("Case is not public in this contest.")
-        price = 9.9 if submission.contest_id else get_problem_difficulty(submission.problem_id)
+        price = 9.9 if submission.contest_id else submission.problem.reward
         if not path.exists(path.join(settings.GENERATE_DIR, 'submission-%d' % submission.pk)):
             raise PermissionDenied("Case report is not available. Resubmit if necessary.")
         if request.method == 'POST':

@@ -14,7 +14,7 @@ from blog.models import Blog
 from contest.models import ContestUserRating
 from contest.statistics import get_participant_rank
 from problem.statistics import get_accept_problem_count
-from submission.models import SubmissionStatus
+from submission.util import SubmissionStatus
 
 
 class ProfileView(TemplateView):
@@ -30,7 +30,7 @@ class ProfileView(TemplateView):
                                                                                 star=False). \
                    order_by("-contest__start_time")[:5]
         for cp in ret:
-            if not cp.star:
+            if not cp.star and cp.end_time(cp.contest) < datetime.now():
                 cp.rank = get_participant_rank(cp.contest, self.user.id)
         return ret
 

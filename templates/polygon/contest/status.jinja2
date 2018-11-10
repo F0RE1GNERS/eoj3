@@ -3,10 +3,14 @@
 
 {% block contest_content %}
 
-  {% if contest.run_tests_during_contest != "all" %}
-    <p><a class="ui primary button post prompt" data-link="{{ url('polygon:contest_system_test', contest.pk) }}">Run System Tests</a></p>
-  {% endif %}
-
   {{ status(rejudge=True, show_ip=True) }}
+
+  <h3 class="ui dividing header">导入提交记录</h3>
+  <p><a class="ui primary button" href="{{ url('polygon:ghost_import', contest.pk) }}">导入 TestSys 格式的比赛记录</a></p>
+
+  {% if contest.run_tests_during_contest != "all" %}
+    <h3 class="ui dividing header">当心！</h3>
+    <p><a class="ui primary button post prompt" data-link="{{ url('polygon:contest_system_test', contest.pk) }}">开始系统测试（重测所有提交）</a></p>
+  {% endif %}
 
 {% endblock %}

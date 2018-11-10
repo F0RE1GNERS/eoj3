@@ -14,7 +14,7 @@ from dispatcher.models import Server
 from django.conf import settings
 from problem.models import Problem
 from migrate.models import OldSubmission
-from submission.models import SubmissionStatus
+from submission.util import SubmissionStatus
 from utils.url_formatter import upload_linker, judge_linker
 
 

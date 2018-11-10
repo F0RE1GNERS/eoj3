@@ -156,7 +156,7 @@
           <td><a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}</a>
           </td>
           <td>{{ submission.create_time | naturaltime }}</td>
-          <td>{{ submission.get_lang_display() }}</td>
+          <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
           <td>{{ submission.status_time | round(3) }}</td>
         </tr>
       {% endfor %}

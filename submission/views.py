@@ -21,7 +21,8 @@ from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
 from dispatcher.models import Server
 from utils.permission import get_permission_for_submission
-from .models import Submission, SubmissionStatus
+from .models import Submission
+from submission.util import SubmissionStatus
 
 
 @login_required

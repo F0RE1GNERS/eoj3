@@ -30,7 +30,7 @@
         <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
       {% endif %}
     {% endif %}
-      <td>{{ submission.get_lang_display() }}</td>
+      <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
       <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
       <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
       <td><h5 class="ui header status-span with-icon" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}"></h5></td>
@@ -74,7 +74,7 @@
       <div class="header">
         是否需要帮助？
       </div>
-      <p>用 EMB 购买完成的评测报告。</p>
+      <p>用 EMB 购买完整的评测报告。</p>
     </div>
   </a>
 {% endif %}

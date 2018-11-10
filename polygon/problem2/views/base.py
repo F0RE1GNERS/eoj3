@@ -108,7 +108,8 @@ class ProblemCreate(PolygonBaseMixin, View):
             problem.save(update_fields=['title', 'alias'])
         problem.memory_limit = 512  # UPD: default memory limit has been raised to 512 MB
         problem.alias = alias
-        problem.save(update_fields=['memory_limit', 'alias'])
+        problem.level = 1
+        problem.save(update_fields=['memory_limit', 'alias', 'level'])
         problem.managers.add(request.user)
         revision = Revision.objects.create(problem=problem,
                                            user=self.request.user,

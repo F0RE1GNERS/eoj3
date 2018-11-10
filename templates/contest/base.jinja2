@@ -61,9 +61,9 @@
         {% else %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              {% if contest.status == 0 %}
+              {% if participate_contest_status == 0 %}
                 进行中
-              {% elif contest.status == -1 %}
+              {% elif participate_contest_status == -1 %}
                 尚未开始
               {% else %}
                 已结束
@@ -71,7 +71,7 @@
             </div>
           </div>
           <div class="ui segment">
-            <div class="ui blue progress" data-status="{{ contest.status }}">
+            <div class="ui blue progress" data-status="{{ participate_contest_status }}">
               <div class="bar"></div>
               {% if time_remaining %}
               <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
@@ -100,7 +100,7 @@
             </div>
           </div>
 
-          {% if contest.status == 0 and contest.scoring_method != 'acm' %}
+          {% if participate_contest_status == 0 and contest.scoring_method != 'acm' %}
             <div class="ui segments">
               <div class="ui segment">
                 <h3 class="ui center aligned header">计分</h3>

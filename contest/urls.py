@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestGymList, \
-    ContestPublicToggleRegister, ContestRatings, ContestStatements
+    ContestPublicToggleRegister, ContestRatings, ContestStatements, ContestVirtualParticipantJoin
 from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon,\
     ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim, \
     ContestStatusForAll, ContestBalloonClaim, ContestBalloonCancel
@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
     url(r'^(?P<cid>\d+)/report/testsys/$', ContestStandingsTestSys.as_view(), name='report_testsys'),
     url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
+    url(r'^(?P<cid>\d+)/virtual/$', ContestVirtualParticipantJoin.as_view(), name='vp_join'),
 
     url(r'^activity/$', ActivityList.as_view(), name='activity_list'),
     url(r'^activity/add/$', ActivityAddView.as_view(), name='activity_add'),
