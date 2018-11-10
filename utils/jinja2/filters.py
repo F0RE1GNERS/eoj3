@@ -96,7 +96,10 @@ def xss_filter(value):
 
 @library.filter(name='naturalduration')
 def natural_duration(value, abbr=True):
-    DAY, HOUR, MINUTE, SECOND = ' 天', ' 小时', ' 分钟', ' 秒'
+    if not abbr:
+        DAY, HOUR, MINUTE, SECOND = ' 天', ' 小时', ' 分钟', ' 秒'
+    else:
+        DAY, HOUR, MINUTE, SECOND = 'd.', 'h.', 'm.', 's.'
     if isinstance(value, datetime.timedelta):
         if value.days > 0:
             if round(value.seconds / 3600) > 0:
