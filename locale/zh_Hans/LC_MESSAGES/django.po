@@ -1,18 +1,7 @@
-# This file is distributed under the same license as the Django package.
-#
-# Translators:
-# Jannis Leidel <jannis@leidel.info>, 2011
-# Jonas Obrist <ojiidotch@gmail.com>, 2012
-# Shinya Okano <tokibito@gmail.com>, 2012-2014,2018
 msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-17 11:49+0200\n"
-"PO-Revision-Date: 2018-05-23 03:33+0000\n"
-"Last-Translator: Shinya Okano <tokibito@gmail.com>\n"
-"Language-Team: Japanese (http://www.transifex.com/django/django/language/"
-"zh_Hans/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,7 +9,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "Humanize"
-msgstr "ヒューマナイズ"
+msgstr "人性化"
 
 #. Translators: Ordinal format for 11 (11th), 12 (12th), and 13 (13th).
 msgctxt "ordinal 11, 12, 13"
@@ -183,7 +172,7 @@ msgstr[0] "%d 周"
 msgctxt "naturaltime-past"
 msgid "%d day"
 msgid_plural "%d days"
-msgstr[0] "%d 日"
+msgstr[0] "%d 天"
 
 #, python-format
 msgctxt "naturaltime-past"
@@ -251,7 +240,7 @@ msgstr[0] "%d 周"
 msgctxt "naturaltime-future"
 msgid "%d day"
 msgid_plural "%d days"
-msgstr[0] "%d 日"
+msgstr[0] "%d 天"
 
 #, python-format
 msgctxt "naturaltime-future"
