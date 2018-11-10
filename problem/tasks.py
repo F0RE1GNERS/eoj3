@@ -177,8 +177,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
                     _, created = ProblemRewardStatus.objects.get_or_create(problem_id=submission.problem_id,
                                                                            user_id=submission.author_id)
                     if created:
-                        if submission.contest_id and submission.contest.contest_type == 0:
-                            reward_contest_ac(submission.author, 50, submission.contest_id)
+                        if submission.contest_time is not None:
+                            reward_contest_ac(submission.author, 4 * problem.level ** 2, submission.contest_id)
                         else:
                             reward_problem_ac(submission.author, problem.reward, submission.problem_id)
 
