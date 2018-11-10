@@ -32,9 +32,9 @@ from .views import BaseContestMixin
 class ContestSubmit(BaseContestMixin, View):
     def post(self, request, cid, pid):
         try:
-            if self.contest.status < 0 and not self.privileged:  # pending contest
+            if self.participate_contest_status < 0 and not self.privileged:  # pending contest
                 raise ValueError("比赛尚未开始。")
-            if self.contest.run_tests_during_contest != 'all' and self.contest.status != 0 and \
+            if self.contest.run_tests_during_contest != 'all' and self.participate_contest_status != 0 and \
                     not self.contest.system_tested and not self.privileged:  # pending result
                 raise ValueError("比赛仍在等待系统测试。")
             lang = request.POST.get('lang', '')
@@ -148,13 +148,13 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                   self.contest) or self.request.user == submission.author:
                 authorized = True
             if not authorized and self.contest.allow_code_share > 0:  # start to share
-                if self.contest.status > 0 and self.contest.allow_code_share >= 2:
+                if self.participate_contest_status > 0 and self.contest.allow_code_share >= 2:
                     authorized = True
                 if self.request.user.submission_set.filter(problem_id=submission.problem_id,
                                                            status=SubmissionStatus.ACCEPTED).exists() and (
-                                self.contest.status > 0 or self.contest.allow_code_share >= 3):
+                                self.participate_contest_status > 0 or self.contest.allow_code_share >= 3):
                     authorized = True
-        if self.contest.status > 0 and self.request.user.is_authenticated and self.request.user.has_coach_access():
+        if self.participate_contest_status > 0 and self.request.user.is_authenticated and self.request.user.has_coach_access():
             authorized = True
         if authorized:
             permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
@@ -163,7 +163,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
                                                          permission=permission,
                                                          show_percent=data['show_percent'])
             if permission == 2 or (self.request.user == submission.author and submission.report_paid) or \
-                    (self.contest.status > 0 and self.request.user.has_coach_access()) or self.contest.case_public >= 2:
+                    (self.participate_contest_status > 0 and self.request.user.has_coach_access()) or self.contest.case_public >= 2:
                 data['report_block'] = render_submission_report(submission.pk)
             else:
                 data['report_block'] = ''
@@ -248,7 +248,7 @@ class ContestMyStatus(ContestStatus):
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
-        if not self.contest.contest_type == 1 and self.contest.status == 0 and not self.privileged:
+        if not self.contest.contest_type == 1 and self.participate_contest_status == 0 and not self.privileged:
             return self.contest.submission_set.filter(author=self.user).all()
         else:
             return self.user.submission_set.filter(
