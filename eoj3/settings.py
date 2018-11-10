@@ -246,18 +246,18 @@ SESSION_CACHE_ALIAS = "default"
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
 LANGUAGES = (
-    ('en', 'English'),
-    ('zh-hans', '中文简体'),
+    ('zh-Hans', '中文简体'),
+    ('en', 'English')
 )
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
-USE_I18N = False
+USE_I18N = True
 
 
 # Static files (CSS, JavaScript, Images)
