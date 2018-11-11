@@ -28,7 +28,7 @@
         <a class="active item">主页</a>
         <a class="item" href="{{ url('contest:list') }}">{{ _('Contests') }}</a>
         <a class="item" href="{{ url('problem:list') }}">{{ _('Problems') }}</a>
-        <a class="item" href="{{ url('contest:gym') }}">{{ _('Homework') }}</a>
+        <a class="item" href="{{ url('contest:gym') }}">{{ _('Gym') }}</a>
         <div class="right item">
           {% if request.user.is_authenticated %}
           <a class="ui inverted button" href="{{ url('logout') }}?next={{ request.path }}">{{ _('Logout') }}</a>

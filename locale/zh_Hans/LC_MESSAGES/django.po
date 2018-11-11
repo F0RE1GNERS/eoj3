@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-11 19:19+0800\n"
+"POT-Creation-Date: 2018-11-11 19:45+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,7 +211,7 @@ msgstr "更改用户名"
 msgid "Download Case"
 msgstr "下载数据"
 
-#: account/models.py:105
+#: account/models.py:105 templates/problem/index.jinja2:19
 msgid "Reward"
 msgstr "奖励"
 
@@ -257,23 +257,23 @@ msgstr "题目描述"
 
 #: problem/models.py:33
 msgid "Input"
-msgstr ""
+msgstr "输入"
 
 #: problem/models.py:34
 msgid "Output"
-msgstr ""
+msgstr "输出"
 
 #: problem/models.py:35
 msgid "Sample"
-msgstr ""
+msgstr "样例"
 
 #: problem/models.py:36
 msgid "Hint"
-msgstr ""
+msgstr "提示"
 
 #: problem/models.py:37
 msgid "Source"
-msgstr ""
+msgstr "来源"
 
 #: problem/models.py:38
 msgid "Judge indicator"
@@ -382,13 +382,15 @@ msgid "Contests"
 msgstr "竞赛"
 
 #: templates/components/navbar.jinja2:38 templates/components/navbar.jinja2:51
-#: templates/home.jinja2:30
+#: templates/home.jinja2:30 templates/problem/base.jinja2:3
+#: templates/problem/index.jinja2:3
 msgid "Problems"
 msgstr "题目集"
 
 #: templates/components/navbar.jinja2:39 templates/components/navbar.jinja2:52
-#: templates/home.jinja2:31
-msgid "Homework"
+#: templates/contest/contest_gym_list.jinja2:3
+#: templates/contest/contest_gym_list.jinja2:5 templates/home.jinja2:31
+msgid "Gym"
 msgstr "作业"
 
 #: templates/components/navbar.jinja2:57
@@ -410,13 +412,61 @@ msgstr "目前在 %(school)s 学习 / 工作。"
 msgid "%(num)d problems solved."
 msgstr "已解出 %(num)d 道题目。"
 
-#: templates/contest/contest_list.jinja2:12
+#: templates/contest/contest_gym_list.jinja2:12
+#: templates/contest/contest_list.jinja2:12 templates/problem/index.jinja2:18
 msgid "Name"
 msgstr "标题"
 
+#: templates/contest/contest_gym_list.jinja2:13
+msgid "Instructors"
+msgstr "教师"
+
+#: templates/contest/contest_gym_list.jinja2:14
 #: templates/contest/contest_list.jinja2:13
 msgid "Start"
 msgstr "开始"
+
+#: templates/contest/contest_gym_list.jinja2:15
+msgid "End"
+msgstr "截止"
+
+#: templates/contest/contest_gym_list.jinja2:16
+#: templates/contest/contest_list.jinja2:17
+msgid "Status"
+msgstr "状态"
+
+#: templates/contest/contest_gym_list.jinja2:17
+#: templates/contest/contest_list.jinja2:16
+msgid "Public"
+msgstr "公开"
+
+#: templates/contest/contest_gym_list.jinja2:18
+msgid "Participants"
+msgstr "学生"
+
+#: templates/contest/contest_gym_list.jinja2:31
+msgid "Always running"
+msgstr "一直开放"
+
+#: templates/contest/contest_gym_list.jinja2:38
+#: templates/contest/contest_list.jinja2:39
+msgid "Running"
+msgstr "进行中"
+
+#: templates/contest/contest_gym_list.jinja2:41
+#: templates/contest/contest_list.jinja2:42 templates/home.jinja2:37
+msgid "Register"
+msgstr "注册"
+
+#: templates/contest/contest_gym_list.jinja2:43
+#: templates/contest/contest_list.jinja2:44
+msgid "Pending"
+msgstr "尚未开始"
+
+#: templates/contest/contest_gym_list.jinja2:46
+#: templates/contest/contest_list.jinja2:47
+msgid "Ended"
+msgstr "已结束"
 
 #: templates/contest/contest_list.jinja2:14
 msgid "Length"
@@ -425,14 +475,6 @@ msgstr "时长"
 #: templates/contest/contest_list.jinja2:15
 msgid "Writers"
 msgstr "命题"
-
-#: templates/contest/contest_list.jinja2:16
-msgid "Public"
-msgstr "公开"
-
-#: templates/contest/contest_list.jinja2:17
-msgid "Status"
-msgstr "状态"
 
 #: templates/contest/contest_list.jinja2:18
 msgid "Standings"
@@ -445,22 +487,6 @@ msgstr "题目赛后公开"
 #: templates/contest/contest_list.jinja2:34
 msgid "Virtual participate after contest"
 msgstr "赛后虚拟参赛"
-
-#: templates/contest/contest_list.jinja2:39
-msgid "Running"
-msgstr "进行中"
-
-#: templates/contest/contest_list.jinja2:42 templates/home.jinja2:37
-msgid "Register"
-msgstr "注册"
-
-#: templates/contest/contest_list.jinja2:44
-msgid "Pending"
-msgstr "尚未开始"
-
-#: templates/contest/contest_list.jinja2:47
-msgid "Ended"
-msgstr "已结束"
 
 #: templates/home_logged_in.jinja2:22
 msgid "News feed is currently unavailable."
@@ -502,6 +528,51 @@ msgstr "更多"
 msgid "Forget password"
 msgstr "忘记密码"
 
+#: templates/problem/base.jinja2:8
+msgid "PROBLEMSET"
+msgstr "题目集"
+
+#: templates/problem/base.jinja2:9
+msgid "SOURCE"
+msgstr "题目来源"
+
+#: templates/problem/base.jinja2:10
+msgid "MILLIONAIRE"
+msgstr "大富翁"
+
+#: templates/problem/base.jinja2:11
+msgid "STATUS"
+msgstr "评测状态"
+
+#: templates/problem/index.jinja2:10
+#, python-format
+msgid "Your are currently comparing with %(user)s"
+msgstr "你正在与 %(user)s 比较"
+
+#: templates/problem/index.jinja2:20
+msgid "Solved"
+msgstr "通过人数"
+
+#: templates/problem/index.jinja2:21
+msgid "He/She"
+msgstr "TA"
+
+#: templates/problem/index.jinja2:62
+msgid "Tags"
+msgstr "标签"
+
+#: templates/problem/index.jinja2:71
+msgid "Recent unsolved"
+msgstr "最近未通过"
+
+#: templates/problem/index.jinja2:83
+msgid "Sub."
+msgstr "提交"
+
+#: templates/problem/index.jinja2:95
+msgid "Compare with"
+msgstr "与用户比较"
+
 #: utils/auth_view.py:129
 msgid "Logged out"
 msgstr "已注销"
@@ -542,3 +613,6 @@ msgstr ""
 #, python-format
 msgid "Invalid page (%(page_number)s): %(message)s"
 msgstr ""
+
+#~ msgid "Homework"
+#~ msgstr "作业"

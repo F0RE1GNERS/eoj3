@@ -36,7 +36,7 @@
         <a class="item" href="{{ url('home') }}">{{ _('Home') }}</a>
         <a class="item" href="{{ url('contest:list') }}">{{ _('Contests') }}</a>
         <a class="item" href="{{ url('problem:list') }}">{{ _('Problems') }}</a>
-        <a class="item" href="{{ url('contest:gym') }}">{{ _('Homework') }}</a>
+        <a class="item" href="{{ url('contest:gym') }}">{{ _('Gym') }}</a>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
     <a class="{{ active('home') }} item" href="{{ url('home') }}"><i class="home icon"></i>{{ _('Home') }}</a>
     <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i>{{ _('Contests') }}</a>
     <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i>{{ _('Problems') }}</a>
-    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>{{ _('Homework') }}</a>
+    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>{{ _('Gym') }}</a>
 
     <div class="right menu">
       <div class="ui category search item massive-search">
