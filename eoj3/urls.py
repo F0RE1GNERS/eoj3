@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^paste/$', PasteView.as_view(), name='pastebin'),
     url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
+    url(r'i18n/', include('django.conf.urls.i18n'))
 ]
 
 urlpatterns += [

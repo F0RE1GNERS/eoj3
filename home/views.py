@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django_comments_xtd.models import XtdComment
+from django.utils import translation
 
 from account.models import User
 from account.permissions import StaffRequiredMixin
@@ -13,6 +14,7 @@ from blog.models import Blog
 from problem.statistics import get_accept_problem_count
 from utils.hash import sha_hash
 from utils.site_settings import is_site_closed, site_settings_get
+from eoj3 import settings
 
 
 def home_view(request):
@@ -20,7 +22,9 @@ def home_view(request):
         ctx = {'solved': get_accept_problem_count(request.user.pk),
                'bulletin': site_settings_get('BULLETIN', ''),
                'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
-               'update_log': UpdateLog.objects.all().order_by("-pk")[:10]}
+               'update_log': UpdateLog.objects.all().order_by("-pk")[:10],
+               'languages': [(k, translation.gettext(v)) for k, v in settings.LANGUAGES],
+               }
         if not is_site_closed(request):
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
