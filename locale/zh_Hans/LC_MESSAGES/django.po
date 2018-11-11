@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-11 14:19+0800\n"
+"POT-Creation-Date: 2018-11-11 19:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -376,7 +376,8 @@ msgid "Home"
 msgstr "主页"
 
 #: templates/components/navbar.jinja2:37 templates/components/navbar.jinja2:50
-#: templates/home.jinja2:29
+#: templates/contest/contest_list.jinja2:3
+#: templates/contest/contest_list.jinja2:5 templates/home.jinja2:29
 msgid "Contests"
 msgstr "竞赛"
 
@@ -394,9 +395,108 @@ msgstr "作业"
 msgid "Search..."
 msgstr "搜索..."
 
-#: templates/home.jinja2:37
+#: templates/components/profile_card.jinja2:12
+#, python-format
+msgid "Joined in %(time)s"
+msgstr "于 %(time)s 注册"
+
+#: templates/components/profile_card.jinja2:16
+#, python-format
+msgid "Currently working/studying at %(school)s."
+msgstr "目前在 %(school)s 学习 / 工作。"
+
+#: templates/components/profile_card.jinja2:21
+#, python-format
+msgid "%(num)d problems solved."
+msgstr "已解出 %(num)d 道题目。"
+
+#: templates/contest/contest_list.jinja2:12
+msgid "Name"
+msgstr "标题"
+
+#: templates/contest/contest_list.jinja2:13
+msgid "Start"
+msgstr "开始"
+
+#: templates/contest/contest_list.jinja2:14
+msgid "Length"
+msgstr "时长"
+
+#: templates/contest/contest_list.jinja2:15
+msgid "Writers"
+msgstr "命题"
+
+#: templates/contest/contest_list.jinja2:16
+msgid "Public"
+msgstr "公开"
+
+#: templates/contest/contest_list.jinja2:17
+msgid "Status"
+msgstr "状态"
+
+#: templates/contest/contest_list.jinja2:18
+msgid "Standings"
+msgstr "榜单"
+
+#: templates/contest/contest_list.jinja2:33
+msgid "Open after contest"
+msgstr "题目赛后公开"
+
+#: templates/contest/contest_list.jinja2:34
+msgid "Virtual participate after contest"
+msgstr "赛后虚拟参赛"
+
+#: templates/contest/contest_list.jinja2:39
+msgid "Running"
+msgstr "进行中"
+
+#: templates/contest/contest_list.jinja2:42 templates/home.jinja2:37
 msgid "Register"
 msgstr "注册"
+
+#: templates/contest/contest_list.jinja2:44
+msgid "Pending"
+msgstr "尚未开始"
+
+#: templates/contest/contest_list.jinja2:47
+msgid "Ended"
+msgstr "已结束"
+
+#: templates/home_logged_in.jinja2:22
+msgid "News feed is currently unavailable."
+msgstr "推送当前不可用。"
+
+#: templates/home_logged_in.jinja2:30
+msgid "Bulletin"
+msgstr "公告牌"
+
+#: templates/home_logged_in.jinja2:39
+msgid "Top-Rated Users"
+msgstr "牛逼网友"
+
+#: templates/home_logged_in.jinja2:45
+msgid "Username"
+msgstr "用户名"
+
+#: templates/home_logged_in.jinja2:46
+msgid "Rating"
+msgstr "积分"
+
+#: templates/home_logged_in.jinja2:61
+msgid "See full list here"
+msgstr "查看所有用户"
+
+#: templates/home_logged_in.jinja2:71
+msgid "Recent Actions"
+msgstr "最新评论"
+
+#: templates/home_logged_in.jinja2:98
+msgid "Update Log"
+msgstr "更新日志"
+
+#: templates/home_logged_in.jinja2:118
+msgid "More"
+msgstr "更多"
 
 #: templates/login.jinja2:8
 msgid "Forget password"
