@@ -1,8 +1,8 @@
 {% macro problem_view(title, contest) %}
   <div class="problem-header">
     <div class="property">
-      <p><strong>单测试点时限: </strong>{{ problem.time_limit / 1000 }} 秒</p>
-      <p><strong>内存限制: </strong>{{ problem.memory_limit }} MB</p>
+      <p><strong>{{ _('Time limit per test:') }} </strong>{{ problem.time_limit / 1000 }} 秒</p>
+      <p><strong>{{ _('Memory limit:') }} </strong>{{ problem.memory_limit }} MB</p>
     </div>
   </div>
 
@@ -15,34 +15,34 @@
     {% endif %}
     {% if not problem.interactor or (problem.input and problem.output) %}
       {% if problem.input %}
-        <h3 class="title">输入</h3>
+        <h3 class="title">{{ _('Input') }}</h3>
         {{ problem.input | markdown | safer | safe }}
       {% endif %}
       {% if problem.output %}
-        <h3 class="title">输出</h3>
+        <h3 class="title">{{ _('Output') }}</h3>
         {{ problem.output | markdown | safer | safe }}
       {% endif %}
     {% else %}
       {% if problem.input %}
-        <h3 class="title">交互流程</h3>
+        <h3 class="title">{{ _('Interaction') }}</h3>
         {{ problem.input | markdown | safer | safe }}
       {% endif %}
       {% if problem.output %}
-        <h3 class="title">交互流程</h3>
+        <h3 class="title">{{ _('Interaction') }}</h3>
         {{ problem.output | markdown | safer | safe }}
       {% endif %}
     {% endif %}
     {% if problem.sample %}
       <div class="passage examples">
-        <h3 class="title">样例</h3>
+        <h3 class="title">{{ _('Examples') }}</h3>
         {% for input, output in problem.sample_display %}
           <div class="example">
             <div class="input">
-              <div class="title">Input</div>
+              <div class="title">{{ _('Input') }}</div>
               <pre class="sample-content" data-tooltip="Click to copy" data-inverted="">{{ input }}</pre>
             </div>
             <div class="output">
-              <div class="title">Output</div>
+              <div class="title">{{ _('Output') }}</div>
               <pre class="sample-content" data-tooltip="Click to copy" data-inverted="">{{ output }}</pre>
             </div>
           </div>
@@ -50,7 +50,7 @@
       </div>
     {% endif %}
     {% if problem.hint %}
-      <h3 class="title">提示</h3>
+      <h3 class="title">{{ _('Note') }}</h3>
       {{ problem.hint | markdown | safer | safe }}
     {% endif %}
   </div>

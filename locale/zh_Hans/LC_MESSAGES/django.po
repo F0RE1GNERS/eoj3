@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-11 19:45+0800\n"
+"POT-Creation-Date: 2018-11-11 20:18+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -255,11 +255,13 @@ msgstr "别名"
 msgid "Description"
 msgstr "题目描述"
 
-#: problem/models.py:33
+#: problem/models.py:33 templates/components/problem.jinja2:18
+#: templates/components/problem.jinja2:41
 msgid "Input"
 msgstr "输入"
 
-#: problem/models.py:34
+#: problem/models.py:34 templates/components/problem.jinja2:22
+#: templates/components/problem.jinja2:45
 msgid "Output"
 msgstr "输出"
 
@@ -271,7 +273,7 @@ msgstr "样例"
 msgid "Hint"
 msgstr "提示"
 
-#: problem/models.py:37
+#: problem/models.py:37 templates/problem/detail/problem.jinja2:31
 msgid "Source"
 msgstr "来源"
 
@@ -396,6 +398,27 @@ msgstr "作业"
 #: templates/components/navbar.jinja2:57
 msgid "Search..."
 msgstr "搜索..."
+
+#: templates/components/problem.jinja2:4
+msgid "Time limit per test:"
+msgstr "单测试点时限:"
+
+#: templates/components/problem.jinja2:5
+msgid "Memory limit:"
+msgstr "内存限制:"
+
+#: templates/components/problem.jinja2:27
+#: templates/components/problem.jinja2:31
+msgid "Interaction"
+msgstr "交互流程"
+
+#: templates/components/problem.jinja2:37
+msgid "Examples"
+msgstr "样例"
+
+#: templates/components/problem.jinja2:53
+msgid "Note"
+msgstr "提示"
 
 #: templates/components/profile_card.jinja2:12
 #, python-format
@@ -543,6 +566,57 @@ msgstr "大富翁"
 #: templates/problem/base.jinja2:11
 msgid "STATUS"
 msgstr "评测状态"
+
+#: templates/problem/detail/base.jinja2:10
+msgid "DESCRIPTION"
+msgstr "描述"
+
+#: templates/problem/detail/base.jinja2:11
+msgid "STATISTICS"
+msgstr "统计"
+
+#: templates/problem/detail/base.jinja2:13
+msgid "DISCUSSION"
+msgstr "讨论区"
+
+#: templates/problem/detail/base.jinja2:16
+msgid "MANAGE"
+msgstr "管理"
+
+#: templates/problem/detail/problem.jinja2:20
+#, python-format
+msgid "<b>%(usr_ac_cnt)s Solved</b> out of %(usr_all_cnt)s users tried."
+msgstr "<b>%(usr_ac_cnt)s 人解决</b>，%(usr_all_cnt)s 已尝试。"
+
+#: templates/problem/detail/problem.jinja2:21
+#, python-format
+msgid "<b>%(ac_cnt)s Accepted</b> out of %(all_cnt)s tried."
+msgstr "<b>%(ac_cnt)s 份提交通过</b>，共有 %(all_cnt)s 份提交。"
+
+#: templates/problem/detail/problem.jinja2:22
+#, python-format
+msgid "<b>%(emb)s</b> EMB will be rewarded for solving this problem."
+msgstr "<b>%(emb)s</b> EMB 奖励。"
+
+#: templates/problem/detail/problem.jinja2:28
+msgid "Created"
+msgstr "创建"
+
+#: templates/problem/detail/problem.jinja2:29
+msgid "Updated"
+msgstr "修改"
+
+#: templates/problem/detail/problem.jinja2:30
+msgid "Latest Submission"
+msgstr "最后提交"
+
+#: templates/problem/detail/tag.jinja2:4 templates/problem/detail/tag.jinja2:31
+msgid "Problem Tags"
+msgstr "标签"
+
+#: templates/problem/detail/tag.jinja2:15
+msgid "Select Tags"
+msgstr "标签"
 
 #: templates/problem/index.jinja2:10
 #, python-format
