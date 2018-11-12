@@ -163,6 +163,7 @@ TEMPLATES = [
                 "myGlobal6": "utils.jinja2.globals.render_comment_tree",
                 "myGlobal7": "utils.jinja2.globals.url_encode",
                 "myGlobal8": "utils.jinja2.globals.username_display",
+                "myGlobal9": "utils.jinja2.globals.get_current_language",
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",

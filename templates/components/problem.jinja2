@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  {% cache 3600 'problem_view#' + problem.pk.__str__() + '#' + problem.update_time.__str__() %}
+  {% cache 3600 'problem_view#' + problem.pk.__str__() + '#' + problem.update_time.__str__() + '-' + get_current_language() %}
   <div class="problem-body">
     {% if problem.description %}
       <div class="passage">
