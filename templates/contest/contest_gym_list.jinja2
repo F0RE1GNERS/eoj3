@@ -28,7 +28,7 @@
             {% endfor %}
           </div></td>
         {% if not contest.start_time and not contest.end_time %}
-          <td colspan="2">{{ _('Always running') }}</td>
+          <td colspan="2">{{ _('Open indefinitely') }}</td>
         {% else %}
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>

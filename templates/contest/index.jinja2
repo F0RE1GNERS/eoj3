@@ -173,23 +173,23 @@
     <h3 class="ui header">
       <i class="help circle icon"></i>
       <div class="content">
-        提问与通知
-        <div class="sub header">你在这里提出的问题只有你自己可见</div>
+        {{ _('Clarifications') }}
+        <div class="sub header">{{ _('Your question posted here is only visible to yourself.') }}</div>
       </div>
     </h3>
     {% if is_privileged %}
-      {% set clarification_modal_name = "发送全体通知" %}
+      {% set clarification_modal_name = _("Post a notification") %}
     {% else %}
-      {% set clarification_modal_name = "提问" %}
+      {% set clarification_modal_name = _("Ask a question") %}
     {% endif %}
 
     <table class="ui celled table">
       <thead>
         <tr class="center aligned">
-          <th class="collapsing">时间</th>
-          <th class="collapsing">用户</th>
-          <th>问题</th>
-          <th>回答</th>
+          <th class="collapsing">{{ _('Time') }}</th>
+          <th class="collapsing">{{ _('User') }}</th>
+          <th>{{ _('Questions') }}</th>
+          <th>{{ _('Answers') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -235,7 +235,7 @@
     {% call modal("Answer a question", action=url('contest:clarification', contest.pk), id="clarificationAnswerModal") %}
       {% csrf_token %}
       <div class="field">
-        <label>添加回答：</label>
+        <label>{{ _('Edit your answer here:') }}</label>
         <textarea name="text"></textarea>
       </div>
     {% endcall %}
@@ -251,13 +251,13 @@
         Point Values
       </div>
     </h3>
-    <p>本场比赛将影响积分排名。</p>
+    <p>{{ _('This will be a <b>rated</b> contest and here are the points for each problem:') }}</p>
     <div class="ui grid">
       <div class="sixteen wide mobile twelve wide tablet eight wide computer column">
         <table class="ui unstackable center aligned striped celled table">
           <thead>
             <tr>
-              <th>题目</th><th>得分</th>
+              <th>{{ _('Task') }}</th><th>{{ _('Score') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -269,7 +269,7 @@
           {% endfor %}
           </tbody>
         </table>
-        <p>上述信息可能在赛前更改。</p>
+        <p>{{ _('The information above is subject to change before the contest.') }}</p>
       </div>
     </div>
 
@@ -281,8 +281,8 @@
     <h3 class="ui header">
       <i class="announcement icon"></i>
       <div class="content">
-        公告
-        <div class="sub header">请留意阅读</div>
+        {{ _('Announcement') }}
+        <div class="sub header">{{ _('Please read carefully.') }}</div>
       </div>
     </h3>
 
@@ -297,7 +297,7 @@
   <h3 class="ui header">
     <i class="info circle icon"></i>
     <div class="content">
-      基本信息
+      {{ _('Contest Information') }}
 {#      <div class="sub header">Only the basics</div>#}
     </div>
   </h3>
@@ -305,22 +305,24 @@
   <ul class="ui list">
     {% if not contest.start_time or not contest.end_time %}
       <li class="item">
-        开始时间: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
+        {{ _('Start time') }}: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
       </li>
       <li class="item">
-        结束时间: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
+        {{ _('Finish time') }}: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
       </li>
     {% else %}
       <li class="item">
-        时长: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
+        {{ _('Contest Duration') }}: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
       </li>
       <li class="item">
-        开始时间: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
+        {{ _('Start time') }}: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
       </li>
     {% endif %}
     {% if contest.freeze %}
       <li class="item">
-        榜单在 {{ contest.freeze_time | date('Y-m-d H:i:s') }} 关闭 ({{ contest.freeze_time | naturaltime }})。
+        {% with time = (contest.freeze_time | date('Y-m-d H:i:s')), natural_time = (contest.freeze_time | naturaltime) %}
+          {{ _('Standings frozen after %(time)s (%(natural_time)s).', time=time, natural_time=natural_time) }}
+        {% endwith %}
       </li>
     {% endif %}
   </ul>
