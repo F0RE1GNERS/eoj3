@@ -10,7 +10,7 @@
 <div class="submission-report">
   <div class="passage examples">
   {% for case in testcases %}
-    <div class="indicator"><b>测试点 #{{ loop.index }}: {{ case.meta }}</b></div>
+    <div class="indicator" id="report{{ loop.index }}"><b>测试点 #{{ loop.index }}: {{ case.meta }}</b></div>
     <div class="example">
       <div class="input">
         <div class="title">Input</div>
@@ -38,4 +38,21 @@
   {% endfor %}
   </div>
 </div>
+
+  <a class="ui fixed circular button icon" href="#top">
+    <i class="arrow up icon"></i>
+  </a>
+  <style>
+    .fixed.button {
+      position: fixed;
+      bottom: 2.5em;
+      right: 2em;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 1;
+    }
+  </style>
+
+
 {% endif %}

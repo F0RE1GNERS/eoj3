@@ -56,7 +56,9 @@
       <td colspan="{{ my_colspan }}">
         <div class="testcases" style="display: block;">
           {% for status_number, detail in submission.status_detail_display %}
-            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}"><i class="icon"></i></span>
+            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}">
+              <a href="#report{{ loop.index }}"><i class="icon"></i></a>
+            </span>
           {% endfor %}
         </div>
       </td>
