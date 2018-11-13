@@ -20,11 +20,11 @@ def compare_string(a, b):
 class LoginForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         super(LoginForm, self).__init__(request, *args, **kwargs)
-        self.fields['username'].label = '用户名或邮箱'
-        self.fields['password'].label = '密码'
+        self.fields['username'].label = _('Username or Email')
+        self.fields['password'].label = _('Password')
         self.fields['public_key'].initial = get_public_key()
 
-    captcha = CaptchaField(label="小学数学题")
+    captcha = CaptchaField(label=_("Let's do some math"))
     remember_me = forms.BooleanField(required=False)
     public_key = forms.CharField(widget=forms.HiddenInput())
 
@@ -38,11 +38,11 @@ class LoginForm(AuthenticationForm):
     def clean(self):
         priv, pub = get_keys()
         if not compare_string(self.cleaned_data.get("public_key"), pub.decode()):
-            raise forms.ValidationError("公钥失效。尝试刷新。")
+            raise forms.ValidationError(_("Public key expired. Refresh the page to continue."))
         try:
             self.cleaned_data["password"] = decryptRSA(self.cleaned_data["password"], priv).decode()
         except:
-            raise forms.ValidationError("密码解密失败。尝试刷新。")
+            raise forms.ValidationError(_("Password decoding failed. Refresh the page to retry."))
         return super().clean()
 
 
@@ -52,15 +52,15 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ['email', 'username']
         help_texts = {
-            'email': '电子邮箱可以修改。',
-            'username': '用户名可以有偿修改。'
+            'email': _('Email can be changed later.'),
+            'username': _('Username can be changed later.')
         }
         error_messages = {
             'username': {
-                'require': '用户名是必填的。'
+                'require': _("Please enter your username.")
             },
             'email': {
-                'require': '电子邮箱是必填的。'
+                'require': _("Please enter a email.")
             }
         }
 
@@ -81,39 +81,39 @@ class RegisterForm(forms.ModelForm):
 
         priv, pub = get_keys()
         if not compare_string(data.get("public_key"), pub.decode()):
-            raise forms.ValidationError("公钥失效。尝试刷新。")
+            raise forms.ValidationError(_("Public key expired. Refresh the page to continue."))
         try:
             data["password"] = decryptRSA(data["password"], priv).decode()
             data["repeat_password"] = decryptRSA(data["repeat_password"], priv).decode()
         except:
-            raise forms.ValidationError("密码解密失败。尝试刷新。")
+            raise forms.ValidationError(_("Password decoding failed. Refresh the page to retry."))
 
         if data.get('password') != data.get('repeat_password'):
-            self.add_error('repeat_password', forms.ValidationError("确认密码和密码不相符。", code='invalid'))
+            self.add_error('repeat_password', forms.ValidationError(_("Password doesn't match."), code='invalid'))
         return data
 
-    password = forms.CharField(help_text="密码长度最少是 6。",
+    password = forms.CharField(help_text=_('Length should be at least 6'),
                                widget=forms.PasswordInput,
                                min_length=6,
                                required=True,
                                error_messages={
-                                   'min_length': "密码太短。",
-                                   'require': "密码是必填的。",
+                                   'min_length': _("Your password is too short."),
+                                   'require': _("Please enter a password.")
                                },
-                               label="密码")
+                               label=_("Password"))
     repeat_password = forms.CharField(widget=forms.PasswordInput,
                                       required=True,
                                       error_messages={
-                                          'require': "请确认密码。"
+                                          'require': _('Please repeat your password.')
                                       },
-                                      label="确认密码")
+                                      label=_("确认密码"))
     public_key = forms.CharField(widget=forms.HiddenInput())
-    captcha = CaptchaField(label="小学数学题")
+    captcha = CaptchaField(label=_("Let's do some math"))
 
 
 class MyPasswordChangeForm(PasswordChangeForm):
     new_password1 = forms.CharField(
-        label="新密码",
+        label=_("New password"),
         widget=forms.PasswordInput,
         strip=False,
         help_text='',
@@ -122,7 +122,7 @@ class MyPasswordChangeForm(PasswordChangeForm):
 
 class MySetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
-        label="新密码",
+        label="New password",
         widget=forms.PasswordInput,
         strip=False,
         help_text='',
@@ -134,7 +134,7 @@ class ProfileForm(forms.ModelForm):
         model = User
         fields = ['email', 'name', 'student_id', 'school', 'motto', 'magic', 'avatar', 'email_subscription', 'show_tags']
         help_texts = {
-            'magic': '试试看呢？'
+            'magic': _('See what is going to happen!')
         }
         error_messages = {
         }
@@ -147,7 +147,7 @@ class ProfileForm(forms.ModelForm):
     def clean_avatar(self):
         avatar = self.cleaned_data['avatar']
         if avatar.size > 2 * 1048576:
-            raise forms.ValidationError("文件大小不超过 2MB。")
+            raise forms.ValidationError(_("Image size should not be larger than 2M."))
         return avatar
 
 
@@ -159,5 +159,7 @@ class PreferenceForm(forms.ModelForm):
 
 class FeedbackForm(forms.Form):
 
-    title = forms.CharField(label='标题', max_length=60, help_text="你遇到了什么问题")
-    content = forms.CharField(label="内容", widget=forms.Textarea, help_text="如果是 bug，请指出具体的情形；如果是改进建议，也欢迎提出。")
+    title = forms.CharField(label=_('Title'), max_length=60, help_text=_('What is the problem'))
+    content = forms.CharField(label=_('Content'), widget=forms.Textarea,
+                              help_text=_('If it is a bug, please identify the time and situation in which you encountered it.\n'
+                                          'If you think something is wrong with some problem, feel free to send it in.'))

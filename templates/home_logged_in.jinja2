@@ -1,4 +1,5 @@
 {% extends 'base.jinja2' %}
+{% from 'components/post_link.jinja2' import post_link %}
 {% from 'components/profile_card.jinja2' import profile_card with context %}
 {% from 'components/blog_preview.jinja2' import blog_preview %}
 
@@ -18,7 +19,7 @@
     </div>
     {% else %}
     <div class="eleven wide column">
-      <p>推送当前不可用。</p>
+      <p>{{ _('News feed is currently unavailable.') }}</p>
     </div>
     {% endif %}
 
@@ -26,7 +27,7 @@
 
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">公告牌</div>
+          <div class="header">{{ _('Bulletin') }}</div>
         </div>
         <div class="content">
           <div class="description">{{ bulletin | markdown | safe }}</div>
@@ -35,14 +36,14 @@
 
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">牛逼网友</div>
+          <div class="header">{{ _('Top-Rated Users') }}</div>
         </div>
         <div class="content">
           <table class="ui very basic celled very compact center aligned table">
             <thead>
               <tr>
-                <th class="ten wide">用户名</th>
-                <th class="six wide">积分</th>
+                <th class="ten wide">{{ _('Username') }}</th>
+                <th class="six wide">{{ _('Rating') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -57,7 +58,7 @@
         </div>
         <div class="extra content right aligned">
           <a href="{{ url('contest:rating') }}?full=1">
-            <i class="user icon"></i> 查看所有用户
+            <i class="user icon"></i> {{ _('See full list here') }}
           </a>
         </div>
       </div>
@@ -67,7 +68,7 @@
       {% if comment_list %}
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">最新评论</div>
+          <div class="header">{{ _('Recent Actions') }}</div>
         </div>
         <div class="content">
           <div class="ui small feed">
@@ -94,7 +95,7 @@
       {% if update_log %}
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">更新日志</div>
+          <div class="header">{{ _('Update Log') }}</div>
         </div>
         <div class="content">
           <div class="ui small feed">
@@ -114,7 +115,7 @@
         </div>
         <div class="extra content right aligned">
           <a href="{{ url('update_log') }}">
-            <i class="sticky note outline icon"></i> 更多
+            <i class="sticky note outline icon"></i> {{ _('More') }}
           </a>
         </div>
       </div>
@@ -122,6 +123,41 @@
 
     </div>
 
+  <div class="ui icon bottom right circular dropdown pointing button">
+  <i class="world icon"></i>
+  <div class="menu">
+    {% for language in languages %}
+      <a class="item set-language" href="#" data-lang="{{ language[0] }}">{{ language[1] }}</a>
+    {% endfor %}
+  </div>
+</div>
+  <style>
+    .ui.button.dropdown {
+      position: fixed;
+      bottom: 2.5em;
+      right: 2em;
+      height: auto;
+      white-space: nowrap;
+      z-index: 1;
+    }
+  </style>
+
+
   </div>
 
+{% endblock %}
+
+{% block script %}
+  <script>
+    $('.ui.dropdown.button').dropdown();
+    $('.set-language.item').on('click', function(e) {
+      $.post("{{ url('set_language') }}", {
+          'csrfmiddlewaretoken': Cookies.get('csrftoken'),
+          'language': $(e.target).data('lang')
+        }, function (data) {
+          location.reload();
+        }
+      );
+    });
+  </script>
 {% endblock %}

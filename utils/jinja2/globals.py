@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum, Case, IntegerField, When
 from django.http import QueryDict
+from django.utils import translation
 from django_comments_xtd.templatetags.comments_xtd import XtdComment
 from django_jinja import library
 
@@ -256,3 +257,9 @@ def username_display(context, user, *args, **kwargs):
         'ghost': ghost,
         'additional_class': kwargs.pop('additional_class', '')
     }
+
+
+@library.global_function(name="get_current_language")
+@jinja2.contextfunction
+def get_current_language(context):
+    return translation.get_language_from_request(context['request'])

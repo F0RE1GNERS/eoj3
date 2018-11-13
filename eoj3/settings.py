@@ -163,6 +163,7 @@ TEMPLATES = [
                 "myGlobal6": "utils.jinja2.globals.render_comment_tree",
                 "myGlobal7": "utils.jinja2.globals.url_encode",
                 "myGlobal8": "utils.jinja2.globals.username_display",
+                "myGlobal9": "utils.jinja2.globals.get_current_language",
             },
             "filters": {
                 "myFilter": "utils.jinja2.filters.status_choice",
@@ -177,7 +178,21 @@ TEMPLATES = [
             },
             "tests": {
                 "myTest": "utils.jinja2.tests.is_admin",
-            }
+            },
+            "extensions": [
+                "jinja2.ext.do",
+                "jinja2.ext.loopcontrols",
+                "jinja2.ext.with_",
+                "jinja2.ext.i18n",
+                "jinja2.ext.autoescape",
+                "django_jinja.builtins.extensions.CsrfExtension",
+                "django_jinja.builtins.extensions.CacheExtension",
+                "django_jinja.builtins.extensions.TimezoneExtension",
+                "django_jinja.builtins.extensions.UrlsExtension",
+                "django_jinja.builtins.extensions.StaticFilesExtension",
+                "django_jinja.builtins.extensions.DjangoFiltersExtension",
+            ],
+            "translation_engine": "django.utils.translation",
         },
     },
     {
@@ -249,11 +264,13 @@ SESSION_CACHE_ALIAS = "default"
 LANGUAGE_CODE = 'zh-Hans'
 
 LANGUAGES = (
-    ('zh-Hans', '中文简体'),
+    ('zh-Hans', '简体中文'),
+    ('en', 'English')
 )
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
+    os.path.join(BASE_DIR, 'locale', 'humanize')
 )
 
 USE_I18N = True

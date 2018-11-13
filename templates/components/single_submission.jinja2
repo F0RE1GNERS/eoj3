@@ -5,15 +5,15 @@
     <tr class="center aligned">
       <th>#</th>
       {% if not hide_problem %}
-      <th>题目</th>
+      <th>{{ _('Problem') }}</th>
       {% endif %}
-      <th>语言</th>
-      <th>提交时间</th>
-      <th>评测时间</th>
-      <th>判定结果</th>
+      <th>{{ _('Language') }}</th>
+      <th>{{ _('Sent') }}</th>
+      <th>{{ _('Judged') }}</th>
+      <th>{{ _('Verdict') }}</th>
       <th>CPU</th>
       {% if server %}
-      <th>评测机</th>
+      <th>{{ _('Judge') }}</th>
       {% endif %}
       {% if rejudge_authorized %}
       <th></th>
@@ -39,7 +39,7 @@
       <td>{{ server }}</td>
       {% endif %}
       {% if rejudge_authorized %}
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">重测</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">{{ _('Rejudge') }}</a></td>
       {% endif %}
     </tr>
     <tr>
@@ -56,7 +56,9 @@
       <td colspan="{{ my_colspan }}">
         <div class="testcases" style="display: block;">
           {% for status_number, detail in submission.status_detail_display %}
-            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}"><i class="icon"></i></span>
+            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}">
+              <a href="#report{{ loop.index }}"><i class="icon"></i></a>
+            </span>
           {% endfor %}
         </div>
       </td>
@@ -72,9 +74,9 @@
     <i class="circle help outline icon"></i>
     <div class="content">
       <div class="header">
-        是否需要帮助？
+        {{ _('Need some help?') }}
       </div>
-      <p>用 EMB 购买完整的评测报告。</p>
+      <p>{{ _("Buy full debug report to see what's wrong.") }}</p>
     </div>
   </a>
 {% endif %}

@@ -1,21 +1,21 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}竞赛 - {% endblock %}
+{% block title %}{{ _('Contests') }} - {% endblock %}
 
-{% block page_header %}竞赛{% endblock %}
+{% block page_header %}{{ _('Contests') }}{% endblock %}
 
 {% block content %}
 
   <table class="ui celled table">
     <thead>
       <tr class="center aligned">
-        <th class="six wide">标题</th>
-        <th>开始</th>
-        <th>时长</th>
-        <th>命题</th>
-        <th class="collapsing">公开</th>
-        <th class="collapsing">状态</th>
-        <th class="collapsing">榜单</th>
+        <th class="six wide">{{ _('Name') }}</th>
+        <th>{{ _('Start') }}</th>
+        <th>{{ _('Length') }}</th>
+        <th>{{ _('Writers') }}</th>
+        <th class="collapsing">{{ _('Public') }}</th>
+        <th class="collapsing">{{ _('Status') }}</th>
+        <th class="collapsing">{{ _('Standings') }}</th>
       </tr>
     </thead>
     <tbody>
@@ -30,21 +30,21 @@
             {% endfor %}
           </div></td>
           <td>{% if contest.access_level >= 30 %}<i class="green large check icon"></i>
-          {% elif contest.access_level >= 20 %}<span data-tooltip="题目赛后公开"><i class="yellow large clock outline icon"></i></span>
-          {% elif contest.access_level >= 15 %}<span data-tooltip="赛后虚拟参赛"><i class="yellow large key icon"></i></span>
+          {% elif contest.access_level >= 20 %}<span data-tooltip="{{ _('Open after contest') }}"><i class="yellow large clock outline icon"></i></span>
+          {% elif contest.access_level >= 15 %}<span data-tooltip="{{ _('Virtual participate after contest') }}"><i class="yellow large key icon"></i></span>
           {% elif contest.access_level >= 10 %}<i class="orange large remove icon"></i>
           {% else %}<i class="red large lock icon"></i>{% endif %}</td>
           <td>
           {% if contest.status == 0 %}
-            <h5 class="ui header red">进行中</h5>
+            <h5 class="ui header red">{{ _('Running') }}</h5>
           {% elif contest.status == -1 %}
             {% if contest.access_level == 30 %}
-              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">注册 »</a>
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">{{ _('Register') }} »</a>
             {% else %}
-              <h5 class="ui header teal">尚未开始</h5>
+              <h5 class="ui header teal">{{ _('Pending') }}</h5>
             {% endif %}
           {% else %}
-            已结束
+            {{ _('Ended') }}
           {% endif %}
           </td>
           <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>

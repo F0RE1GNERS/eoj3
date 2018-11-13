@@ -5,29 +5,33 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import BaseValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import ugettext_lazy as _
 from utils.language import LANG_CHOICE
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
 
 MAGIC_CHOICE = (
-    ('red', '红'),
-    ('green', '绿'),
-    ('teal', '青'),
-    ('blue', '蓝'),
-    ('purple', '紫'),
-    ('orange', '橙'),
-    ('grey', '灰'),
+    ('red', _('Red')),
+    ('green', _('Green')),
+    ('teal', _('Teal')),
+    ('blue', _('Blue')),
+    ('purple', _('Purple')),
+    ('orange', _('Orange')),
+    ('grey', _('Grey')),
 )
 
 
 class UsernameValidator(UnicodeUsernameValidator):
     regex = r'^[\w.+-]+$'
-    message = '有效的用户名应只包含字母、中文、数字和 ./+/-/_。'
+    message = _(
+        'Enter a valid username. This value may contain only letters, '
+        'numbers, and ./+/-/_ characters.'
+    )
 
 
 class UsernameLengthValidator(BaseValidator):
-    message = "用户名应包含至少六个字符。"
+    message = _("Username should contain at least 6 characters.")
     code = 'min_length'
 
     def compare(self, a, b):
@@ -43,23 +47,23 @@ class UsernameLengthValidator(BaseValidator):
 class User(AbstractUser):
     username_validators = [UsernameValidator(), UsernameLengthValidator(6)]
 
-    username = models.CharField("用户名", max_length=30, unique=True,
+    username = models.CharField(_('username'), max_length=30, unique=True,
                                 validators=username_validators,
                                 error_messages={
-                                    'unique': "该用户名已经存在。"}
+                                    'unique': _("A user with that username already exists.")}
                                 )
-    email = models.EmailField("电子邮箱", max_length=192, unique=True, error_messages={
-        'unique': "该电子邮箱已被使用。"
+    email = models.EmailField(_('email'), max_length=192, unique=True, error_messages={
+        'unique': _("This email has already been used.")
     })
-    school = models.CharField("学校", max_length=64, blank=True)
-    name = models.CharField("姓名", max_length=30, blank=True)
-    student_id = models.CharField("学号", max_length=30, blank=True)
-    magic = models.CharField("魔法", choices=MAGIC_CHOICE, max_length=18, blank=True)
-    show_tags = models.BooleanField("展示标签", default=True)
-    preferred_lang = models.CharField("语言偏好", choices=LANG_CHOICE, max_length=12, default='cpp')
-    motto = models.CharField("励志铭", max_length=192, blank=True)
+    school = models.CharField(_('school'), max_length=64, blank=True)
+    name = models.CharField(_('name'), max_length=30, blank=True)
+    student_id = models.CharField(_('student id'), max_length=30, blank=True)
+    magic = models.CharField(_('magic'), choices=MAGIC_CHOICE, max_length=18, blank=True)
+    show_tags = models.BooleanField(_('show tags'), default=True)
+    preferred_lang = models.CharField(_('preferred language'), choices=LANG_CHOICE, max_length=12, default='cpp')
+    motto = models.CharField(_('motto'), max_length=192, blank=True)
 
-    avatar = models.ImageField("头像", upload_to='avatar', default='avatar/default.jpg')
+    avatar = models.ImageField(_('avatar'), upload_to='avatar', default='avatar/default.jpg')
     avatar_small = ImageSpecField(source='avatar',
                                   processors=[ResizeToFill(50, 50)],
                                   format='JPEG',
@@ -71,7 +75,7 @@ class User(AbstractUser):
     polygon_enabled = models.BooleanField(default=False)
     score = models.FloatField(default=0)
     username_change_attempt = models.IntegerField(default=0)
-    email_subscription = models.BooleanField("邮件订阅", default=True)
+    email_subscription = models.BooleanField(_("Email subscription"), default=True)
     rating = models.IntegerField(default=0)
 
     def __str__(self):
@@ -96,10 +100,10 @@ class Payment(models.Model):
     VIEW_REPORT = 'view_report'
 
     TYPE_CHOICES = (
-        (CHANGE_USERNAME, "更改用户名"),
-        (DOWNLOAD_CASE, "下载数据"),
-        (REWARD, "奖励"),
-        (TRANSFER, "转账"),
+        (CHANGE_USERNAME, _('Change Username')),
+        (DOWNLOAD_CASE, _('Download Case')),
+        (REWARD, _('Reward')),
+        (TRANSFER, _('Transfer')),
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -132,4 +136,5 @@ class School(models.Model):
     def __str__(self):
         if self.alias:
             return "%s (%s)" % (self.name, self.alias)
-        else: return self.name
+        else:
+            return self.name

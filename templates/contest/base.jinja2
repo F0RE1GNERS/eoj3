@@ -7,22 +7,22 @@
 {% block content %}
 
   <div class="ui text stackable menu">
-    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">仪表盘</a>
+    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">{{ _('Dashboard') }}</a>
     {% if request.user.is_authenticated %}
-    <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">我的提交</a>
+    <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">{{ _('My') }}</a>
     {% endif %}
     {% if contest.common_status_access_level >= 0 or is_privileged %}
-      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">所有提交</a>
-      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">榜单</a>
+      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">{{ _('Status') }}</a>
+      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">{{ _('Standings') }}</a>
     {% endif %}
     {% if is_volunteer or is_privileged %}
-      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">气球</a>
+      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">{{ _('Balloon') }}</a>
     {% endif %}
     {% if analysis_available %}
-      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">题解</a>
+      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">{{ _('Analysis') }}</a>
     {% endif %}
     {% if is_privileged %}
-      <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">管理</a>
+      <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">{{ _('Manage') }}</a>
     {% endif %}
   </div>
 
@@ -37,36 +37,36 @@
         {% if not contest.start_time and not contest.end_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              一直开放
+              {{ _('Open indefinitely') }}
             </div>
           </div>
         {% elif not contest.start_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              截止: {{ contest.end_time | date('Y-m-d H:i') }}
+              {{ _('Deadline') }}: {{ contest.end_time | date('Y-m-d H:i') }}
             </div>
           </div>
         {% elif not contest.end_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              开始: {{ contest.start_time | date('Y-m-d H:i') }}
+              {{ _('Start') }}: {{ contest.start_time | date('Y-m-d H:i') }}
             </div>
           </div>
         {% elif contest.pending_system_tests %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              等待系统测试
+              {{ _('Pending System Tests') }}
             </div>
           </div>
         {% else %}
           <div class="ui segment">
             <div class="ui center aligned header">
               {% if participate_contest_status == 0 %}
-                进行中
+                {{ _('Contest Running') }}
               {% elif participate_contest_status == -1 %}
-                尚未开始
+                {{ _('Contest Pending') }}
               {% else %}
-                已结束
+                {{ _('Contest Ended') }}
               {% endif %}
             </div>
           </div>
@@ -86,7 +86,7 @@
         {% if has_permission %}
           <div class="ui segments">
             <div class="ui segment">
-              <h3 class="ui center aligned header">题目</h3>
+              <h3 class="ui center aligned header">{{ _('Problems') }}</h3>
             </div>
             <div class="ui segment">
               <div class="ui relaxed link list">
@@ -103,14 +103,14 @@
           {% if participate_contest_status == 0 and contest.scoring_method != 'acm' %}
             <div class="ui segments">
               <div class="ui segment">
-                <h3 class="ui center aligned header">计分</h3>
+                <h3 class="ui center aligned header">{{ _('Scoring') }}</h3>
               </div>
               <div class="ui segment">
                 <table class="ui very basic celled very compact center aligned table">
                   <thead>
                     <tr>
-                      <th>题目</th>
-                      <th>得分</th>
+                      <th>{{ _('Problem') }}</th>
+                      <th>{{ _('Worth') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -126,7 +126,7 @@
                 </table>
               </div>
               <div class="ui bottom attached tiny info message">
-                如果你现在一次提交通过了该题，你将获得相应的分数。
+                {{ _('This shows the values you earned if you solve the problem right now on the first submit.') }}
               </div>
             </div>
           {% endif %}
@@ -142,10 +142,10 @@
   <div class="ui basic tiny modal" id="refreshNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
-      通知
+      {{ _('Announcement') }}
     </div>
     <div class="content">
-      比赛状态发生改变，点 OK 刷新。
+      {{ _('Contest status has changed. Click to refresh the page.') }}
     </div>
     <div class="actions">
       <div class="ui green ok inverted button" onclick="location.reload(true);">
@@ -158,7 +158,7 @@
   <div class="ui basic tiny modal" id="stayNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
-      通知
+      {{ _('Announcement') }}
     </div>
     <div class="content" id="stayNotificationBody">
     </div>

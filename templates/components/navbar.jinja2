@@ -4,24 +4,24 @@
       <div class="text">{{ request.user.username }}</div>
       <i class="dropdown icon"></i>
       <div class="menu">
-        <a class="item" href="{{ url('profile', request.user.pk) }}">个人档案</a>
-        <a class="item" href="{{ url('blog:index', request.user.pk) }}">博客</a>
-        <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">提交记录</a>
-        <a class="item" href="{{ url('account:profile') }}">设置</a>
-        <a class="item" href="{{ url('account:payment') }}">EMB</a>
-        <a class="item" href="{{ url('migrate') }}">迁移</a>
-        <a class="item" href="{{ url('feedback') }}">反馈</a>
+        <a class="item" href="{{ url('profile', request.user.pk) }}">{{ _('Profile') }}</a>
+        <a class="item" href="{{ url('blog:index', request.user.pk) }}">{{ _('Blog') }}</a>
+        <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">{{ _('Submission') }}</a>
+        <a class="item" href="{{ url('account:profile') }}">{{ _('Settings') }}</a>
+        <a class="item" href="{{ url('account:payment') }}">{{ _('Payment') }}</a>
+        <a class="item" href="{{ url('migrate') }}">{{ _('Migrate') }}</a>
+        <a class="item" href="{{ url('feedback') }}">{{ _('Feedback') }}</a>
       {% if user is admin %}
-        <a class="item" href="{{ url('backstage:index') }}">后台</a>
+        <a class="item" href="{{ url('backstage:index') }}">{{ _('Backstage') }}</a>
       {% endif %}
       {% if user.polygon_enabled %}
-        <a class="item" href="{{ url('polygon:problem_list_2') }}">命题系统</a>
+        <a class="item" href="{{ url('polygon:problem_list_2') }}">{{ _('Polygon') }}</a>
       {% endif %}
-        <a class="item" href="{{ url('logout') }}?next={{ request.path }}">登出</a>
+        <a class="item" href="{{ url('logout') }}?next={{ request.path }}">{{ _('Logout') }}</a>
       </div>
     </div>
   {% else %}
-    <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">登录</a></div>
+    <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">{{ _('Login') }}</a></div>
   {% endif %}
 {% endmacro %}
 
@@ -33,10 +33,10 @@
       <i class="content icon"></i>
       <span class="text"><b>EOJ</b></span>
       <div class="menu">
-        <a class="item" href="{{ url('home') }}">主页</a>
-        <a class="item" href="{{ url('contest:list') }}">竞赛</a>
-        <a class="item" href="{{ url('problem:list') }}">题目集</a>
-        <a class="item" href="{{ url('contest:gym') }}">作业</a>
+        <a class="item" href="{{ url('home') }}">{{ _('Home') }}</a>
+        <a class="item" href="{{ url('contest:list') }}">{{ _('Contests') }}</a>
+        <a class="item" href="{{ url('problem:list') }}">{{ _('Problems') }}</a>
+        <a class="item" href="{{ url('contest:gym') }}">{{ _('Gym') }}</a>
       </div>
     </div>
 
@@ -46,15 +46,15 @@
   </div>
 
   <div class="ui container" id="navbar-large">
-    <a class="{{ active('home') }} item" href="{{ url('home') }}"><i class="home icon"></i> 主页</a>
-    <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i> 竞赛</a>
-    <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i> 题目集</a>
-    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i> 作业</a>
+    <a class="{{ active('home') }} item" href="{{ url('home') }}"><i class="home icon"></i>{{ _('Home') }}</a>
+    <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i>{{ _('Contests') }}</a>
+    <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i>{{ _('Problems') }}</a>
+    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>{{ _('Gym') }}</a>
 
     <div class="right menu">
       <div class="ui category search item massive-search">
         <div class="ui transparent icon input">
-          <input class="prompt" type="text" placeholder="搜索...">
+          <input class="prompt" type="text" placeholder="{{ _('Search...') }}">
           <i class="search link icon"></i>
         </div>
         <div class="results"></div>

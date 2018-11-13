@@ -12,17 +12,23 @@
       <div class="ui fluid card">
         <div class="content">
           <div class="description">
-            <p><b>{{ user_ac_count | intcomma }} 人解决</b>，{{ user_all_count | intcomma }} 人已尝试。</p>
-            <p><b>{{ ac_count | intcomma }} 份提交通过</b>，共有 {{ all_count | intcomma }} 份提交。</p>
-            <p><b>{{ difficulty | round(1) }}</b> EMB 奖励。</p>
+            {% with usr_ac_cnt = (user_ac_count | intcomma),
+                    usr_all_cnt = (user_all_count | intcomma),
+                    ac_cnt = (ac_count | intcomma),
+                    all_cnt = (all_count | intcomma),
+                    emb = (difficulty | round(1)) %}
+            <p>{{ _('<b>%(usr_ac_cnt)s Solved</b> out of %(usr_all_cnt)s users tried.', usr_ac_cnt=usr_ac_cnt, usr_all_cnt=usr_all_cnt)  }}</p>
+            <p>{{ _('<b>%(ac_cnt)s Accepted</b> out of %(all_cnt)s tried.', ac_cnt=ac_cnt, all_cnt=all_cnt) }}</p>
+            <p>{{ _('<b>%(emb)s</b> EMB will be rewarded for solving this problem.', emb=emb) }}</p>
+            {% endwith %}
           </div>
         </div>
         <div class="content">
           <div class="description">
-            <p><b>创建</b>: {{ problem.create_time | naturaltime }}.</p>
-            <p><b>修改</b>: {{ problem.update_time | naturaltime }}.</p>
-            <p><b>最后提交</b>: {% if last_sub_time %}{{ last_sub_time | naturaltime }}{% else %}N/A{% endif %}.</p>
-            <p><b>来源</b>: {% if problem.source %}<a href="{{ url('problem:list') }}?source={{ problem.source }}">{{ problem.source }}</a>{% else %}N/A{% endif %}</p>
+            <p><b>{{ _('Created') }}</b>: {{ problem.create_time | naturaltime }}.</p>
+            <p><b>{{ _('Updated') }}</b>: {{ problem.update_time | naturaltime }}.</p>
+            <p><b>{{ _('Latest Submission') }}</b>: {% if last_sub_time %}{{ last_sub_time | naturaltime }}{% else %}N/A{% endif %}.</p>
+            <p><b>{{ _('Source') }}</b>: {% if problem.source %}<a href="{{ url('problem:list') }}?source={{ problem.source }}">{{ problem.source }}</a>{% else %}N/A{% endif %}</p>
           </div>
         </div>
       </div>
