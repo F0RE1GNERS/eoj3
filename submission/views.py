@@ -21,7 +21,7 @@ from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
 from dispatcher.models import Server
 from utils.permission import get_permission_for_submission
-from .models import Submission
+from .models import Submission, SubmissionReport
 from submission.util import SubmissionStatus
 
 
@@ -59,19 +59,21 @@ def render_submission(submission: Submission, permission=1, hide_problem=False, 
 
 def render_submission_report(pk):
     try:
-        with open(path.join(settings.GENERATE_DIR, 'submission-%d' % pk), 'r') as report_file:
-            ans = []
-            for line in report_file:
-                meta, *b64s = line.split('|')
-                if len(b64s) == 4:
-                    input, output, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
-                    stderr = ""
-                else:
-                    input, output, stderr, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
-                ans.append({'meta': meta, 'input': input, 'output': output, 'stderr': stderr, 'answer': answer, 'checker': checker})
+        report = SubmissionReport.objects.get(submission_id=pk)
+        lines = report.content.strip().split("\n")
+        ans = []
+        for line in lines:
+            meta, *b64s = line.split('|')
+            if len(b64s) == 4:
+                input, output, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
+                stderr = ""
+            else:
+                input, output, stderr, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
+            ans.append({'meta': meta, 'input': input, 'output': output, 'stderr': stderr,
+                        'answer': answer, 'checker': checker})
         t = loader.get_template('components/submission_report.jinja2')
         return t.render(Context({'testcases': ans}))
-    except (FileNotFoundError, ValueError):
+    except (SubmissionReport.DoesNotExist, ValueError):
         return ''
 
 

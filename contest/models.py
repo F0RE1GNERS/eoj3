@@ -335,6 +335,15 @@ class ContestUserRating(models.Model):
         return 'ContestUserRating: {user: %d, rating: %d}' % (self.user_id, self.rating)
 
 
+class ContestProblemPlag(models.Model):
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    fingerprint = models.CharField(max_length=100)
+    status = models.IntegerField(choices=((-1, 'Pending'), (0, 'Ready')))
+    identifier = models.CharField(max_length=20, blank=True)
+    language = models.CharField(max_length=20, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+
 class Activity(models.Model):
     title = models.CharField("标题", unique=True, max_length=192)
     description = models.TextField("内容", blank=True)

@@ -52,7 +52,7 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
         return False
 
     def post(self, request, sid):
-        async_task(rejudge_submission, self.submission)
+        async_task(rejudge_submission, self.submission, run_until_complete='all' in request.GET)
         if self.submission.contest_id:
             nxt = reverse('contest:submission', kwargs={'cid': self.submission.contest_id, 'sid': self.submission.id})
         else:

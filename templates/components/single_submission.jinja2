@@ -16,7 +16,7 @@
       <th>{{ _('Judge') }}</th>
       {% endif %}
       {% if rejudge_authorized %}
-      <th></th>
+      <th colspan="2">Rejudge</th>
       {% endif %}
     </tr>
   </thead>
@@ -40,6 +40,7 @@
       {% endif %}
       {% if rejudge_authorized %}
       <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">{{ _('Rejudge') }}</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">{{ _('All') }}</a></td>
       {% endif %}
     </tr>
     <tr>
@@ -51,7 +52,7 @@
         {% set my_colspan = my_colspan + 1 %}
       {% endif %}
       {% if rejudge_authorized %}
-        {% set my_colspan = my_colspan + 1 %}
+        {% set my_colspan = my_colspan + 2 %}
       {% endif %}
       <td colspan="{{ my_colspan }}">
         <div class="testcases" style="display: block;">

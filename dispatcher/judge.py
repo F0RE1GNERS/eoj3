@@ -29,7 +29,7 @@ def process_runtime(server, data):
 
 
 def send_judge_through_watch(code, lang, max_time, max_memory, run_until_complete, cases, checker,
-                             interactor, group_config, callback, timeout=900, report_file_path=None):
+                             interactor, group_config, callback, timeout=900, report_instance=None):
     """
     :param interactor: None or '' if there is no interactor
     :param callback: function, to call when something is returned (possibly preliminary results)
@@ -65,10 +65,9 @@ def send_judge_through_watch(code, lang, max_time, max_memory, run_until_complet
                                                                timeout=timeout).json())
                 process_runtime(server, response)
                 if callback(response):
-                    if report_file_path:
-                        with open(report_file_path, 'w') as handler:
-                            handler.write(requests.get(watch_report, json={'fingerprint': data['fingerprint']},
-                                                       auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text)
+                    report_instance.content = requests.get(watch_report, json={'fingerprint': data['fingerprint']},
+                                                           auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text
+                    report_instance.save()
                     break
                 timeout_count += interval
                 interval += 0.1

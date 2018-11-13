@@ -123,6 +123,11 @@ class Submission(models.Model):
         return int(round(self.status_percent))
 
 
+class SubmissionReport(models.Model):
+    submission = models.OneToOneField(Submission, on_delete=models.CASCADE)
+    content = models.TextField(blank=True)
+
+
 class PrintManager(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     limit = models.PositiveIntegerField(default=50)

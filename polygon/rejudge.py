@@ -15,11 +15,11 @@ REJUDGE_TASK_LIMIT = 24
 REJUDGE_COUNTER = 'rejudge_counter'
 
 
-def rejudge_submission(submission, callback=None):
+def rejudge_submission(submission, callback=None, run_until_complete=False):
     if submission.contest_id:
         judge_submission_on_contest(submission, callback=callback, sync=True)
     else:
-        judge_submission_on_problem(submission, callback=callback, sync=True)
+        judge_submission_on_problem(submission, callback=callback, sync=True, run_until_complete=run_until_complete)
 
 
 def rejudge_submission_set(submission_set):

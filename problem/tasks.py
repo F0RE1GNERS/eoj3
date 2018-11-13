@@ -10,7 +10,7 @@ from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
 from dispatcher.models import Server
 from problem.statistics import invalidate_user
-from submission.models import Submission
+from submission.models import Submission, SubmissionReport
 from submission.util import SubmissionStatus
 from utils.detail_formatter import response_fail_with_timestamp
 from .models import Problem, SpecialProgram, ProblemRewardStatus
@@ -195,13 +195,12 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
             return True
 
     try:
-        n_args = (code, submission.lang, problem.time_limit,
-                  problem.memory_limit, kwargs.get('run_until_complete', False),
-                  case_list, problem.checker, problem.interactor, group_config,
-                  on_receive_data)
-        n_kwargs = {'report_file_path': path.join(settings.GENERATE_DIR,
-                                                  'submission-%d' % submission.pk)}
-
-        send_judge_through_watch(*n_args, **n_kwargs)
+        report_instance, _ = SubmissionReport.objects.get_or_create(submission=submission)
+        report_instance.content = ""
+        report_instance.save()
+        send_judge_through_watch(code, submission.lang, problem.time_limit,
+                                 problem.memory_limit, kwargs.get('run_until_complete', False),
+                                 case_list, problem.checker, problem.interactor, group_config,
+                                 on_receive_data, report_instance=report_instance)
     except:
         on_receive_data(response_fail_with_timestamp())
