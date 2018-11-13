@@ -31,7 +31,7 @@ class JPlagManager():
         problem_id = self.contest.contestproblem_set.get(identifier=self.plag.identifier).problem_id
         for s in self.contest.submission_set.filter(contest_time__isnull=False, status=SubmissionStatus.ACCEPTED,
                                                     problem_id=problem_id):
-            with open(os.path.join(self.code_dir, "%d_%d.cpp" % (s.pk, s.author_id)), "w") as f:
+            with open(os.path.join(self.code_dir, "%d_%d.cpp" % (s.pk, s.author_id)), "w", encoding="utf-8") as f:
                 f.write(s.code)
 
     def run(self):
@@ -57,7 +57,7 @@ def start_jplag(plags):
             manager.run()
         except Exception as e:
             plag.status = 1
-            with open(os.path.join(manager.result_dir, "stderr"), "a") as f:
+            with open(os.path.join(manager.result_dir, "stderr"), "a", encoding="utf-8") as f:
                 print(traceback.format_exc(), file=f)
             plag.save()
 
