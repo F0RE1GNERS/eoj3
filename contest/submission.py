@@ -248,7 +248,7 @@ class ContestMyStatus(ContestStatus):
     def get_selected_from(self):
         if not self.user.is_authenticated:
             raise PermissionDenied
-        if not self.contest.contest_type == 1 and self.participate_contest_status == 0 and not self.privileged:
+        if self.contest.contest_type != 1 and self.participate_contest_status == 0 and not self.privileged:
             return self.contest.submission_set.filter(author=self.user).all()
         else:
             return self.user.submission_set.filter(
