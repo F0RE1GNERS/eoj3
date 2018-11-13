@@ -61,11 +61,11 @@
       </div>
       <div class="content">
         <a href="{{ url('contest:dashboard', ret.pk) }}" class="summary">
-          Contest/Gym: {{ ret.title }}
+          比赛/作业: {{ ret.title }}
         </a>
         {% if ret.contest_type == 0 and ret.start_time %}
           <div class="extra text">
-            Start: {{ ret.start_time | naturaltime }}
+            开始时间: {{ ret.start_time | naturaltime }}
           </div>
         {% endif %}
       </div>
