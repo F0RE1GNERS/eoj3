@@ -11,13 +11,13 @@
     <thead>
       <tr>
         <th class="six wide">
-          <h4 class="ui header"><i class="user icon"></i> 人数</h4>
+          <h4 class="ui header"><i class="user icon"></i> {{ _('BY AUTHORS') }}</h4>
         </th>
         <th class="six wide">
-          <h4 class="ui header"><i class="tag icon"></i> 提交量</h4>
+          <h4 class="ui header"><i class="tag icon"></i> {{ _('TOTAL') }}</h4>
         </th>
         <th class="four wide">
-          <h4 class="ui header">奖励</h4>
+          <h4 class="ui header">{{ _('REWARD') }}</h4>
         </th>
       </tr>
     </thead>
@@ -26,13 +26,13 @@
         <td>
           <div class="ui statistic">
             <div class="value">{{ user_ac_count }} / {{ user_all_count }}</div>
-            <div class="label">{{ "%.2f %%" | format(user_ratio) }} 解出</div>
+            <div class="label">{{ "%.2f %%" | format(user_ratio) }} {{ _('Accepted') }}</div>
           </div>
         </td>
         <td>
           <div class="ui statistic">
             <div class="value">{{ ac_count }} / {{ all_count }}</div>
-            <div class="label">{{ "%.2f %%" | format(ratio) }} 通过</div>
+            <div class="label">{{ "%.2f %%" | format(ratio) }} {{ _('Solved') }}</div>
           </div>
         </td>
         <td>
@@ -52,12 +52,12 @@
 
   <div style="float: right">
     <div class="ui selection dropdown status-filter" data-filter-type="type" data-value="{{ param_type }}">
-      <div class="text">最迟</div>
+      <div class="text">{{ _('Latest') }}</div>
       <i class="dropdown icon"></i>
       <div class="menu">
-        <div class="item" data-value="latest">最迟</div>
-        <div class="item" data-value="fastest">最快</div>
-        <div class="item" data-value="shortest">最短</div>
+        <div class="item" data-value="latest">{{ _('Latest') }}</div>
+        <div class="item" data-value="fastest">{{ _('Fastest') }}</div>
+        <div class="item" data-value="shortest">{{ _('Shortest') }}</div>
       </div>
     </div>
   </div>
@@ -65,17 +65,17 @@
   <h3 class="ui header">
     <i class="code icon"></i>
     <div class="content">
-      提交
-      <div class="sub header">比赛下的提交可能访问受限。</div>
+      {{ _('Submissions') }}
+      <div class="sub header">{{ _('Codes under contest might be unavailable.') }}</div>
     </div>
   </h3>
 
   {{ status(hide_problems=True, code_length=True, judge_server=True) }}
 
   <div class="ui right floated buttons">
-    <a class="ui green button" href="{{ url('problem:status') }}?problem={{ problem.pk }}&verdict=v0">通过</a>
+    <a class="ui green button" href="{{ url('problem:status') }}?problem={{ problem.pk }}&verdict=v0">{{ _('Accepted') }}</a>
     <div class="or"></div>
-    <a class="ui button" href="{{ url('problem:status') }}?problem={{ problem.pk }}">所有提交
+    <a class="ui button" href="{{ url('problem:status') }}?problem={{ problem.pk }}">{{ _('All submissions') }}
       <i class="right chevron icon"></i>
     </a>
   </div>
@@ -84,8 +84,8 @@
   {% if runtime_data %}
     <h3 class="ui header">
       <i class="time icon"></i>
-      <div class="content">CPU 时间 / 代码长度
-        <div class="sub header">你的提交是大圆。</div>
+      <div class="content">{{ _('CPU time vs. Code length') }}
+        <div class="sub header">{{ _('Your submissions are highlighted.') }}</div>
       </div>
     </h3>
   <div id="runtime-distribution"></div>

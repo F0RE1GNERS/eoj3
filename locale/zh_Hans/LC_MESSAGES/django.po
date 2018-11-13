@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 13:48+0800\n"
+"POT-Creation-Date: 2018-11-13 14:26+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -329,6 +329,10 @@ msgstr ""
 msgid "Play CAPTCHA as audio file"
 msgstr ""
 
+#: templates/comments/comment_reply.jinja2:2
+msgid "You are replying <b class=\"reply-to-name\">the post</b>"
+msgstr "你在回复<b class=\"reply-to-name\">主题</b>"
+
 #: templates/components/blog_preview.jinja2:19
 #: templates/home_logged_in.jinja2:118
 msgid "More"
@@ -419,13 +423,13 @@ msgid "Judged"
 msgstr "评测时间"
 
 #: templates/components/past_submissions.jinja2:14
-#, fuzzy
-#| msgid "Language"
+#: templates/components/status.jinja2:55
 msgid "Lang"
 msgstr "语言"
 
 #: templates/components/past_submissions.jinja2:15
 #: templates/components/single_submission.jinja2:13
+#: templates/components/status.jinja2:74
 msgid "Verdict"
 msgstr "判定结果"
 
@@ -474,7 +478,8 @@ msgid "%(num)d problems solved."
 msgstr "已解出 %(num)d 道题目。"
 
 #: templates/components/single_submission.jinja2:8
-#: templates/contest/base.jinja2:112
+#: templates/components/status.jinja2:25 templates/components/status.jinja2:44
+#: templates/components/status.jinja2:46 templates/contest/base.jinja2:112
 msgid "Problem"
 msgstr "题目"
 
@@ -483,6 +488,7 @@ msgid "Language"
 msgstr "语言"
 
 #: templates/components/single_submission.jinja2:16
+#: templates/components/status.jinja2:92
 msgid "Judge"
 msgstr "评测机"
 
@@ -497,6 +503,43 @@ msgstr "是否需要帮助？"
 #: templates/components/single_submission.jinja2:79
 msgid "Buy full debug report to see what's wrong."
 msgstr "用 EMB 购买完整的评测报告。"
+
+#: templates/components/status.jinja2:9
+msgid "When"
+msgstr "时间"
+
+#: templates/components/status.jinja2:13 templates/components/status.jinja2:15
+msgid "Who"
+msgstr "用户"
+
+#: templates/components/status.jinja2:33 templates/components/status.jinja2:63
+#: templates/components/status.jinja2:77 templates/components/status.jinja2:178
+msgid "(All)"
+msgstr "所有"
+
+#: templates/components/status.jinja2:88
+#: templates/contest/contest_list.jinja2:14
+msgid "Length"
+msgstr "时长"
+
+#: templates/components/status.jinja2:101
+#: templates/components/status.jinja2:102
+msgid "Cheat"
+msgstr "作弊"
+
+#: templates/components/status.jinja2:127
+#: templates/components/status.jinja2:149
+#: templates/components/status.jinja2:152
+msgid "N/A"
+msgstr "不可用"
+
+#: templates/components/status.jinja2:165
+msgid "Are you sure you want to rejudge all submissions?"
+msgstr "是否确定要重判所有提交？"
+
+#: templates/components/status.jinja2:175
+msgid "Select Problem"
+msgstr "选择题目"
 
 #: templates/contest/base.jinja2:10
 msgid "Dashboard"
@@ -583,7 +626,8 @@ msgid "Contest status has changed. Click to refresh the page."
 msgstr "比赛状态发生改变，点 OK 刷新。"
 
 #: templates/contest/contest_gym_list.jinja2:12
-#: templates/contest/contest_list.jinja2:12 templates/problem/index.jinja2:18
+#: templates/contest/contest_list.jinja2:12 templates/contest/index.jinja2:103
+#: templates/problem/index.jinja2:18
 msgid "Name"
 msgstr "标题"
 
@@ -624,10 +668,6 @@ msgstr "尚未开始"
 msgid "Ended"
 msgstr "已结束"
 
-#: templates/contest/contest_list.jinja2:14
-msgid "Length"
-msgstr "时长"
-
 #: templates/contest/contest_list.jinja2:15
 msgid "Writers"
 msgstr "命题"
@@ -639,6 +679,88 @@ msgstr "题目赛后公开"
 #: templates/contest/contest_list.jinja2:34
 msgid "Virtual participate after contest"
 msgstr "赛后虚拟参赛"
+
+#: templates/contest/index.jinja2:19
+msgid "Virtual participation"
+msgstr "虚拟参赛"
+
+#: templates/contest/index.jinja2:49
+msgid "Permission Notice"
+msgstr "权限受限"
+
+#: templates/contest/index.jinja2:50
+msgid "This contest is private. You can either"
+msgstr "你可以有两种选择："
+
+#: templates/contest/index.jinja2:54
+msgid "Enter a valid invitation code to join the contest, OR"
+msgstr "输入一个合法的邀请码把自己拉进去；或"
+
+#: templates/contest/index.jinja2:55
+msgid "Re-login with the given account."
+msgstr "使用一个已经加入的账户登录。"
+
+#: templates/contest/index.jinja2:60
+msgid "If you have an invitation code..."
+msgstr "邀请码在此填入"
+
+#: templates/contest/index.jinja2:61
+msgid "Join the contest"
+msgstr "加入"
+
+#: templates/contest/index.jinja2:72
+msgid "Rated contest requires registration."
+msgstr "积分比赛需要提前注册"
+
+#: templates/contest/index.jinja2:75
+msgid ""
+"You need to register, before the contest begins, to be rated in this contest."
+msgstr "你必须在赛前注册才能参与积分。"
+
+#: templates/contest/index.jinja2:76
+msgid ""
+"If you fail to register, you can still participate in the contest, but you "
+"will be an un-rated participant (by automatically starred)."
+msgstr "如果你没有注册，你仍可以参赛，但将会自动打星。"
+
+#: templates/contest/index.jinja2:77
+msgid ""
+"You can cancel your registration before the contest begins. But if you "
+"don't, you <b>will be considered a participant</b> in the contest, and be "
+"rated, even if you haven't submit any solution."
+msgstr ""
+"你可以在赛前取消注册。如果你没有取消注册而且没有作出任何提交，我们会在赛后计"
+"算积分前进行打星操作。"
+
+#: templates/contest/index.jinja2:83
+msgid "OK, Register"
+msgstr "确认注册"
+
+#: templates/contest/index.jinja2:88
+msgid "Cancel my registration"
+msgstr "取消注册"
+
+#: templates/contest/index.jinja2:104
+msgid "/ Max / Avg"
+msgstr "/ 最高 / 平均"
+
+#: templates/contest/index.jinja2:104
+#: templates/problem/detail/statistics.jinja2:35
+#: templates/problem/index.jinja2:20
+msgid "Solved"
+msgstr "通过人数"
+
+#: templates/contest/index.jinja2:118
+msgid "Practice in problemset"
+msgstr "在题目集中练习"
+
+#: templates/contest/index.jinja2:146
+msgid "My Score"
+msgstr "我的成绩"
+
+#: templates/contest/index.jinja2:147
+msgid "Might be cached for a few seconds."
+msgstr "可能会有几秒钟的缓存。"
 
 #: templates/contest/index.jinja2:176
 msgid "Clarifications"
@@ -717,6 +839,58 @@ msgstr "时长"
 #, python-format
 msgid "Standings frozen after %(time)s (%(natural_time)s)."
 msgstr "榜单在 %(time)s 关闭 (%(natural_time)s)。"
+
+#: templates/contest/my_status.jinja2:9
+msgid "Download All"
+msgstr "下载所有提交"
+
+#: templates/contest/my_status.jinja2:12
+msgid "Download Accepted"
+msgstr "下载通过的提交"
+
+#: templates/contest/my_status.jinja2:16
+msgid "Claim Accepted"
+msgstr "自动迁移做过的题"
+
+#: templates/contest/my_status.jinja2:23
+msgid "* means unofficial solutions"
+msgstr "带 * 的是「场外」提交"
+
+#: templates/contest/standings.jinja2:11
+msgid "Refresh"
+msgstr "重新计算榜单"
+
+#: templates/contest/standings.jinja2:16
+msgid "Standings as .csv"
+msgstr "导出为 csv"
+
+#: templates/contest/standings.jinja2:19
+msgid "Standings (TestSys)"
+msgstr "导出为 TestSys"
+
+#: templates/contest/standings.jinja2:22
+msgid "Download All Codes"
+msgstr "下载所有代码"
+
+#: templates/contest/standings.jinja2:25
+msgid "Accepted Codes"
+msgstr "下载通过代码"
+
+#: templates/contest/standings.jinja2:28
+msgid "Final Standings"
+msgstr "终榜"
+
+#: templates/contest/standings.jinja2:71
+msgid "Submitted"
+msgstr "提交"
+
+#: templates/contest/standings.jinja2:81
+msgid "First Yes"
+msgstr "一血"
+
+#: templates/contest/standings_snippet.jinja2:8
+msgid "Penalty"
+msgstr "罚时"
 
 #: templates/home_logged_in.jinja2:22
 msgid "News feed is currently unavailable."
@@ -813,6 +987,56 @@ msgstr "修改"
 msgid "Latest Submission"
 msgstr "最后提交"
 
+#: templates/problem/detail/statistics.jinja2:14
+msgid "BY AUTHORS"
+msgstr "人数"
+
+#: templates/problem/detail/statistics.jinja2:17
+msgid "TOTAL"
+msgstr "提交量"
+
+#: templates/problem/detail/statistics.jinja2:20
+msgid "REWARD"
+msgstr "奖励"
+
+#: templates/problem/detail/statistics.jinja2:29
+#: templates/problem/detail/statistics.jinja2:76
+msgid "Accepted"
+msgstr "通过"
+
+#: templates/problem/detail/statistics.jinja2:55
+#: templates/problem/detail/statistics.jinja2:58
+msgid "Latest"
+msgstr "最新"
+
+#: templates/problem/detail/statistics.jinja2:59
+msgid "Fastest"
+msgstr "最快"
+
+#: templates/problem/detail/statistics.jinja2:60
+msgid "Shortest"
+msgstr "最短"
+
+#: templates/problem/detail/statistics.jinja2:68
+msgid "Submissions"
+msgstr "提交"
+
+#: templates/problem/detail/statistics.jinja2:69
+msgid "Codes under contest might be unavailable."
+msgstr "比赛下的提交可能访问受限。"
+
+#: templates/problem/detail/statistics.jinja2:78
+msgid "All submissions"
+msgstr "所有提交"
+
+#: templates/problem/detail/statistics.jinja2:87
+msgid "CPU time vs. Code length"
+msgstr "CPU 时间 / 代码长度"
+
+#: templates/problem/detail/statistics.jinja2:88
+msgid "Your submissions are highlighted."
+msgstr "你的提交是大圆。"
+
 #: templates/problem/detail/tag.jinja2:4 templates/problem/detail/tag.jinja2:31
 msgid "Problem Tags"
 msgstr "标签"
@@ -825,10 +1049,6 @@ msgstr "标签"
 #, python-format
 msgid "Your are currently comparing with %(user)s"
 msgstr "你正在与 %(user)s 比较"
-
-#: templates/problem/index.jinja2:20
-msgid "Solved"
-msgstr "通过人数"
 
 #: templates/problem/index.jinja2:21
 msgid "He/She"
@@ -890,11 +1110,6 @@ msgstr ""
 #, python-format
 msgid "Invalid page (%(page_number)s): %(message)s"
 msgstr ""
-
-#, fuzzy
-#~| msgid "Submission"
-#~ msgid "My submissions"
-#~ msgstr "我的提交"
 
 #~ msgid "Always running"
 #~ msgstr "一直开放"

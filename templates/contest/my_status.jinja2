@@ -6,21 +6,21 @@
 
   <div class="ui horizontal divided link list">
     <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my" target="_blank">
-      下载所有提交
+      {{ _('Download All') }}
     </a>
     <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my_accepted" target="_blank">
-      下载通过的提交
+      {{ _('Download Accepted') }}
     </a>
     {% if contest.contest_type == 1 %}
       <a class="item post-link" data-link="{{ url('contest:my_claim', contest.pk) }}">
-        自动迁移做过的题
+        {{ _('Claim Accepted') }}
       </a>
     {% endif %}
   </div>
 
   {% include 'components/message.jinja2' %}
 
-  <div class="ui sub header" style="float:right; margin-top: 0">带 * 的是「场外」提交</div>
+  <div class="ui sub header" style="float:right; margin-top: 0">{{ _('* means unofficial solutions') }}</div>
 
   {{ status() }}
 

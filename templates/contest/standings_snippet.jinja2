@@ -5,7 +5,7 @@
   <th style="{{ column_style }}">=</th>
   {% if contest.contest_type == 0 and contest.penalty_counts %}
     {% set first_column_span = first_column_span + 1 %}
-    <th class="one wide">罚时</th>
+    <th class="one wide">{{ _('Penalty') }}</th>
   {% endif %}
   {% if not contest.standings_without_problem %}
     {% if contest.scoring_method == "acm" or (contest.contest_problem_list | length) == 1 %}
