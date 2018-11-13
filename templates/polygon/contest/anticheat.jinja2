@@ -30,9 +30,9 @@
         <td>{{ plag.update_time | date("Y-m-d H:i:s") }}</td>
         <td>{{ plag.language }}</td>
         <td>{{ plag.keep_match }}</td>
-        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/report/stderr">Stderr</a></td>
-        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/report/stdout">Stdout</a></td>
-        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/report/index.html">Index</a></td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/stderr">Stderr</a></td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/stdout">Stdout</a></td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/index.html">Index</a></td>
       </tr>
     {% endfor %}
     </tbody>

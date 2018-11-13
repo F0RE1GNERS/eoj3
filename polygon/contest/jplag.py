@@ -31,7 +31,7 @@ class JPlagManager():
         problem_id = self.contest.contestproblem_set.get(identifier=self.plag.identifier).problem_id
         for s in self.contest.submission_set.filter(contest_time__isnull=False, status=SubmissionStatus.ACCEPTED,
                                                     problem_id=problem_id):
-            with open(os.path.join(self.code_dir, "%d_%d.cpp" % (s.pk, s.author_id), "w")) as f:
+            with open(os.path.join(self.code_dir, "%d_%d.cpp" % (s.pk, s.author_id)), "w") as f:
                 f.write(s.code)
 
     def run(self):
@@ -39,7 +39,8 @@ class JPlagManager():
                 open(os.path.join(self.result_dir, "stderr"), "w") as stderr_file:
             retcode = subprocess.call(
                 ["java", "-jar", os.path.join(settings.BASE_DIR, "polygon/assets/jplag-2.11.9_SNAPSHOT.jar"),
-                 "-vq", "-m", str(self.plag.keep_match), "-l", self.plag.language, self.code_dir], timeout=300,
+                 "-vq", "-m", str(self.plag.keep_match), "-l", self.plag.language,
+                 "-r", self.result_dir, self.code_dir], timeout=300,
                 stdout=stdout_file, stderr=stderr_file)
             if retcode:
                 self.plag.status = 1
