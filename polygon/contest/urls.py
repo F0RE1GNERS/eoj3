@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 import polygon.contest.views as v
+import polygon.contest.jplag as j
 
 urlpatterns = [
     url(r'^$', v.ContestList.as_view(), name='contest_list'),
@@ -46,7 +47,9 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/rejudge/$', v.RejudgeContestProblemSubmission.as_view(), name='contest_rejudge'),
     url(r'^(?P<pk>\d+)/system-test/', v.ContestSystemTestView.as_view(), name='contest_system_test'),
     url(r'^(?P<pk>\d+)/disable/(?P<participant_pk>\d+)/$', v.ContestAccountDisable.as_view(), name='contest_account_disable'),
-    url(r'^(?P<pk>\d+)/anticheat/$', v.ContestAntiCheatStatus.as_view(), name='contest_anti_cheat_status'),
-    url(r'^(?P<pk>\d+)/anticheat/start/$', v.ContestAntiCheatAnalysisStart.as_view(), name='contest_anti_cheat_start'),
-    url(r'^(?P<pk>\d+)/anticheat/report/(?P<submission_pk>\d+)/$', v.ContestAntiCheatReport.as_view(), name='contest_anti_cheat_report'),
+]
+
+urlpatterns += [
+    url(r'^(?P<pk>\d+)/plag/$', j.JPlagHistoryView.as_view(), name='contest_plag'),
+    url(r'^(?P<pk>\d+)/plag/create/$', j.JPlagCreateView.as_view(), name='contest_plag_create'),
 ]

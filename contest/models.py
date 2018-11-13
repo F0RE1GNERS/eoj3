@@ -338,10 +338,12 @@ class ContestUserRating(models.Model):
 class ContestProblemPlag(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     fingerprint = models.CharField(max_length=100)
-    status = models.IntegerField(choices=((-1, 'Pending'), (0, 'Ready')))
+    status = models.IntegerField(choices=((-1, 'Pending'), (0, 'Ready'), (1, 'Failed')))
     identifier = models.CharField(max_length=20, blank=True)
-    language = models.CharField(max_length=20, blank=True)
+    language = models.CharField(max_length=20, default="c/c++")
+    keep_match = models.PositiveIntegerField(default=20)
     create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
 
 
 class Activity(models.Model):
