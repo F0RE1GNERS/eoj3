@@ -134,6 +134,8 @@ class ContestAccessManage(PolygonContestMixin, View):
         self.contest.managers.clear()
         for key in my_set:
             self.contest.managers.add(User.objects.get(pk=key))
+        if self.request.user.pk not in my_set:
+            self.contest.managers.add(self.request.user)
         return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(pk)}))
 
 

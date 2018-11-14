@@ -20,12 +20,18 @@
   {% endif %}
 {% endmacro %}
 
+{% macro virtual_mark(user) %}
+  {% if user.join_time %}
+    <span data-tooltip="Virtual Participant: {{ user.join_time | date('Y-m-d H:i') }}"><i class="ui grey icon hashtag"></i></span>
+  {% endif %}
+{% endmacro %}
+
 {% macro display_rank(rank) %}
     <td scope="row">{% if rank.actual_rank %}{{ rank.actual_rank }}{% endif %}</td>
     <td class="ui left aligned">
       <h5 class="ui header" style="margin-top:0; {% if not rank.user.user.magic %}font-weight:normal;{% endif %}">
         <div class="content">
-          {% if rank.user.star %}* {% endif %}{% if rank.user.comment %}<span style="font-weight:600">{{ rank.user.comment }}</span><div class="sub header">{{ username_display(rank.user.user) }}</div>{% else %}{{ username_display(rank.user.user) }}{% endif %}
+          {% if rank.user.star %}* {% endif %}{% if rank.user.comment %}<span style="font-weight:600">{{ rank.user.comment }}{{ virtual_mark(rank.user) }}</span><div class="sub header">{{ username_display(rank.user.user) }}</div>{% else %}{{ username_display(rank.user.user) }}{{ virtual_mark(rank.user) }}{% endif %}
         </div>
       </h5>
     </td>

@@ -330,6 +330,8 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
         self.problem.managers.clear()
         for key in my_set:
             self.problem.managers.add(User.objects.get(pk=key))
+        if self.request.user.pk not in my_set:
+            self.problem.managers.add(self.request.user)
         self.problem.save()
         return redirect(request.POST.get('next', self.request.path))
 

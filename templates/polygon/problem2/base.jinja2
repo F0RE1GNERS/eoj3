@@ -1,7 +1,7 @@
 {% extends 'polygon/base.jinja2' %}
 {% from 'components/search_user.jinja2' import user_search_multiple %}
 
-{% block title %}Problem #{{ problem.id }} - {% endblock %}
+{% block title %}{% if polygon_title %}{{ polygon_title }} - {% endif %}#{{ problem.id }} - {% endblock %}
 
 {% block css %}
 <style>
@@ -12,39 +12,39 @@
 {% endblock %}
 
 {% block content %}
-  <h1 class="ui header">Problem #{{ problem.id }} (Revision {{ revision.revision }})</h1>
+  <h1 class="ui header">题目 #{{ problem.id }} (版本 {{ revision.revision }})</h1>
 
   <div class="ui text stackable menu">
-    <a class="item {{ active('polygon:revision_update') }}" href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Revision</a>
-    <a class="item {{ active('polygon:revision_statement') }}" href="{{ url('polygon:revision_statement', problem.id, revision.id) }}">Statements</a>
-    <a class="item {{ active('polygon:revision_asset') }}" href="{{ url('polygon:revision_asset', problem.id, revision.id) }}">Assets</a>
-    <a class="item {{ active('polygon:revision_program') }}" href="{{ url('polygon:revision_program', problem.id, revision.id) }}">Programs</a>
-    <a class="item {{ active('polygon:revision_case') }}" href="{{ url('polygon:revision_case', problem.id, revision.id) }}">Cases</a>
-    <a class="item {{ active('polygon:revision_template') }}" href="{{ url('polygon:revision_template', problem.id, revision.id) }}">Templates</a>
-    <a class="item {{ active('polygon:revision_task') }}" href="{{ url('polygon:revision_task', problem.id, revision.id) }}">Tasks</a>
-    <a class="item" href="{{ url('polygon:problem_status', problem.id) }}" target="_blank">Submits</a>
-    <a class="item" href="{{ url('problem:detail', problem.id) }}" target="_blank">Published</a>
+    <a class="item {{ active('polygon:revision_update') }}" href="{{ url('polygon:revision_update', problem.id, revision.id) }}">概览</a>
+    <a class="item {{ active('polygon:revision_statement') }}" href="{{ url('polygon:revision_statement', problem.id, revision.id) }}">题面</a>
+    <a class="item {{ active('polygon:revision_asset') }}" href="{{ url('polygon:revision_asset', problem.id, revision.id) }}">静态文件</a>
+    <a class="item {{ active('polygon:revision_program') }}" href="{{ url('polygon:revision_program', problem.id, revision.id) }}">程序</a>
+    <a class="item {{ active('polygon:revision_case') }}" href="{{ url('polygon:revision_case', problem.id, revision.id) }}">数据</a>
+    <a class="item {{ active('polygon:revision_template') }}" href="{{ url('polygon:revision_template', problem.id, revision.id) }}">模板</a>
+    <a class="item {{ active('polygon:revision_task') }}" href="{{ url('polygon:revision_task', problem.id, revision.id) }}">任务</a>
+    <a class="item" href="{{ url('polygon:problem_status', problem.id) }}" target="_blank">提交</a>
+    <a class="item" href="{{ url('problem:detail', problem.id) }}" target="_blank">已发布的版本</a>
     {#    <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submits</a>#}
   </div>
 
   {% if revision_errors %}
   <div class="ui error message">
     <div class="header">
-      You have fatal errors that can cause upload failure.
+      你有致命的错误会导致发布失败！
     </div>
     <ul class="list">
       {% for err in revision_errors %}
-        <li>FATAL: {{ err }}</li>
+        <li>致命：{{ err }}</li>
       {% endfor %}
       {% for err in revision_warnings %}
-        <li>WARNING: {{ err }}</li>
+        <li>警告：{{ err }}</li>
       {% endfor %}
     </ul>
   </div>
   {% elif revision_warnings %}
   <div class="ui warning message">
     <div class="header">
-      You still have some warnings.
+      你有一些警告。
     </div>
     <ul class="list">
       {% for err in revision_warnings %}
@@ -55,7 +55,7 @@
   {% endif %}
 
   <div class="ui inverted dimmer" id="loading-dimmer">
-    <div class="ui text loader">Loading</div>
+    <div class="ui text loader">正在加载</div>
   </div>
 
   {% if not disable_grid %}
@@ -70,28 +70,28 @@
       {% if revision_readonly %}
       <div class="ui warning message">
         <div class="header">
-          Read-only Revision!
+          只读版本！
         </div>
         <div class="content">
-          This revision is either done or discarded. Please <a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">fork it</a> to make further changes.
+          此版本已经完成或已经被丢弃。请使用<a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">复制</a>功能创建新的版本以进行更新。
         </div>
       </div>
       {% endif %}
       <div class="ui info small message">
         <div class="header">
-          Quick Review <a href="javascript:void(0);" id="basic-info-button">[edit]</a>
+          基本信息 <a href="javascript:void(0);" id="basic-info-button">[编辑]</a>
         </div>
         <ul class="list">
-          <li class="item"><b>Problem Alias:</b> {{ problem.alias }}</li>
-          <li class="item"><b>Revision:</b> {{ revision.revision }}</li>
-          <li class="item"><b>Statement:</b>
+          <li class="item"><b>别名:</b> {{ problem.alias }}</li>
+          <li class="item"><b>版本:</b> {{ revision.revision }}</li>
+          <li class="item"><b>题面:</b>
             {% if revision.active_statement %}
               <a href="{{ url('polygon:revision_statement_preview', problem.id, revision.id, revision.active_statement_id) }}">{{ revision.active_statement.name }}</a>
             {% else %}
               <a href="{{ url('polygon:revision_statement', problem.id, revision.id) }}"><span class="text red bold" style="font-weight:bold;">None</span></a>
             {% endif %}
           </li>
-          <li class="item"><b>Checker:</b>
+          <li class="item"><b>输出校验:</b>
             <a href="{{ url('polygon:revision_program', problem.id, revision.id) }}">
               {% if revision.active_checker %}
                 {{ revision.active_checker.name }}
@@ -100,7 +100,7 @@
               {% endif %}
             </a>
           </li>
-          <li class="item"><b>Validator:</b>
+          <li class="item"><b>输入校验:</b>
             <a href="{{ url('polygon:revision_program', problem.id, revision.id) }}">
               {% if revision.active_validator %}
                 {{ revision.active_validator.name }}
@@ -109,7 +109,7 @@
               {% endif %}
             </a>
           </li>
-          <li class="item"><b>Interactor:</b>
+          <li class="item"><b>交互器:</b>
             <a href="{{ url('polygon:revision_program', problem.id, revision.id) }}">
               {% if revision.active_interactor %}
                 {{ revision.active_interactor.name }}
@@ -118,16 +118,16 @@
               {% endif %}
             </a>
           </li>
-          <li class="item"><b>Cases:</b>
+          <li class="item"><b>数据组数:</b>
             <a href="{{ url('polygon:revision_case', problem.id, revision.id) }}">
               {{ revision.cases.count() }}
             </a>
           </li>
-          <li class="item"><b>Time limit:</b> {{ revision.time_limit }} ms</li>
-          <li class="item"><b>Memory limit:</b> {{ revision.memory_limit }} MB</li>
-          <li class="item"><b>Managers:</b> {% for manager in admin_list %}{{ manager }} {% endfor %}</li>
-          <li class="item"><b>Difficulty:</b> {{ problem.get_level_display() }}</li>
-          <li class="item"><b>Source: </b>{% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</li>
+          <li class="item"><b>时限:</b> {{ revision.time_limit }} ms</li>
+          <li class="item"><b>内存限:</b> {{ revision.memory_limit }} MB</li>
+          <li class="item"><b>管理员:</b> {% for manager in admin_list %}{{ manager }} {% endfor %}</li>
+          <li class="item"><b>难度:</b> {{ problem.get_level_display() }}</li>
+          <li class="item"><b>来源:</b>{% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</li>
         </ul>
       </div>
       <a class="ui green fluid small button {% if revision_errors %}disabled{% else %}post prompt{% endif %}" data-link="{{ url('polygon:revision_confirm', problem.id, revision.id) }}" style="margin-bottom: 0.75em">Publish</a>
@@ -144,26 +144,26 @@
   <div class="ui modal" id="basic-info-modal">
     <i class="close icon"></i>
     <div class="header">
-      Problem Metainfo
+      基本信息编辑
     </div>
     <div class="content">
       <form class="ui form" method="POST" action="{{ url('polygon:problem_basic_info', problem.pk) }}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.path }}">
         <div class="field">
-          <label>Admin List (DO NOT DELETE YOURSELF!):</label>
+          <label>管理员列表:</label>
           {{ user_search_multiple(name='admin', exist=admin_list) }}
         </div>
         <div class="field">
-          <label>Problem Alias:</label>
+          <label>题面别名:</label>
           <input type="text" name="alias" value="{{ problem.alias }}">
         </div>
         <div class="field">
-          <label>Problem Source:</label>
+          <label>题目来源:</label>
           <input type="text" name="source" value="{{ problem.source }}">
         </div>
         <div class="field">
-          <label>Assigned Difficulty Level:</label>
+          <label>预估题目难度:</label>
           <select class="ui selection dropdown" name="level">
             {% for val, verbose in level_select %}
             <option value="{{ val }}" {% if val == problem.level %}selected{% endif %}>{{ verbose }}</option>
@@ -174,7 +174,7 @@
     </div>
     <div class="actions">
       <div class="ui black deny button">
-        Discard
+        放弃
       </div>
       <div class="ui positive right labeled icon button">
         OK
