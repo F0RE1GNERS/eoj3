@@ -37,18 +37,18 @@ class BlogRevision(models.Model):
 
 
 class Blog(models.Model):
-    title = models.CharField('标题', max_length=128)
-    text = models.TextField('内容')
+    title = models.CharField(_('Title'), max_length=128)
+    text = models.TextField(_('Content'))
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    visible = models.BooleanField('所有用户可见', default=True)
-    create_time = models.DateTimeField('创建时间', auto_now_add=True)
-    edit_time = models.DateTimeField('修改时间', auto_now=True)
+    visible = models.BooleanField(_('Visible to all users'), default=True)
+    create_time = models.DateTimeField(_('Create time'), auto_now_add=True)
+    edit_time = models.DateTimeField(_('Update time'), auto_now=True)
 
     likes = models.ManyToManyField(User, through='BlogLikes', related_name='blog_user_like')
     recommend = models.BooleanField(default=False)
     revisions = models.ManyToManyField(BlogRevision)
-    hide_revisions = models.BooleanField('历史版本仅自己可见', default=False)
+    hide_revisions = models.BooleanField(_('History versions only available to you'), default=False)
 
     objects = BlogQuerySet.as_manager()
 

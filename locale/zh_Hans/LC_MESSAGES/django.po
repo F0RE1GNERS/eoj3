@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-15 08:22+0800\n"
+"POT-Creation-Date: 2018-11-15 08:56+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,7 +94,7 @@ msgstr "试试看呢？"
 msgid "Image size should not be larger than 2M."
 msgstr "文件大小不超过 2MB。"
 
-#: account/forms.py:162 problem/models.py:31
+#: account/forms.py:162 blog/models.py:40 problem/models.py:31
 msgid "Title"
 msgstr "标题"
 
@@ -102,7 +102,7 @@ msgstr "标题"
 msgid "What is the problem"
 msgstr "你遇到了什么问题"
 
-#: account/forms.py:163
+#: account/forms.py:163 blog/models.py:41
 msgid "Content"
 msgstr "内容"
 
@@ -231,17 +231,38 @@ msgstr "用户名太短或非法。"
 msgid "Username should be unique."
 msgstr "用户名已被占用。"
 
-#: blog/forms.py:13
-msgid "Markdown and MathJax are supported. Use $e^x$ for formulas."
-msgstr ""
+#: blog/forms.py:15
+#, python-format
+msgid "User with id %d does not exist"
+msgstr "ID 为 %d 的用户不存在"
 
+#: blog/forms.py:25
+msgid "Markdown and MathJax are supported. Use $e^x$ for formulas."
+msgstr "支持 Markdown 和 MathJax。公式用 $$ 引用。"
+
+#: blog/models.py:44
+msgid "Visible to all users"
+msgstr "对所有用户可见"
+
+#: blog/models.py:45
 #: blog/models.py:78
+#| msgid "Created"
 msgid "Created time"
-msgstr ""
+msgstr "创建时间"
+
+#: blog/models.py:46
+#, fuzzy
+#| msgid "Update Log"
+msgid "Update time"
+msgstr "更新日志"
+
+#: blog/models.py:51
+msgid "History versions only available to you"
+msgstr "历史版本仅自己可见"
 
 #: blog/views.py:125 blog/views.py:169
 msgid "You don't have the access."
-msgstr ""
+msgstr "你没有权限。"
 
 #: problem/models.py:22
 msgid "Enter a valid alias. Use letters and digits only."
@@ -256,12 +277,10 @@ msgid "Description"
 msgstr "题目描述"
 
 #: problem/models.py:33 templates/components/problem.jinja2:18
-#: templates/components/problem.jinja2:41
 msgid "Input"
 msgstr "输入"
 
 #: problem/models.py:34 templates/components/problem.jinja2:22
-#: templates/components/problem.jinja2:45
 msgid "Output"
 msgstr "输出"
 
@@ -458,6 +477,11 @@ msgstr "交互流程"
 msgid "Examples"
 msgstr "样例"
 
+#: templates/components/problem.jinja2:42
+#: templates/components/problem.jinja2:46
+msgid "Click to copy"
+msgstr "点击可以复制"
+
 #: templates/components/problem.jinja2:53
 msgid "Note"
 msgstr "提示"
@@ -546,6 +570,20 @@ msgstr "是否确定要重判所有提交？"
 #: templates/components/status.jinja2:175
 msgid "Select Problem"
 msgstr "选择题目"
+
+#: templates/components/submission_report.jinja2:5
+msgid "Judgement protocol"
+msgstr "评测报告"
+
+#: templates/components/submission_report.jinja2:6
+#, fuzzy
+#| msgid "First Yes"
+msgid "First 512 bytes."
+msgstr "仅保留前 512 字节。"
+
+#: templates/components/submission_report.jinja2:13
+msgid "Case"
+msgstr "测试点"
 
 #: templates/contest/base.jinja2:10
 msgid "Dashboard"
