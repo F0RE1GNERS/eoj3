@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 14:26+0800\n"
+"POT-Creation-Date: 2018-11-15 08:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -496,11 +496,17 @@ msgstr "评测机"
 msgid "Rejudge"
 msgstr "重测"
 
-#: templates/components/single_submission.jinja2:77
+#: templates/components/single_submission.jinja2:43
+#, fuzzy
+#| msgid "(All)"
+msgid "All"
+msgstr "所有"
+
+#: templates/components/single_submission.jinja2:78
 msgid "Need some help?"
 msgstr "是否需要帮助？"
 
-#: templates/components/single_submission.jinja2:79
+#: templates/components/single_submission.jinja2:80
 msgid "Buy full debug report to see what's wrong."
 msgstr "用 EMB 购买完整的评测报告。"
 
@@ -891,6 +897,18 @@ msgstr "一血"
 #: templates/contest/standings_snippet.jinja2:8
 msgid "Penalty"
 msgstr "罚时"
+
+#: templates/error/403.jinja2:23
+msgid "Oops! Page Forbidden..."
+msgstr "访问受限！"
+
+#: templates/error/403.jinja2:24
+msgid "BACK"
+msgstr "上一页"
+
+#: templates/error/403.jinja2:24
+msgid "HOME"
+msgstr "主页"
 
 #: templates/home_logged_in.jinja2:22
 msgid "News feed is currently unavailable."

@@ -49,13 +49,13 @@ urlpatterns = [
     url(r'^paste/$', PasteView.as_view(), name='pastebin'),
     url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
-    url(r'i18n/', include('django.conf.urls.i18n'))
+    url(r'^i18n/', include('django.conf.urls.i18n'))
 ]
 
 urlpatterns += [
-    url(r'403/(?P<exception>\w+)/$', forbidden_view),
-    url(r'404/$', not_found_view),
-    url(r'500/$', server_error_view),
+    url(r'^403/(?P<exception>\w+)/$', forbidden_view),
+    url(r'^404/$', not_found_view),
+    url(r'^500/$', server_error_view),
 ]
 
 

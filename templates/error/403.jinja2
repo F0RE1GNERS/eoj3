@@ -20,8 +20,15 @@
     <div class="column">
       <img class="ui fluid image" src="/static/image/error/403.png">
       <h2 class="ui grey header">
-        Oops! Page Forbidden...
+        {{ _('Oops! Page Forbidden...') }}
+        <div class="sub header" style="margin-top:0.5em"><a href="javascript:goBack()">{{ _('BACK') }}</a> | <a href="/">{{ _("HOME") }}</a></div>
       </h2>
     </div>
   </div>
+
+  <script>
+  function goBack() {
+    window.history.back();
+  }
+  </script>
 {% endblock %}
