@@ -127,7 +127,7 @@
           <li class="item"><b>内存限:</b> {{ revision.memory_limit }} MB</li>
           <li class="item"><b>管理员:</b> {% for manager in admin_list %}{{ manager }} {% endfor %}</li>
           <li class="item"><b>难度:</b> {{ problem.get_level_display() }}</li>
-          <li class="item"><b>来源:</b>{% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</li>
+          <li class="item"><b>来源:</b> {% if problem.source %}{{ problem.source }}{% else %}N/A{% endif %}</li>
         </ul>
       </div>
       <a class="ui green fluid small button {% if revision_errors %}disabled{% else %}post prompt{% endif %}" data-link="{{ url('polygon:revision_confirm', problem.id, revision.id) }}" style="margin-bottom: 0.75em">Publish</a>

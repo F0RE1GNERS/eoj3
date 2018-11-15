@@ -57,7 +57,7 @@ def forbidden_view(request, exception):
     return render(request, 'error/403.jinja2', context={"exception": exception}, status=403)
 
 
-def not_found_view(request, exception):
+def not_found_view(request, *args):
     return render(request, 'error/404.jinja2', status=404)
 
 

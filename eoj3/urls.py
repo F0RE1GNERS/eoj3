@@ -13,7 +13,6 @@ from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
-from blog.views import GenericView
 from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, update_log_view, PasteView
 from home.museum import museum_view
 from problem.views import make_payment_for_full_report, case_download_link
