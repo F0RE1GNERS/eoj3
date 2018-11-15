@@ -169,76 +169,7 @@
       {{ separator() }}
     {% endif %}
 
-    {# clarification #}
-    <h3 class="ui header">
-      <i class="help circle icon"></i>
-      <div class="content">
-        {{ _('Clarifications') }}
-        <div class="sub header">{{ _('Your question posted here is only visible to yourself.') }}</div>
-      </div>
-    </h3>
-    {% if is_privileged %}
-      {% set clarification_modal_name = _("Post a notification") %}
-    {% else %}
-      {% set clarification_modal_name = _("Ask a question") %}
-    {% endif %}
-
-    <table class="ui celled table">
-      <thead>
-        <tr class="center aligned">
-          <th class="collapsing">{{ _('Time') }}</th>
-          <th class="collapsing">{{ _('User') }}</th>
-          <th>{{ _('Questions') }}</th>
-          <th>{{ _('Answers') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for clarification in clarifications %}
-        <tr>
-          <td class="center aligned collapsing">{{ clarification.time | date('Y-m-d H:i:s') }}</td>
-          <td class="center aligned collapsing">{{ username_display(clarification.author) }}</td>
-          {% if clarification.text %}
-          <td>{{ clarification.text }}</td>
-          <td>
-          {% else %}
-          <td colspan="2">
-          {% endif %}
-            {{ clarification.answer }}
-            {% if is_privileged %}
-              <i class="icon link edit modal-link" data-target="#clarificationAnswerModal"
-                 data-action="{{ url('contest:clarification_answer', contest.pk, clarification.pk) }}"></i>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="4">
-            <button class="ui primary labeled icon right floated small button modal-link" data-target="#clarificationModal">
-              <i class="icon add"></i> {{ clarification_modal_name }}
-            </button>
-          </th>
-        </tr>
-      </tfoot>
-    </table>
-
     {{ separator() }}
-
-    {% call modal(clarification_modal_name, action=url('contest:clarification', contest.pk), id="clarificationModal") %}
-      {% csrf_token %}
-      <div class="field">
-        <textarea name="text"></textarea>
-      </div>
-    {% endcall %}
-
-    {% call modal("Answer a question", action=url('contest:clarification', contest.pk), id="clarificationAnswerModal") %}
-      {% csrf_token %}
-      <div class="field">
-        <label>{{ _('Edit your answer here:') }}</label>
-        <textarea name="text"></textarea>
-      </div>
-    {% endcall %}
 
   {% endif %}
   {% endif %}

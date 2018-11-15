@@ -1,33 +1,25 @@
 from datetime import timedelta, datetime
 
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
-from django.utils import timezone
-from django.utils.dateparse import parse_time, parse_datetime
+from django.utils.dateparse import parse_datetime
 from django.views.generic import TemplateView, View
-from django.views.generic.base import ContextMixin
 from django.views.generic.list import ListView
-from ipware.ip import get_ip
 from tagging.models import TaggedItem
 
 from account.models import User
 from account.permissions import is_admin_or_root
-from blog.models import Blog
+from contest.base import BaseContestMixin
 from contest.statistics import get_participant_score, calculate_problems
 from problem.models import Problem
 from problem.statistics import get_accept_problem_list, get_attempted_problem_list
 from utils.language import LANG_CHOICE
-from utils.middleware.close_site_middleware import CloseSiteException
-from utils.permission import is_contest_manager, is_contest_volunteer
-from utils.site_settings import is_site_closed
-from .models import Contest, ContestProblem, ContestInvitation, ContestParticipant, ContestUserRating
+from .models import Contest, ContestProblem, ContestInvitation, ContestUserRating
 from .tasks import add_participant_with_invitation
 
 
@@ -35,102 +27,6 @@ def time_formatter(seconds):
     return "%d:%.2d:%.2d" % (seconds // 3600,
                              seconds % 3600 // 60,
                              seconds % 60)
-
-
-class BaseContestMixin(ContextMixin, UserPassesTestMixin):
-    raise_exception = True
-
-    def dispatch(self, request, *args, **kwargs):
-        self.contest = get_object_or_404(Contest, pk=kwargs.get('cid'))
-        self.site_closed = is_site_closed(request)
-        if self.site_closed:
-            if self.contest.contest_type == 1:
-                raise CloseSiteException
-            if not self.contest.start_time - timedelta(minutes=30) <= timezone.now() \
-                    <= self.contest.end_time + timedelta(minutes=10):
-                raise CloseSiteException
-            if self.contest.access_level >= 30:
-                raise CloseSiteException
-        self.user = request.user
-        self.privileged = is_contest_manager(self.user, self.contest)
-        self.volunteer = is_contest_volunteer(self.user, self.contest)
-        self.registered, self.vp_available = False, False
-        self.virtual_progress, self.participant = None, None        # virtual participation undergoing
-        self.participate_start_time = self.contest.start_time       # the start time for the participant
-        self.participate_end_time = self.contest.end_time           # the end time for the participant
-        self.participate_contest_status = self.contest.status       # the contest status for the participant
-        if self.user.is_authenticated:
-            try:
-                self.participant = self.contest.contestparticipant_set.get(user=self.user)
-                self.participate_start_time = self.participant.start_time(self.contest)
-                self.participate_end_time = self.participant.end_time(self.contest)
-                self.participate_contest_status = self.participant.status(self.contest)
-                if self.participant.join_time is not None and self.participate_contest_status == 0:
-                    self.virtual_progress = datetime.now() - self.participate_start_time
-                if self.contest.ip_sensitive:
-                    current_ip = get_ip(request)
-                    if self.participant.ip_address is None:
-                        self.participant.ip_address = current_ip
-                        self.participant.save(update_fields=['ip_address'])
-                    self.registered = current_ip == self.participant.ip_address
-                else: self.registered = True
-            except ContestParticipant.DoesNotExist:
-                pass
-        if not self.registered and (self.contest.access_level >= 30
-                                    or (self.contest.access_level >= 20 and self.contest.status > 0)):
-            self.registered = True
-        if self.participant is None and self.user.is_authenticated and self.contest.access_level >= 15 and \
-                        self.contest.contest_type == 0 and self.contest.status > 0:
-            self.vp_available = True
-        return super(BaseContestMixin, self).dispatch(request, *args, **kwargs)
-
-    def test_func(self):
-        if self.privileged:
-            return True
-        if self.contest.access_level == 0:
-            self.permission_denied_message = "比赛只对管理员可见。"
-            return False
-        if self.participate_contest_status < 0:
-            self.permission_denied_message = "尚未开始。"
-            return False
-        if self.registered or self.volunteer:
-            return True
-        else:
-            self.permission_denied_message = "你是不是忘了注册？"
-            return False
-
-    def get_context_data(self, **kwargs):
-        data = super(BaseContestMixin, self).get_context_data(**kwargs)
-        data['contest'] = self.contest
-        data['participate_contest_status'] = self.participate_contest_status
-        data['current_time'] = datetime.now()
-        if self.contest.length is not None:
-            data['time_remaining'] = 0
-            if self.participate_contest_status < 0:
-                data['time_remaining'] = (self.participate_start_time - data['current_time']).total_seconds()
-            elif self.participate_contest_status == 0:
-                data['time_remaining'] = (self.participate_end_time - data['current_time']).total_seconds()
-            data['time_all'], data['remaining_percent'] = 0, 0
-            if self.participate_contest_status == 0:
-                data['time_all'] = self.contest.length.total_seconds()
-                if data['time_all'] > 0:
-                    data['remaining_percent'] = data['time_remaining'] / data['time_all']
-        data['contest_problem_list'] = self.contest.contest_problem_list
-        data['has_permission'] = self.test_func()
-        data['is_privileged'] = self.privileged
-        data['is_volunteer'] = self.volunteer
-        data['show_percent'] = self.contest.scoring_method == 'oi'
-        data['site_closed'] = self.site_closed
-        data['vp_available'] = self.vp_available
-        if self.vp_available:
-            ref_time = datetime.now() + timedelta(minutes=6)
-            data['vp_start_time'] = datetime(ref_time.year, ref_time.month, ref_time.day, ref_time.hour,
-                                             ref_time.minute - ref_time.minute % 5).strftime('%Y-%m-%d %H:%M')
-        if self.contest.analysis_blog_id and \
-            Blog.objects.filter(pk=self.contest.analysis_blog_id, visible=True).exists():
-            data['analysis_available'] = True
-
-        return data
 
 
 class DashboardView(BaseContestMixin, TemplateView):
@@ -172,6 +68,7 @@ class DashboardView(BaseContestMixin, TemplateView):
         for problem in data['contest_problem_list']:
             problem.personal_label = 0
         if data['has_permission'] and self.user.is_authenticated:
+            # problem red and green status
             attempt_list = set(get_attempted_problem_list(self.request.user.id, self.contest.id))
             accept_list = set(get_accept_problem_list(self.request.user.id, self.contest.id))
             for problem in data['contest_problem_list']:
@@ -186,14 +83,8 @@ class DashboardView(BaseContestMixin, TemplateView):
                 for problem in data['contest_problem_list']:
                     if problem.problem_id in all_accept_list and problem.personal_label <= 0:
                         problem.personal_label = 2
-            if self.privileged:
-                clarifications = self.contest.contestclarification_set.all()
-            else:
-                q = Q(important=True)
-                if self.user.is_authenticated:
-                    q |= Q(author=self.user)
-                clarifications = self.contest.contestclarification_set.filter(q).select_related("author").distinct()
-            data["clarifications"] = clarifications
+
+            # show display rank
             if self.contest.contest_type == 0:
                 if self.participant is not None:
                     self_displayed_rank_template = 'display_rank_cp_%d' % self.participant.pk

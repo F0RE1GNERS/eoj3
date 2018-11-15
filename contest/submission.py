@@ -26,7 +26,7 @@ from utils.permission import get_permission_for_submission
 from utils.permission import is_contest_manager, is_case_download_available
 from .models import ContestProblem, ContestParticipant
 from .tasks import judge_submission_on_contest
-from .views import BaseContestMixin
+from contest.base import BaseContestMixin
 
 
 class ContestSubmit(BaseContestMixin, View):

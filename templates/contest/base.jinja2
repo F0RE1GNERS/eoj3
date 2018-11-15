@@ -9,6 +9,7 @@
   <div class="ui text stackable menu">
     <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">{{ _('Dashboard') }}</a>
     {% if request.user.is_authenticated %}
+    <a class="{{ active('contest:question') }} item" href="{{ url('contest:question', contest.pk) }}">{{ _('Q&A') }} <div id="qa-new-flag" class="ui red horizontal label" style="margin-left: 0.5em;{% if not check_new %}display:none{% endif %}">NEW</div></a>
     <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">{{ _('My') }}</a>
     {% endif %}
     {% if contest.common_status_access_level >= 0 or is_privileged %}
@@ -175,5 +176,26 @@
 
 {% block script %}
   <script src="/static/js/countdown.js?v=20170825"></script>
+  {% if has_permission and request.user.is_authenticated %}
+  <script>
+  function checkNew() {
+    $.get("{{ url('contest:check', contest.pk) }}", function (data) {
+      var indicator = parseInt(data);
+      if (indicator >= 1) {
+        $("#qa-new-flag").show();
+        if (indicator >= 2) {
+          alert("New Notification!");
+        }
+      } else {
+        $("#qa-new-flag").hide();
+      }
+    });
+  }
+
+  {% if not check_new %}
+  var checkNewTimer = setInterval(checkNew, 30000);
+  {% endif %}
+  </script>
+  {% endif %}
   {% block local_script %}{% endblock %}
 {% endblock %}

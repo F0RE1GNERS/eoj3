@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-15 16:14+0800\n"
+"POT-Creation-Date: 2018-11-15 20:32+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -353,7 +353,6 @@ msgid "Play CAPTCHA as audio file"
 msgstr ""
 
 #: templates/comments/comment_reply.jinja2:2
-#| msgid "You are running out of EMB..."
 msgid "You are replying to"
 msgstr "你正在回复"
 
@@ -366,6 +365,7 @@ msgid "Deleted"
 msgstr "已删除"
 
 #: templates/comments/comment_tree.jinja2:23
+#: templates/contest/clarification.jinja2:18
 msgid "Reply"
 msgstr "回复"
 
@@ -430,7 +430,7 @@ msgid "Contests"
 msgstr "竞赛"
 
 #: templates/components/navbar.jinja2:38 templates/components/navbar.jinja2:51
-#: templates/contest/base.jinja2:89 templates/home.jinja2:30
+#: templates/contest/base.jinja2:90 templates/home.jinja2:30
 #: templates/problem/base.jinja2:3 templates/problem/index.jinja2:3
 msgid "Problems"
 msgstr "题目"
@@ -521,7 +521,7 @@ msgstr "已解出 %(num)d 道题目。"
 
 #: templates/components/single_submission.jinja2:8
 #: templates/components/status.jinja2:25 templates/components/status.jinja2:44
-#: templates/components/status.jinja2:46 templates/contest/base.jinja2:112
+#: templates/components/status.jinja2:46 templates/contest/base.jinja2:113
 msgid "Problem"
 msgstr "题目"
 
@@ -607,85 +607,113 @@ msgstr "测试点"
 msgid "Dashboard"
 msgstr "仪表盘"
 
-#: templates/contest/base.jinja2:12
+#: templates/contest/base.jinja2:12 templates/contest/clarification.jinja2:3
+msgid "Q&A"
+msgstr "问答"
+
+#: templates/contest/base.jinja2:13
 msgid "My"
 msgstr "我的提交"
 
-#: templates/contest/base.jinja2:15
+#: templates/contest/base.jinja2:16
 #: templates/contest/contest_gym_list.jinja2:16
 #: templates/contest/contest_list.jinja2:17
 msgid "Status"
 msgstr "状态"
 
-#: templates/contest/base.jinja2:16 templates/contest/contest_list.jinja2:18
+#: templates/contest/base.jinja2:17 templates/contest/contest_list.jinja2:18
 msgid "Standings"
 msgstr "榜单"
 
-#: templates/contest/base.jinja2:19
+#: templates/contest/base.jinja2:20
 msgid "Balloon"
 msgstr "气球"
 
-#: templates/contest/base.jinja2:22
+#: templates/contest/base.jinja2:23
 msgid "Analysis"
 msgstr "题解"
 
-#: templates/contest/base.jinja2:25
+#: templates/contest/base.jinja2:26
 msgid "Manage"
 msgstr "管理"
 
-#: templates/contest/base.jinja2:40
+#: templates/contest/base.jinja2:41
 #: templates/contest/contest_gym_list.jinja2:31
 msgid "Open indefinitely"
 msgstr "一直开放"
 
-#: templates/contest/base.jinja2:46
+#: templates/contest/base.jinja2:47
 msgid "Deadline"
 msgstr "截止"
 
-#: templates/contest/base.jinja2:52
+#: templates/contest/base.jinja2:53
 #: templates/contest/contest_gym_list.jinja2:14
 #: templates/contest/contest_list.jinja2:13
 msgid "Start"
 msgstr "开始"
 
-#: templates/contest/base.jinja2:58
+#: templates/contest/base.jinja2:59
 msgid "Pending System Tests"
 msgstr "等待系统测试"
 
-#: templates/contest/base.jinja2:65
+#: templates/contest/base.jinja2:66
 msgid "Contest Running"
 msgstr "进行中"
 
-#: templates/contest/base.jinja2:67
+#: templates/contest/base.jinja2:68
 msgid "Contest Pending"
 msgstr "尚未开始"
 
-#: templates/contest/base.jinja2:69
+#: templates/contest/base.jinja2:70
 msgid "Contest Ended"
 msgstr "已结束"
 
-#: templates/contest/base.jinja2:106
+#: templates/contest/base.jinja2:107
 msgid "Scoring"
 msgstr "计分"
 
-#: templates/contest/base.jinja2:113
+#: templates/contest/base.jinja2:114
 msgid "Worth"
 msgstr "得分"
 
-#: templates/contest/base.jinja2:129
+#: templates/contest/base.jinja2:130
 msgid ""
 "This shows the values you earned if you solve the problem right now on the "
 "first submit."
 msgstr "如果你现在一次提交通过了该题，你将获得相应的分数。"
 
-#: templates/contest/base.jinja2:145 templates/contest/base.jinja2:161
-#: templates/contest/index.jinja2:284
+#: templates/contest/base.jinja2:146 templates/contest/base.jinja2:162
+#: templates/contest/index.jinja2:215
 msgid "Announcement"
 msgstr "通知"
 
-#: templates/contest/base.jinja2:148
+#: templates/contest/base.jinja2:149
 msgid "Contest status has changed. Click to refresh the page."
 msgstr "比赛状态发生改变，点 OK 刷新。"
+
+#: templates/contest/clarification.jinja2:12
+#, fuzzy
+#| msgid "Questions"
+msgid "Question"
+msgstr "问题"
+
+#: templates/contest/clarification.jinja2:54
+#, fuzzy
+#| msgid "Post a notification"
+msgid "Notification"
+msgstr "发送全体通知"
+
+#: templates/contest/clarification.jinja2:73
+#, fuzzy
+#| msgid "Questions"
+msgid "Your Question"
+msgstr "问题"
+
+#: templates/contest/clarification.jinja2:75
+#, fuzzy
+#| msgid "Post a notification"
+msgid "Global Notification"
+msgstr "发送全体通知"
 
 #: templates/contest/contest_gym_list.jinja2:12
 #: templates/contest/contest_list.jinja2:12 templates/contest/index.jinja2:103
@@ -874,80 +902,44 @@ msgstr "我的成绩"
 msgid "Might be cached for a few seconds."
 msgstr "可能会有几秒钟的缓存。"
 
-#: templates/contest/index.jinja2:176
-msgid "Clarifications"
-msgstr "提问与通知"
-
-#: templates/contest/index.jinja2:177
-msgid "Your question posted here is only visible to yourself."
-msgstr "你在这里提出的问题只有你自己可见"
-
-#: templates/contest/index.jinja2:181
-msgid "Post a notification"
-msgstr "发送全体通知"
-
-#: templates/contest/index.jinja2:183
-msgid "Ask a question"
-msgstr "提问"
-
-#: templates/contest/index.jinja2:189
-msgid "Time"
-msgstr "时间"
-
-#: templates/contest/index.jinja2:190
-msgid "User"
-msgstr "用户"
-
-#: templates/contest/index.jinja2:191
-msgid "Questions"
-msgstr "问题"
-
-#: templates/contest/index.jinja2:192
-msgid "Answers"
-msgstr "回答"
-
-#: templates/contest/index.jinja2:238
-msgid "Edit your answer here:"
-msgstr "添加回答:"
-
-#: templates/contest/index.jinja2:254
+#: templates/contest/index.jinja2:185
 msgid ""
 "This will be a <b>rated</b> contest and here are the points for each problem:"
 msgstr "本场比赛将影响积分排名。"
 
-#: templates/contest/index.jinja2:260
+#: templates/contest/index.jinja2:191
 msgid "Task"
 msgstr "题目"
 
-#: templates/contest/index.jinja2:260
+#: templates/contest/index.jinja2:191
 msgid "Score"
 msgstr "得分"
 
-#: templates/contest/index.jinja2:272
+#: templates/contest/index.jinja2:203
 msgid "The information above is subject to change before the contest."
 msgstr "上述信息可能在赛前更改。"
 
-#: templates/contest/index.jinja2:285
+#: templates/contest/index.jinja2:216
 msgid "Please read carefully."
 msgstr "请仔细阅读。"
 
-#: templates/contest/index.jinja2:300
+#: templates/contest/index.jinja2:231
 msgid "Contest Information"
 msgstr "基本信息"
 
-#: templates/contest/index.jinja2:308 templates/contest/index.jinja2:318
+#: templates/contest/index.jinja2:239 templates/contest/index.jinja2:249
 msgid "Start time"
 msgstr "开始时间"
 
-#: templates/contest/index.jinja2:311
+#: templates/contest/index.jinja2:242
 msgid "Finish time"
 msgstr "结束时间"
 
-#: templates/contest/index.jinja2:315
+#: templates/contest/index.jinja2:246
 msgid "Contest Duration"
 msgstr "时长"
 
-#: templates/contest/index.jinja2:324
+#: templates/contest/index.jinja2:255
 #, python-format
 msgid "Standings frozen after %(time)s (%(natural_time)s)."
 msgstr "榜单在 %(time)s 关闭 (%(natural_time)s)。"
@@ -1227,6 +1219,27 @@ msgstr ""
 #, python-format
 msgid "Invalid page (%(page_number)s): %(message)s"
 msgstr ""
+
+#~ msgid "Clarifications"
+#~ msgstr "提问与通知"
+
+#~ msgid "Your question posted here is only visible to yourself."
+#~ msgstr "你在这里提出的问题只有你自己可见"
+
+#~ msgid "Ask a question"
+#~ msgstr "提问"
+
+#~ msgid "Time"
+#~ msgstr "时间"
+
+#~ msgid "User"
+#~ msgstr "用户"
+
+#~ msgid "Answers"
+#~ msgstr "回答"
+
+#~ msgid "Edit your answer here:"
+#~ msgstr "添加回答:"
 
 #~ msgid "You are replying <b class=\"reply-to-name\">the post</b>"
 #~ msgstr "你在回复<b class=\"reply-to-name\">主题</b>"

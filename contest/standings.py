@@ -16,7 +16,7 @@ from utils.download import respond_generate_file
 from utils.language import LANG_EXT
 from .models import ContestParticipant
 from .statistics import get_contest_rank, invalidate_contest, calculate_problems
-from .views import BaseContestMixin
+from contest.base import BaseContestMixin
 
 
 class ContestStandings(BaseContestMixin, ListView):

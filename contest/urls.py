@@ -7,7 +7,7 @@ from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, 
     ContestStatusForAll, ContestBalloonClaim, ContestBalloonCancel
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode, \
     ContestStandingsTestSys
-from .clarification import ContestClarificationView, ContestClarificationAnswer
+from .clarification import ContestClarificationView, ContestClarificationAnswer, ContestClarificationList, ContestNotificationCheck
 from .activity import ActivityList, ActivityAddView, ActivityUpdateView, ActivityRegisterView, ActivityQuitView, \
     ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView, \
     ActivityParticipantConfirmEmailSent, ActivityParticipantConfirmComplete
@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^gym/$', ContestGymList.as_view(), name='gym'),
     url(r'^rating/$', ContestRatings.as_view(), name='rating'),
     url(r'^(?P<cid>\d+)/$', DashboardView.as_view(), name='dashboard'),
+    url(r'^(?P<cid>\d+)/check/$', ContestNotificationCheck.as_view(), name='check'),
     url(r'^(?P<cid>\d+)/standings/$', ContestStandings.as_view(), name='standings'),
     url(r'^(?P<cid>\d+)/problem/(?P<pid>\w+)/$', ContestProblemDetail.as_view(), name='problem'),
     url(r'^(?P<cid>\d+)/statements/$', ContestStatements.as_view(), name='statements'),
@@ -29,6 +30,7 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/my/$', ContestMyStatus.as_view(), name='my'),
     url(r'^(?P<cid>\d+)/my/claim/$', ContestSubmissionClaim.as_view(), name='my_claim'),
     url(r'^(?P<cid>\d+)/status/$', ContestStatusForAll.as_view(), name='status'),
+    url(r'^(?P<cid>\d+)/question/$', ContestClarificationList.as_view(), name='question'),
     url(r'^(?P<cid>\d+)/clarification/$', ContestClarificationView.as_view(), name='clarification'),
     url(r'^(?P<cid>\d+)/clarification/(?P<pk>\d+)/answer/$', ContestClarificationAnswer.as_view(), name='clarification_answer'),
     url(r'^(?P<cid>\d+)/invitation/$', ContestBoundUser.as_view(), name='invitation'),
