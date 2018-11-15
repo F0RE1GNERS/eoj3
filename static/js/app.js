@@ -69,6 +69,18 @@ $('.ui.search.user').search({
   minCharacters: 1
 });
 
+// navbar language selection
+$('.ui.dropdown.button').dropdown();
+$('.set-language.item').on('click', function(e) {
+  $.post('/i18n/setlang/', {
+      'csrfmiddlewaretoken': Cookies.get('csrftoken'),
+      'language': $(e.target).data('lang')
+    }, function (data) {
+      location.reload();
+    }
+  );
+});
+
 // url param plugin
 function getUrlParamAsObject () {
   var search = location.search.substring(1);
