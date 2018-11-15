@@ -17,12 +17,12 @@
         <i class="privacy icon"></i>
         <div class="content">
           {{ _('Virtual participation') }}
-          <div class="sub header">模拟真实参赛环境</div>
+          <div class="sub header">{{ _("Simulate the real situation") }}</div>
         </div>
       </h3>
       <ul class="ui list">
-        <li class="item">你应确保你没有提前看过或做过题。</li>
-        <li class="item">你的成绩会被计入排行榜。</li>
+        <li class="item">{{ _("You should make sure that you didn't read the problems in advance.") }}</li>
+        <li class="item">{{ _("Your progress will appear in the standings.") }}</li>
       </ul>
       <form class="ui form" action="{{ url('contest:vp_join', contest.pk) }}" method="post">
         {% csrf_token %}
@@ -34,7 +34,7 @@
             </div>
           </div>
         </div>
-        <div class="field"><button type="submit" class="ui positive button">确认参赛</button></div>
+        <div class="field"><button type="submit" class="ui positive button">{{ _("OK") }}</button></div>
       </form>
     </div>
     {{ separator() }}

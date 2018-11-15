@@ -24,7 +24,7 @@
           <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.length | timedelta }}</td>
-          <td><div class="ui list">
+          <td style="font-size:.9em"><div class="ui list">
             {% for author in contest.authors.all() %}
               <div class="item">{{ username_display(author) }}</div>
             {% endfor %}

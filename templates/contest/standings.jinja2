@@ -68,7 +68,7 @@
   {% if not contest.standings_without_problem %}
     <tfoot>
       <tr>
-        <th colspan="{{ first_column_span }}"><span class="ui text green">{{ ('Accepted') }}</span><br>{{ _('Submitted') }}</th>
+        <th colspan="{{ first_column_span }}"><span class="ui text green">{{ _('Accepted') }}</span><br>{{ _('Submitted') }}</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">
             <span class="ui text green">{{ problem.ac_count }}</span><br>

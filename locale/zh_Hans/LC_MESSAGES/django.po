@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-15 08:56+0800\n"
+"POT-Creation-Date: 2018-11-15 16:14+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,31 +113,31 @@ msgid ""
 "If you think something is wrong with some problem, feel free to send it in."
 msgstr "如果是 bug，请指出具体的情形；如果是改进建议，也欢迎提出。"
 
-#: account/models.py:15
+#: account/models.py:15 templates/contest/contest_ratings.jinja2:11
 msgid "Red"
 msgstr "红"
 
-#: account/models.py:16
+#: account/models.py:16 templates/contest/contest_ratings.jinja2:11
 msgid "Green"
 msgstr "绿"
 
-#: account/models.py:17
+#: account/models.py:17 templates/contest/contest_ratings.jinja2:11
 msgid "Teal"
 msgstr "青"
 
-#: account/models.py:18
+#: account/models.py:18 templates/contest/contest_ratings.jinja2:11
 msgid "Blue"
 msgstr "蓝"
 
-#: account/models.py:19
+#: account/models.py:19 templates/contest/contest_ratings.jinja2:11
 msgid "Purple"
 msgstr "紫"
 
-#: account/models.py:20
+#: account/models.py:20 templates/contest/contest_ratings.jinja2:11
 msgid "Orange"
 msgstr "橙"
 
-#: account/models.py:21
+#: account/models.py:21 templates/contest/contest_ratings.jinja2:11
 msgid "Grey"
 msgstr "灰"
 
@@ -231,12 +231,12 @@ msgstr "用户名太短或非法。"
 msgid "Username should be unique."
 msgstr "用户名已被占用。"
 
-#: blog/forms.py:15
+#: blog/forms.py:16
 #, python-format
 msgid "User with id %d does not exist"
 msgstr "ID 为 %d 的用户不存在"
 
-#: blog/forms.py:25
+#: blog/forms.py:26
 msgid "Markdown and MathJax are supported. Use $e^x$ for formulas."
 msgstr "支持 Markdown 和 MathJax。公式用 $$ 引用。"
 
@@ -245,9 +245,9 @@ msgid "Visible to all users"
 msgstr "对所有用户可见"
 
 #: blog/models.py:45
-#: blog/models.py:78
-#| msgid "Created"
-msgid "Created time"
+#, fuzzy
+#| msgid "Created time"
+msgid "Create time"
 msgstr "创建时间"
 
 #: blog/models.py:46
@@ -259,6 +259,10 @@ msgstr "更新日志"
 #: blog/models.py:51
 msgid "History versions only available to you"
 msgstr "历史版本仅自己可见"
+
+#: blog/models.py:78
+msgid "Created time"
+msgstr "创建时间"
 
 #: blog/views.py:125 blog/views.py:169
 msgid "You don't have the access."
@@ -349,8 +353,21 @@ msgid "Play CAPTCHA as audio file"
 msgstr ""
 
 #: templates/comments/comment_reply.jinja2:2
-msgid "You are replying <b class=\"reply-to-name\">the post</b>"
-msgstr "你在回复<b class=\"reply-to-name\">主题</b>"
+#| msgid "You are running out of EMB..."
+msgid "You are replying to"
+msgstr "你正在回复"
+
+#: templates/comments/comment_reply.jinja2:2
+msgid "the post"
+msgstr "博客"
+
+#: templates/comments/comment_tree.jinja2:15
+msgid "Deleted"
+msgstr "已删除"
+
+#: templates/comments/comment_tree.jinja2:23
+msgid "Reply"
+msgstr "回复"
 
 #: templates/components/blog_preview.jinja2:19
 #: templates/home_logged_in.jinja2:118
@@ -402,6 +419,7 @@ msgid "Login"
 msgstr "登录"
 
 #: templates/components/navbar.jinja2:36 templates/components/navbar.jinja2:49
+#: templates/home.jinja2:28
 msgid "Home"
 msgstr "主页"
 
@@ -724,9 +742,59 @@ msgstr "题目赛后公开"
 msgid "Virtual participate after contest"
 msgstr "赛后虚拟参赛"
 
+#: templates/contest/contest_pdf_statement_notice.jinja2:3
+msgid "PDF Statement available"
+msgstr ""
+
+#: templates/contest/contest_pdf_statement_notice.jinja2:4
+msgid "You can download"
+msgstr ""
+
+#: templates/contest/contest_pdf_statement_notice.jinja2:4
+msgid "here"
+msgstr ""
+
+#: templates/contest/contest_pdf_statement_notice.jinja2:4
+msgid "."
+msgstr ""
+
+#: templates/contest/contest_ratings.jinja2:3
+#: templates/contest/contest_ratings.jinja2:5
+#, fuzzy
+#| msgid "Contest Running"
+msgid "Contest Ratings"
+msgstr "进行中"
+
+#: templates/contest/contest_ratings.jinja2:16
+#: templates/contest/contest_ratings.jinja2:35
+#: templates/home_logged_in.jinja2:45
+msgid "Username"
+msgstr "用户名"
+
+#: templates/contest/contest_ratings.jinja2:17
+#: templates/home_logged_in.jinja2:46
+msgid "Rating"
+msgstr "积分"
+
 #: templates/contest/index.jinja2:19
 msgid "Virtual participation"
 msgstr "虚拟参赛"
+
+#: templates/contest/index.jinja2:20
+msgid "Simulate the real situation"
+msgstr "模拟真实参赛环境"
+
+#: templates/contest/index.jinja2:24
+msgid "You should make sure that you didn't read the problems in advance."
+msgstr "你应确保没有提前看过题。"
+
+#: templates/contest/index.jinja2:25
+msgid "Your progress will appear in the standings."
+msgstr "你的成绩将计入排行榜。"
+
+#: templates/contest/index.jinja2:37
+msgid "OK"
+msgstr ""
 
 #: templates/contest/index.jinja2:49
 msgid "Permission Notice"
@@ -925,6 +993,12 @@ msgid "Final Standings"
 msgstr "终榜"
 
 #: templates/contest/standings.jinja2:71
+#: templates/problem/detail/statistics.jinja2:29
+#: templates/problem/detail/statistics.jinja2:76
+msgid "Accepted"
+msgstr "通过"
+
+#: templates/contest/standings.jinja2:71
 msgid "Submitted"
 msgstr "提交"
 
@@ -959,14 +1033,6 @@ msgstr "公告牌"
 #: templates/home_logged_in.jinja2:39
 msgid "Top-Rated Users"
 msgstr "牛逼网友"
-
-#: templates/home_logged_in.jinja2:45
-msgid "Username"
-msgstr "用户名"
-
-#: templates/home_logged_in.jinja2:46
-msgid "Rating"
-msgstr "积分"
 
 #: templates/home_logged_in.jinja2:61
 msgid "See full list here"
@@ -1054,11 +1120,6 @@ msgstr "提交量"
 #: templates/problem/detail/statistics.jinja2:20
 msgid "REWARD"
 msgstr "奖励"
-
-#: templates/problem/detail/statistics.jinja2:29
-#: templates/problem/detail/statistics.jinja2:76
-msgid "Accepted"
-msgstr "通过"
 
 #: templates/problem/detail/statistics.jinja2:55
 #: templates/problem/detail/statistics.jinja2:58
@@ -1166,6 +1227,9 @@ msgstr ""
 #, python-format
 msgid "Invalid page (%(page_number)s): %(message)s"
 msgstr ""
+
+#~ msgid "You are replying <b class=\"reply-to-name\">the post</b>"
+#~ msgstr "你在回复<b class=\"reply-to-name\">主题</b>"
 
 #~ msgid "Always running"
 #~ msgstr "一直开放"

@@ -1,20 +1,20 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}比赛积分排名 - {% endblock %}
+{% block title %}{{ _("Contest Ratings") }} - {% endblock %}
 
-{% block page_header %}比赛积分排名{% endblock %}
+{% block page_header %}{{ _("Contest Ratings") }}{% endblock %}
 
 {% block content %}
 
   {% macro full_list() %}
     <h2 class="ui sub header" style="margin-top: 0">
-      <span class="text red">红</span>: 1800. <span class="text orange">橙</span>: 1700. <span class="text purple">紫</span>: 1600. <span class="text blue">蓝</span>: 1500. <span class="text teal">青</span>: 1350. <span class="text green">绿</span>: 0. <span class="text grey">灰</span>: Admin.
+      <span class="text red">{{ _("Red") }}</span>: 1800. <span class="text orange">{{ _("Orange") }}</span>: 1700. <span class="text purple">{{ _("Purple") }}</span>: 1600. <span class="text blue">{{ _("Blue") }}</span>: 1500. <span class="text teal">{{ _("Teal") }}</span>: 1350. <span class="text green">{{ _("Green") }}</span>: 0. <span class="text grey">{{ _("Grey") }}</span>: Admin.
     </h2>
     <table class="ui celled very compact center aligned table">
       <thead>
         <tr>
-          <th class="ten wide">用户名</th>
-          <th class="six wide">积分</th>
+          <th class="ten wide">{{ _("Username") }}</th>
+          <th class="six wide">{{ _("Rating") }}</th>
         </tr>
       </thead>
       <tbody>
@@ -32,7 +32,7 @@
 
   <div class="ui grid">
   <div class="ten wide column">
-    <h5 class="ui header">用户: {{ username_display(query_user) }}</h5>
+    <h5 class="ui header">{{ _("Username") }}: {{ username_display(query_user) }}</h5>
     <div id="rating-changes"></div>
 
     <table class="ui celled table">
