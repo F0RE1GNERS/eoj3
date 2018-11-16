@@ -1,4 +1,12 @@
 {% macro username_dropdown() %}
+    <div class="ui dropdown simple item">
+      <i class="world icon"></i>
+      <div class="menu">
+        {% for language in languages %}
+          <a class="item set-language" href="#" data-lang="{{ language[0] }}">{{ language[1] }}</a>
+        {% endfor %}
+      </div>
+    </div>
   {% if user.is_authenticated %}
     <div class="ui dropdown simple item">
       <div class="text">{{ request.user.username }}</div>
@@ -50,6 +58,7 @@
     <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i>{{ _('Contests') }}</a>
     <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i>{{ _('Problems') }}</a>
     <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>{{ _('Gym') }}</a>
+
 
     <div class="right menu">
       <div class="ui category search item massive-search">

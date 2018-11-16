@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-15 20:32+0800\n"
+"POT-Creation-Date: 2018-11-15 21:30+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,16 +245,12 @@ msgid "Visible to all users"
 msgstr "对所有用户可见"
 
 #: blog/models.py:45
-#, fuzzy
-#| msgid "Created time"
 msgid "Create time"
 msgstr "创建时间"
 
 #: blog/models.py:46
-#, fuzzy
-#| msgid "Update Log"
 msgid "Update time"
-msgstr "更新日志"
+msgstr "更新时间"
 
 #: blog/models.py:51
 msgid "History versions only available to you"
@@ -374,74 +370,74 @@ msgstr "回复"
 msgid "More"
 msgstr "更多"
 
-#: templates/components/navbar.jinja2:7
+#: templates/components/navbar.jinja2:15
 msgid "Profile"
 msgstr "个人档案"
 
-#: templates/components/navbar.jinja2:8
+#: templates/components/navbar.jinja2:16
 msgid "Blog"
 msgstr "博客"
 
-#: templates/components/navbar.jinja2:9
+#: templates/components/navbar.jinja2:17
 msgid "Submission"
 msgstr "提交记录"
 
-#: templates/components/navbar.jinja2:10
+#: templates/components/navbar.jinja2:18
 msgid "Settings"
 msgstr "设置"
 
-#: templates/components/navbar.jinja2:11
+#: templates/components/navbar.jinja2:19
 msgid "Payment"
 msgstr "EMB"
 
-#: templates/components/navbar.jinja2:12
+#: templates/components/navbar.jinja2:20
 msgid "Migrate"
 msgstr "迁移"
 
-#: templates/components/navbar.jinja2:13
+#: templates/components/navbar.jinja2:21
 msgid "Feedback"
 msgstr "反馈"
 
-#: templates/components/navbar.jinja2:15
+#: templates/components/navbar.jinja2:23
 msgid "Backstage"
 msgstr "后台"
 
-#: templates/components/navbar.jinja2:18
+#: templates/components/navbar.jinja2:26
 msgid "Polygon"
 msgstr "命题系统"
 
-#: templates/components/navbar.jinja2:20 templates/home.jinja2:34
+#: templates/components/navbar.jinja2:28 templates/home.jinja2:34
 msgid "Logout"
 msgstr "注销"
 
-#: templates/components/navbar.jinja2:24 templates/home.jinja2:36
+#: templates/components/navbar.jinja2:32 templates/home.jinja2:36
 msgid "Login"
 msgstr "登录"
 
-#: templates/components/navbar.jinja2:36 templates/components/navbar.jinja2:49
+#: templates/components/navbar.jinja2:44 templates/components/navbar.jinja2:57
 #: templates/home.jinja2:28
 msgid "Home"
 msgstr "主页"
 
-#: templates/components/navbar.jinja2:37 templates/components/navbar.jinja2:50
+#: templates/components/navbar.jinja2:45 templates/components/navbar.jinja2:58
 #: templates/contest/contest_list.jinja2:3
 #: templates/contest/contest_list.jinja2:5 templates/home.jinja2:29
 msgid "Contests"
 msgstr "竞赛"
 
-#: templates/components/navbar.jinja2:38 templates/components/navbar.jinja2:51
+#: templates/components/navbar.jinja2:46 templates/components/navbar.jinja2:59
 #: templates/contest/base.jinja2:90 templates/home.jinja2:30
 #: templates/problem/base.jinja2:3 templates/problem/index.jinja2:3
 msgid "Problems"
 msgstr "题目"
 
-#: templates/components/navbar.jinja2:39 templates/components/navbar.jinja2:52
+#: templates/components/navbar.jinja2:47 templates/components/navbar.jinja2:60
 #: templates/contest/contest_gym_list.jinja2:3
 #: templates/contest/contest_gym_list.jinja2:5 templates/home.jinja2:31
 msgid "Gym"
 msgstr "作业"
 
-#: templates/components/navbar.jinja2:57
+#: templates/components/navbar.jinja2:66
 msgid "Search..."
 msgstr "搜索..."
 
@@ -481,6 +477,10 @@ msgstr "查看所有提交"
 #: templates/components/problem.jinja2:4
 msgid "Time limit per test:"
 msgstr "单测试点时限:"
+
+#: templates/components/problem.jinja2:4
+msgid "seconds"
+msgstr "秒"
 
 #: templates/components/problem.jinja2:5
 msgid "Memory limit:"
@@ -539,8 +539,6 @@ msgid "Rejudge"
 msgstr "重测"
 
 #: templates/components/single_submission.jinja2:43
-#, fuzzy
-#| msgid "(All)"
 msgid "All"
 msgstr "所有"
 
@@ -594,8 +592,6 @@ msgid "Judgement protocol"
 msgstr "评测报告"
 
 #: templates/components/submission_report.jinja2:6
-#, fuzzy
-#| msgid "First Yes"
 msgid "First 512 bytes."
 msgstr "仅保留前 512 字节。"
 
@@ -692,28 +688,20 @@ msgid "Contest status has changed. Click to refresh the page."
 msgstr "比赛状态发生改变，点 OK 刷新。"
 
 #: templates/contest/clarification.jinja2:12
-#, fuzzy
-#| msgid "Questions"
 msgid "Question"
 msgstr "问题"
 
 #: templates/contest/clarification.jinja2:54
-#, fuzzy
-#| msgid "Post a notification"
 msgid "Notification"
 msgstr "发送全体通知"
 
 #: templates/contest/clarification.jinja2:73
-#, fuzzy
-#| msgid "Questions"
 msgid "Your Question"
 msgstr "问题"
 
 #: templates/contest/clarification.jinja2:75
-#, fuzzy
-#| msgid "Post a notification"
 msgid "Global Notification"
-msgstr "发送全体通知"
+msgstr "全体通知"
 
 #: templates/contest/contest_gym_list.jinja2:12
 #: templates/contest/contest_list.jinja2:12 templates/contest/index.jinja2:103
@@ -788,10 +776,8 @@ msgstr ""
 
 #: templates/contest/contest_ratings.jinja2:3
 #: templates/contest/contest_ratings.jinja2:5
-#, fuzzy
-#| msgid "Contest Running"
 msgid "Contest Ratings"
-msgstr "进行中"
+msgstr "比赛积分"
 
 #: templates/contest/contest_ratings.jinja2:16
 #: templates/contest/contest_ratings.jinja2:35

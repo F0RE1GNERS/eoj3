@@ -123,41 +123,7 @@
 
     </div>
 
-  <div class="ui icon bottom right circular dropdown pointing button">
-  <i class="world icon"></i>
-  <div class="menu">
-    {% for language in languages %}
-      <a class="item set-language" href="#" data-lang="{{ language[0] }}">{{ language[1] }}</a>
-    {% endfor %}
-  </div>
-</div>
-  <style>
-    .ui.button.dropdown {
-      position: fixed;
-      bottom: 2.5em;
-      right: 2em;
-      height: auto;
-      white-space: nowrap;
-      z-index: 1;
-    }
-  </style>
-
 
   </div>
 
-{% endblock %}
-
-{% block script %}
-  <script>
-    $('.ui.dropdown.button').dropdown();
-    $('.set-language.item').on('click', function(e) {
-      $.post("{{ url('set_language') }}", {
-          'csrfmiddlewaretoken': Cookies.get('csrftoken'),
-          'language': $(e.target).data('lang')
-        }, function (data) {
-          location.reload();
-        }
-      );
-    });
-  </script>
 {% endblock %}

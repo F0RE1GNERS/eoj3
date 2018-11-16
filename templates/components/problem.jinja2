@@ -1,7 +1,7 @@
 {% macro problem_view(title, contest) %}
   <div class="problem-header">
     <div class="property">
-      <p><strong>{{ _('Time limit per test:') }} </strong>{{ problem.time_limit / 1000 }} 秒</p>
+      <p><strong>{{ _('Time limit per test:') }} </strong>{{ problem.time_limit / 1000 }} {{ _('seconds') }}</p>
       <p><strong>{{ _('Memory limit:') }} </strong>{{ problem.memory_limit }} MB</p>
     </div>
   </div>
