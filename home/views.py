@@ -12,6 +12,7 @@ from account.permissions import StaffRequiredMixin
 from backstage.models import UpdateLog
 from blog.models import Blog
 from problem.statistics import get_accept_problem_count
+from submission.models import Submission
 from utils.hash import sha_hash
 from utils.site_settings import is_site_closed, site_settings_get
 from eoj3 import settings
@@ -23,6 +24,7 @@ def home_view(request):
                'bulletin': site_settings_get('BULLETIN', ''),
                'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
                'update_log': UpdateLog.objects.all().order_by("-pk")[:10],
+               'submission_count': Submission.objects.all().count()
                }
         if not is_site_closed(request):
             LIMIT, LIMIT_BLOG = 20, 15
