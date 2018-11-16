@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-15 21:30+0800\n"
+"POT-Creation-Date: 2018-11-16 18:45+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -370,74 +370,74 @@ msgstr "回复"
 msgid "More"
 msgstr "更多"
 
-#: templates/components/navbar.jinja2:15
+#: templates/components/navbar.jinja2:14
 msgid "Profile"
 msgstr "个人档案"
 
-#: templates/components/navbar.jinja2:16
+#: templates/components/navbar.jinja2:15
 msgid "Blog"
 msgstr "博客"
 
-#: templates/components/navbar.jinja2:17
+#: templates/components/navbar.jinja2:16
 msgid "Submission"
 msgstr "提交记录"
 
-#: templates/components/navbar.jinja2:18
+#: templates/components/navbar.jinja2:17
 msgid "Settings"
 msgstr "设置"
 
-#: templates/components/navbar.jinja2:19
+#: templates/components/navbar.jinja2:18
 msgid "Payment"
 msgstr "EMB"
 
-#: templates/components/navbar.jinja2:20
+#: templates/components/navbar.jinja2:19
 msgid "Migrate"
 msgstr "迁移"
 
-#: templates/components/navbar.jinja2:21
+#: templates/components/navbar.jinja2:20
 msgid "Feedback"
 msgstr "反馈"
 
-#: templates/components/navbar.jinja2:23
+#: templates/components/navbar.jinja2:22
 msgid "Backstage"
 msgstr "后台"
 
-#: templates/components/navbar.jinja2:26
+#: templates/components/navbar.jinja2:25
 msgid "Polygon"
 msgstr "命题系统"
 
-#: templates/components/navbar.jinja2:28 templates/home.jinja2:34
+#: templates/components/navbar.jinja2:27 templates/home.jinja2:34
 msgid "Logout"
 msgstr "注销"
 
-#: templates/components/navbar.jinja2:32 templates/home.jinja2:36
+#: templates/components/navbar.jinja2:31 templates/home.jinja2:36
 msgid "Login"
 msgstr "登录"
 
-#: templates/components/navbar.jinja2:44 templates/components/navbar.jinja2:57
+#: templates/components/navbar.jinja2:43 templates/components/navbar.jinja2:56
 #: templates/home.jinja2:28
 msgid "Home"
 msgstr "主页"
 
-#: templates/components/navbar.jinja2:45 templates/components/navbar.jinja2:58
+#: templates/components/navbar.jinja2:44 templates/components/navbar.jinja2:57
 #: templates/contest/contest_list.jinja2:3
 #: templates/contest/contest_list.jinja2:5 templates/home.jinja2:29
 msgid "Contests"
 msgstr "竞赛"
 
-#: templates/components/navbar.jinja2:46 templates/components/navbar.jinja2:59
+#: templates/components/navbar.jinja2:45 templates/components/navbar.jinja2:58
 #: templates/contest/base.jinja2:90 templates/home.jinja2:30
 #: templates/problem/base.jinja2:3 templates/problem/index.jinja2:3
 msgid "Problems"
 msgstr "题目"
 
-#: templates/components/navbar.jinja2:47 templates/components/navbar.jinja2:60
+#: templates/components/navbar.jinja2:46 templates/components/navbar.jinja2:59
 #: templates/contest/contest_gym_list.jinja2:3
 #: templates/contest/contest_gym_list.jinja2:5 templates/home.jinja2:31
 msgid "Gym"
 msgstr "作业"
 
-#: templates/components/navbar.jinja2:66
+#: templates/components/navbar.jinja2:65
 msgid "Search..."
 msgstr "搜索..."
 
@@ -871,10 +871,10 @@ msgid "/ Max / Avg"
 msgstr "/ 最高 / 平均"
 
 #: templates/contest/index.jinja2:104
-#: templates/problem/detail/statistics.jinja2:35
+#: templates/problem/detail/statistics.jinja2:29
 #: templates/problem/index.jinja2:20
 msgid "Solved"
-msgstr "通过人数"
+msgstr "解出"
 
 #: templates/contest/index.jinja2:118
 msgid "Practice in problemset"
@@ -971,7 +971,7 @@ msgid "Final Standings"
 msgstr "终榜"
 
 #: templates/contest/standings.jinja2:71
-#: templates/problem/detail/statistics.jinja2:29
+#: templates/problem/detail/statistics.jinja2:35
 #: templates/problem/detail/statistics.jinja2:76
 msgid "Accepted"
 msgstr "通过"
