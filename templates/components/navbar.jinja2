@@ -2,9 +2,8 @@
     <div class="ui dropdown simple item">
       <i class="world icon"></i>
       <div class="menu">
-        {% for language in languages %}
-          <a class="item set-language" href="#" data-lang="{{ language[0] }}">{{ language[1] }}</a>
-        {% endfor %}
+        <a class="item set-language" href="#" data-lang="zh-Hans">简体中文</a>
+        <a class="item set-language" href="#" data-lang="en">English</a>
       </div>
     </div>
   {% if user.is_authenticated %}
