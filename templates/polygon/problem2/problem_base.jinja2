@@ -1,7 +1,7 @@
 {% extends 'polygon/base.jinja2' %}
 {% from 'components/search_user.jinja2' import user_search_multiple %}
 
-{% block title %}题目 #{{ problem.id }} - {% endblock %}
+{% block title %}{% if polygon_title %}{{ polygon_title }} - {% endif %}#{{ problem.id }} - {% endblock %}
 
 {% block content %}
   <h1 class="ui header">题目 #{{ problem.id }}</h1>

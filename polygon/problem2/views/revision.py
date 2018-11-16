@@ -151,6 +151,7 @@ class RevisionForkView(ProblemRevisionMixin, View):
 class RevisionUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = RevisionUpdateForm
     template_name = 'polygon/problem2/revision/update.jinja2'
+    polygon_title = "概览"
 
     def get_object(self, queryset=None):
         return self.revision

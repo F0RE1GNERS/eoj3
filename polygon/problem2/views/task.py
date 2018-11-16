@@ -12,6 +12,7 @@ from utils.language import transform_code_to_html
 class TaskList(ProblemRevisionMixin, ListView):
     template_name = 'polygon/problem2/task/list.jinja2'
     context_object_name = 'task_list'
+    polygon_title = "任务"
 
     def get_queryset(self):
         return self.revision.task_set.all().defer("report").order_by("-id")
@@ -19,6 +20,7 @@ class TaskList(ProblemRevisionMixin, ListView):
 
 class TaskPreview(ProblemRevisionMixin, TemplateView):
     template_name = 'polygon/problem2/task/preview.jinja2'
+    polygon_title = "任务详情"
 
     def render_to_response(self, context, **response_kwargs):
         try:

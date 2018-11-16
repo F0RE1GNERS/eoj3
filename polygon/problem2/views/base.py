@@ -158,6 +158,7 @@ class ProblemClone(PolygonBaseMixin, View):
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     raise_exception = True
     post_allowed_for_low_permission = False
+    polygon_title = ""
 
     def init_revision(self, *args, **kwargs):
         pass
@@ -194,6 +195,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
         data['latest_revisions'] = self.latest_revisions
         data['admin_list'] = self.problem.managers.all()
         data['level_select'] = self.problem._meta.get_field('level').choices
+        data['polygon_title'] = self.polygon_title
         return data
 
 
@@ -295,6 +297,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
 class ProblemStatus(PolygonProblemMixin, StatusList):
     template_name = 'polygon/problem2/status.jinja2'
     privileged = True
+    polygon_title = "提交记录"
 
     def get_selected_from(self):
         return Submission.objects.filter(problem_id=self.problem.id)
@@ -311,6 +314,7 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     This includes admin and alias
     """
     template_name = 'polygon/problem2/basic_info.jinja2'
+    polygon_title = "基本信息管理"
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)

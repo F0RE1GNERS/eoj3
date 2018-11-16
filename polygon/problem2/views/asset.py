@@ -29,6 +29,7 @@ def get_random_filename(raw_name, file_path, problem_id):
 class AssetList(ProblemRevisionMixin, ListView):
     template_name = 'polygon/problem2/asset/list.jinja2'
     context_object_name = 'asset_list'
+    polygon_title = "静态文件"
 
     def get_queryset(self):
         return self.revision.assets.all()
@@ -37,6 +38,7 @@ class AssetList(ProblemRevisionMixin, ListView):
 class AssetCreateView(ProblemRevisionMixin, CreateView):
     form_class = AssetUpdateForm
     template_name = 'polygon/problem2/simple_form.jinja2'
+    polygon_title = "创建静态文件"
 
     def get_success_url(self):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -54,6 +56,7 @@ class AssetCreateView(ProblemRevisionMixin, CreateView):
 class AssetUpdateView(ProblemRevisionMixin, UpdateView):
     form_class = AssetUpdateForm
     template_name = 'polygon/problem2/simple_form.jinja2'
+    polygon_title = "更新静态文件"
 
     def get_success_url(self):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -80,6 +83,7 @@ class AssetUpdateView(ProblemRevisionMixin, UpdateView):
 class AssetRenameView(ProblemRevisionMixin, UpdateView):
     form_class = AssetRenameForm
     template_name = 'polygon/problem2/simple_form.jinja2'
+    polygon_title = "重命名静态文件"
 
     def get_success_url(self):
         return reverse('polygon:revision_asset', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})

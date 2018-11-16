@@ -393,6 +393,7 @@ class RevisionCaseMixin(ProblemRevisionMixin):
 
 
 class RevisionMultipleCasesMixin(ProblemRevisionMixin):
+
     def init_revision(self, *args, **kwargs):
         super().init_revision(*args, **kwargs)
         self.pk_set = set(filter(lambda x: x, self.request.POST["gather"].split(",")))
@@ -409,6 +410,7 @@ class RevisionMultipleCasesMixin(ProblemRevisionMixin):
 class CaseList(ProblemRevisionMixin, ListView):
     template_name = 'polygon/problem2/case/list.jinja2'
     context_object_name = 'case_list'
+    polygon_title = "数据管理"
 
     def get_queryset(self):
         qs = self.revision.cases.all().order_by("case_number")
@@ -437,6 +439,7 @@ class CaseList(ProblemRevisionMixin, ListView):
 class CaseCreateView(ProblemRevisionMixin, FormView):
     form_class = CaseCreateForm
     template_name = 'polygon/problem2/case/create.jinja2'
+    polygon_title = "添加数据"
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -562,6 +565,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
 class CaseUpdateFileView(RevisionCaseMixin, FormView):
     form_class = CaseUpdateForm
     template_name = 'polygon/problem2/case/update.jinja2'
+    polygon_title = "更新数据"
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -588,6 +592,7 @@ class CaseUpdateFileView(RevisionCaseMixin, FormView):
 class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
     form_class = CaseUpdateInfoForm
     template_name = 'polygon/problem2/simple_form.jinja2'
+    polygon_title = "更新数据"
 
     def get_success_url(self):
         return reverse('polygon:revision_case', kwargs={'pk': self.problem.id, 'rpk': self.revision.id})
@@ -692,6 +697,7 @@ class CaseValidateInput(RevisionMultipleCasesMixin, View):
 class CaseCheckView(ProblemRevisionMixin, TemplateView):
     template_name = 'polygon/problem2/case/check.jinja2'
     raise_exception = True
+    polygon_title = "验证数据"
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)

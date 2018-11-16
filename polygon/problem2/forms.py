@@ -132,11 +132,11 @@ class ProgramImportForm(forms.Form):
 
 class CaseCreateForm(forms.Form):
     option = forms.ChoiceField(choices=(
-        ('text', 'Type in input and output (Recommended for samples)'),
-        ('batch', 'Upload a zip archive (with input and output files)'),
-        ('single', 'Upload input file (and output file)'),
-        ('gen', 'Generate cases'),
-        ('batch_input', 'Upload a zip file (with inputs only)')))
+        ('text', '手填输入输出'),
+        ('batch', '上传 zip 压缩包'),
+        ('single', '上传输入文件（单组）'),
+        ('gen', '生成数据'),
+        ('batch_input', '上传只含输入文件的压缩包')))
     input_file = forms.FileField(required=False)
     output_file = forms.FileField(required=False)
     input_text = forms.CharField(required=False, widget=forms.Textarea())
@@ -151,11 +151,11 @@ class CaseCreateForm(forms.Form):
     def clean(self):
         if self.cleaned_data["option"] == "single" and (
                         self.cleaned_data["input_file"] is None or self.cleaned_data["output_file"] is None):
-            raise forms.ValidationError("Input file and output file are required.")
+            raise forms.ValidationError("输入输出文件是必须的。")
         if self.cleaned_data["option"] == "gen" and not self.cleaned_data["gen_command"]:
-            raise forms.ValidationError("Generate Command is required.")
+            raise forms.ValidationError("生成命令是必须的。")
         if self.cleaned_data["option"] == "batch" and self.cleaned_data["batch_file"] is None:
-            raise forms.ValidationError("File for batch is required.")
+            raise forms.ValidationError("文件压缩包是必须的。")
 
 
 class CaseUpdateInfoForm(forms.ModelForm):
@@ -164,8 +164,8 @@ class CaseUpdateInfoForm(forms.ModelForm):
         fields = ["in_samples", "in_pretests", "activated", "output_lock", "points",
                   "description", "case_number", "group"]
         labels = {
-            "activated": "Activated (in final tests)",
-            "output_lock": "Lock output (the test output will not be modified by the system)",
+            "activated": "是有效的测试点",
+            "output_lock": "锁定输出（输出不会被系统修改）",
         }
 
 
