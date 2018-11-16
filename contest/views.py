@@ -184,6 +184,11 @@ class ContestList(ListView):
     def get_queryset(self):
         return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), contest_type=0)
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["hide_header"] = True
+        return data
+
 
 class ContestGymList(ListView):
     template_name = 'contest/contest_gym_list.jinja2'
@@ -194,6 +199,11 @@ class ContestGymList(ListView):
         user = self.request.user if self.request.user.is_authenticated else None
         return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
                                                sorting_by_id=True, contest_type=1)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["hide_header"] = True
+        return data
 
 
 class ContestRatings(ListView):
