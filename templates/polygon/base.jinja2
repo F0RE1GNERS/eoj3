@@ -12,21 +12,21 @@
     <div class="ui container">
       <a class="item" href="{{ url('polygon:home') }}">
         <i class="home icon"></i>
-        主页
+        {{ _('Home') }}
       </a>
       <a class="item" href="{{ url('polygon:problem_list_2') }}">
         <i class="fork icon"></i>
-        题目管理
+        {{ _('Problems') }}
       </a>
       <a class="item" href="{{ url('polygon:contest_list') }}">
         <i class="flag checkered icon"></i>
-        比赛管理
+        {{ _('Contests') }}
       </a>
       <div class="right menu">
         {% if user.is_authenticated %}
-          <div class="item">当前用户: {{ request.user.username }}</div>
+          <div class="item">{{ _('Current user') }}: {{ request.user.username }}</div>
         {% else %}
-          <a class="item" href="{{ url('login') }}?next={{ request.path }}">Login</a>
+          <a class="item" href="{{ url('login') }}?next={{ request.path }}">{{ _('Login') }}</a>
         {% endif %}
       </div>
     </div>
