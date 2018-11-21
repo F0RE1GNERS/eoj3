@@ -119,7 +119,7 @@ class BlogUpdate(UserPassesTestMixin, UpdateView):
     template_name = 'blog/blog_edit.jinja2'
 
     def test_func(self):
-        return False
+        return self.request.user.is_authenticated and (is_admin_or_root(self.request.user) or self.object.author == self.request.user)
 
     def form_valid(self, form):
         instance = form.save(commit=False)
