@@ -21,7 +21,6 @@ from .models import Blog, Comment, BlogLikes, BlogRevision
 
 class GenericView(ListView):
     template_name = 'blog/generic.jinja2'
-    paginate_by = 50
     context_object_name = 'blog_list'
 
     def get_queryset(self):
@@ -114,10 +113,13 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': self.request.user.pk}))
 
 
-class BlogUpdate(UpdateView):
+class BlogUpdate(UserPassesTestMixin, UpdateView):
     form_class = BlogEditForm
     queryset = Blog.objects.all()
     template_name = 'blog/blog_edit.jinja2'
+
+    def test_func(self):
+        return False
 
     def form_valid(self, form):
         instance = form.save(commit=False)
