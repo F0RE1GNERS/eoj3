@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-16 18:45+0800\n"
+"POT-Creation-Date: 2018-11-17 20:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -366,7 +366,7 @@ msgid "Reply"
 msgstr "回复"
 
 #: templates/components/blog_preview.jinja2:19
-#: templates/home_logged_in.jinja2:118
+#: templates/home_logged_in.jinja2:134
 msgid "More"
 msgstr "更多"
 
@@ -411,23 +411,26 @@ msgid "Logout"
 msgstr "注销"
 
 #: templates/components/navbar.jinja2:31 templates/home.jinja2:36
+#: templates/polygon/base.jinja2:29
 msgid "Login"
 msgstr "登录"
 
 #: templates/components/navbar.jinja2:43 templates/components/navbar.jinja2:56
-#: templates/home.jinja2:28
+#: templates/home.jinja2:28 templates/polygon/base.jinja2:15
 msgid "Home"
 msgstr "主页"
 
 #: templates/components/navbar.jinja2:44 templates/components/navbar.jinja2:57
 #: templates/contest/contest_list.jinja2:3
 #: templates/contest/contest_list.jinja2:5 templates/home.jinja2:29
+#: templates/polygon/base.jinja2:23
 msgid "Contests"
 msgstr "竞赛"
 
 #: templates/components/navbar.jinja2:45 templates/components/navbar.jinja2:58
 #: templates/contest/base.jinja2:90 templates/home.jinja2:30
-#: templates/problem/base.jinja2:3 templates/problem/index.jinja2:3
+#: templates/polygon/base.jinja2:19 templates/problem/base.jinja2:3
+#: templates/problem/index.jinja2:3
 msgid "Problems"
 msgstr "题目"
 
@@ -781,12 +784,12 @@ msgstr "比赛积分"
 
 #: templates/contest/contest_ratings.jinja2:16
 #: templates/contest/contest_ratings.jinja2:35
-#: templates/home_logged_in.jinja2:45
+#: templates/home_logged_in.jinja2:61
 msgid "Username"
 msgstr "用户名"
 
 #: templates/contest/contest_ratings.jinja2:17
-#: templates/home_logged_in.jinja2:46
+#: templates/home_logged_in.jinja2:62
 msgid "Rating"
 msgstr "积分"
 
@@ -1004,29 +1007,33 @@ msgstr "主页"
 msgid "News feed is currently unavailable."
 msgstr "推送当前不可用。"
 
-#: templates/home_logged_in.jinja2:30
+#: templates/home_logged_in.jinja2:46
 msgid "Bulletin"
 msgstr "公告牌"
 
-#: templates/home_logged_in.jinja2:39
+#: templates/home_logged_in.jinja2:55
 msgid "Top-Rated Users"
 msgstr "牛逼网友"
 
-#: templates/home_logged_in.jinja2:61
+#: templates/home_logged_in.jinja2:77
 msgid "See full list here"
 msgstr "查看所有用户"
 
-#: templates/home_logged_in.jinja2:71
+#: templates/home_logged_in.jinja2:87
 msgid "Recent Actions"
 msgstr "最新评论"
 
-#: templates/home_logged_in.jinja2:98
+#: templates/home_logged_in.jinja2:114
 msgid "Update Log"
 msgstr "更新日志"
 
 #: templates/login.jinja2:8
 msgid "Forget password"
 msgstr "忘记密码"
+
+#: templates/polygon/base.jinja2:27
+msgid "Current user"
+msgstr "当前用户"
 
 #: templates/problem/base.jinja2:8
 msgid "PROBLEMSET"

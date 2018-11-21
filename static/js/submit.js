@@ -136,11 +136,15 @@ if (document.getElementById("editor") && window.hasOwnProperty("ace")) {
   updateStorageKey();
   detectLanguage();
 
+  ace.require("ace/ext/language_tools");
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/" + map[auto_lang ? detected_lang : lang.val()].mode);
   editor.setOptions({
     fontFamily: ["Consolas", "Courier", "Courier New", "monospace"],
-    fontSize: "11pt"
+    fontSize: "11pt",
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
   });
 
   var ignore_change = false;
