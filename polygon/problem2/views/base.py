@@ -281,7 +281,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
         if len(self.revision) == 0:
             raise Http404("Revision matches not found.")
         else: self.revision = self.revision[0]
-        if self.revision.user != self.request.user or self.revision.status != 0:
+        if self.permission > 0 and (self.revision.user != self.request.user or self.revision.status != 0):
             self.permission = 1
         self.revision_health_check()
 
