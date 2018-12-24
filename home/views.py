@@ -24,7 +24,6 @@ def home_view(request):
                'bulletin': site_settings_get('BULLETIN', ''),
                'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
                'update_log': UpdateLog.objects.all().order_by("-pk")[:10],
-               'submission_count': Submission.objects.all().count()
                }
         if not is_site_closed(request):
             LIMIT, LIMIT_BLOG = 20, 15
