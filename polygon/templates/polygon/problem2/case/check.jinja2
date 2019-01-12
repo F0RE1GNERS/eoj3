@@ -1,0 +1,47 @@
+{% extends 'polygon/problem2/base.jinja2' %}
+
+{% block problem_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <h3 class="ui header">Select Solutions:</h3>
+  <form method="post" action="{{ request.path }}">
+  <input type="hidden" name="cases" value="{{ select_cases }}">
+  {% csrf_token %}
+  <table class="ui celled small table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th class="collapsing"><div class="ui fitted checkbox"><input type="checkbox" name="all"></div></th>
+        <th class="collapsing">#</th>
+        <th>Name</th>
+        <th>Tag</th>
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for program in program_list %}
+        <tr>
+          <td><div class="ui fitted checkbox slice"><input type="checkbox" name="{{ program.pk }}"></div></td>
+          <td>{{ program.pk }}</td>
+          <td><a href="{{ url('polygon:revision_program_preview', problem.id, revision.id, program.id) }}" target="_blank">{{ program.name }}</a></td>
+          <td>{{ program.get_tag_display() }}</td>
+          <td>{{ program.create_time | date('Y-m-d H:i') }}</td>
+          <td>{{ program.update_time | date('Y-m-d H:i') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="6">
+          <button type="submit" class="ui right floated small primary button">
+            Sent to judge
+          </button>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+  </form>
+
+{% endblock %}
+

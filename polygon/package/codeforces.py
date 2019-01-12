@@ -24,8 +24,7 @@ def create_task(problem_id: str, created_by: User):
     os.makedirs(log_dir, exist_ok=True)
     with open(os.path.join(log_dir, "django.log"), "w") as stderr:
       subp = subprocess.run(["sudo", cf_settings["script"], cf_settings["key"], cf_settings["secret"], problem_id, dst_address],
-                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=stderr,
-                            env={"PACKAGE_DOWNLOADER_IMAGE": "registry.cn-hangzhou.aliyuncs.com/ultmaster/polygon-package-downloader:v1"})
+                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=stderr)
     if subp.returncode:
       package.status = 1
     else:
@@ -52,3 +51,5 @@ def pack_log_files(package: CodeforcesPackage):
       zipFile.write(os.path.join(logs_dir, file), file)
   bytes_io.seek(0)
   return bytes_io.read()
+
+

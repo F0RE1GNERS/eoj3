@@ -54,7 +54,7 @@ def reorder_contest_problem_identifiers(contest: Contest, orders=None):
 
 
 class ContestList(PolygonBaseMixin, ListView):
-    template_name = 'contest/list.jinja2'
+    template_name = 'polygon/contest/list.jinja2'
     context_object_name = 'contest_list'
 
     def get_queryset(self):
@@ -84,7 +84,7 @@ class PolygonContestMixin(TemplateResponseMixin, ContextMixin, PolygonBaseMixin)
 
 class ContestEdit(PolygonContestMixin, UpdateView):
     form_class = ContestEditForm
-    template_name = 'contest/edit.jinja2'
+    template_name = 'polygon/contest/edit.jinja2'
     queryset = Contest.objects.all()
 
     def get_context_data(self, **kwargs):
@@ -158,7 +158,7 @@ class ContestVolunteersManage(PolygonContestMixin, View):
 
 
 class ContestProblemManage(PolygonContestMixin, TemplateView):
-    template_name = 'contest/problem.jinja2'
+    template_name = 'polygon/contest/problem.jinja2'
 
     def get(self, request, *args, **kwargs):
         if 'data' in request.GET:
@@ -239,7 +239,7 @@ class ContestProblemChangeIdentifier(PolygonContestMixin, View):
 
 
 class ContestInvitationList(PolygonContestMixin, ListView):
-    template_name = 'contest/invitation.jinja2'
+    template_name = 'polygon/contest/invitation.jinja2'
     paginate_by = 100
     context_object_name = 'invitation_list'
 
@@ -292,7 +292,7 @@ class ContestInvitationAssign(PolygonContestMixin, View):
 
 
 class ContestParticipantList(PolygonContestMixin, ListView):
-    template_name = 'contest/participant.jinja2'
+    template_name = 'polygon/contest/participant.jinja2'
     paginate_by = 100
     context_object_name = 'participant_list'
 
@@ -407,7 +407,7 @@ class ContestSystemTestView(PolygonContestMixin, View):
 
 
 class ContestStatusBackend(PolygonContestMixin, StatusList):
-    template_name = 'contest/status.jinja2'
+    template_name = 'polygon/contest/status.jinja2'
     contest_submission_visible = True
     privileged = True
 
@@ -481,7 +481,7 @@ class ContestParticipantFromActivity(PolygonContestMixin, View):
 
 class ContestGhostRecordImport(PolygonContestMixin, FormView):
     form_class = TestSysUploadForm
-    template_name = 'contest/ghost_import.jinja2'
+    template_name = 'polygon/contest/ghost_import.jinja2'
 
     def parse_line(self, line):
         if line.startswith("@"):

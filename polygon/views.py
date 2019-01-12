@@ -24,7 +24,7 @@ def authorization(user):
 
 
 def home_view(request):
-  return render(request, 'polygon_home.jinja2', context={'polygon_authorized': authorization(request.user)})
+  return render(request, 'polygon/polygon_home.jinja2', context={'polygon_authorized': authorization(request.user)})
 
 
 def register_view(request):
@@ -63,7 +63,7 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
 
 
 class RunsList(PolygonBaseMixin, ListView):
-  template_name = 'runs.jinja2'
+  template_name = 'polygon/runs.jinja2'
   paginate_by = 100
   context_object_name = 'runs_list'
 
@@ -86,7 +86,7 @@ class PackageView(PolygonBaseMixin, ListView):
   def get_queryset(self):
     return CodeforcesPackage.objects.filter(created_by=self.request.user).order_by("-create_time")
 
-  template_name = "package.jinja2"
+  template_name = "polygon/package.jinja2"
   context_object_name = "package_list"
 
 
@@ -109,4 +109,18 @@ class PackageLogsDownload(PolygonBaseMixin, DetailView):
     return CodeforcesPackage.objects.filter(created_by=self.request.user, status__gte=0)
 
   def get(self, request, *args, **kwargs):
-    return HttpResponse(codeforces.pack_log_files(self.get_object()), content_type="application/zip")
+    self.object = self.get_object()
+    response = HttpResponse(codeforces.pack_log_files(self.object), content_type="application/force-download")
+    response["Content-Disposition"] = 'attachment; filename="{}$log.zip"'.format(self.object.id)
+    return response
+
+
+class PackageDownload(PolygonBaseMixin, DetailView):
+  def get_queryset(self):
+    return CodeforcesPackage.objects.filter(created_by=self.request.user, status=0)
+
+  def get(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    response = HttpResponse(codeforces.pack_log_files(self.object), content_type="application/force-download")
+    response["Content-Disposition"] = 'attachment; filename="{}$log.zip"'.format(self.object.id)
+    return response

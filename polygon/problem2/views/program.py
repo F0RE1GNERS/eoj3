@@ -21,7 +21,7 @@ ACTIVABLE_PROGRAM_TAGS = ("checker", "interactor", "validator")
 
 
 class ProgramList(ProblemRevisionMixin, ListView):
-    template_name = 'problem2/program/list.jinja2'
+    template_name = 'polygon/problem2/program/list.jinja2'
     context_object_name = 'program_list'
     polygon_title = "程序"
 
@@ -49,7 +49,7 @@ class RevisionProgramMixin(ProblemRevisionMixin):
 
 class ProgramCreateView(ProblemRevisionMixin, CreateView):
     form_class = ProgramUpdateForm
-    template_name = 'problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
     polygon_title = "创建程序"
 
     def get_success_url(self):
@@ -65,7 +65,7 @@ class ProgramCreateView(ProblemRevisionMixin, CreateView):
 
 class ProgramUpdateView(RevisionProgramMixin, UpdateView):
     form_class = ProgramUpdateForm
-    template_name = 'problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
     polygon_title = "更新程序"
 
     def get_success_url(self):
@@ -118,7 +118,7 @@ class ProgramDeleteView(ProblemRevisionMixin, View):
 
 
 class ProgramPreview(RevisionProgramMixin, TemplateView):
-    template_name = 'problem2/program/preview.jinja2'
+    template_name = 'polygon/problem2/program/preview.jinja2'
     polygon_title = "程序预览"
 
     def get_context_data(self, **kwargs):
@@ -129,7 +129,7 @@ class ProgramPreview(RevisionProgramMixin, TemplateView):
 
 
 class ProgramImportView(ProblemRevisionMixin, FormView):
-    template_name = 'problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
     form_class = ProgramImportForm
     polygon_title = "程序导入"
 

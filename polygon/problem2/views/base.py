@@ -28,7 +28,7 @@ from utils.permission import is_problem_manager
 
 
 class ProblemList(PolygonBaseMixin, ListView):
-    template_name = 'problem2/list.jinja2'
+    template_name = 'polygon/problem2/list.jinja2'
     context_object_name = 'problem_list'
     paginate_by = 100
 
@@ -295,7 +295,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
 
 
 class ProblemStatus(PolygonProblemMixin, StatusList):
-    template_name = 'problem2/status.jinja2'
+    template_name = 'polygon/problem2/status.jinja2'
     privileged = True
     polygon_title = "提交记录"
 
@@ -313,7 +313,7 @@ class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
     """
     This includes admin and alias
     """
-    template_name = 'problem2/basic_info.jinja2'
+    template_name = 'polygon/problem2/basic_info.jinja2'
     polygon_title = "基本信息管理"
 
     def get_context_data(self, **kwargs):

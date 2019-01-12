@@ -408,7 +408,7 @@ class RevisionMultipleCasesMixin(ProblemRevisionMixin):
 
 
 class CaseList(ProblemRevisionMixin, ListView):
-    template_name = 'problem2/case/list.jinja2'
+    template_name = 'polygon/problem2/case/list.jinja2'
     context_object_name = 'case_list'
     polygon_title = "数据管理"
 
@@ -438,7 +438,7 @@ class CaseList(ProblemRevisionMixin, ListView):
 
 class CaseCreateView(ProblemRevisionMixin, FormView):
     form_class = CaseCreateForm
-    template_name = 'problem2/case/create.jinja2'
+    template_name = 'polygon/problem2/case/create.jinja2'
     polygon_title = "添加数据"
 
     def get_success_url(self):
@@ -564,7 +564,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
 
 class CaseUpdateFileView(RevisionCaseMixin, FormView):
     form_class = CaseUpdateForm
-    template_name = 'problem2/case/update.jinja2'
+    template_name = 'polygon/problem2/case/update.jinja2'
     polygon_title = "更新数据"
 
     def get_success_url(self):
@@ -591,7 +591,7 @@ class CaseUpdateFileView(RevisionCaseMixin, FormView):
 
 class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
     form_class = CaseUpdateInfoForm
-    template_name = 'problem2/simple_form.jinja2'
+    template_name = 'polygon/problem2/simple_form.jinja2'
     polygon_title = "更新数据"
 
     def get_success_url(self):
@@ -695,7 +695,7 @@ class CaseValidateInput(RevisionMultipleCasesMixin, View):
 
 
 class CaseCheckView(ProblemRevisionMixin, TemplateView):
-    template_name = 'problem2/case/check.jinja2'
+    template_name = 'polygon/problem2/case/check.jinja2'
     raise_exception = True
     polygon_title = "验证数据"
 

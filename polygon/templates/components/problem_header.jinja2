@@ -1,8 +1,0 @@
-<h1 class="ui header">Problem {{ problem.id }} Management</h1>
-
-<div class="ui pointing secondary menu">
-  <a class="item {{ active('polygon:problem_preview') }}" href="{{ url('polygon:problem_preview', problem.id) }}">Preview</a>
-  <a class="item {{ active('polygon:problem_edit') }}" href="{{ url('polygon:problem_edit', problem.id) }}">Edit</a>
-  <a class="item {{ active('polygon:problem_access') }}" href="{{ url('polygon:problem_access', problem.id) }}">Access</a>
-  <a class="item {{ active('polygon:problem_status') }}" href="{{ url('polygon:problem_status', problem.id) }}">Submissions</a>
-</div>
