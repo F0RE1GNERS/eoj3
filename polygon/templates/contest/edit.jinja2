@@ -1,0 +1,64 @@
+{% extends 'contest/base.jinja2' %}
+
+{% block contest_content %}
+
+  <h3 class="ui dividing header">总览</h3>
+  <ul class="ui list">
+    <li class="item"><b>PDF 题面:</b> {{ contest.pdf_statement }}, <a class="post prompt" data-link="{{ url('polygon:contest_drop_statement', contest.id) }}">点击删除</a></li>
+    <li class="item"><b>参加者数量:</b> {{ contest.participants.count() }}</li>
+    <li class="item"><b>访问权限:</b> {{ contest.get_access_level_display() }}</li>
+    <li class="item"><b>公共状态与榜单访问权限:</b> {{ contest.get_common_status_access_level_display() }}</li>
+  </ul>
+
+  <h3 class="ui dividing header">修改</h3>
+
+  <div class="ui fluid accordion">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      修改命题人
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:contest_author_manage', contest.id) }}">
+        {% csrf_token %}
+        <div class="field">
+          {{ user_search_multiple(name='author', exist=author_list) }}
+        </div>
+        <button class="ui submit button">必须在这里点击保存</button>
+      </form>
+    </div>
+  </div>
+  <div class="ui fluid accordion">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      修改管理权限
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:contest_access_manage', contest.id) }}">
+        {% csrf_token %}
+        <div class="field">
+          {{ user_search_multiple(name='admin', exist=admin_list) }}
+        </div>
+        <button class="ui submit button">必须在这里保存</button>
+      </form>
+    </div>
+  </div>
+  <div class="ui fluid accordion" style="margin-bottom: 2em;">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      添加或删除志愿者
+    </div>
+    <div class="content">
+      <form class="ui form" method="POST" action="{{ url('polygon:contest_volunteer_manage', contest.id) }}">
+        {% csrf_token %}
+        <div class="field">
+          {{ user_search_multiple(name='volunteer', exist=volunteer_list) }}
+        </div>
+        <button class="ui submit button">必须在这里保存</button>
+      </form>
+    </div>
+  </div>
+
+  {% include 'components/form.jinja2' %}
+
+
+{% endblock %}

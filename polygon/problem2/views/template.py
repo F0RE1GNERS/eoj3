@@ -17,7 +17,7 @@ from utils.language import transform_code_to_html
 
 
 class TemplateList(ProblemRevisionMixin, ListView):
-    template_name = 'polygon/problem2/template/list.jinja2'
+    template_name = 'problem2/template/list.jinja2'
     context_object_name = 'template_list'
     polygon_title = "模板"
 
@@ -37,7 +37,7 @@ class RevisionTemplateMixin(ProblemRevisionMixin):
 
 class TemplateCreateView(ProblemRevisionMixin, CreateView):
     form_class = TemplateUpdateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'problem2/simple_form.jinja2'
     polygon_title = "创建模板"
 
     def get_success_url(self):
@@ -53,7 +53,7 @@ class TemplateCreateView(ProblemRevisionMixin, CreateView):
 
 class TemplateUpdateView(RevisionTemplateMixin, UpdateView):
     form_class = TemplateUpdateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'problem2/simple_form.jinja2'
     polygon_title = "更新模板"
 
     def get_success_url(self):
@@ -84,7 +84,7 @@ class TemplateDeleteView(ProblemRevisionMixin, View):
 
 
 class TemplatePreview(RevisionTemplateMixin, TemplateView):
-    template_name = 'polygon/problem2/template/preview.jinja2'
+    template_name = 'problem2/template/preview.jinja2'
     polygon_title = "模板预览"
 
     def get_context_data(self, **kwargs):

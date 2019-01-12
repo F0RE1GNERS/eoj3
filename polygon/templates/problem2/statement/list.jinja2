@@ -1,0 +1,51 @@
+{% extends 'problem2/base.jinja2' %}
+
+{% block problem_content %}
+
+  <table class="ui celled table center aligned">
+    <thead class="full-width">
+    {% set col_width = 6 %}
+    {% if not revision_readonly %}
+      {% set col_width = col_width + 1 %}
+      <tr>
+        <th colspan="{{ col_width }}">
+          <a href="{{ url('polygon:revision_statement_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
+            <i class="add icon"></i> Add Statement
+          </a>
+        </th>
+      </tr>
+    {% endif %}
+      <tr>
+        <th class="collapsing">Active</th>
+        <th class="collapsing">#</th>
+        <th>Name</th>
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+        <th class="collapsing">Based on</th>
+        {% if not revision_readonly %}
+        <th class="collapsing">Edit</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for statement in statement_list %}
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('polygon:revision_statement_activate', problem.id, revision.id, statement.id) }}" type="checkbox" {% if statement == revision.active_statement %}checked{% endif %}>
+            </div>
+          </td>
+          <td>{{ statement.pk }}</td>
+          <td><a href="{{ url('polygon:revision_statement_preview', problem.id, revision.id, statement.id) }}">{{ statement.name }}</a></td>
+          <td>{{ statement.create_time | date('Y-m-d H:i') }}</td>
+          <td>{{ statement.update_time | date('Y-m-d H:i') }}</td>
+          <td>{{ statement.parent_id }}</td>
+          {% if not revision_readonly %}
+          <td><a href="{{ url('polygon:revision_statement_update', problem.id, revision.id, statement.id) }}">Edit</a></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

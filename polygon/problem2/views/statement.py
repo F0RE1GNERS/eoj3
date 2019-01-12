@@ -16,7 +16,7 @@ from polygon.problem2.views.base import ProblemRevisionMixin
 
 
 class StatementList(ProblemRevisionMixin, ListView):
-    template_name = 'polygon/problem2/statement/list.jinja2'
+    template_name = 'problem2/statement/list.jinja2'
     context_object_name = 'statement_list'
     polygon_title = "题面"
 
@@ -36,7 +36,7 @@ class RevisionStatementMixin(ProblemRevisionMixin):
 
 class StatementCreateView(ProblemRevisionMixin, CreateView):
     form_class = StatementUpdateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'problem2/simple_form.jinja2'
     polygon_title = "创建题面"
 
     def get_success_url(self):
@@ -55,7 +55,7 @@ class StatementCreateView(ProblemRevisionMixin, CreateView):
 
 class StatementUpdateView(RevisionStatementMixin, UpdateView):
     form_class = StatementUpdateForm
-    template_name = 'polygon/problem2/simple_form.jinja2'
+    template_name = 'problem2/simple_form.jinja2'
     polygon_title = "更新题面"
 
     def get_success_url(self):
@@ -101,7 +101,7 @@ class StatementDeleteView(ProblemRevisionMixin, View):
 
 
 class StatementPreview(RevisionStatementMixin, TemplateView):
-    template_name = 'polygon/problem2/statement/preview.jinja2'
+    template_name = 'problem2/statement/preview.jinja2'
     polygon_title = "题面预览"
 
     def get_context_data(self, **kwargs):

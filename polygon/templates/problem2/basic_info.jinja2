@@ -1,0 +1,34 @@
+{% extends 'problem2/problem_base.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
+
+{% block problem_content %}
+
+  {% include 'components/message.jinja2' %}
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Admin List (DO NOT DELETE YOURSELF!):</label>
+      {{ user_search_multiple(name='admin', exist=admin_list) }}
+    </div>
+    <div class="field">
+      <label>Problem Alias:</label>
+      <input type="text" name="alias" value="{{ problem.alias }}">
+    </div>
+    <div class="field">
+      <label>Problem Source:</label>
+      <input type="text" name="source" value="{{ problem.source }}">
+    </div>
+    <div class="field">
+      <label>Assigned Difficulty Level:</label>
+      <select class="ui selection dropdown" name="level">
+        {% for val, verbose in level_select %}
+        <option value="{{ val }}" {% if val == problem.level %}selected{% endif %}>{{ verbose }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <button class="ui button positive">Save</button>
+    </div>
+  </form>
+
+{% endblock %}

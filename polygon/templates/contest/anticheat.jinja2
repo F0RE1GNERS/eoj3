@@ -1,0 +1,42 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_content %}
+
+  <p>
+    <a class="ui primary button post ask" data-link="{{ url('polygon:contest_plag_create', contest.pk) }}" data-question="How many matches do you want to keep?">Start Analysis</a>
+  </p>
+
+  <table class="ui small table center aligned">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Status</th>
+        <th>Problem</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Language</th>
+        <th>Keep</th>
+        <th colspan="3">Report</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for plag in plag_list %}
+      <tr>
+        <td>{{ plag.pk }}</td>
+        <td>{{ plag.get_status_display() }}</td>
+        <td>{{ plag.identifier }}</td>
+        <td>{{ plag.create_time | date("Y-m-d H:i:s") }}</td>
+        <td>{{ plag.update_time | date("Y-m-d H:i:s") }}</td>
+        <td>{{ plag.language }}</td>
+        <td>{{ plag.keep_match }}</td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/stderr">Stderr</a></td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/stdout">Stdout</a></td>
+        <td><a href="/generate/jplag/{{ contest.pk }}/{{ plag.fingerprint }}/result/index.html">Index</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+
+{% endblock %}

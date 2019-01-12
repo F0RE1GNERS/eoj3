@@ -1,0 +1,20 @@
+{% extends 'problem2/base.jinja2' %}
+
+{% block problem_content %}
+<table class="ui definition table">
+  <tbody>
+    <tr>
+      <td>Language</td>
+      <td>{{ template.get_language_display() }}</td>
+    </tr>
+    <tr>
+      <td>Template</td>
+      <td>{{ template.template_code_as_html | safe }}</td>
+    </tr>
+    <tr>
+      <td>Grader</td>
+      <td>{{ template.grader_code_as_html | safe }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'problem2/base.jinja2' %}
+
+{% block problem_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <table id="case-list-table" class="ui celled small very compact table center aligned">
+    <thead class="full-width">
+      {% set col_width = 7 %}
+      {% if revision.enable_group %}
+      {% set col_width = col_width + 1 %}
+      {% endif %}
+      {% if not revision_readonly %}
+      {% set col_width = col_width + 3 %}
+      <tr class="ui sticky">
+        <th colspan="{{ col_width }}">
+          <div class="ui right floated buttons">
+            <a href="{{ url('polygon:revision_case_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
+              <i class="add icon"></i> Add Case(s)
+            </a>
+            <div class="ui icon top right pointing dropdown button">
+              <i class="wrench icon"></i>
+              <div class="menu">
+                <div class="header">Typical</div>
+                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">Regularize Numbers</a>
+                {% if revision.enable_group %}
+                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}?group=1">Regularize Groups</a>
+                {% endif %}
+                <div class="header">For selected</div>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Produce Output</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_validate_input', problem.id, revision.id) }}">Validate Input</a>
+                <a class="item get gather" data-link="{{ url('polygon:revision_case_check', problem.id, revision.id) }}">Run Tests</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
+                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="Move the selected cases after (0 means above all):">Move Selected</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_sample', problem.id, revision.id) }}">Mark/Unmark As Samples</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_pretest', problem.id, revision.id) }}">Mark/Unmark As Pretests</a>
+                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_group_assign', problem.id, revision.id) }}" data-question="Appoint the group number, starting with 1.">Assign Group</a>
+              </div>
+            </div>
+          </div>
+        </th>
+      </tr>
+      {% endif %}
+      <tr>
+        <th class="collapsing"><div class="ui fitted checkbox"><input type="checkbox" name="all"></div></th>
+        <th class="collpasing">#</th>
+{#        <th class="collapsing">ID</th>#}
+        <th>Input</th>
+        <th>Output</th>
+        <th>Comment</th>
+        {% if revision.enable_group %}
+        <th>Group</th>
+        {% endif %}
+        <th class="collapsing">Created</th>
+        <th class="collapsing">Updated</th>
+        {% if not revision_readonly %}
+        <th class="collapsing" colspan="2">Edit</th>
+        <th class="collapsing">Delete</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for case in case_list %}
+        <tr>
+          <td><div class="ui fitted checkbox slice"><input type="checkbox" name="{{ case.pk }}"></div></td>
+          <td>{{ case.case_number }}</td>
+{#          <td>{{ case.pk }}</td>#}
+          <td class="left aligned selectable"><a href="{{ url('polygon:revision_case_preview', problem.id, revision.id, case.id) }}?t=input"><pre style="margin:0">{{ case.input_preview }}</pre></a></td>
+          <td class="left aligned selectable"><a href="{{ url('polygon:revision_case_preview', problem.id, revision.id, case.id) }}?t=output"><pre style="margin:0">{{ case.output_preview }}</pre></a></td>
+          <td class="left aligned">{% for comment in case.comments %}{{ comment }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+          {% if revision.enable_group %}
+          <td>{{ case.group }}</td>
+          {% endif %}
+          <td>{{ case.create_time | date('H:i M.d') }}</td>
+          <td>{{ case.update_time | date('H:i M.d') }}</td>
+        {% if not revision_readonly %}
+          <td><a href="{{ url('polygon:revision_case_update_file', problem.id, revision.id, case.id) }}">Data</a></td>
+          <td><a href="{{ url('polygon:revision_case_update_info', problem.id, revision.id, case.id) }}">Info</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id, case.id) }}">Delete</a></td>
+        {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
+
+
+{% block local_script %}
+  <script>
+  $('.ui.sticky')
+    .sticky({
+      context: '#case-list-table',
+      onStick: function () {
+        $(this).find("th").width($(this).width());
+      }
+    })
+  ;
+  </script>
+{% endblock %}

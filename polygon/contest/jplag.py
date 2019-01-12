@@ -63,7 +63,7 @@ def start_jplag(plags):
 
 
 class JPlagHistoryView(PolygonContestMixin, ListView):
-    template_name = 'polygon/contest/anticheat.jinja2'
+    template_name = 'contest/anticheat.jinja2'
     context_object_name = 'plag_list'
 
     def get_queryset(self):
