@@ -5,7 +5,7 @@
   <table class="ui celled small center aligned table">
     <thead>
       <tr>
-        <th colspan="9">
+        <th colspan="10">
           <a class="ui primary right floated button post ask" data-link="create/" data-question="请输入远程仓库的 Problem ID">
             从 CF Polygon 拉取
           </a>
@@ -21,6 +21,7 @@
         <th>创建时间</th>
         <th>运行时间</th>
         <th>日志</th>
+        <th>Package</th>
       </tr>
     </thead>
     <tbody>
@@ -35,6 +36,7 @@
         <td>{{ package.create_time }}</td>
         <td>{% if package.running_time %}{{ package.running_time | round(3) }} 秒{% endif %}</td>
         <td>{% if package.status >= 0 %}<a href="{{ package.id }}/log/">下载</a>{% endif %}</td>
+        <td>{% if package.size %}<a href="{{ package.id }}/download/">{{ package.size | round(3) }} MB</a>{% endif %}</td>
       </tr>
     {% endfor %}
     </tbody>

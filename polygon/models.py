@@ -259,3 +259,4 @@ class CodeforcesPackage(Package):
   running_time = models.FloatField(null=True)
   short_name = models.CharField(null=True, blank=True, max_length=192)
   revision = models.IntegerField(null=True)
+  size = models.FloatField(null=True)

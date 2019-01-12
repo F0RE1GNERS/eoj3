@@ -1,5 +1,7 @@
+from abc import abstractmethod
+
 from django import forms
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
@@ -104,23 +106,45 @@ class PackageCreate(PolygonBaseMixin, FormView):
     return super().form_valid(form)
 
 
-class PackageLogsDownload(PolygonBaseMixin, DetailView):
+class DownloadDetailView(DetailView):
+  @abstractmethod
+  def get_content(self, object):
+    pass
+
+  @abstractmethod
+  def get_filename(self, object):
+    pass
+
+  def get(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    response = HttpResponse(self.get_content(self.object), content_type="application/force-download")
+    response["Content-Disposition"] = 'attachment; filename="{}"'.format(self.get_filename(self.object))
+    return response
+
+
+class PackageLogsDownload(PolygonBaseMixin, DownloadDetailView):
   def get_queryset(self):
     return CodeforcesPackage.objects.filter(created_by=self.request.user, status__gte=0)
 
-  def get(self, request, *args, **kwargs):
-    self.object = self.get_object()
-    response = HttpResponse(codeforces.pack_log_files(self.object), content_type="application/force-download")
-    response["Content-Disposition"] = 'attachment; filename="{}$log.zip"'.format(self.object.id)
-    return response
+  def get_content(self, object):
+    return codeforces.pack_log_files(object)
+
+  def get_filename(self, object):
+    return "{}$log.zip".format(object.id)
 
 
-class PackageDownload(PolygonBaseMixin, DetailView):
+class PackageDownload(PolygonBaseMixin, DownloadDetailView):
   def get_queryset(self):
     return CodeforcesPackage.objects.filter(created_by=self.request.user, status=0)
 
-  def get(self, request, *args, **kwargs):
-    self.object = self.get_object()
-    response = HttpResponse(codeforces.pack_log_files(self.object), content_type="application/force-download")
-    response["Content-Disposition"] = 'attachment; filename="{}$log.zip"'.format(self.object.id)
-    return response
+  def get_object(self, queryset=None):
+    object = super().get_object(queryset)
+    if object.short_name is None or object.revision is None:
+      raise Http404
+    return object
+
+  def get_content(self, object):
+    return codeforces.pack_package(object)
+
+  def get_filename(self, object):
+    return "{}${}.zip".format(object.short_name, object.revision)

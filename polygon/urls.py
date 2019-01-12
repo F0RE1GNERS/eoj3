@@ -16,5 +16,5 @@ urlpatterns = [
   url(r'^packages/$', v.PackageView.as_view(), name='packages'),
   url(r'^packages/create/$', v.PackageCreate.as_view()),
   url(r'^packages/(?P<pk>\d+)/log/$', v.PackageLogsDownload.as_view()),
-
+  url(r'^packages/(?P<pk>\d+)/download/$', v.PackageDownload.as_view()),
 ]
