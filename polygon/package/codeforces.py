@@ -58,7 +58,7 @@ def zip_directory(dir):
   with zipfile.ZipFile(bytes_io, "w") as zipFile:
     for top, dirs, files in os.walk(dir):
       for file in files:
-        zipFile.write(os.path.join(dir, top, file), os.path.relpath(file, dir))
+        zipFile.write(os.path.join(top, file), os.path.relpath(os.path.join(top, file), dir))
   bytes_io.seek(0)
   return bytes_io.read()
 
