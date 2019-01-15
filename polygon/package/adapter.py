@@ -117,20 +117,19 @@ class CodeforcesPackageAdapter:
     tests, samples = [], []
     for test_node in testset_node.find('tests').findall('test'):
       test_id += 1
-      if test_node.attrib['method'] == 'manual':
-        with open(os.path.join(self.directory, input_pattern % test_id), 'rb') as test_input:
-          # process CRLF
-          input_text = test_input.read().replace(b"\r\n", b"\n")
-        with open(os.path.join(self.directory, answer_pattern % test_id), 'rb') as test_answer:
-          answer_text = test_answer.read().replace(b"\r\n", b"\n")
-        hash_str = case_hash(self.problem.id, input_text, answer_text)
-        input_path, answer_path = get_input_path(hash_str), get_output_path(hash_str)
-        with open(input_path, "wb") as test_input, open(answer_path, "wb") as test_answer:
-          test_input.write(input_text)
-          test_answer.write(answer_text)
-        if 'sample' in test_node.attrib and test_node.attrib["sample"] == "true":
-          samples.append(hash_str)
-        tests.append(hash_str)
+      with open(os.path.join(self.directory, input_pattern % test_id), 'rb') as test_input:
+        # process CRLF
+        input_text = test_input.read().replace(b"\r\n", b"\n")
+      with open(os.path.join(self.directory, answer_pattern % test_id), 'rb') as test_answer:
+        answer_text = test_answer.read().replace(b"\r\n", b"\n")
+      hash_str = case_hash(self.problem.id, input_text, answer_text)
+      input_path, answer_path = get_input_path(hash_str), get_output_path(hash_str)
+      with open(input_path, "wb") as test_input, open(answer_path, "wb") as test_answer:
+        test_input.write(input_text)
+        test_answer.write(answer_text)
+      if 'sample' in test_node.attrib and test_node.attrib["sample"] == "true":
+        samples.append(hash_str)
+      tests.append(hash_str)
     self.problem.cases = ",".join(tests)
     self.problem.points = ",".join(["10"] * len(tests))
     self.problem.sample = ",".join(samples)
