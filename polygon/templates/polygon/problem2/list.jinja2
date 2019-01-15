@@ -28,7 +28,7 @@
       <tr>
         <th colspan="11">
           <div class="ui right floated buttons">
-          {% set clone_message = "Type in the problem ID you want to clone. If you want a contest problem, please type <ContestID>-<ProblemID>, for example, 79-A, or 33-1021." %}
+          {% set clone_message = "输入你想要复制的题目 ID。你必须拥有题目的管理权限。如果要复制比赛中的题目，可以输入 <ContestID>-<ProblemID>，例如 79-A 或 33-1021，你必须拥有比赛的管理权限。" %}
           {% set new_message = "Think of a name that will help you recognize this problem. Lowercase letters and digits only." %}
             <a class="ui button post ask" data-link="{{ url('polygon:problem_clone') }}" data-question="{{ clone_message }}">
               Request Clone
