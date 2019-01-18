@@ -30,7 +30,7 @@ def home_view(request):
 
 
 def register_view(request):
-  template_name = 'register.jinja2'
+  template_name = 'polygon/register.jinja2'
   if request.method == 'GET':
     return render(request, template_name)
   else:
@@ -104,6 +104,20 @@ class PackageCreate(PolygonBaseMixin, FormView):
   def form_valid(self, form):
     codeforces.create_task(form.cleaned_data["answer"], self.request.user)
     return super().form_valid(form)
+
+
+# class PackageUpload(PolygonBaseMixin, FormView):
+#   class UploadForm(forms.Form):
+#     file = forms.FileField()
+#
+#   form_class = UploadForm
+#
+#   def get_success_url(self):
+#     return reverse("polygon:packages")
+#
+#   def form_valid(self, form):
+#     codeforces.create_task(0, self.request.user, init_file=form.cleaned_data["file"])
+#     return super().form_valid(form)
 
 
 class DownloadDetailView(DetailView):

@@ -26,10 +26,13 @@ def get_working_directory(dst_dir):
   return os.path.join(settings.REPO_DIR, dst_dir)
 
 
-def create_task(problem_id: str, created_by: User):
+def create_task(problem_id: str, created_by: User, init_file=None):
   cf_settings = settings.CODEFORCES_POLYGON_CONFIG
   dst_dir = "cf_%s_%s" % (problem_id, "".join([random.choice("0123456789abcdef") for _ in range(6)]))
   dst_address = get_working_directory(dst_dir)
+  if init_file is not None:
+    with open(os.path.join(dst_address, "package.zip"), "wb") as f:
+      f.write(init_file.read())
 
   def create_task_helper():
     package = CodeforcesPackage.objects.create(created_by=created_by, dir_name=dst_dir, remote_problem_id=problem_id)
