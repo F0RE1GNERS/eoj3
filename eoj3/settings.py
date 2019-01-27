@@ -70,6 +70,7 @@ except ImportError:
     }
   }
   REPO_DIR = os.path.join(BASE_DIR, "repo")
+  TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 
 ALLOWED_HOSTS = ['*']
 
@@ -285,7 +286,6 @@ MEDIA_URL = '/media/'
 AUTH_USER_MODEL = 'account.User'
 SESSION_COOKIE_AGE = 1209600  # default 2 weeks
 LOGIN_URL = '/login/'
-TESTDATA_DIR = os.path.join(BASE_DIR, "data")
 UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
 MIRROR_DIR = os.path.join(BASE_DIR, "upload/mirror")
 GENERATE_DIR = os.path.join(BASE_DIR, "generate")
