@@ -187,21 +187,35 @@ class SpecialProgram(models.Model):
     return '%s (%s)' % (self.filename, self.category.capitalize())
 
 
+def _get_data_path(category, hash):
+  parts = [settings.TESTDATA_DIR, category]
+  if len(hash) >= 2:
+    parts.append(hash[:2])
+  else:
+    parts.append("??")
+  if len(hash) >= 4:
+    parts.append(hash[2:4])
+  else:
+    parts.append("??")
+  parts.append(hash)
+  return path.join(*parts)
+
+
+def get_input_path(case_hash):
+  return _get_data_path("in", case_hash)
+
+
+def get_output_path(case_hash):
+  return _get_data_path("out", case_hash)
+
+
 def get_input_and_output_for_case(case_hash):
   """
   :type case_hash: str
   :return: (input_data, output_data)
   """
-  with open(path.join(settings.TESTDATA_DIR, case_hash + '.in'), 'r') as inf:
+  with open(get_input_path(case_hash), 'r') as inf:
     input_data = inf.read()
-  with open(path.join(settings.TESTDATA_DIR, case_hash + '.out'), 'r') as ouf:
+  with open(get_output_path(case_hash), 'r') as ouf:
     output_data = ouf.read()
   return (input_data, output_data)
-
-
-def get_input_path(case_hash):
-  return path.join(settings.TESTDATA_DIR, case_hash + '.in')
-
-
-def get_output_path(case_hash):
-  return path.join(settings.TESTDATA_DIR, case_hash + '.out')
