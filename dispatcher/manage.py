@@ -41,8 +41,8 @@ def upload_case(server, case):
     url_output = server.http_address + '/upload/case/%s/output' % case
     if requests.get(url_check_exist).json().get('exist'):
         return True
-    with open(path.join(settings.TESTDATA_DIR, case + '.in'), 'rb') as inf,\
-            open(path.join(settings.TESTDATA_DIR, case + '.out'), 'rb') as ouf:
+    with open(path.join(settings.TESTDATA_DIR, 'in', case[:2], case[2:4], case), 'rb') as inf,\
+            open(path.join(settings.TESTDATA_DIR, 'out', case[:2], case[2:4], case), 'rb') as ouf: # TODO: unsafe
         res1 = requests.post(url_input, data=inf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
         res2 = requests.post(url_output, data=ouf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
     if not is_success_response(res1) and is_success_response(res2):
