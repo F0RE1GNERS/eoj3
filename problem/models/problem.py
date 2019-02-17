@@ -1,6 +1,6 @@
 import json
 import re
-from os import path
+from os import path, makedirs
 
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -197,6 +197,8 @@ def _get_data_path(category, hash):
     parts.append(hash[2:4])
   else:
     parts.append("??")
+  directory = path.join(*parts)
+  makedirs(directory, exist_ok=True)
   parts.append(hash)
   return path.join(*parts)
 
