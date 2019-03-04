@@ -1,7 +1,5 @@
 #!/bin/sh
 
-APP=/app
-
 #if [ ! -f "$DATA/public/avatar/default.png" ]; then
 #    cp data/public/avatar/default.png $DATA/public/avatar
 #fi
