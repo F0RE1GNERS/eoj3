@@ -1,0 +1,48 @@
+version: "3"
+services:
+  eoj-redis:
+    image: redis:5-alpine
+    container_name: eoj-redis
+    restart: always
+    volumes:
+      - /hd2/redis:/data
+    networks:
+      - main
+
+  eoj-mysql:
+    image: mysql:8
+    container_name: eoj-mysql
+    restart: always
+    volumes:
+      - /hd2/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - main
+
+  eoj:
+    image: registry.cn-hangzhou.aliyuncs.com/???/???
+    container_name: eoj
+    restart: always
+    environment:
+      CODEFORCES_KEY: ""
+      CODEFORCES_SECRET: ""
+      SECRET_KEY: ""
+      EMAIL_HOST_PASSWORD: ""
+    depends_on:
+      - eoj-redis
+      - eoj-mysql
+    volumes:
+      - /hd2/media:/media
+      - /hd2/upload:/upload
+      - /hd2/data:/testdata
+      - /hd2/generate:/generate
+      - /hd1/repo:/repo
+      - /hd1/log:/log
+    ports:
+      - "0.0.0.0:80:80"
+    networks:
+      - main
+
+networks:
+  main:

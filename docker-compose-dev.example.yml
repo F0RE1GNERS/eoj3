@@ -1,0 +1,48 @@
+version: "3"
+services:
+  eoj-redis:
+    image: redis:5-alpine
+    container_name: eoj-redis
+    restart: always
+    volumes:
+      - $PWD/data/redis:/data
+    networks:
+      - main
+
+  eoj-mysql:
+    image: mysql:8
+    container_name: eoj-mysql
+    restart: always
+    volumes:
+      - $PWD/data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - main
+
+  eoj:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: eoj
+    restart: always
+    environment:
+      DEBUG: 1
+    depends_on:
+      - eoj-redis
+      - eoj-mysql
+    volumes:
+      - $PWD/data/media:/media
+      - $PWD/data/upload:/upload
+      - $PWD/data/config:/config
+      - $PWD/data/testdata:/testdata
+      - $PWD/data/repo:/repo
+      - $PWD/data/generate:/generate
+      - $PWD/data/log:/log
+    ports:
+      - "0.0.0.0:8000:8000"
+    networks:
+      - main
+
+networks:
+  main:

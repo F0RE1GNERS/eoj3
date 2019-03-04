@@ -25,24 +25,3 @@ class EmailRecipient(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
     error_message = models.TextField(blank=True)
-
-
-class UpdateLog(models.Model):
-    create_time = models.DateTimeField(auto_now_add=True)
-    log_type = models.CharField(max_length=10, choices=(
-        ('fix', '问题修复'),
-        ('add', '新功能'),
-        ('del', '删除功能'),
-        ('ref', '重构'),
-        ('upd', '更新'),
-        ('enhance', '加强'),
-    ))
-    priority = models.PositiveIntegerField(choices=(
-        (0, 'CRITICAL'),
-        (1, 'HIGH'),
-        (2, 'MEDIUM'),
-        (3, 'LOW'),
-    ))
-    is_about_polygon = models.BooleanField(default=False)
-    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    content = models.TextField()

@@ -12,67 +12,56 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import logging
+from collections import defaultdict
+
+import yaml
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-try:
-  from .local_settings import *
-except ImportError:
-  logging.basicConfig(level=logging.INFO)
-  logging.info("Now use default settings.")
-  SECRET_KEY = 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
+
+if "DEBUG" in os.environ and os.environ["DEBUG"] == "1":
   DEBUG = True
-  DATABASES = {
-    'default': {
-      'ENGINE': 'django.db.backends.sqlite3',
-      'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-      'OPTIONS': {
-        'timeout': 15000,
-      }
-    }
-  }
-  SITE_ID = 1
+  logging.basicConfig(level=logging.INFO)
   ADMIN_LIST = []
   WHITE_LIST_HOST = ["127.0.0.1", ]
-  RUNNER_CONFIG = {
-    "cpp": {
-      "compiler_file": "/usr/bin/g++",
-      "compiler_args": ["-O2", "-std=c++11", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
-                        "-fmax-errors=3"],
-      "code_file": "foo.cc",
-      "execute_file": "foo",
-    },
-    "cc14": {
-      "compiler_file": "/usr/bin/g++",
-      "compiler_args": ["-O2", "-std=c++14", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
-                        "-fmax-errors=3"],
-      "code_file": "foo.cc",
-      "execute_file": "foo",
-    },
-    "java": {
-      "compiler_file": "/usr/bin/javac",
-      "compiler_args": ["-encoding", "utf8", "Main.java"],
-      "code_file": "Main.java",
-      "execute_file": "/usr/bin/java",
-      "execute_args": ["-Xss1M", "-XX:MaxPermSize=16M", "-XX:PermSize=8M", "-Xms16M", "-Xmx{max_memory}M",
-                       "-Dfile.encoding=UTF-8", "Main"],
-    },
-    "python": {
-      "compiler_file": "/usr/bin/python3",
-      "compiler_args": ["-m", "py_compile", "foo.py"],
-      "code_file": "foo.py",
-      "execute_file": "/usr/bin/python3",
-      "execute_args": ["foo.py"]
-    }
-  }
-  REPO_DIR = os.path.join(BASE_DIR, "repo")
-  TESTDATA_DIR = os.path.join(BASE_DIR, "data")
+else:
+  DEBUG = False
+  IPWARE_PRIVATE_IP_PREFIX = ('202.120.88.',)
+  WHITE_LIST_HOST = ["acm.ecnu.edu.cn", ]
 
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'eoj',
+    'CONN_MAX_AGE': 2,
+    'HOST': 'eoj-mysql',
+    'PORT': 3306,
+    'USER': 'root',
+    'PASSWORD': 'root'
+  }
+}
+  
+SECRET_KEY = os.environ.get("SECRET_KEY", "d#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi=")
+
+SITE_ID = 1
 ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ('127.0.0.1',)
+
+# Email
+EMAIL_HOST = "webmail.ecnu.edu.cn"
+EMAIL_HOST_USER = "acmnoreply@admin.ecnu.edu.cn"
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+SERVER_EMAIL = "acmnoreply@admin.ecnu.edu.cn"
+DEFAULT_FROM_EMAIL = "acmnoreply@admin.ecnu.edu.cn"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+ADMINS = [('acmsupport', 'acmsupport@admin.ecnu.edu.cn')]
+ADMIN_EMAIL_LIST = ['acmsupport@admin.ecnu.edu.cn']
 
 # Application definition
 
@@ -86,22 +75,9 @@ INSTALLED_APPS = [
   'django.contrib.humanize',
   'django.contrib.sites',
 
-  'api',
-  'home',
-  'account',
-  'dispatcher',
-  'problem',
-  'backstage',
-  'submission',
-  'contest',
-  'utils',
-  'tests',
-  'blog',
-  'migrate',
-  'polygon',
-  'message',
-  'filemanager',
-  'paste',
+  'api', 'home', 'account', 'dispatcher', 'problem',
+  'backstage', 'submission', 'contest', 'utils',
+  'tests', 'blog', 'migrate', 'polygon', 'filemanager', 'paste',
 
   # third-party packages
   'widget_tweaks',
@@ -211,10 +187,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'eoj3.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -286,9 +258,11 @@ MEDIA_URL = '/media/'
 AUTH_USER_MODEL = 'account.User'
 SESSION_COOKIE_AGE = 1209600  # default 2 weeks
 LOGIN_URL = '/login/'
-UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
-MIRROR_DIR = os.path.join(BASE_DIR, "upload/mirror")
-GENERATE_DIR = os.path.join(BASE_DIR, "generate")
+UPLOAD_DIR = "/upload"
+MIRROR_DIR = "/upload/mirror"
+GENERATE_DIR = "/generate"
+REPO_DIR = "/repo"
+TESTDATA_DIR = "/testdata"
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
@@ -306,8 +280,6 @@ REST_FRAMEWORK = {
     'utils.authentication.UnsafeSessionAuthentication',
   )
 }
-
-INTERNAL_IPS = ('127.0.0.1',)
 
 DEBUG_TOOLBAR_PANELS = [
   'debug_toolbar.panels.versions.VersionsPanel',

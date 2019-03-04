@@ -13,7 +13,7 @@ from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
-from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, update_log_view, PasteView
+from home.views import home_view, faq_view, forbidden_view, not_found_view, server_error_view, update_log_view
 from home.museum import museum_view
 from problem.views import make_payment_for_full_report, case_download_link
 from submission.print import PrintCodeView, PrintCodeDownload, PrintAdminView, PrintPdfDownload
@@ -39,14 +39,12 @@ urlpatterns = [
     url(r'^blog/', include('blog.urls', namespace='blog'), kwargs=force_closed()),
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
-    url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
     url(r'^migrate/$', migrate_view, name='migrate'),
     url(r'^pay/report/', make_payment_for_full_report, name='pay_report', kwargs=force_closed()),
     url(r'^case/download/$', case_download_link, name='download_case', kwargs=force_closed()),
     url(r'^museum/$', museum_view, name='museum'),
     url(r'^update/$', update_log_view, name='update_log'),
-    url(r'^paste/$', PasteView.as_view(), name='pastebin'),
     url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
     url(r'^i18n/', include('django.conf.urls.i18n'))
@@ -81,7 +79,6 @@ if DEBUG:
         url(r'^static/(?P<path>.*)$', serve, name='static', kwargs={'document_root': STATIC_DIR}),
         url(r'^upload/(?P<path>.*)$', serve, name='upload', kwargs={'document_root': UPLOAD_DIR}),
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^t/', TestView.as_view())
     ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
 

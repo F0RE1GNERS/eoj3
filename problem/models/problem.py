@@ -27,11 +27,6 @@ class Problem(models.Model):
 
   package_id = models.IntegerField(null=True, blank=True)
   # solutions = models.ManyToManyField(Solution) # TODO: add solutions
-
-  # if these are set, params from package will be ignored
-  judging_time_limit = models.IntegerField(null=True, blank=True)
-  judging_memory_limit = models.IntegerField(null=True, blank=True)
-
   # generate
   title = models.CharField(_('Title'), max_length=192, blank=True)
 

@@ -18,12 +18,15 @@ repo/
 
 # local settings
 local_settings.py
+*.example.yml
 
 # library
 cdn/
 node_modules/
 bower_components/
+venv/
 
 # generated css
 app.css
 app.min.css
+package-lock.json

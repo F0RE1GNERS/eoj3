@@ -39,7 +39,7 @@ class ProblemUpdateFromPackage(PolygonProblemMixin, FormView):
 class ProblemCustomizeForm(forms.ModelForm):
   class Meta:
     model = Problem
-    fields = ['title', 'package_id', 'judging_time_limit', 'judging_memory_limit',
+    fields = ['title', 'package_id',
               'description', 'input', 'output', 'hint']
     widgets = {
       'description': forms.Textarea(attrs={'class': 'markdown'}),
@@ -53,8 +53,6 @@ class ProblemCustomizeForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.fields["judging_time_limit"].help_text = self.instance.time_limit
-    self.fields["judging_memory_limit"].help_text = self.instance.memory_limit
 
 
 class ProblemReview(PolygonProblemMixin, UpdateView):

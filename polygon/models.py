@@ -10,34 +10,6 @@ from utils.language import LANG_CHOICE
 repo_storage = FileSystemStorage(location=settings.REPO_DIR)
 
 
-class EditSession(models.Model):
-  # DEPRECATED
-  create_time = models.DateTimeField(auto_now_add=True)
-  user = models.ForeignKey(User, on_delete=models.CASCADE)
-  fingerprint = models.CharField(max_length=64)
-  problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-  last_synchronize = models.DateTimeField(blank=True)
-
-  class Meta:
-    ordering = ["-last_synchronize"]
-    unique_together = ["user", "problem"]  # You can have only one session.
-
-
-class Run(models.Model):
-  # DEPRECATED
-  STATUS_CHOICE = (
-    (1, 'complete'),
-    (0, 'running'),
-    (-1, 'failed')
-  )
-
-  create_time = models.DateTimeField(auto_now_add=True)
-  user = models.ForeignKey(User, on_delete=models.CASCADE)
-  status = models.IntegerField(choices=STATUS_CHOICE)
-  label = models.TextField(blank=True)
-  message = models.TextField(blank=True)
-
-
 class NameValidator(RegexValidator):
   regex = r'^[A-Za-z0-9_-]{2,24}$'
 
@@ -252,9 +224,10 @@ class CodeforcesPackage(Package):
   dir_name = models.CharField(max_length=64)
   remote_problem_id = models.CharField(max_length=64)
   status = models.IntegerField(default=-1, choices=(
-    (-1, 'Pending'),
-    (0, 'OK'),
-    (1, 'Failed')
+    (-1, '下载中'),
+    (-2, '运行中'),
+    (0, '成功'),
+    (1, '失败')
   ))
   running_time = models.FloatField(null=True)
   short_name = models.CharField(null=True, blank=True, max_length=192)

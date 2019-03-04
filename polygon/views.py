@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from account.permissions import is_coach
 from polygon.base_views import PolygonBaseMixin
-from polygon.models import Run, Package, CodeforcesPackage
+from polygon.models import Package, CodeforcesPackage
 from polygon.package import codeforces
 from polygon.rejudge import rejudge_submission, rejudge_all_submission_on_problem
 from problem.models import Problem
@@ -64,26 +64,6 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
     return redirect(nxt)
 
 
-class RunsList(PolygonBaseMixin, ListView):
-  template_name = 'polygon/runs.jinja2'
-  paginate_by = 100
-  context_object_name = 'runs_list'
-
-  def get_queryset(self):
-    return Run.objects.filter(user=self.request.user).order_by("-pk").all()
-
-
-class RunMessageView(PolygonBaseMixin, View):
-  def get(self, request, pk):
-    message = ''
-    try:
-      run = Run.objects.get(pk=pk, user=request.user)
-      message = run.message
-    except Run.DoesNotExist:
-      pass
-    return HttpResponse(message, content_type='text/plain')
-
-
 class PackageView(PolygonBaseMixin, ListView):
   def get_queryset(self):
     return CodeforcesPackage.objects.filter(created_by=self.request.user).order_by("-create_time")
@@ -104,20 +84,6 @@ class PackageCreate(PolygonBaseMixin, FormView):
   def form_valid(self, form):
     codeforces.create_task(form.cleaned_data["answer"], self.request.user)
     return super().form_valid(form)
-
-
-# class PackageUpload(PolygonBaseMixin, FormView):
-#   class UploadForm(forms.Form):
-#     file = forms.FileField()
-#
-#   form_class = UploadForm
-#
-#   def get_success_url(self):
-#     return reverse("polygon:packages")
-#
-#   def form_valid(self, form):
-#     codeforces.create_task(0, self.request.user, init_file=form.cleaned_data["file"])
-#     return super().form_valid(form)
 
 
 class DownloadDetailView(DetailView):
