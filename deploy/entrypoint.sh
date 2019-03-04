@@ -11,21 +11,17 @@ APP=/app
 #fi
 
 echo "EOJ is starting..."
-cp -r /build/static/node_modules/ /app/static/node_modules/
 cd static && gulp less && cd ..
 
 n=0
 while [ $n -lt 5 ]
 do
+    pwd
     python manage.py migrate --no-input &&
     n=$(($n+1))
     echo "Failed to migrate, going to retry..."
     sleep 8
 done
-
-addgroup -g 12003 www
-adduser -u 12000 -S -G www server
-chown -R www:server /generate /testdata /upload /repo /media
 
 if [ -z "$DEBUG" ]; then
     echo "Entering production mode..."

@@ -17,6 +17,7 @@ services:
       - /hd2/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eoj
     networks:
       - main
 
