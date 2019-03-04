@@ -6,7 +6,7 @@ ADD . /app
 
 RUN apk add --update --no-cache build-base git nginx openssl curl unzip supervisor jpeg-dev zlib-dev freetype-dev nodejs nodejs-npm mariadb-dev postgresql-dev && \
     pip install --no-cache-dir -r /build/deploy/requirements.txt && \
-    cd /build/static && npm install && \
+    cd /build/static && npm install && npm install -g gulp && \
     apk del build-base --purge
 
 WORKDIR /app

@@ -10,18 +10,9 @@ APP=/app
 #    cp data/public/website/favicon.ico $DATA/public/website
 #fi
 
+echo "EOJ is starting..."
 cp -r /build/static/node_modules/ /app/static/node_modules/
-cp -r /build/static/css/ /app/static/css/
 cd static && gulp less && cd ..
-
-if [ -z "$MAX_WORKER_NUM" ]; then
-    export CPU_CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
-    if [[ $CPU_CORE_NUM -lt 2 ]]; then
-        export MAX_WORKER_NUM=2
-    else
-        export MAX_WORKER_NUM=$(($CPU_CORE_NUM))
-    fi
-fi
 
 n=0
 while [ $n -lt 5 ]
@@ -33,12 +24,14 @@ do
 done
 
 addgroup -g 12003 www
-adduser -u 12000 -S -G server server
+adduser -u 12000 -S -G www server
 chown -R www:server /generate /testdata /upload /repo /media
 
 if [ -z "$DEBUG" ]; then
+    echo "Entering production mode..."
     exec supervisord -c /app/deploy/supervisord.conf
 else
+    echo "Entering debug mode..."
     supervisord -c /app/deploy/supervisord.dev.conf
     exec python manage.py runserver 8000
 fi
