@@ -18,7 +18,8 @@ repo/
 
 # local settings
 local_settings.py
-*.example.yml
+docker-compose.yml
+docker-compose-dev.yml
 
 # library
 cdn/

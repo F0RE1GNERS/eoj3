@@ -39,6 +39,7 @@ services:
       - $PWD/data/repo:/repo
       - $PWD/data/generate:/generate
       - $PWD/data/log:/log
+      - $PWD:/app
     ports:
       - "0.0.0.0:8000:8000"
     networks:

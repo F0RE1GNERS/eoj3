@@ -1,0 +1,6 @@
+data
+venv
+static/node_modules
+.git
+app.css
+app.min.css

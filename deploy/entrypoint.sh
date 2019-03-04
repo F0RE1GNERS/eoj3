@@ -10,6 +10,10 @@ APP=/app
 #    cp data/public/website/favicon.ico $DATA/public/website
 #fi
 
+cp -r /build/static/node_modules/ /app/static/node_modules/
+cp -r /build/static/css/ /app/static/css/
+cd static && gulp less && cd ..
+
 if [ -z "$MAX_WORKER_NUM" ]; then
     export CPU_CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
     if [[ $CPU_CORE_NUM -lt 2 ]]; then
