@@ -23,6 +23,8 @@ local_settings.py
 cdn/
 node_modules/
 bower_components/
+venv/
+package-lock.json
 
 # generated css
 app.css

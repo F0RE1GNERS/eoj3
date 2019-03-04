@@ -1,1 +1,0 @@
-mkdir -p data media upload repo

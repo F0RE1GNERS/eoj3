@@ -19,58 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-try:
-  from .local_settings import *
-except ImportError:
-  logging.basicConfig(level=logging.INFO)
-  logging.info("Now use default settings.")
-  SECRET_KEY = 'd#w%dw^4lzdqn8g*2=r^yg3b3#qgq$g8%ipa+4xnjutj39_xi='
-  DEBUG = True
-  DATABASES = {
-    'default': {
-      'ENGINE': 'django.db.backends.sqlite3',
-      'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-      'OPTIONS': {
-        'timeout': 15000,
-      }
-    }
-  }
-  SITE_ID = 1
-  ADMIN_LIST = []
-  WHITE_LIST_HOST = ["127.0.0.1", ]
-  RUNNER_CONFIG = {
-    "cpp": {
-      "compiler_file": "/usr/bin/g++",
-      "compiler_args": ["-O2", "-std=c++11", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
-                        "-fmax-errors=3"],
-      "code_file": "foo.cc",
-      "execute_file": "foo",
-    },
-    "cc14": {
-      "compiler_file": "/usr/bin/g++",
-      "compiler_args": ["-O2", "-std=c++14", '-o', "foo", "foo.cc", "-DONLINE_JUDGE", "-lm",
-                        "-fmax-errors=3"],
-      "code_file": "foo.cc",
-      "execute_file": "foo",
-    },
-    "java": {
-      "compiler_file": "/usr/bin/javac",
-      "compiler_args": ["-encoding", "utf8", "Main.java"],
-      "code_file": "Main.java",
-      "execute_file": "/usr/bin/java",
-      "execute_args": ["-Xss1M", "-XX:MaxPermSize=16M", "-XX:PermSize=8M", "-Xms16M", "-Xmx{max_memory}M",
-                       "-Dfile.encoding=UTF-8", "Main"],
-    },
-    "python": {
-      "compiler_file": "/usr/bin/python3",
-      "compiler_args": ["-m", "py_compile", "foo.py"],
-      "code_file": "foo.py",
-      "execute_file": "/usr/bin/python3",
-      "execute_args": ["foo.py"]
-    }
-  }
-  REPO_DIR = os.path.join(BASE_DIR, "repo")
-  TESTDATA_DIR = os.path.join(BASE_DIR, "data")
+from .local_settings import *
 
 ALLOWED_HOSTS = ['*']
 
@@ -99,7 +48,6 @@ INSTALLED_APPS = [
   'blog',
   'migrate',
   'polygon',
-  'message',
   'filemanager',
   'paste',
 
@@ -302,9 +250,14 @@ USE_TZ = False
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework.authentication.BasicAuthentication',
-    'utils.authentication.UnsafeSessionAuthentication',
-  )
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+  ),
+  'DEFAULT_THROTTLE_CLASSES': (
+    'rest_framework.throttling.UserRateThrottle',
+  ),
+  'DEFAULT_THROTTLE_RATES': {
+    'user': '60/minute'
+  }
 }
 
 INTERNAL_IPS = ('127.0.0.1',)

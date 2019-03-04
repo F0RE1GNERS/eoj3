@@ -9,7 +9,6 @@ Jinja2
 kombu
 Markdown
 MarkupSafe
-mysqlclient
 ordered-set
 Pygments
 python-markdown-math
@@ -36,8 +35,9 @@ django-extensions
 django-comments-xtd>=2.2
 django-notifications-hq>=1.5
 django-ipware
-psycopg2
+psycopg2-binary
 uptime
 python-dateutil
 django-q
 pycrypto
+djangorestframework_simplejwt

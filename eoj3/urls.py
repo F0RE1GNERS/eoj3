@@ -39,7 +39,6 @@ urlpatterns = [
     url(r'^blog/', include('blog.urls', namespace='blog'), kwargs=force_closed()),
     url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
     url(r'^polygon/', include('polygon.urls', namespace='polygon')),
-    url(r'^message/', include('message.urls', namespace='message')),
     url(r'^notification/', include('notification.urls', namespace='notification')),
     url(r'^migrate/$', migrate_view, name='migrate'),
     url(r'^pay/report/', make_payment_for_full_report, name='pay_report', kwargs=force_closed()),
