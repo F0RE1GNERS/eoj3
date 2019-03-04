@@ -1,7 +1,8 @@
-FROM python:3.6-alpine3.6 as eoj-base
+FROM python:3.6-alpine3.6
 
 ENV DJANGO_SETTINGS_MODULE eoj3.settings
 ADD . /build
+ADD . /app
 
 RUN apk add --update --no-cache build-base git nginx openssl curl unzip supervisor jpeg-dev zlib-dev freetype-dev nodejs nodejs-npm mariadb-dev postgresql-dev && \
     pip install --no-cache-dir -r /build/deploy/requirements.txt && \

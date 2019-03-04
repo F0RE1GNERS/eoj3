@@ -21,7 +21,7 @@ services:
       - main
 
   eoj:
-    image: registry.cn-hangzhou.aliyuncs.com/???/???
+    image: registry.cn-shanghai.aliyuncs.com/ultmaster/eoj3:latest
     container_name: eoj
     restart: always
     environment:
@@ -39,6 +39,7 @@ services:
       - /hd2/generate:/generate
       - /hd1/repo:/repo
       - /hd1/log:/log
+      - $PWD:/app
     ports:
       - "0.0.0.0:80:80"
     networks:
