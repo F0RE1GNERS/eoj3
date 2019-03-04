@@ -23,6 +23,10 @@ do
     sleep 8
 done
 
+chown -R server:www /upload /generate /media /repo
+find /testcases -type d -exec chmod 700 {} \;
+find /testcases -type f -exec chmod 600 {} \;
+
 if [ -z "$DEBUG" ]; then
     echo "Entering production mode..."
     exec supervisord -c /app/deploy/supervisord.conf

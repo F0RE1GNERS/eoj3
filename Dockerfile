@@ -9,5 +9,7 @@ RUN apk add --update --no-cache build-base git nginx openssl curl unzip supervis
     cd /build/static && npm install --prefix /static/node_modules && npm install -g gulp && \
     apk del build-base --purge
 
+RUN addgroup -g 12003 www && adduser -u 12000 -S -G www server
+
 WORKDIR /app
 ENTRYPOINT /app/deploy/entrypoint.sh
