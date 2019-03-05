@@ -54,15 +54,15 @@ def invalidate_user(user_id, contest_id=0):
   if not created:
     us.total_count = total_count
     us.total_list = ",".join(map(str, total_list))
-    us.ac_count = accept_count
-    us.ac_list = ",".join(map(str, accept_list))
-    us.ac_distinct_count = accept_diff
     if accept_count != us.ac_count and not contest_id:
       try:
         predict_list = requests.post("http://127.0.0.1:20019/predict", json={"solved": accept_list}).json()
         us.predict_list = ",".join(map(str, predict_list))
       except:
         pass
+    us.ac_count = accept_count
+    us.ac_list = ",".join(map(str, accept_list))
+    us.ac_distinct_count = accept_diff
     us.save()
   return us
 
