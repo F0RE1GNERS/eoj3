@@ -70,14 +70,20 @@
   </tbody>
 </table>
 
-{% if submission.allow_case_download %}
+{% if submission.next_problem %}
+  <a class="ui success icon message" href="{{ url('problem:detail', submission.next_problem.id) }}">
+    <i class="checkmark icon"></i>
+    <div class="content">
+      <div class="header">迎接下一个挑战</div>
+      <p>点击进入题目 {{ submission.next_problem.id }}：{{ submission.next_problem.title }}</p>
+    </div>
+  </a>
+{% elif submission.allow_case_download %}
   <a class="ui info icon message" href="{{ url('pay_report') }}?sub={{ submission.pk }}">
     <i class="circle help outline icon"></i>
     <div class="content">
-      <div class="header">
-        {{ _('Need some help?') }}
-      </div>
-      <p>{{ _("Buy full debug report to see what's wrong.") }}</p>
+      <div class="header">需要帮助吗？</div>
+      <p>使用 EMB 兑换评测报告。</p>
     </div>
   </a>
 {% endif %}
