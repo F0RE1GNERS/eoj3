@@ -16,25 +16,21 @@
         <th colspan="{{ col_width }}">
           <div class="ui right floated buttons">
             <a href="{{ url('polygon:revision_case_create', problem.id, revision.id) }}" class="ui right floated primary labeled icon button">
-              <i class="add icon"></i> Add Case(s)
+              <i class="add icon"></i> 增加测试数据
             </a>
             <div class="ui icon top right pointing dropdown button">
               <i class="wrench icon"></i>
               <div class="menu">
                 <div class="header">Typical</div>
-                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">Regularize Numbers</a>
+                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">重新标号</a>
                 {% if revision.enable_group %}
-                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}?group=1">Regularize Groups</a>
+                <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}?group=1">重新标分组编号</a>
                 {% endif %}
                 <div class="header">For selected</div>
-                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_run_output', problem.id, revision.id) }}">Produce Output</a>
-                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_validate_input', problem.id, revision.id) }}">Validate Input</a>
-                <a class="item get gather" data-link="{{ url('polygon:revision_case_check', problem.id, revision.id) }}">Run Tests</a>
-                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">Delete Selected</a>
-                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="Move the selected cases after (0 means above all):">Move Selected</a>
-                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_sample', problem.id, revision.id) }}">Mark/Unmark As Samples</a>
-                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_pretest', problem.id, revision.id) }}">Mark/Unmark As Pretests</a>
-                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_group_assign', problem.id, revision.id) }}" data-question="Appoint the group number, starting with 1.">Assign Group</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">删除选定的</a>
+                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="移动到编号为几的后面 (输入 0 移动到最前面):">移动选定的</a>
+                <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_sample', problem.id, revision.id) }}">修改是否为样例</a>
+                <a class="item post ask gather" data-link="{{ url('polygon:revision_case_group_assign', problem.id, revision.id) }}" data-question="分配分组，从 1 开始标号">分配分组</a>
               </div>
             </div>
           </div>
@@ -44,18 +40,17 @@
       <tr>
         <th class="collapsing"><div class="ui fitted checkbox"><input type="checkbox" name="all"></div></th>
         <th class="collpasing">#</th>
-{#        <th class="collapsing">ID</th>#}
-        <th>Input</th>
-        <th>Output</th>
-        <th>Comment</th>
+        <th>输入</th>
+        <th>输出</th>
+        <th>说明</th>
         {% if revision.enable_group %}
-        <th>Group</th>
+        <th>分组</th>
         {% endif %}
-        <th class="collapsing">Created</th>
-        <th class="collapsing">Updated</th>
+        <th class="collapsing">创建</th>
+        <th class="collapsing">更新</th>
         {% if not revision_readonly %}
-        <th class="collapsing" colspan="2">Edit</th>
-        <th class="collapsing">Delete</th>
+        <th class="collapsing" colspan="2">编辑</th>
+        <th class="collapsing">删除</th>
         {% endif %}
       </tr>
     </thead>
@@ -74,9 +69,9 @@
           <td>{{ case.create_time | date('H:i M.d') }}</td>
           <td>{{ case.update_time | date('H:i M.d') }}</td>
         {% if not revision_readonly %}
-          <td><a href="{{ url('polygon:revision_case_update_file', problem.id, revision.id, case.id) }}">Data</a></td>
-          <td><a href="{{ url('polygon:revision_case_update_info', problem.id, revision.id, case.id) }}">Info</a></td>
-          <td><a class="post prompt" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id, case.id) }}">Delete</a></td>
+          <td><a href="{{ url('polygon:revision_case_update_file', problem.id, revision.id, case.id) }}">数据</a></td>
+          <td><a href="{{ url('polygon:revision_case_update_info', problem.id, revision.id, case.id) }}">设置</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id, case.id) }}">删除</a></td>
         {% endif %}
         </tr>
       {% endfor %}

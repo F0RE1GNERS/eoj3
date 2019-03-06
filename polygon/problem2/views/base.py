@@ -243,23 +243,21 @@ class ProblemRevisionMixin(PolygonProblemMixin):
     self.warnings = []
 
     if not self.group_well_ordered():
-      self.errors.append("Group numbers are NOT well ordered.")
+      self.errors.append("分组编号不正确。")
     if not self.case_number_well_ordered():
-      self.warnings.append("Case numbers are not perfectly ordered.")
+      self.warnings.append("测试点编号不规范。")
     if not self.revision.active_statement:
-      self.errors.append("Must have an active statement.")
+      self.errors.append("必须有一份题面激活（打开前面的开关）。")
     if not (256 <= self.revision.memory_limit <= 4096):
-      self.errors.append("Memory limit should be between 256MB and 4GB.")
+      self.errors.append("内存限制应在 256MB 和 4GB 之间。")
     if not (500 <= self.revision.time_limit <= 30000):
-      self.errors.append("Time limit should be between 500ms and 30 seconds.")
+      self.errors.append("时限应在 500ms 和 30s 之间.")
     if not self.revision.time_limit * self.revision.cases.count() <= 900000:
-      self.warnings.append("Time limit of all cases exceeds 900 seconds. This brings potential problems that "
-                           "judge requests will timeout.")
+      self.warnings.append("所有测试点的时限之和超过 900 秒，可能导致评测超时。")
     if not self.revision.well_form_policy:
-      self.warnings.append("Well form policy is not enabled. This brings potential problems in end-of-line and "
-                           "unexpected spaces. Make sure you want to do this.")
+      self.warnings.append("空白字符自动处理没有打开，可能会带来潜在问题。")
     if not self.revision.cases.filter(activated=True).exists():
-      self.errors.append("There is no activated tests for this problem.")
+      self.errors.append("本题没有可用的测试点。")
 
     # check samples always first
     case_sample_test = list(self.revision.cases.filter(activated=True).order_by("case_number").
@@ -267,11 +265,11 @@ class ProblemRevisionMixin(PolygonProblemMixin):
     try:
       first_not_sample = case_sample_test.index(False)
       if any(case_sample_test[first_not_sample:]):
-        self.warnings.append("Samples are not first in the tests.")
+        self.warnings.append("样例没有在测试点的最前面。")
     except ValueError:
       pass
     if not all(map(lambda case: case.activated, self.revision.cases.filter(in_samples=True))):
-      self.warnings.append("Not all the samples are in final tests.")
+      self.warnings.append("不是所有的样例都在测试点中。")
 
   def init_revision(self, *args, **kwargs):
     self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
@@ -293,15 +291,6 @@ class ProblemRevisionMixin(PolygonProblemMixin):
     return data
 
 
-class ProblemStatus(PolygonProblemMixin, StatusList):
-  template_name = 'polygon/problem2/status.jinja2'
-  privileged = True
-  polygon_title = "提交记录"
-
-  def get_selected_from(self):
-    return Submission.objects.filter(problem_id=self.problem.id)
-
-
 class ProblemRejudge(PolygonProblemMixin, View):
   def post(self, request, *args, **kwargs):
     rejudge_all_submission_on_problem(self.problem)
@@ -309,18 +298,6 @@ class ProblemRejudge(PolygonProblemMixin, View):
 
 
 class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
-  """
-  This includes admin and alias
-  """
-  template_name = 'polygon/problem2/basic_info.jinja2'
-  polygon_title = "基本信息管理"
-
-  def get_context_data(self, **kwargs):
-    data = super().get_context_data(**kwargs)
-    data['admin_list'] = self.problem.managers.all()
-    data['level_select'] = self.problem._meta.get_field('level').choices
-    return data
-
   @transaction.atomic()
   def post(self, request, pk):
     self.problem.alias = request.POST['alias']

@@ -25,6 +25,8 @@ from polygon.problem2.utils import sort_out_directory
 from polygon.problem2.views.base import ProblemRevisionMixin, PolygonProblemMixin
 from problem.models import SpecialProgram, get_input_path, get_output_path
 from problem.tasks import upload_problem_to_judge_server
+from problem.views import StatusList
+from submission.models import Submission
 
 
 class RevisionCreateView(PolygonProblemMixin, View):
@@ -255,3 +257,12 @@ class RevisionDiscardView(ProblemRevisionMixin, View):
         self.revision.status = -1
         self.revision.save(update_fields=["status"])
         return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
+
+
+class RevisionStatus(ProblemRevisionMixin, StatusList):
+  template_name = 'polygon/problem2/status.jinja2'
+  privileged = True
+  polygon_title = "提交记录"
+
+  def get_selected_from(self):
+    return Submission.objects.filter(problem_id=self.problem.id)

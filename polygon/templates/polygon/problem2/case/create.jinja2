@@ -10,11 +10,8 @@
     var option = $("*[name='option']").val();
     var form = $("form");
     var choice_map = {
-      "text": ["option", "input_text", "output_text", "in_samples", "output_lock", "activated"],
-      "single": ["option", "input_file", "output_file", "in_samples", "output_lock", "activated"],
+      "text": ["option", "input_text", "output_text", "in_samples", "activated"],
       "batch": ["option", "batch_file"],
-      "gen": ["option", "gen_command"],
-      "batch_input": ["option", "batch_file"]
     };
     form.find(".field").each(function () {
       var ok = false;

@@ -1,20 +1,14 @@
 from django.conf.urls import url
 
-from polygon.problem2.views import base, asset, case, program, revision, statement, task, template, review
+from polygon.problem2.views import base, asset, case, program, revision, statement, template
 
 urlpatterns = [
   url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
   url(r'^create/$', base.ProblemCreate.as_view(), name='problem_create_2'),
   url(r'^clone/$', base.ProblemClone.as_view(), name='problem_clone'),
   url(r'^(?P<pk>\d+)/info/$', base.ProblemBasicInfoManage.as_view(), name='problem_basic_info'),
-  url(r'^(?P<pk>\d+)/status/$', base.ProblemStatus.as_view(), name='problem_status'),
   url(r'^(?P<pk>\d+)/rejudge/$', base.ProblemRejudge.as_view(), name='rejudge_problem'),
   url(r'^(?P<pk>\d+)/favorite/$', base.ProblemFavoriteToggle.as_view(), name='problem_favorite'),
-]
-
-urlpatterns += [
-  url(r'^(?P<pk>\d+)/review/$', review.ProblemReview.as_view(), name='problem_review'),
-  url(r'^(?P<pk>\d+)/update/$', review.ProblemUpdateFromPackage.as_view(), name='problem_update'),
 ]
 
 urlpatterns += [
@@ -23,6 +17,7 @@ urlpatterns += [
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/fork/$', revision.RevisionForkView.as_view(), name='revision_fork'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/confirm/$', revision.RevisionConfirmView.as_view(), name='revision_confirm'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/discard/$', revision.RevisionDiscardView.as_view(), name='revision_discard'),
+  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/status/$', revision.RevisionStatus.as_view(), name='revision_status'),
 ]
 
 urlpatterns += [
@@ -87,18 +82,10 @@ urlpatterns += [
       name='revision_case_order_move'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/delete/$', case.CaseDeleteSelectedView.as_view(),
       name='revision_case_delete'),
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/output/$', case.CaseRunSelectedOutput.as_view(),
-      name='revision_case_run_output'),
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/validate/$', case.CaseValidateInput.as_view(),
-      name='revision_case_validate_input'),
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/check/$', case.CaseCheckView.as_view(),
-      name='revision_case_check'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/pack/$', case.CasePackAsZipView.as_view(),
       name='revision_case_pack'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/toggle/sample/$', case.CaseToggleSampleView.as_view(),
       name='revision_case_toggle_sample'),
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/toggle/pretest/$', case.CaseTogglePretestView.as_view(),
-      name='revision_case_toggle_pretest'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/case/group/assign/$', case.CaseAssignGroupView.as_view(),
       name='revision_case_group_assign'),
 ]
@@ -114,10 +101,4 @@ urlpatterns += [
       name='revision_template_update'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/template/(?P<tpk>\d+)/delete/$', template.TemplateDeleteView.as_view(),
       name='revision_template_delete'),
-]
-
-urlpatterns += [
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/task/$', task.TaskList.as_view(), name='revision_task'),
-  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/task/(?P<tpk>\d+)/$', task.TaskPreview.as_view(),
-      name='revision_task_preview'),
 ]

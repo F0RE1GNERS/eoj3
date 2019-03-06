@@ -22,15 +22,7 @@ class AliasValidator(RegexValidator):
 
 class Problem(models.Model):
   alias_validator = AliasValidator()
-
   alias = models.CharField(_('Alias'), max_length=64, blank=True, validators=[alias_validator])
-
-  package_id = models.IntegerField(null=True, blank=True)
-  # solutions = models.ManyToManyField(Solution) # TODO: add solutions
-
-  # if these are set, params from package will be ignored
-  judging_time_limit = models.IntegerField(null=True, blank=True)
-  judging_memory_limit = models.IntegerField(null=True, blank=True)
 
   # generate
   title = models.CharField(_('Title'), max_length=192, blank=True)
@@ -52,15 +44,22 @@ class Problem(models.Model):
   memory_limit = models.IntegerField(_('Memory Limit'), default=256)
   checker = models.CharField(_('Checker'), blank=True, max_length=64)
   interactor = models.CharField(_('Interactor'), blank=True, max_length=64)
+
+  # If you see this, you will realize that there are a lot more we attempted to do,
+  # but they didn't end very well; and in the end I don't know what I was thinking in the first place,
+  # and I want to say thank you for looking into this.
   validator = models.CharField(_('Validator'), blank=True, max_length=64)
   pretests = models.TextField(_('Pretest'), blank=True)
+  clone_parent = models.PositiveIntegerField(default=0)
+  # ABANDONED FIELDS END
+
   cases = models.TextField(_('Cases'), blank=True)
   points = models.TextField(_('Points'), blank=True)
   group_config = models.TextField(_('Group'), blank=True, default='~')
   # group config in the following format: 1,2;2,3;3,4 (index 1 based)
   # leave this blank to ignore groups
   template_config = models.TextField(_('Template'), blank=True, default='{}')
-  clone_parent = models.PositiveIntegerField(default=0)
+
   level = models.IntegerField(_('Difficulty Level'), choices=(
     (1, 'Naive'),
     (2, 'Easy'),
