@@ -7,23 +7,23 @@
 {% block content %}
 
   <div class="ui text stackable menu">
-    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">{{ _('Dashboard') }}</a>
+    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">仪表盘</a>
     {% if request.user.is_authenticated %}
-    <a class="{{ active('contest:question') }} item" href="{{ url('contest:question', contest.pk) }}">{{ _('Q&A') }} <div id="qa-new-flag" class="ui red horizontal label" style="margin-left: 0.5em;{% if not check_new %}display:none{% endif %}">NEW</div></a>
-    <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">{{ _('My') }}</a>
+    <a class="{{ active('contest:question') }} item" href="{{ url('contest:question', contest.pk) }}">问答 <div id="qa-new-flag" class="ui red horizontal label" style="margin-left: 0.5em;{% if not check_new %}display:none{% endif %}">有新的</div></a>
+    <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">我的提交</a>
     {% endif %}
     {% if contest.common_status_access_level >= 0 or is_privileged %}
-      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">{{ _('Status') }}</a>
-      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">{{ _('Standings') }}</a>
+      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">所有提交</a>
+      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">榜单</a>
     {% endif %}
     {% if is_volunteer or is_privileged %}
-      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">{{ _('Balloon') }}</a>
+      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">气球</a>
     {% endif %}
     {% if analysis_available %}
-      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">{{ _('Analysis') }}</a>
+      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">题解</a>
     {% endif %}
     {% if is_privileged %}
-      <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">{{ _('Manage') }}</a>
+      <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">管理</a>
     {% endif %}
   </div>
 
@@ -38,36 +38,36 @@
         {% if not contest.start_time and not contest.end_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              {{ _('Open indefinitely') }}
+              不限期开放
             </div>
           </div>
         {% elif not contest.start_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              {{ _('Deadline') }}: {{ contest.end_time | date('Y-m-d H:i') }}
+              截止: {{ contest.end_time | date('Y-m-d H:i') }}
             </div>
           </div>
         {% elif not contest.end_time %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              {{ _('Start') }}: {{ contest.start_time | date('Y-m-d H:i') }}
+              开始: {{ contest.start_time | date('Y-m-d H:i') }}
             </div>
           </div>
         {% elif contest.pending_system_tests %}
           <div class="ui segment">
             <div class="ui center aligned header">
-              {{ _('Pending System Tests') }}
+              等待系统测试
             </div>
           </div>
         {% else %}
           <div class="ui segment">
             <div class="ui center aligned header">
               {% if participate_contest_status == 0 %}
-                {{ _('Contest Running') }}
+                进行中
               {% elif participate_contest_status == -1 %}
-                {{ _('Contest Pending') }}
+                即将开始
               {% else %}
-                {{ _('Contest Ended') }}
+                已结束
               {% endif %}
             </div>
           </div>
@@ -87,7 +87,7 @@
         {% if has_permission %}
           <div class="ui segments">
             <div class="ui segment">
-              <h3 class="ui center aligned header">{{ _('Problems') }}</h3>
+              <h3 class="ui center aligned header">题目列表</h3>
             </div>
             <div class="ui segment">
               <div class="ui relaxed link list">
@@ -104,14 +104,14 @@
           {% if participate_contest_status == 0 and contest.scoring_method != 'acm' %}
             <div class="ui segments">
               <div class="ui segment">
-                <h3 class="ui center aligned header">{{ _('Scoring') }}</h3>
+                <h3 class="ui center aligned header">积分</h3>
               </div>
               <div class="ui segment">
                 <table class="ui very basic celled very compact center aligned table">
                   <thead>
                     <tr>
-                      <th>{{ _('Problem') }}</th>
-                      <th>{{ _('Worth') }}</th>
+                      <th>题目</th>
+                      <th>计分</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -127,7 +127,7 @@
                 </table>
               </div>
               <div class="ui bottom attached tiny info message">
-                {{ _('This shows the values you earned if you solve the problem right now on the first submit.') }}
+                这里显示的是你在现在一次提交正确所获得的计分。
               </div>
             </div>
           {% endif %}
@@ -143,10 +143,10 @@
   <div class="ui basic tiny modal" id="refreshNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
-      {{ _('Announcement') }}
+      通知
     </div>
     <div class="content">
-      {{ _('Contest status has changed. Click to refresh the page.') }}
+      比赛状态发生变化，点 OK 刷新。
     </div>
     <div class="actions">
       <div class="ui green ok inverted button" onclick="location.reload(true);">
@@ -159,7 +159,7 @@
   <div class="ui basic tiny modal" id="stayNotification">
     <div class="ui icon header">
       <i class="announcement icon"></i>
-      {{ _('Announcement') }}
+      通知
     </div>
     <div class="content" id="stayNotificationBody">
     </div>

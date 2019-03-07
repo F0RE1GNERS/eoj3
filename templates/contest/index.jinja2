@@ -16,13 +16,14 @@
       <h3 class="ui header">
         <i class="privacy icon"></i>
         <div class="content">
-          {{ _('Virtual participation') }}
-          <div class="sub header">{{ _("Simulate the real situation") }}</div>
+          虚拟参赛
+          <div class="sub header">模拟真实参赛环境</div>
         </div>
       </h3>
       <ul class="ui list">
-        <li class="item">{{ _("You should make sure that you didn't read the problems in advance.") }}</li>
-        <li class="item">{{ _("Your progress will appear in the standings.") }}</li>
+        <li class="item">你应保证你没有事先看过题。</li>
+        <li class="item">你的进度会出现在排行榜上。</li>
+        <li class="item">如果你不知道这是什么，就不要点。</li>
       </ul>
       <form class="ui form" action="{{ url('contest:vp_join', contest.pk) }}" method="post">
         {% csrf_token %}
@@ -47,18 +48,18 @@
         <i class="privacy icon"></i>
         <div class="content">
           {{ _('Permission Notice') }}
-          <div class="sub header">{{ _('This contest is private. You can either') }}</div>
+          <div class="sub header">比赛是私有的，你可以：</div>
         </div>
       </h3>
       <ul class="ui list">
-        <li class="item">{{ _('Enter a valid invitation code to join the contest, OR') }}</li>
-        <li class="item">{{ _('Re-login with the given account.') }}</li>
+        <li class="item">输入一个合法的邀请码，或者</li>
+        <li class="item">使用分发的账户密码重新登录。</li>
       </ul>
       <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
         {% csrf_token %}
         <div class="ui action fluid input">
-          <input type="text" name="code" placeholder="{{ _('If you have an invitation code...') }}" style="font-family:monospace">
-          <button type="submit" class="ui button">{{ _('Join the contest') }}</button>
+          <input type="text" name="code" placeholder="如果你有邀请码的话..." style="font-family:monospace">
+          <button type="submit" class="ui button">确定</button>
         </div>
       </form>
     </div>
@@ -69,23 +70,23 @@
     {# public rated contest registration #}
     <div class="ui info message">
       <div class="header">
-        {{ _('Rated contest requires registration.') }}
+        影响积分的比赛需要额外的注册
       </div>
       <ul class="list">
-        <li>{{ _('You need to register, before the contest begins, to be rated in this contest.') }}</li>
-        <li>{{ _('If you fail to register, you can still participate in the contest, but you will be an un-rated participant (by automatically starred).') }}</li>
-        <li>{{ _("You can cancel your registration before the contest begins. But if you don't, you <b>will be considered a participant</b> in the contest, and be rated, even if you haven't submit any solution.") }}</li>
+        <li>你需要在比赛开始前注册，才会影响你的积分。</li>
+        <li>如果你没有注册，你也可以参赛，不过你会被自动打星，你的积分将不受影响。</li>
+        <li>注册但不参赛会在赛后被打星。</li>
       </ul>
     </div>
     {% if public_register == -1 %}
     <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
       {% csrf_token %}
-      <button class="fluid ui primary button">{{ _('OK, Register') }}</button>
+      <button class="fluid ui primary button">好的，注册</button>
     </form>
     {% else %}
     <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
       {% csrf_token %}
-      <button class="fluid ui red button">{{ _('Cancel my registration') }}</button>
+      <button class="fluid ui red button">取消注册</button>
     </form>
     {% endif %}
     {{ separator() }}

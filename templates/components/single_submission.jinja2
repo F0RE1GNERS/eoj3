@@ -5,18 +5,18 @@
     <tr class="center aligned">
       <th>#</th>
       {% if not hide_problem %}
-      <th>{{ _('Problem') }}</th>
+      <th>题目</th>
       {% endif %}
-      <th>{{ _('Language') }}</th>
-      <th>{{ _('Sent') }}</th>
-      <th>{{ _('Judged') }}</th>
-      <th>{{ _('Verdict') }}</th>
-      <th>CPU</th>
+      <th>语言</th>
+      <th>提交时间</th>
+      <th>评测时间</th>
+      <th>结果</th>
+      <th>耗时</th>
       {% if server %}
-      <th>{{ _('Judge') }}</th>
+      <th>评测机</th>
       {% endif %}
       {% if rejudge_authorized %}
-      <th colspan="2">Rejudge</th>
+      <th colspan="2">重测</th>
       {% endif %}
     </tr>
   </thead>

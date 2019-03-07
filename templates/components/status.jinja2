@@ -6,13 +6,13 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>{{ _('When') }}</th>
+        <th>时间</th>
         {% if not hide_users %}
         <th>
           <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}" {% if contest %}data-filter-contest="{{ contest.pk }}"{% endif %}>
-            <span class="text">{{ _('Who') }}</span>
+            <span class="text">送交者</span>
             <div class="menu">
-              <div class="item">{{ _('Who') }}</div>
+              <div class="item">送交者</div>
             </div>
           </div>
           <span class="restore"><i class="close icon"></i></span>
@@ -22,7 +22,7 @@
           {% if contest %}
             <th>
               <div class="ui dropdown status-filter local" data-filter-type="problem" data-value="{{ param_problem }}">
-                <div class="text">{{ _('Problem') }}</div>
+                <div class="text">题目</div>
                 <i class="dropdown icon"></i>
                 <div class="menu">
                   <div class="ui icon search input">
@@ -30,7 +30,7 @@
                     <input type="text" placeholder="Problems">
                   </div>
                   <div class="scrolling menu">
-                    <div class="item" data-value="all">{{ _('(All)') }}</div>
+                    <div class="item" data-value="all">所有</div>
                     {% for contest_problem in contest.contest_problem_list %}
                     <div class="item" data-value="{{ contest_problem.identifier }}">{{ contest_problem }}</div>
                     {% endfor %}
@@ -41,9 +41,9 @@
           {% else %}
             <th>
               <div class="ui dropdown status-filter search" data-filter-type="problem" data-value="{{ param_problem }}">
-                <span class="text">{{ _('Problem') }}</span>
+                <span class="text">题目</span>
                 <div class="menu">
-                  <div class="item">{{ _('Problem') }}</div>
+                  <div class="item">题目</div>
                 </div>
               </div>
               <span class="restore"><i class="close icon"></i></span>
@@ -52,7 +52,7 @@
         {% endif %}
         <th>
           <div class="ui dropdown status-filter" data-filter-type="lang" data-value="{{ param_lang }}">
-            <div class="text">{{ _('Lang') }}</div>
+            <div class="text">语言</div>
             <i class="dropdown icon"></i>
             <div class="menu">
               <div class="ui icon search input">
@@ -60,7 +60,7 @@
                 <input type="text" placeholder="Languages">
               </div>
               <div class="scrolling menu">
-                <div class="item" data-value="all">{{ _('(All)') }}</div>
+                <div class="item" data-value="all">所有</div>
                 {% for identifier, display in lang_choices %}
                 <div class="item" data-value="{{ identifier }}">{{ display }}</div>
                 {% endfor %}
@@ -71,35 +71,31 @@
         <th>
           {% if allow_verdict_query %}
             <div class="ui scrolling dropdown status-filter" data-filter-type="verdict" data-value="{{ param_verdict }}">
-              <div class="text">{{ _('Verdict') }}</div>
+              <div class="text">评测结果</div>
               <i class="dropdown icon"></i>
               <div class="menu">
-                <div class="item" data-value="all">{{ _('(All)') }}</div>
+                <div class="item" data-value="all">所有</div>
                 {% for identifier, display in verdict_choices %}
                 <div class="item" data-value="v{{ identifier }}">{{ display }}</div>
                 {% endfor %}
               </div>
             </div>
           {% else %}
-            Verdict
+            评测结果
           {% endif %}
         </th>
       {% if code_length %}
-        <th>{{ _('Length') }}</th>
+        <th>代码长度</th>
       {% endif %}
-        <th>CPU</th>
+        <th>耗时</th>
       {% if judge_server %}
-        <th>{{ _('Judge') }}</th>
+        <th>评测机</th>
       {% endif %}
       {% if rejudge %}
         <th><a class="modal-link" data-target="#rejudge-confirmation">重判</a></th>
       {% endif %}
       {% if show_ip %}
         <th>IP</th>
-      {% endif %}
-      {% if anti_cheat %}
-        <th>{{ _('Cheat') }} (IP)</th>
-        <th>{{ _('Cheat') }} (Dup)</th>
       {% endif %}
       </tr>
     </thead>
@@ -124,7 +120,7 @@
               {% if submission.contest_problem %}
                 <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
               {% else %}
-                <td>{{ _('N/A') }}</td>
+                <td>N/A</td>
               {% endif %}
             {% endif %}
           {% endif %}
@@ -135,21 +131,13 @@
         {% endif %}
           <td>{{ submission.get_time_display() }}</td>
         {% if rejudge %}
-          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">Rejudge</a></td>
+          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">重测</a></td>
         {% endif %}
         {% if judge_server %}
           <td>{{ submission.judge_server }}</td>
         {% endif %}
         {% if show_ip %}
           <td>{{ submission.ip }}</td>
-        {% endif %}
-        {% if anti_cheat %}
-          <td>{% if submission.cheat_tag_ip %}
-            <a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">报告</a>
-          {% else %}{{ _('N/A') }}{% endif %}</td>
-          <td>{% if submission.cheat_tag_dup %}
-            <a href="{{ url('polygon:contest_anti_cheat_report', submission.contest_id, submission.id) }}">报告</a>
-          {% else %}{{ _('N/A') }}{% endif %}</td>
         {% endif %}
         </tr>
       {% endfor %}
@@ -172,10 +160,10 @@
         <div class="field">
           <div class="ui dropdown selection">
             <input type="hidden" name="problem">
-            <div class="default text">{{ _('Select Problem') }}</div>
+            <div class="default text">选择题目</div>
             <i class="dropdown icon"></i>
             <div class="menu">
-              <div class="item" data-value="all">{{ _('(All)') }}</div>
+              <div class="item" data-value="all">所有</div>
               {% for contest_problem in contest.contest_problem_list %}
               <div class="item" data-value="{{ contest_problem.problem_id }}">{{ contest_problem }}</div>
               {% endfor %}

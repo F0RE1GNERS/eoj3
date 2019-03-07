@@ -1,7 +1,5 @@
 {% extends 'problem/base.jinja2' %}
 
-{% block title %}{{ _('Problems') }} - {% endblock %}
-
 {% block problem_content %}
 <div class="ui stackable grid">
 <div class="twelve wide column">
@@ -15,10 +13,10 @@
     <thead>
       <tr>
         <th class="center aligned one wide" data-key="id" data-order="ascending">#</th>
-        <th data-key="name" data-order="ascending">{{ _('Name') }}</th>
-        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">{{ _('Reward') }}</th>
-        <th class="center aligned two wide" data-key="sol" data-order="ascending">{{ _('Solved') }}</th>
-        {% if comparing %}<th class="center aligned two wide" data-key="she" data-order="ascending">{{ _('He/She') }}</th>{% endif %}
+        <th data-key="name" data-order="ascending">标题</th>
+        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">奖励</th>
+        <th class="center aligned two wide" data-key="sol" data-order="ascending">解出人数</th>
+        {% if comparing %}<th class="center aligned two wide" data-key="she" data-order="ascending">比较</th>{% endif %}
       </tr>
     </thead>
     <tbody>

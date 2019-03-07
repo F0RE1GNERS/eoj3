@@ -1,34 +1,27 @@
 {% macro username_dropdown() %}
-    <div class="ui dropdown simple item">
-      <i class="world icon"></i>
-      <div class="menu">
-        <a class="item set-language" href="#" data-lang="zh-Hans">简体中文</a>
-        <a class="item set-language" href="#" data-lang="en">English</a>
-      </div>
-    </div>
   {% if user.is_authenticated %}
     <div class="ui dropdown simple item">
       <div class="text">{{ request.user.username }}</div>
       <i class="dropdown icon"></i>
       <div class="menu">
-        <a class="item" href="{{ url('profile', request.user.pk) }}">{{ _('Profile') }}</a>
-        <a class="item" href="{{ url('blog:index', request.user.pk) }}">{{ _('Blog') }}</a>
-        <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">{{ _('Submission') }}</a>
-        <a class="item" href="{{ url('account:profile') }}">{{ _('Settings') }}</a>
-        <a class="item" href="{{ url('account:payment') }}">{{ _('Payment') }}</a>
-        <a class="item" href="{{ url('migrate') }}">{{ _('Migrate') }}</a>
-        <a class="item" href="{{ url('feedback') }}">{{ _('Feedback') }}</a>
+        <a class="item" href="{{ url('profile', request.user.pk) }}">个人档案</a>
+        <a class="item" href="{{ url('blog:index', request.user.pk) }}">博客</a>
+        <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">提交记录</a>
+        <a class="item" href="{{ url('account:profile') }}">个人设置</a>
+        <a class="item" href="{{ url('account:payment') }}">账单</a>
+        <a class="item" href="{{ url('migrate') }}">迁移</a>
+        <a class="item" href="{{ url('feedback') }}">反馈</a>
       {% if user is admin %}
-        <a class="item" href="{{ url('backstage:index') }}">{{ _('Backstage') }}</a>
+        <a class="item" href="{{ url('backstage:index') }}">Backstage</a>
       {% endif %}
       {% if user.polygon_enabled %}
-        <a class="item" href="{{ url('polygon:problem_list_2') }}">{{ _('Polygon') }}</a>
+        <a class="item" href="{{ url('polygon:problem_list_2') }}">Polygon</a>
       {% endif %}
-        <a class="item" href="{{ url('logout') }}?next={{ request.path }}">{{ _('Logout') }}</a>
+        <a class="item" href="{{ url('logout') }}?next={{ request.path }}">登出</a>
       </div>
     </div>
   {% else %}
-    <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">{{ _('Login') }}</a></div>
+    <div class="item"><a class="ui primary button" href="{{ url('login') }}?next={{ request.path }}">登入</a></div>
   {% endif %}
 {% endmacro %}
 
@@ -40,10 +33,10 @@
       <i class="content icon"></i>
       <span class="text"><b>EOJ</b></span>
       <div class="menu">
-        <a class="item" href="{{ url('home') }}">{{ _('Home') }}</a>
-        <a class="item" href="{{ url('contest:list') }}">{{ _('Contests') }}</a>
-        <a class="item" href="{{ url('problem:list') }}">{{ _('Problems') }}</a>
-        <a class="item" href="{{ url('contest:gym') }}">{{ _('Gym') }}</a>
+        <a class="item" href="{{ url('home') }}">首页</a>
+        <a class="item" href="{{ url('contest:list') }}">比赛</a>
+        <a class="item" href="{{ url('problem:list') }}">题目集</a>
+        <a class="item" href="{{ url('contest:gym') }}">作业</a>
       </div>
     </div>
 
@@ -53,16 +46,16 @@
   </div>
 
   <div class="ui container" id="navbar-large">
-    <a class="{{ active('home') }} item" href="{{ url('home') }}"><i class="home icon"></i>{{ _('Home') }}</a>
-    <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i>{{ _('Contests') }}</a>
-    <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i>{{ _('Problems') }}</a>
-    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>{{ _('Gym') }}</a>
+    <a class="{{ active('home') }} item" href="{{ url('home') }}"><i class="home icon"></i>首页</a>
+    <a class="{{ active('contest:list') }} item" href="{{ url('contest:list') }}"><i class="flag icon"></i>比赛</a>
+    <a class="item {{ active('problem:*') }}" href="{{ url('problem:list') }}"><i class="book icon"></i>题目集</a>
+    <a class="{{ active('contest:gym') }} item" href="{{ url('contest:gym') }}"><i class="paper plane icon"></i>作业</a>
 
 
     <div class="right menu">
       <div class="ui category search item massive-search">
         <div class="ui transparent icon input">
-          <input class="prompt" type="text" placeholder="{{ _('Search...') }}">
+          <input class="prompt" type="text" placeholder="搜索...">
           <i class="search link icon"></i>
         </div>
         <div class="results"></div>

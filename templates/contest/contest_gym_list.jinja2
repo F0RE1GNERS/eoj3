@@ -9,13 +9,13 @@
   <table class="ui celled table">
     <thead>
       <tr class="center aligned">
-        <th>{{ _('Name') }}</th>
-        <th>{{ _('Instructors') }}</th>
-        <th class="collapsing">{{ _('Start') }}</th>
-        <th class="collapsing">{{ _('End') }}</th>
-        <th class="collapsing">{{ _('Status') }}</th>
-        <th class="collapsing">{{ _('Public') }}</th>
-        <th class="collapsing">{{ _('Participants') }}</th>
+        <th>名称</th>
+        <th>教师</th>
+        <th class="collapsing">开始时间</th>
+        <th class="collapsing">截止时间</th>
+        <th class="collapsing">状态</th>
+        <th class="collapsing">权限</th>
+        <th class="collapsing">学生</th>
       </tr>
     </thead>
     <tbody>
@@ -35,12 +35,12 @@
         {% endif %}
           <td>
           {% if contest.status == 0 %}
-            <h5 class="ui header red">{{ _('Running') }}</h5>
+            <h5 class="ui header red">进行中</h5>
           {% elif contest.status == -1 %}
             {% if contest.access_level == 30 %}
-              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">{{ _('Register') }} »</a>
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">注册 »</a>
             {% else %}
-              <h5 class="ui header teal">{{ _('Pending') }}</h5>
+              <h5 class="ui header teal">即将开始</h5>
             {% endif %}
           {% else %}
             {{ _('Ended') }}
