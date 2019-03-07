@@ -116,7 +116,7 @@
             <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
               {{ contest_problem.problem.title }}</a>{% if contest.contest_type != 1 %} <span class="text grey" style="font-size: .7em;">({{ contest_problem.problem.time_limit / 1000 | round(1) }} sec / {{ contest_problem.problem.memory_limit }} MB)</span>{% endif %}
             {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
-              <a style="float: right;" data-tooltip="{{ _('Practice in problemset') }}" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
+              <a style="float: right;" data-tooltip="在题目集中练习" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
             {% endif %}
           {% if contest.contest_type == 1 %}
             <div style="float:right">
@@ -127,7 +127,7 @@
           {% endif %}
           </td>
           <td class="selectable {% if enable_scoring %}{% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}warning{% endif %}{% else %}{% if contest_problem.personal_label == 1 %}accepted{% elif contest_problem.personal_label == 2 %}warning{% elif contest_problem.personal_label < 0 %}attempted{% endif %}{% endif %}">
-            <a {% if contest_problem.personal_label == 2 %}data-tooltip="Accepted out of this contest" data-inverted=""{% endif %} href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">
+            <a {% if contest_problem.personal_label == 2 %}data-tooltip="在比赛外通过" data-inverted=""{% endif %} href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">
               {% if enable_scoring %}{{ contest_problem.total_user_count }} / {{ contest_problem.max_score }} / {{ contest_problem.avg_score }}{% else %}{% if contest_problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.ac_user_count }}{% endif %}{% endif %}
             </a>
           </td>
@@ -144,8 +144,8 @@
       <h3 class="ui header">
         <i class="student icon"></i>
         <div class="content">
-          {{ _('My Score') }}
-          <div class="sub header">{{ _('Might be cached for a few seconds.') }}</div>
+          当前得分
+          <div class="sub header">可能有几秒钟的延迟</div>
         </div>
       </h3>
 
@@ -175,46 +175,12 @@
   {% endif %}
   {% endif %}
 
-  {# score distribution (for rated contest and scoring contest) #}
-  {% if contest.access_level == 30 and (contest.scoring_method == 'cf' or contest.scoring_method == 'oi') %}
-    <h3 class="ui header">
-      <i class="bar chart icon"></i>
-      <div class="content">
-        Point Values
-      </div>
-    </h3>
-    <p>{{ _('This will be a <b>rated</b> contest and here are the points for each problem:') }}</p>
-    <div class="ui grid">
-      <div class="sixteen wide mobile twelve wide tablet eight wide computer column">
-        <table class="ui unstackable center aligned striped celled table">
-          <thead>
-            <tr>
-              <th>{{ _('Task') }}</th><th>{{ _('Score') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for problem in contest_problem_list %}
-            <tr>
-              <td>{{ problem.identifier }}</td>
-              <td>{{ problem.weight }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-        <p>{{ _('The information above is subject to change before the contest.') }}</p>
-      </div>
-    </div>
-
-
-    {{ separator() }}
-  {% endif %}
-
   {% if contest.description %}
     <h3 class="ui header">
       <i class="announcement icon"></i>
       <div class="content">
-        {{ _('Announcement') }}
-        <div class="sub header">{{ _('Please read carefully.') }}</div>
+        公告
+        <div class="sub header">请留意阅读</div>
       </div>
     </h3>
 
@@ -229,7 +195,7 @@
   <h3 class="ui header">
     <i class="info circle icon"></i>
     <div class="content">
-      {{ _('Contest Information') }}
+      比赛信息
 {#      <div class="sub header">Only the basics</div>#}
     </div>
   </h3>
@@ -237,17 +203,17 @@
   <ul class="ui list">
     {% if not contest.start_time or not contest.end_time %}
       <li class="item">
-        {{ _('Start time') }}: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
+        开始时间: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
       </li>
       <li class="item">
-        {{ _('Finish time') }}: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
+        结束时间: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
       </li>
     {% else %}
       <li class="item">
-        {{ _('Contest Duration') }}: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
+        时长: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
       </li>
       <li class="item">
-        {{ _('Start time') }}: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
+        开始时间: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
       </li>
     {% endif %}
     {% if contest.freeze %}

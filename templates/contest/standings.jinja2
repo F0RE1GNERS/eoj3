@@ -13,19 +13,19 @@
       <i class="settings icon"></i>
       <div class="menu">
         <a class="item" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">
-          <i class="download icon"></i> {{ _('Standings as .csv') }}
+          <i class="download icon"></i> 下载为 .csv
         </a>
         <a class="item" href="{{ url('contest:report_testsys', contest.pk) }}" target="_blank">
-          <i class="download icon"></i> {{ _('Standings (TestSys)') }}
+          <i class="download icon"></i> 下载为 TestSys
         </a>
         <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all" target="_blank">
-          <i class="code icon"></i> {{ _('Download All Codes') }}
+          <i class="code icon"></i> 下载所有代码
         </a>
         <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all_accepted" target="_blank">
-          <i class="checkmark icon"></i> {{ _('Accepted Codes') }}
+          <i class="checkmark icon"></i> 下载通过的代码
         </a>
         <a class="item" href="?privilege=true" target="_blank">
-          <i class="bar chart icon"></i> {{ _('Final Standings') }}
+          <i class="bar chart icon"></i> 终榜
         </a>
       </div>
     </div>
@@ -68,7 +68,7 @@
   {% if not contest.standings_without_problem %}
     <tfoot>
       <tr>
-        <th colspan="{{ first_column_span }}"><span class="ui text green">{{ _('Accepted') }}</span><br>{{ _('Submitted') }}</th>
+        <th colspan="{{ first_column_span }}"><span class="ui text green">通过</span><br>提交</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">
             <span class="ui text green">{{ problem.ac_count }}</span><br>
@@ -78,7 +78,7 @@
       </tr>
       {% if contest.contest_type == 0 %}
       <tr>
-        <th colspan="{{ first_column_span }}">{{ _('First Yes') }}</th>
+        <th colspan="{{ first_column_span }}">首次通过时间</th>
         {% for problem in contest.contest_problem_list %}
           <th class="center aligned" style="{{ column_style }}">{% if problem.first_yes_time %}
             {{ (problem.first_yes_time.total_seconds() / 60) | int }}

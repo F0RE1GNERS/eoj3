@@ -10,7 +10,7 @@
     <a class="item {{ active('problem:detail') }}" href="{{ url('problem:detail', problem.pk) }}">题面</a>
     <a class="item {{ active('problem:statistics') }}" href="{{ url('problem:statistics', problem.pk) }}">统计数据</a>
     <a class="item {{ active('problem:discussion') }}" href="{{ url('problem:discussion', problem.pk) }}">
-      {% if not active('problem:discussion') and discussion_count > 0 %}{{ discussion_count }}{% endif %} 个讨论
+      {% if not active('problem:discussion') and discussion_count > 0 %} 个{{ discussion_count }}{% endif %}讨论
     </a>
     {% if is_privileged %}
     <a class="item" href="{{ url('polygon:problem_list_2') }}?exact={{ problem.pk }}">管理</a>
