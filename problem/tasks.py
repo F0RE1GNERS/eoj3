@@ -204,9 +204,7 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
         report_instance, _ = SubmissionReport.objects.get_or_create(submission=submission)
         report_instance.content = ""
         report_instance.save()
-        send_judge_through_watch(code, submission.lang,
-                                 problem.judging_time_limit or problem.time_limit,
-                                 problem.judging_memory_limit or problem.memory_limit,
+        send_judge_through_watch(code, submission.lang, problem.time_limit, problem.memory_limit,
                                  kwargs.get('run_until_complete', False),
                                  case_list, problem.checker, problem.interactor, group_config,
                                  on_receive_data, report_instance=report_instance)
