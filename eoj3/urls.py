@@ -14,11 +14,8 @@ from utils.comment import login_required_post_comment
 import django_comments_xtd.api as comment_xtd_api
 
 from account.views import my_login, RegisterView, FeedbackView
-from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, \
-  update_log_view, PasteView
+from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, PasteView
 from home.museum import museum_view
-from problem.views import make_payment_for_full_report, case_download_link
-from submission.print import PrintCodeView, PrintCodeDownload, PrintAdminView, PrintPdfDownload
 from utils.site_settings import force_closed
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
 
@@ -42,10 +39,7 @@ urlpatterns = [
   url(r'^polygon/', include('polygon.urls', namespace='polygon')),
   url(r'^notification/', include('notification.urls', namespace='notification')),
   url(r'^migrate/$', migrate_view, name='migrate'),
-  url(r'^pay/report/', make_payment_for_full_report, name='pay_report', kwargs=force_closed()),
-  url(r'^case/download/$', case_download_link, name='download_case', kwargs=force_closed()),
   url(r'^museum/$', museum_view, name='museum'),
-  url(r'^update/$', update_log_view, name='update_log'),
   url(r'^paste/$', PasteView.as_view(), name='pastebin'),
   url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
   url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
@@ -64,13 +58,6 @@ urlpatterns += [
       name='comments-xtd-api-feedback', kwargs=force_closed()),
   url(r'^comment/api/flag/$', comment_xtd_api.CreateReportFlag.as_view(),
       name='comments-xtd-api-flag', kwargs=force_closed()),
-]
-
-urlpatterns += [
-  url(r'^p/admin/$', PrintAdminView.as_view(), name='print_admin'),
-  url(r'^p/code/(?P<pk>\d+)/$', PrintCodeDownload.as_view(), name='print_code_download'),
-  url(r'^p/pdf/(?P<pk>\d+)/$', PrintPdfDownload.as_view(), name='print_pdf_download'),
-  url(r'^p/$', PrintCodeView.as_view(), name='print'),
 ]
 
 if DEBUG:

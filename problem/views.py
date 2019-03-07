@@ -504,9 +504,6 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
     data['submission'] = submission = get_object_or_404(Submission, pk=self.kwargs.get('sid'),
                                                         problem_id=self.kwargs.get('pk'),
                                                         contest__isnull=True)
-    if submission.author == self.request.user and \
-        submission.is_judged and is_case_download_available(self.request.user, self.kwargs.get('pk')):
-      submission.allow_case_download = True
     if self.request.user.is_authenticated and (
         submission.author == self.request.user or
         is_problem_manager(self.request.user,
@@ -517,9 +514,7 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
         self.request.user.has_coach_access()):
       permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
       data['submission_block'] = render_submission(submission, permission=permission)
-      if permission == 2 or (
-          self.request.user == submission.author and (submission.report_paid or open_all_protocols())) or \
-          (self.request.user.is_authenticated and self.request.user.has_coach_access()):
+      if permission == 2 or self.request.user == submission.author:
         data['report_block'] = render_submission_report(submission.pk)
       else:
         data['report_block'] = ''
@@ -585,45 +580,6 @@ class ArchiveList(TemplateView):
         problem.personal_label = -1
     data.update(children_list=children_list, problem_list=problem_list, problem_set=problem_set, skill_list=skill_list)
     return data
-
-
-@login_required
-def make_payment_for_full_report(request):
-  try:
-    submission = get_object_or_404(Submission, author_id=request.user.pk,
-                                   pk=request.POST.get('sub', request.GET['sub']))
-    if not is_admin_or_root(request.user):
-      if submission.author_id != request.user.pk:
-        raise PermissionDenied("This submission does not belong to you.")
-      if submission.contest_id and not submission.contest.case_public:
-        raise PermissionDenied("Case is not public in this contest.")
-    price = 9.9 if submission.contest_id else submission.problem.reward
-    if not path.exists(path.join(settings.GENERATE_DIR, 'submission-%d' % submission.pk)):
-      raise PermissionDenied("Case report is not available. Resubmit if necessary.")
-    if request.method == 'POST':
-      view_report(request.user, price, submission.pk, submission.problem_id, submission.contest_id)
-      submission.report_paid = 1
-      submission.save(update_fields=['report_paid'])
-      return redirect('account:payment')
-    else:
-      return render(request, 'report_download.jinja2', context={
-        'submission': submission.pk,
-        'price': price,
-      })
-  except (ValueError, KeyError):
-    raise Http404
-
-
-@login_required
-def case_download_link(request):
-  pk = request.GET.get('p')
-  fingerprint = get_object_or_404(Payment, pk=pk, user=request.user).detail['fingerprint']
-  if request.GET.get('t') == 'in':
-    return respond_as_attachment(request, get_input_path(fingerprint), "case.%s.in" % fingerprint[:8])
-  elif request.GET.get('t') == 'out':
-    return respond_as_attachment(request, get_output_path(fingerprint), "case.%s.out" % fingerprint[:8])
-  else:
-    raise Http404
 
 
 @login_required

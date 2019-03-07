@@ -207,18 +207,17 @@ SESSION_CACHE_ALIAS = "default"
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'zh-Hans'
-
 LANGUAGES = (
   ('zh-Hans', '简体中文'),
-  ('en', 'English')
 )
-
 LOCALE_PATHS = (
-  os.path.join(BASE_DIR, 'locale'),
-  os.path.join(BASE_DIR, 'locale', 'humanize')
+  os.path.join(BASE_DIR, 'locale', 'humanize'),
 )
-
 USE_I18N = True
+TIME_ZONE = 'Asia/Shanghai'
+# TIME_ZONE = 'UTC'
+USE_L10N = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
@@ -241,12 +240,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
 DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M:%S'
-
-# modified
-TIME_ZONE = 'Asia/Shanghai'
-# TIME_ZONE = 'UTC'
-USE_L10N = False
-USE_TZ = False
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (

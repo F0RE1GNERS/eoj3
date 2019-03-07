@@ -8,7 +8,6 @@
         <a class="item" href="{{ url('blog:index', request.user.pk) }}">博客</a>
         <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">提交记录</a>
         <a class="item" href="{{ url('account:profile') }}">个人设置</a>
-        <a class="item" href="{{ url('account:payment') }}">账单</a>
         <a class="item" href="{{ url('migrate') }}">迁移</a>
         <a class="item" href="{{ url('feedback') }}">反馈</a>
       {% if user is admin %}

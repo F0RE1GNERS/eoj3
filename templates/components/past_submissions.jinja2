@@ -2,7 +2,7 @@
 
 {% if submission_list %}
   <h3 class="ui horizontal divider header">
-    {{ _('PAST SUBMISSIONS') }}
+    最近提交
   </h3>
 
   <table class="ui celled table striped center aligned compact">
@@ -37,7 +37,7 @@
     </tbody>
   </table>
   {% if view_more %}
-    <a href="{{ url('contest:my', contest.pk) }}" class="ui right floated primary button">{{ _('View All') }} <i class="right chevron icon"></i></a>
+    <a href="{{ url('contest:my', contest.pk) }}" class="ui right floated primary button">查看所有 <i class="right chevron icon"></i></a>
   {% endif %}
 
 {% endif %}

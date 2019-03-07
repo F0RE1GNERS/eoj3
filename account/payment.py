@@ -63,12 +63,3 @@ def view_report(user, amount, id, problem, contest):
             "problem": problem,
             "contest": contest
         })
-
-
-class PaymentList(LoginRequiredMixin, ListView):
-    paginate_by = 20
-    template_name = 'account/payment_list.jinja2'
-    context_object_name = 'payment_list'
-
-    def get_queryset(self):
-        return self.request.user.payment_set.all()

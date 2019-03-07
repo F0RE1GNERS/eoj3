@@ -201,7 +201,7 @@ msgstr[0] "%(count)s 秒前"
 #, python-format
 msgid "a minute ago"
 msgid_plural "%(count)s minutes ago"
-msgstr[0] "%(count)s 分前"
+msgstr[0] "%(count)s 分钟前"
 
 #. Translators: please keep a non-breaking space (U+00A0)
 #. between count and time unit.

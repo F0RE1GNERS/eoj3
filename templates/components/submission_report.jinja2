@@ -2,15 +2,15 @@
 <div class="ui header">
   <i class="ordered list icon"></i>
   <div class="content">
-    {{ _('Judgement protocol') }}
-    <div class="sub header">{{ _('First 512 bytes.') }}</div>
+    评测报告
+    <div class="sub header">只显示前 512 个字节</div>
   </div>
 </div>
 
 <div class="submission-report">
   <div class="passage examples">
   {% for case in testcases %}
-    <div class="indicator" id="report{{ loop.index }}"><b>{{ _('Case') }} #{{ loop.index }}: {{ case.meta }}</b></div>
+    <div class="indicator" id="report{{ loop.index }}"><b>测试点 #{{ loop.index }}: {{ case.meta }}</b></div>
     <div class="example">
       <div class="input">
         <div class="title">Input</div>
