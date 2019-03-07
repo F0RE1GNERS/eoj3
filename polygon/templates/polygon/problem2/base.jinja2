@@ -21,6 +21,7 @@
     <a class="item {{ active('polygon:revision_program') }}" href="{{ url('polygon:revision_program', problem.id, revision.id) }}">程序</a>
     <a class="item {{ active('polygon:revision_case') }}" href="{{ url('polygon:revision_case', problem.id, revision.id) }}">数据</a>
     <a class="item {{ active('polygon:revision_template') }}" href="{{ url('polygon:revision_template', problem.id, revision.id) }}">模板</a>
+    <a class="item {{ active('polygon:revision_import') }}" href="{{ url('polygon:revision_import', problem.id, revision.id) }}">导入</a>
     <a class="item {{ active('polygon:revision_status') }}" href="{{ url('polygon:revision_status', problem.id, revision.id) }}">提交</a>
     <a class="item" href="{{ url('problem:detail', problem.id) }}">已发布的版本</a>
   </div>

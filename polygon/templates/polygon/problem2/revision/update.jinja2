@@ -3,18 +3,18 @@
 {% block problem_content %}
   {% include 'components/form.jinja2' %}
 
-  <div class="ui dividing header">Related Revisions</div>
+  <div class="ui dividing header">历史版本</div>
 
   <table class="ui celled center aligned small table">
     <thead>
       <tr>
-        <th>Revision</th>
-        <th>Create</th>
-        <th>Update</th>
-        <th>Author</th>
-        <th>Status</th>
-        <th>Based on</th>
-        <th colspan="2">Action</th>
+        <th>版本号</th>
+        <th>创建时间</th>
+        <th>更新时间</th>
+        <th>签名</th>
+        <th>状态</th>
+        <th>基于版本</th>
+        <th colspan="2">操作</th>
       </tr>
     </thead>
     <tbody>
@@ -26,10 +26,10 @@
         <td>{{ username_display(revision.user) }}</td>
         <td>{{ revision.get_status_display() }}</td>
         <td>{% if revision.based_on %}{{ revision.based_on }}{% endif %}</td>
-        {% if revision.status == 0 %}<td colspan="2"><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">Continue</a></td>
+        {% if revision.status == 0 %}<td colspan="2"><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">继续编辑</a></td>
         {% else %}
-          <td><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">View</a></td>
-          <td><a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">Fork</a></td>
+          <td><a href="{{ url('polygon:revision_update', problem.id, revision.id) }}">查看</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:revision_fork', problem.id, revision.id) }}">复制</a></td>
         {% endif %}
       </tr>
     {% endfor %}

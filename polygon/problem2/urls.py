@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from polygon.problem2.views import base, asset, case, program, revision, statement, template
+from polygon.problem2.views import base, asset, case, program, revision, statement, template, package
 
 urlpatterns = [
   url(r'^$', base.ProblemList.as_view(), name='problem_list_2'),
@@ -18,6 +18,7 @@ urlpatterns += [
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/confirm/$', revision.RevisionConfirmView.as_view(), name='revision_confirm'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/discard/$', revision.RevisionDiscardView.as_view(), name='revision_discard'),
   url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/status/$', revision.RevisionStatus.as_view(), name='revision_status'),
+  url(r'^(?P<pk>\d+)/revision/(?P<rpk>\d+)/import/$', package.PackageImportView.as_view(), name='revision_import'),
 ]
 
 urlpatterns += [

@@ -177,9 +177,9 @@ class Template(models.Model):
 
 class Revision(models.Model):
   STATUS_CHOICE = (
-    (-1, 'Discarded'),
-    (0, 'Undergoing'),
-    (1, 'Done')
+    (-1, '已终止'),
+    (0, '正在编辑'),
+    (1, '已完成')
   )
 
   problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='revisions')
