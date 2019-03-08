@@ -1,21 +1,21 @@
 {% extends 'backstage/base.jinja2' %}
 {% from 'components/post_link.jinja2' import post_link %}
 {% block content_header %}
-  Contests
+  比赛
 {% endblock %}
 
 {% block backstage_content %}
 
-  <a class="post-link" data-link="{{ url('backstage:contest_apply_ratings_global') }}">Apply rating colors</a>
+  <a class="post-link" data-link="{{ url('backstage:contest_apply_ratings_global') }}">重新计算用户颜色</a>
 
   <table class="ui center aligned small celled table">
     <thead>
       <tr>
         <th>#</th>
-        <th>Title</th>
-        <th>Start time</th>
-        <th>End time</th>
-        <th colspan="2">Ratings</th>
+        <th>标题</th>
+        <th>开始时间</th>
+        <th>结束时间</th>
+        <th colspan="2">积分管理</th>
       </tr>
     </thead>
     <tbody>
@@ -25,8 +25,8 @@
           <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
           <td>{{ contest.start_time | date('Y-m-d H:i') }}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>
-          <td><a class="post-link" data-link="{{ url('backstage:contest_apply_ratings', contest.pk) }}">Apply</a></td>
-          <td><a class="post-link" data-link="{{ url('backstage:contest_withdraw_ratings', contest.pk) }}">Withdraw</a></td>
+          <td><a class="post-link" data-link="{{ url('backstage:contest_apply_ratings', contest.pk) }}">重算</a></td>
+          <td><a class="post-link" data-link="{{ url('backstage:contest_withdraw_ratings', contest.pk) }}">撤回</a></td>
           {# NOTE: Contest cannot be deleted once created #}
         </tr>
       {% endfor %}

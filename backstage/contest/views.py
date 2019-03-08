@@ -19,23 +19,6 @@ from utils.email import send_mail_with_bcc
 from ..base_views import BaseBackstageMixin
 
 
-class ContestSendInvitationMail(BaseBackstageMixin, TemplateView):
-    template_name = 'backstage/contest/invitation.jinja2'
-
-    def post(self, request):
-        head = request.POST['head']
-        msg = request.POST['msg']
-        if not head or not msg:
-            messages.add_message(request, messages.ERROR, 'Message cannot be empty.')
-        else:
-            Email.objects.create(title=head, content=msg)
-            recipient_list = list(filter(lambda x: x, [u.email for u in User.objects.filter(is_active=True,
-                                                                                            email_subscription=True).all()]))
-            async_task(send_mail_with_bcc, head, msg, recipient_list=recipient_list, fail_silently=True)
-            messages.add_message(request, messages.SUCCESS, "Email sending task added successfully.")
-        return redirect(reverse('backstage:contest_send_invitation'))
-
-
 class ContestList(BaseBackstageMixin, ListView):
     template_name = 'backstage/contest/contest.jinja2'
     queryset = Contest.objects.all()

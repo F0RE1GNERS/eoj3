@@ -27,7 +27,7 @@
 
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">{{ _('Bulletin') }}</div>
+          <div class="header">公告牌</div>
         </div>
         <div class="content">
           <div class="description">{{ bulletin | markdown | safe }}</div>
@@ -36,14 +36,14 @@
 
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">{{ _('Top-Rated Users') }}</div>
+          <div class="header">牛逼网友</div>
         </div>
         <div class="content">
           <table class="ui very basic celled very compact center aligned table">
             <thead>
               <tr>
-                <th class="ten wide">{{ _('Username') }}</th>
-                <th class="six wide">{{ _('Rating') }}</th>
+                <th class="ten wide">用户名</th>
+                <th class="six wide">积分</th>
               </tr>
             </thead>
             <tbody>
@@ -58,7 +58,7 @@
         </div>
         <div class="extra content right aligned">
           <a href="{{ url('contest:rating') }}?full=1">
-            <i class="user icon"></i> {{ _('See full list here') }}
+            <i class="user icon"></i> 查看全部用户
           </a>
         </div>
       </div>
@@ -68,7 +68,7 @@
       {% if comment_list %}
       <div class="ui fluid card">
         <div class="content">
-          <div class="header">{{ _('Recent Actions') }}</div>
+          <div class="header">最新动态</div>
         </div>
         <div class="content">
           <div class="ui small feed">

@@ -16,7 +16,7 @@ from utils.permission import is_contest_manager
 class ProblemSerializer(serializers.ModelSerializer):
   class Meta:
     model = Problem
-    fields = ("id", "title", "tags", "statement")
+    fields = ("id", "title", "tags", "statement", "level", "ac_user_count", "total_user_count", "ac_count", "total_count", "reward")
 
   tags = serializers.SerializerMethodField()
   statement = serializers.SerializerMethodField()

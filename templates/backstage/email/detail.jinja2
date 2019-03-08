@@ -1,42 +1,40 @@
 {% extends 'backstage/base.jinja2' %}
 {% from 'components/post_link.jinja2' import post_link %}
 {% block content_header %}
-  Email: {{ email.title }}
+  邮件: {{ email.title }}
 {% endblock %}
 
 {% block backstage_content %}
 
   <div class="ui buttons">
-    <a data-link="{{ url('backstage:email_send', email.pk) }}" class="post ui primary button">Send All</a>
-    <a href="{{ url('backstage:email_preview', email.pk) }}" class="ui secondary button">Email HTML Preview</a>
+    <a data-link="{{ url('backstage:email_send', email.pk) }}" class="post ui primary button">发送给所有人</a>
+    <a href="{{ url('backstage:email_preview', email.pk) }}" class="ui secondary button">预览 HTML</a>
   </div>
 
-  <h3 class="ui dividing header">Update Zone</h3>
+  <h3 class="ui dividing header">更新</h3>
 
   {% include 'components/form.jinja2' %}
 
-
-
-  <h3 class="ui dividing header">Recipients</h3>
+  <h3 class="ui dividing header">收件人</h3>
 
   <form action="{{ url('backstage:email_recipient_add', email.pk) }}" method="POST">
   {% csrf_token %}
   <div class="ui fluid action input">
-    <input type="text" name="text" placeholder="Type the username, use #all# to reference all users...">
-    <button class="ui button" type="submit">Add</button>
+    <input type="text" name="text" placeholder="输入用户名，输入 #all# 添加所有活跃用户">
+    <button class="ui button" type="submit">确定</button>
   </div>
   </form>
 
   <table class="ui celled small table center aligned compact">
     <thead>
       <tr>
-        <th>User</th>
-        <th>Email</th>
-        <th>Report</th>
-        <th>Created</th>
-        <th>Updated</th>
-        <th>Status</th>
-        <th colspan="2">Action</th>
+        <th>用户</th>
+        <th>邮箱</th>
+        <th>错误信息</th>
+        <th>创建</th>
+        <th>更新</th>
+        <th>状态</th>
+        <th colspan="2">操作</th>
       </tr>
     </thead>
     <tbody>
@@ -44,18 +42,18 @@
         <tr>
           <td>{{ username_display(recipient.user) }}</td>
           <td>{{ recipient.user.email }}</td>
-          <td>{% if recipient.error_message %}<a href="{{ url('backstage:email_recipient_error', recipient.id) }}" target="_blank">Available</a>{% endif %}</td>
+          <td>{% if recipient.error_message %}<a href="{{ url('backstage:email_recipient_error', recipient.id) }}" target="_blank">可用</a>{% endif %}</td>
           <td class="collapsing">{{ recipient.create_time | date('m-d H:i') }}</td>
           <td class="collapsing">{{ recipient.update_time | date('m-d H:i') }}</td>
           <td class="collapsing">{{ recipient.get_status_display() }}</td>
-          <td class="collapsing"><a class="post text red" data-link="{{ url('backstage:email_recipient_delete', recipient.id) }}">Delete</a></td>
-          <td class="collapsing"><a class="post" data-link="{{ url('backstage:email_send', email.pk) }}?t={{ recipient.id }}">Send</a></td>
+          <td class="collapsing"><a class="post text red" data-link="{{ url('backstage:email_recipient_delete', recipient.id) }}">删除</a></td>
+          <td class="collapsing"><a class="post" data-link="{{ url('backstage:email_send', email.pk) }}?t={{ recipient.id }}">发送</a></td>
         </tr>
       {% endfor %}
     </tbody>
     <tfoot>
       <tr>
-        <th colspan="8" class="right aligned">{{ recipients | length }} recipients available.</th>
+        <th colspan="8" class="right aligned">{{ recipients | length }} 位收件人可用</th>
       </tr>
     </tfoot>
   </table>

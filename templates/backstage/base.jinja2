@@ -10,14 +10,13 @@
 {% block content %}
 
   <div class="ui secondary menu small">
-    <a href="{{ url('backstage:site') }}" class="{{ active('backstage:site') }} item">Site</a>
-    <a href="{{ url('backstage:blog') }}" class="{{ active('backstage:blog') }} item">Blogs</a>
-    <a href="{{ url('backstage:problem') }}" class="{{ active('backstage:problem') }} item">Problems</a>
-    <a href="{{ url('backstage:contest') }}" class="{{ active('backstage:contest') }} item">Contest</a>
-    <a href="{{ url('backstage:account') }}" class="{{ active('backstage:account') }} item">Accounts</a>
-    <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }} item">Servers</a>
-    <a href="{{ url('backstage:email') }}" class="{{ active('backstage:email') }} item">Email</a>
-    <a href="{{ url('backstage:log') }}" class="{{ active('backstage:log') }} item">Log</a>
+    <a href="{{ url('backstage:site') }}" class="{{ active('backstage:site') }} item">全局设置</a>
+    <a href="{{ url('backstage:blog') }}" class="{{ active('backstage:blog') }} item">博客</a>
+    <a href="{{ url('backstage:problem') }}" class="{{ active('backstage:problem') }} item">题目</a>
+    <a href="{{ url('backstage:contest') }}" class="{{ active('backstage:contest') }} item">比赛</a>
+    <a href="{{ url('backstage:account') }}" class="{{ active('backstage:account') }} item">账号</a>
+    <a href="{{ url('backstage:server') }}" class="{{ active('backstage:server') }} item">评测机</a>
+    <a href="{{ url('backstage:email') }}" class="{{ active('backstage:email') }} item">邮件</a>
   </div>
   {% include 'components/message.jinja2' %}
 
