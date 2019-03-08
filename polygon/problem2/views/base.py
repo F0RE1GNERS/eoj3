@@ -294,7 +294,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
 class ProblemRejudge(PolygonProblemMixin, View):
   def post(self, request, *args, **kwargs):
     rejudge_all_submission_on_problem(self.problem)
-    return redirect(reverse('polygon:problem_status', kwargs={'pk': self.problem.id}))
+    return HttpResponse()
 
 
 class ProblemBasicInfoManage(PolygonProblemMixin, TemplateView):
