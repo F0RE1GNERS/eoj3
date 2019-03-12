@@ -5,7 +5,7 @@
 {% from 'components/profile_card.jinja2' import profile_card with context %}
 {% from 'components/blog_preview.jinja2' import blog_preview %}
 
-{% block title %}Blogs - {% endblock %}
+{% block title %}博客 - {% endblock %}
 
 {% block page_header %}{{ profile.get_username_display() }}{% endblock %}
 
@@ -15,7 +15,7 @@
 
     <div class="eleven wide column">
 
-      {% if is_author %}<a class="ui labeled icon button primary" href="{{ url('blog:create') }}"><i class="icon add"></i>Write a blog</a>{% endif %}
+      {% if is_author %}<a class="ui labeled icon button primary" href="{{ url('blog:create') }}"><i class="icon add"></i>写博客</a>{% endif %}
       <div class="ui feed">
         {% if blog_list %}
           {% for blog in blog_list %}
@@ -23,17 +23,6 @@
           {% endfor %}
         {% endif %}
       </div>
-    </div>
-
-    <div class="five wide column">
-      {{ profile_card(profile, solved) }}
-      <form class="ui form" action="{{ url('blog:goto') }}" method="post">
-        {% csrf_token %}
-        <div class="ui action fluid input">
-          <input type="text" name="name" placeholder="Username here...">
-          <button type="submit" class="ui button">Go to</button>
-        </div>
-      </form>
     </div>
 
   </div>
