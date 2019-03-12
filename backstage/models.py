@@ -6,10 +6,10 @@ from problem.models import Problem
 
 
 class Email(models.Model):
-    title = models.CharField(max_length=192)
-    content = models.TextField(blank=True)
-    create_time = models.DateTimeField(auto_now_add=True)
-    update_time = models.DateTimeField(auto_now=True)
+    title = models.CharField("标题", max_length=192)
+    content = models.TextField("内容", blank=True)
+    create_time = models.DateTimeField("创建时间", auto_now_add=True)
+    update_time = models.DateTimeField("更新时间", auto_now=True)
     created_by = models.ForeignKey(User, null=True, related_name="sent_emails", on_delete=models.SET_NULL)
     recipients = models.ManyToManyField(User, through='EmailRecipient', related_name='received_emails')
 

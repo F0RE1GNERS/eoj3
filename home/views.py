@@ -20,7 +20,9 @@ def home_view(request):
            'bulletin': site_settings_get('BULLETIN', ''),
            'global_rating': User.objects.filter(rating__gt=0).order_by("-rating")[:10],
            }
-    if not is_site_closed(request):
+    if is_site_closed(request):
+      return redirect(reverse("contest:list"))
+    else:
       LIMIT, LIMIT_BLOG = 20, 15
       ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
         "author").order_by("-create_time").filter(visible=True, recommend=True)[:LIMIT_BLOG]

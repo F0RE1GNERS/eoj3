@@ -39,8 +39,8 @@
       <td>{{ server }}</td>
       {% endif %}
       {% if rejudge_authorized %}
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">{{ _('Rejudge') }}</a></td>
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">{{ _('All') }}</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">重测</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">所有测试点</a></td>
       {% endif %}
     </tr>
     <tr>

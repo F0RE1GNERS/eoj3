@@ -43,17 +43,4 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
     url(r'^(?P<cid>\d+)/report/testsys/$', ContestStandingsTestSys.as_view(), name='report_testsys'),
     url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
-    url(r'^(?P<cid>\d+)/virtual/$', ContestVirtualParticipantJoin.as_view(), name='vp_join'),
-
-    url(r'^activity/$', ActivityList.as_view(), name='activity_list'),
-    url(r'^activity/add/$', ActivityAddView.as_view(), name='activity_add'),
-    url(r'^activity/(?P<pk>\d+)/update/$', ActivityUpdateView.as_view(), name='activity_update'),
-    url(r'^activity/(?P<pk>\d+)/$', ActivityRegisterView.as_view(), name='activity_register'),
-    url(r'^activity/(?P<pk>\d+)/quit/$', ActivityQuitView.as_view(), name='activity_quit'),
-    url(r'^activity/(?P<pk>\d+)/participants/$', ActivityParticipantList.as_view(), name='activity_participant'),
-    url(r'^activity/(?P<pk>\d+)/admin/add/$', ActivityAdminAddUserView.as_view(), name='activity_admin_add'),
-    url(r'^activity/(?P<pk>\d+)/admin/update/(?P<upk>\d+)/$', ActivityAdminUpdateUserView.as_view(), name='activity_admin_update'),
-    url(r'^activity/school/add/$', ActivityAddSchoolView.as_view(), name='activity_add_school'),
-    url(r'^activity/(?P<pk>\d+)/confirm/$', ActivityParticipantConfirmEmailSent.as_view(), name='activity_confirm_email'),
-    url(r'^activity/confirm/complete/$', ActivityParticipantConfirmComplete.as_view(), name='activity_confirm_complete'),
 ]

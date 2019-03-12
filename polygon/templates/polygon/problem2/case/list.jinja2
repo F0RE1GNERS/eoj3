@@ -21,12 +21,10 @@
             <div class="ui icon top right pointing dropdown button">
               <i class="wrench icon"></i>
               <div class="menu">
-                <div class="header">Typical</div>
                 <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}">重新标号</a>
                 {% if revision.enable_group %}
                 <a class="item post prompt" data-link="{{ url('polygon:revision_case_order_natural', problem.id, revision.id) }}?group=1">重新标分组编号</a>
                 {% endif %}
-                <div class="header">For selected</div>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_delete', problem.id, revision.id) }}">删除选定的</a>
                 <a class="item post ask gather" data-link="{{ url('polygon:revision_case_order_move', problem.id, revision.id) }}" data-question="移动到编号为几的后面 (输入 0 移动到最前面):">移动选定的</a>
                 <a class="item post prompt gather" data-link="{{ url('polygon:revision_case_toggle_sample', problem.id, revision.id) }}">修改是否为样例</a>

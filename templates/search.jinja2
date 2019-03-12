@@ -1,14 +1,14 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}Search - {% endblock %}
+{% block title %}搜索 - {% endblock %}
 
-{% block page_header %}Cows, Pandas, Sheep, Rabbits...{% endblock %}
+{% block page_header %}全站搜索...{% endblock %}
 
 {% block content %}
 
   <form class="ui form">
     <div class="ui icon input">
-      <input type="text" name="q" value="{{ q }}" placeholder="Search...">
+      <input type="text" name="q" value="{{ q }}" placeholder="搜索...">
       <i class="search icon"></i>
     </div>
     <input type="submit" style="display: none;">
@@ -16,7 +16,7 @@
 
   {% if query_time %}
     <h5 class="ui header">
-      <div class="sub header">Query {{ search_list | length }} records in {{ query_time }} seconds.</div>
+      <div class="sub header">查询到 {{ search_list | length }} 条结果，用时 {{ query_time }} 秒。</div>
     </h5>
 
   {% endif %}
@@ -30,7 +30,7 @@
       </div>
       <div class="content">
         <a href="{{ url('problem:detail', ret.pk) }}" class="summary">
-          Problem #{{ ret.pk }}: {{ ret.title }}
+          题目 #{{ ret.pk }}: {{ ret.title }}
         </a>
         <div class="extra text">
           {% cache 3600 'problem_preview#' + ret.pk.__str__() + '#' + ret.update_time.__str__() %}
@@ -39,7 +39,7 @@
         </div>
         {% if ret.source %}
           <a class="meta" href="{{ url('problem:list') }}?source={{ ret.source }}">
-            Source: {{ ret.source }}
+            来源: {{ ret.source }}
           </a>
         {% endif %}
       </div>
@@ -52,7 +52,7 @@
           {{ username_display(ret) }}
         </div>
         <div class="meta">
-          Last login: {{ ret.last_login | naturaltime }}
+          上次登录: {{ ret.last_login | naturaltime }}
         </div>
       </div>
     {% elif ret.__class__.__name__ == 'Contest' %}
@@ -75,7 +75,7 @@
       </div>
       <div class="content">
         <a class="summary">
-          Blog: <a href="{{ url('blog:detail', ret.pk) }}">{{ ret.title }}</a> by {{ username_display(ret.author) }}
+          博客: <a href="{{ url('blog:detail', ret.pk) }}">{{ ret.title }}</a> 由 {{ username_display(ret.author) }} 创建
         </a>
         <div class="extra text">
           {% cache 3600 'blog_preview#' + ret.pk.__str__() + '#' + ret.edit_time.__str__() %}
@@ -83,7 +83,7 @@
           {% endcache %}
         </div>
         <div class="meta">
-          Edited {{ ret.edit_time | naturaltime }}
+          上次编辑: {{ ret.edit_time | naturaltime }}
         </div>
       </div>
     {% endif %}

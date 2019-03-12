@@ -17,7 +17,7 @@
       <h3 class="ui header">
         <i class="privacy icon"></i>
         <div class="content">
-          {{ _('Permission Notice') }}
+          权限受限
           <div class="sub header">比赛是私有的，你可以：</div>
         </div>
       </h3>
@@ -71,8 +71,8 @@
       <thead>
         <tr class="center aligned">
           <th class="two wide">#</th>
-          <th class="left aligned">{{ _('Name') }}</th>
-          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> {{ _('/ Max / Avg') }}{% else %}{{ _('Solved') }}{% endif %}</th>
+          <th class="left aligned">标题</th>
+          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> 最高 / 平均{% else %}已解出{% endif %}</th>
         </tr>
       </thead>
       <tbody>

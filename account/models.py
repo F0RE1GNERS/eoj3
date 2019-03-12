@@ -47,23 +47,23 @@ class UsernameLengthValidator(BaseValidator):
 class User(AbstractUser):
     username_validators = [UsernameValidator(), UsernameLengthValidator(6)]
 
-    username = models.CharField(_('username'), max_length=30, unique=True,
+    username = models.CharField("用户名", max_length=30, unique=True,
                                 validators=username_validators,
                                 error_messages={
                                     'unique': _("A user with that username already exists.")}
                                 )
-    email = models.EmailField(_('email'), max_length=192, unique=True, error_messages={
+    email = models.EmailField("邮箱", max_length=192, unique=True, error_messages={
         'unique': _("This email has already been used.")
     })
-    school = models.CharField(_('school'), max_length=64, blank=True)
-    name = models.CharField(_('name'), max_length=30, blank=True)
-    student_id = models.CharField(_('student id'), max_length=30, blank=True)
-    magic = models.CharField(_('magic'), choices=MAGIC_CHOICE, max_length=18, blank=True)
-    show_tags = models.BooleanField(_('show tags'), default=True)
-    preferred_lang = models.CharField(_('preferred language'), choices=LANG_CHOICE, max_length=12, default='cpp')
-    motto = models.CharField(_('motto'), max_length=192, blank=True)
+    school = models.CharField("学校", max_length=64, blank=True)
+    name = models.CharField("真实姓名", max_length=30, blank=True)
+    student_id = models.CharField("学号", max_length=30, blank=True)
+    magic = models.CharField("魔法", choices=MAGIC_CHOICE, max_length=18, blank=True)
+    show_tags = models.BooleanField("显示标签", default=True)
+    preferred_lang = models.CharField("偏好语言", choices=LANG_CHOICE, max_length=12, default='cpp')
+    motto = models.CharField("警句", max_length=192, blank=True)
 
-    avatar = models.ImageField(_('avatar'), upload_to='avatar', default='avatar/default.jpg')
+    avatar = models.ImageField("头像", upload_to='avatar', default='avatar/default.jpg')
     avatar_small = ImageSpecField(source='avatar',
                                   processors=[ResizeToFill(50, 50)],
                                   format='JPEG',
@@ -75,7 +75,7 @@ class User(AbstractUser):
     polygon_enabled = models.BooleanField(default=False)
     score = models.FloatField(default=0)
     username_change_attempt = models.IntegerField(default=0)
-    email_subscription = models.BooleanField(_("Email subscription"), default=True)
+    email_subscription = models.BooleanField("邮件订阅", default=True)
     rating = models.IntegerField(default=0)
 
     def __str__(self):

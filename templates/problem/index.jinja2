@@ -57,47 +57,23 @@
 <div class="four wide column">
     <div class="ui fluid card">
       <div class="content">
-        <div class="header">{{ _('Tags') }}</div>
+        <div class="header">标签云</div>
       </div>
       <div class="content">
         <div id="word-cloud"></div>
       </div>
     </div>
-  {% if unsolved_submissions %}
-    <div class="ui fluid card">
-      <div class="content">
-        <div class="header">{{ _('Recent unsolved') }}</div>
-      </div>
-      <div class="content">
-        <div class="ui feed">
-          {% for s in unsolved_submissions %}
-            <div class="event">
-              <div class="content"><span class="summary">
-                {% if s.contest_problem %}<a class="text black" href="{{ url('contest:dashboard', s.contest_id) }}">{{ s.contest }}</a> — <a class="text black" href="{{ url('contest:problem', s.contest_id, s.contest_problem.identifier) }}">{{ s.contest_problem }}</a>
-                {% else %}<a class="text black" href="{{ url('problem:detail', s.problem_id) }}">{{ s.problem }}</a>
-                {% endif %}</span> →
-                {% if not s.contest_id %}<a href="{{ url('problem:submission', s.problem_id, s.id) }}">
-                {% else %}<a href="{{ url('contest:submission', s.contest_id, s.id) }}">
-                {% endif %}{{ _('Sub.') }} #{{ s.id }}</a>. &nbsp;&nbsp;
-                <span class="date">{{ s.create_time | naturaltime }}</span>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  {% endif %}
   {% if request.user.is_authenticated %}
     <div class="ui fluid card">
       <div class="content">
-        <div class="header">{{ _('Compare with') }}</div>
+        <div class="header">和 TA 比一比</div>
       </div>
       <div class="content">
         <form style="margin-bottom:0;" id="compare-form" action="{{ url('problem:compare_with') }}" method="POST">
           {% csrf_token %}
           <div class="ui user search">
             <div class="ui fluid icon input">
-              <input class="prompt" name="username" type="text" placeholder="Username...">
+              <input class="prompt" name="username" type="text" placeholder="输入用户名">
               <i class="search link icon" onclick="document.getElementById('compare-form').submit();"></i>
             </div>
             <div class="results"></div>

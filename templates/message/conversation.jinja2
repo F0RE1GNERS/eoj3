@@ -1,9 +1,0 @@
-{% extends 'base.jinja2' %}
-{% block content %}
-  {% for c in conversation_list %}
-    {{ c.pk }}: <br>
-    {% for msg in c.messages.all() %}
-      {{ msg.sender }}: {{ msg.content }} <br>
-    {% endfor %}
-  {% endfor %}
-{% endblock %}

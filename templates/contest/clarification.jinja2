@@ -1,6 +1,6 @@
 {% extends 'contest/base.jinja2' %}
 
-{% block contest_title %}{{ _('Q&A') }} - {% endblock %}
+{% block contest_title %}问答 - {% endblock %}
 
 {% block contest_content %}
 
@@ -9,13 +9,13 @@
 
     <div class="ui fluid card">
       <div class="content">
-        <h3 class="ui header">{{ _('Question') }}</h3>
+        <h3 class="ui header">问题</h3>
       </div>
       <div class="content">
         {{ clarification.text | markdown | safer | safe }}
 
       {% if clarification.answer %}
-        <h5 class="ui header">{{ _('Reply') }}:</h5>
+        <h5 class="ui header">回复:</h5>
         {{ clarification.answer | markdown | safer | safe }}
       {% endif %}
 
@@ -25,7 +25,7 @@
                 action="{{ url('contest:clarification_answer', contest.pk, clarification.pk) }}">
             {% csrf_token %}
             <div class="field">
-              <label>Builtin Response:</label>
+              <label>快速回复:</label>
               <select class="ui selection dropdown" name="builtin">
                 {% for key, val in BUILTIN_CHOICES %}
                   <option value="{{ key }}" {% if key == "custom" %}selected{% endif %}>{{ val }}</option>
@@ -33,7 +33,7 @@
               </select>
             </div>
             <div class="field">
-              <label>Custom Response:</label>
+              <label>自定义回复:</label>
               <textarea class="markdown" name="text"></textarea>
             </div>
             <div class="field">
@@ -51,7 +51,7 @@
 
     <div class="ui fluid card">
       <div class="content">
-        <h3 class="ui header">{{ _('Notification') }}</h3>
+        <h3 class="ui header">公告</h3>
       </div>
       <div class="content">
         {{ clarification.answer | markdown | safer | safe }}
@@ -70,9 +70,9 @@
     {% csrf_token %}
     <div class="field">
       {% if is_privileged %}
-      <label for="text">{{ _("Your Question") }}:</label>
+      <label for="text">全体公告:</label>
       {% else %}
-      <label for="text">{{ _("Global Notification") }}:</label>
+      <label for="text">你的问题:</label>
       {% endif %}
       <textarea class="markdown" name="text"></textarea>
     </div>

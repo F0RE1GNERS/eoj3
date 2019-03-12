@@ -1,8 +1,8 @@
 {% extends 'base.jinja2' %}
 
-{% block title %}{{ _('Gym') }} - {% endblock %}
+{% block title %}作业 - {% endblock %}
 
-{% block page_header %}{{ _('Gym') }}{% endblock %}
+{% block page_header %}作业{% endblock %}
 
 {% block content %}
 
@@ -28,7 +28,7 @@
             {% endfor %}
           </div></td>
         {% if not contest.start_time and not contest.end_time %}
-          <td colspan="2">{{ _('Open indefinitely') }}</td>
+          <td colspan="2">一直开放</td>
         {% else %}
           <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
           <td>{{ contest.end_time | date('Y-m-d H:i') }}</td>

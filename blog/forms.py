@@ -13,7 +13,7 @@ def generate_username_link(matchobj):
         user = User.objects.get(pk=id)
         return username_display(None, user)
     except:
-        raise forms.ValidationError(_("User with id %d does not exist") % id)
+        raise forms.ValidationError("用户 ID %d 不存在" % id)
 
 
 class BlogEditForm(forms.ModelForm):
@@ -23,7 +23,7 @@ class BlogEditForm(forms.ModelForm):
         error_messages = {
         }
         help_texts = {
-            'text': _('Markdown and MathJax are supported. Use $e^x$ for formulas.')
+            'text': "支持 Markdown 和 MathJax，使用 $e^x$ 来写公式。"
         }
         widgets = {
             'text': forms.Textarea(attrs={'class': 'markdown'})
