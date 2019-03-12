@@ -1,7 +1,7 @@
 {% extends 'base.jinja2' %}
 {% from 'components/profile_card.jinja2' import profile_card with context %}
 
-{% block title %}个人档案 - {% endblock %}
+{% block title %}{{ profile.username }} - {% endblock %}
 
 {% block css %}
 <style>
@@ -21,7 +21,7 @@
 </style>
 {% endblock %}
 
-{% block page_header %}个人档案: {{ username_display(profile, additional_class="bold") }}{% endblock %}
+{% block page_header %}{{ username_display(profile, additional_class="bold") }}{% endblock %}
 
 {% block content %}
 
@@ -44,9 +44,9 @@
         <table class="ui center aligned table">
           <thead>
           <tr>
-            <th>Title</th>
-            <th>Created</th>
-            <th>Updated</th>
+            <th>标题</th>
+            <th>创建</th>
+            <th>更新</th>
           </tr>
           </thead>
           <tbody>
@@ -137,7 +137,7 @@
 
   <div class="section">
     <h2 class="ui header">题目集中的提交</h2>
-    <a href="{{ url('problem:status') }}?user={{ profile.pk }}" class="ui right primary basic button">All My Submissions</a>
+    <a href="{{ url('problem:status') }}?user={{ profile.pk }}" class="ui right primary basic button">查看所有提交</a>
 
     <table class="ui center aligned table">
       <thead>
