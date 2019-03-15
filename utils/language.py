@@ -14,7 +14,6 @@ LANG_CHOICE = (
     ('pypy3', 'PyPy 3'),
     ('java', 'Java 8'),
     ('pas', 'Pascal'),
-    ('scala', 'Scala'),
     ('text', 'Text')
 )
 
@@ -37,7 +36,6 @@ LANG_EXT = (
     ('pypy', 'py'),
     ('pypy3', 'py'),
     ('pas', 'pas'),
-    ('scala', 'scala'),
     ('text', 'txt'),
 )
 
