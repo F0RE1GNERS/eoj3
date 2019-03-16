@@ -23,6 +23,7 @@ LANG_REGULAR_NAME = (
     ('py2', 'python'),
     ('pypy3', 'python'),
     ('pas', 'pascal'),
+    ('', 'text')
 )
 
 LANG_EXT = (

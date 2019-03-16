@@ -189,7 +189,6 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
       description = "手动创建."
       case = Case(create_time=global_create_time,
                   in_samples=form.cleaned_data["in_samples"],
-                  output_lock=form.cleaned_data["output_lock"],
                   description=description,
                   activated=form.cleaned_data["activated"])
       case.input_file.save("in", ContentFile(input_binary), save=False)
