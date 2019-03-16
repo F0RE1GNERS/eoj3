@@ -244,6 +244,7 @@ DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M:%S'
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'utils.authentication.UnsafeSessionAuthentication',
   ),
   'DEFAULT_THROTTLE_CLASSES': (
     'rest_framework.throttling.UserRateThrottle',
