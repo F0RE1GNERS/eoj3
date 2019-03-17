@@ -1,3 +1,4 @@
+import traceback
 from collections import defaultdict
 from os import path
 
@@ -327,10 +328,11 @@ class StatusList(ListView):
       if self.allow_problem_query and 'problem' in self.request.GET:
         problem_id = self.reinterpret_problem_identifier(self.request.GET['problem'])
         try:
-          if is_problem_manager(self.request.user, Problem.objects.get(problem_id=problem_id)):
+          if is_problem_manager(self.request.user, Problem.objects.get(pk=problem_id)):
             self.privileged = True
           queryset = queryset.filter(problem_id=problem_id)
         except:
+          traceback.print_exc()
           pass
       if 'lang' in self.request.GET:
         queryset = queryset.filter(lang=self.request.GET['lang'])
