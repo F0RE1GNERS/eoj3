@@ -101,7 +101,7 @@
     </thead>
     <tbody>
       {% for submission in submission_list %}
-        <tr>
+        <tr {% if not submission.visible %}style="background-color:rgba(0,0,50,.02)"{% endif %}>
           <td>
           {% if not submission.contest_id %}<a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}{% else %}<a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}{% endif %}{% if not all_valid and (submission.unofficial or (contest and submission.contest_id != contest.pk) or (not contest and submission.contest_id)) %}*{% endif %}
           </a></td>
