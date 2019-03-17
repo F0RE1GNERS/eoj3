@@ -14,6 +14,7 @@
         <th>语言</th>
         <th>评测结果</th>
         <th>耗时</th>
+        <th>内存</th>
       </tr>
     </thead>
     <tbody>
@@ -32,6 +33,7 @@
           <td>{{ submission.get_lang_display() }}</td>
           <td><h5 class="ui header status-span" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}" data-test="{{ submission.status_test }}"></h5></td>
           <td>{{ submission.get_time_display() }}</td>
+          <td>{{ submission.get_memory_display() }}</td>
         </tr>
       {% endfor %}
     </tbody>

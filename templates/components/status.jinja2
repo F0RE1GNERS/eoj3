@@ -88,6 +88,7 @@
         <th>代码长度</th>
       {% endif %}
         <th>耗时</th>
+        <th>内存</th>
       {% if judge_server %}
         <th>评测机</th>
       {% endif %}
@@ -130,8 +131,9 @@
           <td>{% if submission.code_length %}{{ submission.code_length }} B{% else %}N/A{% endif %}</td>
         {% endif %}
           <td>{{ submission.get_time_display() }}</td>
+          <td>{{ submission.get_memory_display() }}</td>
         {% if rejudge %}
-          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">重测</a></td>
+          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">重判</a></td>
         {% endif %}
         {% if judge_server %}
           <td>{{ submission.judge_server }}</td>

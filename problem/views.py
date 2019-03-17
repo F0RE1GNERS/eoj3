@@ -404,7 +404,7 @@ class ProblemStatisticsView(ProblemDetailMixin, StatusList):
   def get_runtime_distribution(self):
     exclude_q = Q(code_length__isnull=True) | Q(status_time__isnull=True)
     self.ctx["runtime_data"] = self.problem.submission_set \
-      .only("lang", "code_length", "status_time", "author_id", "contest_id", "problem_id") \
+      .only("lang", "code_length", "status_memory", "status_time", "author_id", "contest_id", "problem_id") \
       .filter(status=SubmissionStatus.ACCEPTED, visible=True).exclude(exclude_q)
     if self.request.user.is_authenticated:
       for s in self.ctx["runtime_data"]:

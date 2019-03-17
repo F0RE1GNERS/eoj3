@@ -11,6 +11,32 @@
   <a class="ui button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t=all">All</a>
   </div>
 
+  {% if server.version >= 3 %}
+  <table class="ui celled definition small table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th>指纹</th>
+        <th>类别</th>
+        <th>文件名</th>
+        <th>语言</th>
+        <th>内置</th>
+        <th>已上传</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sp in server_problem_status_list %}
+        <tr>
+          <td>{{ sp.fingerprint[:8] }}</td>
+          <td>{{ sp.category }}</td>
+          <td>{{ sp.filename }}</td>
+          <td>{{ sp.get_lang_display() }}</td>
+          <td>{{ sp.builtin }}</td>
+          <td>{{ sp.exists }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
   <table class="ui celled definition small table center aligned">
     <thead class="full-width">
       <tr>
@@ -47,5 +73,6 @@
       </tr>
     </tfoot>
   </table>
+  {% endif %}
 
 {% endblock %}

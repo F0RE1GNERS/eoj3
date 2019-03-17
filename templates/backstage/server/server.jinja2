@@ -17,13 +17,12 @@
     <thead class="full-width">
 
       <tr>
-        <th>Enabled</th>
-        <th>Name</th>
-        <th>Address</th>
-        <th>Last Seen</th>
-        <th>Synchronized</th>
-        <th>Edit</th>
-        <th>Update token</th>
+        <th>启用</th>
+        <th>名字</th>
+        <th>IP 地址</th>
+        <th>版本</th>
+        <th>编辑</th>
+        <th>更换密钥</th>
       </tr>
     </thead>
     <tbody>
@@ -36,10 +35,9 @@
           </td>
           <td><a href="{{ url('backstage:server_problem_status', server.id) }}">{{ server.name }}</a></td>
           <td>{{ server.ip }}:{{ server.port }}</td>
-          <td>{{ server.last_seen_time | date('Y-m-d H:i:s') }}</td>
-          <td>{% if server.last_synchronize_time %}{{ server.last_synchronize_time | date('Y-m-d H:i:s') }}{% else %}Never{% endif %}</td>
-          <td><a href="{{ url('backstage:server_edit', server.pk) }}">Edit</a></td>
-          <td><a href="{{ url('backstage:server_update_token', server.pk) }}">Update</a></td>
+          <td>{{ server.version }}</td>
+          <td><a href="{{ url('backstage:server_edit', server.pk) }}">编辑</a></td>
+          <td><a href="{{ url('backstage:server_update_token', server.pk) }}">更新</a></td>
         </tr>
       {% endfor %}
     </tbody>

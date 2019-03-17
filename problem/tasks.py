@@ -172,11 +172,13 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
         try:
           submission.status_time = max(map(lambda d: d.get('time', 0.0), submission.status_detail_list))
+          submission.status_memory = max(map(lambda d: d.get('memory', 0.0), submission.status_detail_list))
         except ValueError:
           pass
         submission.judge_end_time = judge_time
 
-        submission.save(update_fields=['status_time', 'judge_end_time', 'status_message', 'status_percent'])
+        submission.save(update_fields=['status_time', 'status_memory',
+                                       'judge_end_time', 'status_message', 'status_percent'])
 
         if submission.status == SubmissionStatus.ACCEPTED:
           # Add reward

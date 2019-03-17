@@ -12,6 +12,7 @@
       <th>评测时间</th>
       <th>结果</th>
       <th>耗时</th>
+      <th>内存</th>
       {% if server %}
       <th>评测机</th>
       {% endif %}
@@ -35,6 +36,7 @@
       <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
       <td><h5 class="ui header status-span with-icon" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}"></h5></td>
       <td>{{ submission.get_time_display() }}</td>
+      <td>{{ submission.get_memory_display() }}</td>
       {% if server %}
       <td>{{ server }}</td>
       {% endif %}
@@ -44,7 +46,7 @@
       {% endif %}
     </tr>
     <tr>
-      {% set my_colspan = 6 %}
+      {% set my_colspan = 7 %}
       {% if hide_problem %}
         {% set my_colspan = my_colspan - 1 %}
       {% endif %}
