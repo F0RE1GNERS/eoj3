@@ -285,7 +285,7 @@ class ProblemSubmitView(ProblemDetailMixin, View):
     try:
       lang = request.POST.get('lang', '')
       if lang not in dict(LANG_CHOICE).keys():
-        raise ValueError("Invalid language.")
+        raise ValueError("语言无效。")
       submission = create_submission(self.problem, self.user, request.POST.get('code', ''), lang, ip=get_ip(request))
       running_complete = bool(is_problem_manager(self.user, self.problem) and request.POST.get('complete'))
       async_task(judge_submission_on_problem, submission, run_until_complete=running_complete)
@@ -320,7 +320,7 @@ class StatusList(ListView):
       queryset = self.get_selected_from().select_related('problem', 'author'). \
         only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
              'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
-             'code_length', 'ip', 'cheat_tag', 'status_test', 'judge_server', 'contest_time')
+             'code_length', 'ip', 'status_test', 'status_memory', 'visible', 'judge_server', 'contest_time')
       if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
         queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 

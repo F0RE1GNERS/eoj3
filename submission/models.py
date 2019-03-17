@@ -26,19 +26,19 @@ class Submission(models.Model):
     # add empty dict to detail list if there are still cases to judge
     status_detail = models.TextField(blank=True)
     status_time = models.FloatField(blank=True, null=True)
+    status_memory = models.FloatField(blank=True, null=True)
     status_message = models.TextField(blank=True)
     status_test = models.PositiveIntegerField(default=0)
     code_length = models.PositiveIntegerField(blank=True, null=True)
     judge_server = models.IntegerField(default=0)
 
-    # if contest is null, then it is visible outside
+    # if contest is null and visible is True, then it is visible outside
+    # invisible submissions are only visible to managers
     contest = models.ForeignKey(Contest, on_delete=models.SET_NULL, null=True)
     contest_time = models.DurationField(null=True, blank=True)
 
-    addon_info = models.BooleanField(default=False)   # balloon
+    visible = models.BooleanField(default=True, db_index=True)
     ip = models.GenericIPAddressField(blank=True, null=True)
-    cheat_tag = models.IntegerField(default=0)
-    report_paid = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.code_length = len(self.code.encode())
