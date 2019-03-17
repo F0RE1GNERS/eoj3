@@ -64,13 +64,16 @@ def render_submission_report(pk):
     ans = []
     for line in lines:
       meta, *b64s = line.split('|')
+      stderr, pipe1, pipe2 = "", "", ""
       if len(b64s) == 4:
         input, output, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
-        stderr = ""
-      else:
+
+      elif len(b64s) == 5:
         input, output, stderr, answer, checker = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
+      else:
+        input, output, stderr, answer, checker, pipe1, pipe2 = map(lambda txt: b64decode(txt.encode()).decode(), b64s)
       ans.append({'meta': meta, 'input': input, 'output': output, 'stderr': stderr,
-                  'answer': answer, 'checker': checker})
+                  'answer': answer, 'checker': checker, 'pipe1': pipe1, 'pipe2': pipe2})
     t = loader.get_template('components/submission_report.jinja2')
     return t.render(Context({'testcases': ans}))
   except (SubmissionReport.DoesNotExist, ValueError):

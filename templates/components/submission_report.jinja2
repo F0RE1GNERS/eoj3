@@ -34,6 +34,18 @@
         <div class="title">Checker's comment</div>
         <pre>{{ case.checker }}</pre>
       </div>
+      {% if case.pipe1 %}
+      <div class="pipe">
+        <div class="title">Pipe 1</div>
+        <pre>{{ case.pipe1 }}</pre>
+      </div>
+      {% endif %}
+      {% if case.pipe2 %}
+      <div class="pipe">
+        <div class="title">Pipe 2</div>
+        <pre>{{ case.pipe1 }}</pre>
+      </div>
+      {% endif %}
     </div>
   {% endfor %}
   </div>
