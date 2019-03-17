@@ -193,8 +193,8 @@ class ContestStatus(BaseContestMixin, StatusList):
   contest_submission_visible = True
 
   def get_selected_from(self):
-    if self.virtual_progress is not None:
-      return self.contest.submission_set.filter(contest_time__lte=self.virtual_progress)
+    # if self.virtual_progress is not None:
+    #   return self.contest.submission_set.filter(contest_time__lte=self.virtual_progress)
     return self.contest.submission_set.all()
 
   def get_ordering(self):
@@ -237,6 +237,7 @@ class ContestPenaltyDetail(ContestStatus):
 
 class ContestMyStatus(ContestStatus):
   template_name = 'contest/my_status.jinja2'
+  privileged = True
 
   def test_func(self):
     return super().test_func() and self.user.is_authenticated
@@ -244,7 +245,8 @@ class ContestMyStatus(ContestStatus):
   def get_selected_from(self):
     if not self.user.is_authenticated:
       raise PermissionDenied
-    if self.contest.contest_type != 1 and self.participate_contest_status == 0 and not self.privileged:
+    if self.contest.contest_type != 1 and self.participate_contest_status == 0 and \
+        not is_contest_manager(self.user, self.contest):
       return self.contest.submission_set.filter(author=self.user).all()
     else:
       return self.user.submission_set.filter(

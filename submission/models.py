@@ -33,7 +33,7 @@ class Submission(models.Model):
     judge_server = models.IntegerField(default=0)
 
     # if contest is null and visible is True, then it is visible outside
-    # invisible submissions are only visible to managers
+    # not visible -> only sender and managers can see in specific pages
     contest = models.ForeignKey(Contest, on_delete=models.SET_NULL, null=True)
     contest_time = models.DurationField(null=True, blank=True)
 

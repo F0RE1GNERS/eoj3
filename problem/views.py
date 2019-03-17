@@ -321,17 +321,28 @@ class StatusList(ListView):
         only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
              'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
              'code_length', 'ip', 'status_test', 'status_memory', 'visible', 'judge_server', 'contest_time')
-      if not self.privileged and not self.contest_submission_visible and not is_admin_or_root(self.request.user):
-        queryset = queryset.filter(contest__isnull=True, problem__visible=True)
 
       if 'user' in self.request.GET:
         queryset = queryset.filter(author_id=self.request.GET['user'])
       if self.allow_problem_query and 'problem' in self.request.GET:
-        queryset = queryset.filter(problem_id=self.reinterpret_problem_identifier(self.request.GET['problem']))
+        problem_id = self.reinterpret_problem_identifier(self.request.GET['problem'])
+        try:
+          if is_problem_manager(self.request.user, Problem.objects.get(problem_id=problem_id)):
+            self.privileged = True
+          queryset = queryset.filter(problem_id=problem_id)
+        except:
+          pass
       if 'lang' in self.request.GET:
         queryset = queryset.filter(lang=self.request.GET['lang'])
       if self.allow_verdict_query and 'verdict' in self.request.GET:
         queryset = queryset.filter(status=int(self.request.GET['verdict'][1:]))
+
+      if is_admin_or_root(self.request.user):
+        self.privileged = True
+      if not self.privileged:
+        queryset = queryset.filter(visible=True)
+      if not self.privileged and not self.contest_submission_visible:
+        queryset = queryset.filter(contest__isnull=True)
 
       ordering = self.get_ordering()
       if ordering is not None:

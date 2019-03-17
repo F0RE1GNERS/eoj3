@@ -9,7 +9,7 @@ from utils.permission import is_problem_manager
 
 
 def invalidate_problem(problem: Problem, save=True):
-  query_list = list(problem.submission_set.all().values("author_id", "status"))
+  query_list = list(problem.submission_set.filter(visible=True).values("author_id", "status"))
   ac_list = list(filter(lambda x: x["status"] == SubmissionStatus.ACCEPTED, query_list))
   problem.ac_user_count = len(set(map(lambda x: x["author_id"], ac_list)))
   problem.total_user_count = len(set(map(lambda x: x["author_id"], query_list)))

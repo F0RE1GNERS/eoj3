@@ -14,6 +14,7 @@ from problem.statistics import invalidate_user
 from submission.models import Submission, SubmissionReport
 from submission.util import SubmissionStatus
 from utils.detail_formatter import response_fail_with_timestamp
+from utils.permission import is_problem_manager, is_contest_manager
 from .models import Problem, SpecialProgram, ProblemRewardStatus
 from .statistics import invalidate_problem
 
@@ -48,11 +49,10 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
     if contest.submission_set.filter(author=author, problem_id=problem, code__exact=code, lang=lang).exists():
       raise ValueError("你之前交过完全一样的代码。")
   if isinstance(problem, (int, str)):
-    return Submission.objects.create(lang=lang, code=code, author=author, problem_id=problem, contest=contest,
-                                     status=status, ip=ip)
-  else:
-    return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
-                                     status=status, ip=ip)
+    problem = Problem.objects.get(problem_id=problem)
+  visible = not (is_problem_manager(author, problem) or (contest is not None and is_contest_manager(author, contest)))
+  return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
+                                   status=status, ip=ip, visible=visible)
 
 
 def process_failed_test(details):
