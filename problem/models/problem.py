@@ -138,7 +138,7 @@ class Problem(models.Model):
     return [get_input_and_output_for_case(case) for case in self.sample_list]
 
   def _status_count(self, status):
-    return self.submission_set.filter(status=status).values("id").count()
+    return self.submission_set.filter(status=status, visible=True).values("id").count()
 
   @property
   def ac_user_ratio(self):
