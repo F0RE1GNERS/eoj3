@@ -49,7 +49,7 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
     if contest.submission_set.filter(author=author, problem_id=problem, code__exact=code, lang=lang).exists():
       raise ValueError("你之前交过完全一样的代码。")
   if isinstance(problem, (int, str)):
-    problem = Problem.objects.get(problem_id=problem)
+    problem = Problem.objects.get(pk=problem)
   visible = not (is_problem_manager(author, problem) or (contest is not None and is_contest_manager(author, contest)))
   return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
                                    status=status, ip=ip, visible=visible)
