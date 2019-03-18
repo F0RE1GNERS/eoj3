@@ -1,14 +1,14 @@
 {% extends 'backstage/base.jinja2' %}
 
 {% block content_header %}
-  Server:
+  服务器管理
 {% endblock %}
 
 {% block backstage_content %}
 
   <div class="ui buttons">
-  <a class="ui primary button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}">Upload Outdated</a>
-  <a class="ui button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t=all">All</a>
+  <a class="ui primary button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}">上传失效</a>
+  <a class="ui button post-link" data-link="{{ url('backstage:server_synchronize', server.pk) }}?t=all">所有</a>
   </div>
 
   {% if server.version >= 3 %}

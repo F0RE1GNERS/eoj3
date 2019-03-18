@@ -51,6 +51,8 @@ def upload_case(server, case):
 
 
 def upload_spj(server, sp):
+  if not server.master:
+    return {"status": "received"}
   url = server.http_address + "/upload/spj"
   return requests.post(url, json={
     'fingerprint': sp.fingerprint,

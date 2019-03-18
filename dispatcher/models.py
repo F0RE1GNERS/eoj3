@@ -14,6 +14,7 @@ class Server(models.Model):
   concurrency = models.PositiveIntegerField("并发量", default=1)
   runtime_multiplier = models.FloatField("运行时间调整系数", default=1)
   version = models.PositiveIntegerField("判题机版本")
+  master = models.BooleanField("主节点", default=True)
 
   def __str__(self):
     return self.name + ' - ' + self.ip
