@@ -50,7 +50,12 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
       raise ValueError("你之前交过完全一样的代码。")
   if isinstance(problem, (int, str)):
     problem = Problem.objects.get(pk=problem)
-  visible = not (is_problem_manager(author, problem) or (contest is not None and is_contest_manager(author, contest)))
+  visible = True
+  if contest is not None:
+    if is_contest_manager(author, contest):
+      visible = False
+  elif is_problem_manager(author, problem):
+    visible = False
   return Submission.objects.create(lang=lang, code=code, author=author, problem=problem, contest=contest,
                                    status=status, ip=ip, visible=visible)
 
