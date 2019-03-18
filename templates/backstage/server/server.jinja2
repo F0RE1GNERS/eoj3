@@ -6,13 +6,6 @@
 
 {% block backstage_content %}
 
-  <div class="ui progress" style="display: none;" data-progress="{{ server_synchronize_status }}">
-    <div class="bar">
-      <div class="progress"></div>
-    </div>
-    <div class="label">Uploading Data ({{ server_synchronize_status_detail }})</div>
-  </div>
-
   <table class="ui celled definition table center aligned">
     <thead class="full-width">
 
@@ -21,6 +14,7 @@
         <th>名字</th>
         <th>IP 地址</th>
         <th>版本</th>
+        <th>主节点</th>
         <th>编辑</th>
         <th>更换密钥</th>
       </tr>
@@ -36,6 +30,7 @@
           <td><a href="{{ url('backstage:server_problem_status', server.id) }}">{{ server.name }}</a></td>
           <td>{{ server.ip }}:{{ server.port }}</td>
           <td>{{ server.version }}</td>
+          <td>{{ server.master }}</td>
           <td><a href="{{ url('backstage:server_edit', server.pk) }}">编辑</a></td>
           <td><a href="{{ url('backstage:server_update_token', server.pk) }}">更新</a></td>
         </tr>
@@ -44,7 +39,7 @@
     <tfoot class="full-width">
       <tr>
         <th></th>
-        <th colspan="8">
+        <th colspan="9">
           <a href="{{ url('backstage:server_create') }}" class="ui right floated small primary labeled icon button">
             <i class="server icon"></i> 增加服务器
           </a>
