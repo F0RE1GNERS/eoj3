@@ -78,7 +78,7 @@ def send_judge_through_watch(code, lang, max_time, max_memory, run_until_complet
       send_mail(subject="Submit fail notice", message=msg, from_email=None,
                 recipient_list=settings.ADMIN_EMAIL_LIST,
                 fail_silently=True)
-      print(msg)
+      callback({"status": "reject", "message": msg})
 
 
 def _prepare_judge_json_data(server, code, lang, max_time, max_memory, run_until_complete, cases, checker, interactor,
