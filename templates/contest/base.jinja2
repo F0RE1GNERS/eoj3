@@ -82,6 +82,11 @@
             </div>
           </div>
         {% endif %}
+        {% if judgement_status %}
+          <div class="ui secondary center aligned segment">
+            评测状态: <span title="等待评测">{{ judgement_status.pending }}</span>+<span title="完成评测">{{ judgement_status.judged }}</span>={{ judgement_status.pending + judgement_status.judged }}. <span title="最后提交">{{ judgement_status.last | date('H:i,m-d') }}</span>
+          </div>
+        {% endif %}
         </div>
 
         {% if has_permission %}
