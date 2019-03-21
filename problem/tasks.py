@@ -35,7 +35,8 @@ def upload_problem_to_judge_server(problem, server):
     upload_interactor(server, SpecialProgram.objects.get(fingerprint=problem.interactor))
 
 
-def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip=''):
+def create_submission(problem, author: User, code, lang, contest=None, status=SubmissionStatus.WAITING, ip='',
+                      visible=True):
   if not 6 <= len(code) <= 65536:
     raise ValueError("代码不得小于 6 字节，不得超过 65536 字节。")
   if lang == "java":
@@ -50,7 +51,6 @@ def create_submission(problem, author: User, code, lang, contest=None, status=Su
       raise ValueError("你之前交过完全一样的代码。")
   if isinstance(problem, (int, str)):
     problem = Problem.objects.get(pk=problem)
-  visible = True
   if contest is not None:
     if is_contest_manager(author, contest):
       visible = False

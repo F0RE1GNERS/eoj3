@@ -47,7 +47,7 @@ class ContestSubmit(BaseContestMixin, View):
 
       code = request.POST.get('code', '')
       if self.contest.status < 0:
-        submission = create_submission(problem, self.user, code, lang, ip=get_ip(request))
+        submission = create_submission(problem, self.user, code, lang, ip=get_ip(request), visible=False)
       elif self.contest.status != 0 and self.contest.contest_type == 1:
         raise ValueError("你已经错过了作业提交时间。")
       else:
