@@ -157,7 +157,7 @@
           </td>
           <td>{{ submission.create_time | naturaltime }}</td>
           <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
-          <td>{{ submission.status_time | round(3) }}</td>
+          <td>{{ submission.get_time_display() }}</td>
         </tr>
       {% endfor %}
       </tbody>

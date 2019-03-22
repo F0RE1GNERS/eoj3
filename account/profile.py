@@ -61,7 +61,7 @@ class ProfileView(TemplateView):
   def get_heatmap_data(self):
     now = datetime.now()
     one_year_ago = now.replace(year=now.year - 1, hour=0, minute=0, second=0, microsecond=0)
-    query_ret = self.user.submission_set.filter(create_time__gte=one_year_ago). \
+    query_ret = self.user.submission_set.filter(create_time__gte=one_year_ago, visible=True). \
       annotate(date=TruncDay('create_time')).values("date").order_by("date").annotate(count=Count('id'))
     min_date = one_year_ago - timedelta(days=1)
     stat_dict = dict()
