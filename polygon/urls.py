@@ -8,6 +8,7 @@ urlpatterns = [
   url(r'^$', v.home_view, name='home'),
   url(r'^register/$', v.register_view, name='register'),
   url(r'^rejudge/(?P<sid>\d+)/$', v.RejudgeSubmission.as_view(), name='rejudge_submission'),
+  url(r'^submission/(?P<sid>\d+)/hidden/$', v.ToggleSubmissionHidden.as_view(), name='toggle_submission_hidden'),
   url(r'^problem/', include('polygon.problem2.urls')),
   url(r'^contest/', include('polygon.contest.urls')),
   url(r'^runs/$', v.RunsList.as_view(), name='runs'),

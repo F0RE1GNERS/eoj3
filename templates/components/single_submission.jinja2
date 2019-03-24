@@ -17,7 +17,8 @@
       <th>评测机</th>
       {% endif %}
       {% if rejudge_authorized %}
-      <th colspan="2">重测</th>
+      <th>重测</th>
+      <th>隐藏</th>
       {% endif %}
     </tr>
   </thead>
@@ -41,8 +42,9 @@
       <td>{{ server }}</td>
       {% endif %}
       {% if rejudge_authorized %}
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">重测</a></td>
-      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">所有测试点</a></td>
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">直到错误</a> /<br>
+        <a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">所有测试点</a></td>
+      <td><a class="post" data-link="{{ url('polygon:toggle_submission_hidden', submission.pk) }}">{% if not submission.visible %}公开{% else %}隐藏{% endif %}</a></td>
       {% endif %}
     </tr>
     <tr>

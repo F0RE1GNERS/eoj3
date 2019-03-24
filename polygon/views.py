@@ -55,13 +55,21 @@ class RejudgeSubmission(PolygonBaseMixin, APIView):
       return super(RejudgeSubmission, self).test_func()
     return False
 
-  def post(self, request, sid):
-    async_task(rejudge_submission, self.submission, run_until_complete='all' in request.GET)
+  def get_redirect_url(self):
     if self.submission.contest_id:
-      nxt = reverse('contest:submission', kwargs={'cid': self.submission.contest_id, 'sid': self.submission.id})
+      return reverse('contest:submission', kwargs={'cid': self.submission.contest_id, 'sid': self.submission.id})
     else:
-      nxt = reverse('problem:submission', kwargs={'pk': self.submission.problem_id, 'sid': self.submission.id})
-    return redirect(nxt)
+      return reverse('problem:submission', kwargs={'pk': self.submission.problem_id, 'sid': self.submission.id})
+
+  def post(self, request, *args, **kwargs):
+    async_task(rejudge_submission, self.submission, run_until_complete='all' in request.GET)
+    return redirect(self.get_redirect_url())
+
+
+class ToggleSubmissionHidden(RejudgeSubmission):
+  def post(self, request, *args, **kwargs):
+    Submission.objects.filter(pk=self.submission.pk).update(visible=not self.submission.visible)
+    return redirect(self.get_redirect_url())
 
 
 class RunsList(PolygonBaseMixin, ListView):
