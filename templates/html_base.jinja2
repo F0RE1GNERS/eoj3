@@ -13,6 +13,15 @@
   <link rel="stylesheet" href="/static/css/app.min.css?v={{ static_file_version }}">
   <link rel="stylesheet" href="/static/node_modules/simplemde/dist/simplemde.min.css">
   <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136856183-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-136856183-1');
+  </script>
   {% block css %}
   {% endblock %}
   <title>{% block title %}{% endblock %}{% block base_title %}ECNU Online Judge{% endblock %}</title>
