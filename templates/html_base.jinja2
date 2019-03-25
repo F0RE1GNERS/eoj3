@@ -21,7 +21,9 @@
     gtag('js', new Date());
 
     gtag('config', 'UA-136856183-1');
+    {% if request.user.is_authenticated %}gtag('set', {'user_id': '{{ request.user.pk }}'});{% endif %}
   </script>
+
   {% block css %}
   {% endblock %}
   <title>{% block title %}{% endblock %}{% block base_title %}ECNU Online Judge{% endblock %}</title>
