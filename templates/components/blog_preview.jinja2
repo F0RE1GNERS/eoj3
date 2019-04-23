@@ -16,7 +16,7 @@
         {% cache 3600 'blog_preview#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
           {{ blog.text | markdown | get_intro }}
         {% endcache %}
-        <a href="{{ url('blog:detail', blog.pk) }}">...{{ _('More') }}</a>
+        <a href="{{ url('blog:detail', blog.pk) }}">...查看全文</a>
       </div>
       <div class="meta">
         <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">

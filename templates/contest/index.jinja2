@@ -189,7 +189,7 @@
     {% if contest.freeze %}
       <li class="item">
         {% with time = (contest.freeze_time | date('Y-m-d H:i:s')), natural_time = (contest.freeze_time | naturaltime) %}
-          {{ _('Standings frozen after %(time)s (%(natural_time)s).', time=time, natural_time=natural_time) }}
+          榜单从 {{ time }} 开始停止更新 ({{ natural_time }})
         {% endwith %}
       </li>
     {% endif %}

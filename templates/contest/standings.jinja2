@@ -8,7 +8,7 @@
 
   {% if is_privileged %}
   <div class="ui right floated buttons">
-    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>{{ _('Refresh') }}</a>
+    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>重新计算</a>
     <div class="ui simple dropdown icon button">
       <i class="settings icon"></i>
       <div class="menu">

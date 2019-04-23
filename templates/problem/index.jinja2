@@ -5,7 +5,7 @@
 <div class="twelve wide column">
   {% if comparing %}
     <h5 class="ui header">
-      <div class="sub header">{{ _('Your are currently comparing with %(user)s', user=username_display(compare_user)) }}</div>
+      <div class="sub header">你当前正在跟 {{ username_display(compare_user) }} 比较</div>
     </h5>
   {% endif %}
 

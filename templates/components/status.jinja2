@@ -152,7 +152,7 @@
   {% if rejudge %}
     {% call modal(title="Rejudge confirmation", id="rejudge-confirmation") %}
       {% if not contest %}
-        <p>{{ _('Are you sure you want to rejudge all submissions?') }}</p>
+        <p>你确定要重测所有提交吗？</p>
         <form action="{{ url('polygon:rejudge_problem', problem.id) }}" method="POST">
           {% csrf_token %}
         </form>
