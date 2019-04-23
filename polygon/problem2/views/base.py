@@ -248,7 +248,7 @@ class ProblemRevisionMixin(PolygonProblemMixin):
       self.warnings.append("测试点编号不规范。")
     if not self.revision.active_statement:
       self.errors.append("必须有一份题面激活（打开前面的开关）。")
-    if not (256 <= self.revision.memory_limit <= 4096):
+    if not (4 <= self.revision.memory_limit <= 4096):
       self.errors.append("内存限制应在 256MB 和 4GB 之间。")
     if not (500 <= self.revision.time_limit <= 30000):
       self.errors.append("时限应在 500ms 和 30s 之间.")
