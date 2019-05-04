@@ -41,3 +41,4 @@ python-dateutil
 django-q
 pycrypto
 djangorestframework_simplejwt
+progressbar2
