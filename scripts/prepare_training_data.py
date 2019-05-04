@@ -29,7 +29,8 @@ def run(*args):
   print("Processing submissions...")
   sub_list_unfiltered = {}
   submission_record = defaultdict(int)
-  for submission in progressbar.progressbar(Submission.objects.all().order_by("create_time")):
+  for submission in progressbar.progressbar(Submission.objects.all().only("id", "author_id", "problem_id", "create_time", "status").
+                                                order_by("create_time")):
     user_problem = (submission.author_id, submission.problem_id)
     if submission.status == SubmissionStatus.ACCEPTED:
       if submission.author_id not in sub_list_unfiltered:
