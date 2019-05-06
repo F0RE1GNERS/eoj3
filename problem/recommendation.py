@@ -39,8 +39,10 @@ def unsolved_problems(user_id):
 
 
 def random_unsolved_problems_with_difficulty(solved_list, k):
-  return list(Problem.objects.filter(visible=True, reward__gte=k - 0.5, reward__lte=k + 1.5). \
+  problem_ids = list(Problem.objects.filter(visible=True, reward__gte=k - 0.5, reward__lte=k + 1.5). \
               exclude(pk__in=solved_list).values_list("id", flat=True))
+  random.shuffle(problem_ids)
+  return problem_ids[:5]
 
 
 @no_tags_entity_list_helper
