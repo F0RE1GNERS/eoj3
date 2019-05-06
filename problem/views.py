@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, View, FormView
-from django.views.generic.base import ContextMixin, TemplateResponseMixin
+from django.views.generic.base import ContextMixin, TemplateResponseMixin, RedirectView
 from django.views.generic.list import ListView
 from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
@@ -581,3 +581,12 @@ class ProblemRecommendation(LoginRequiredMixin, TemplateView):
     data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
     data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
     return data
+
+
+class RuledRedirectView(RedirectView):
+  def get_redirect_url(self, *args, **kwargs):
+    if self.request.user.is_authenticated:
+      self.pattern_name = "problem:recommendation"
+    else:
+      self.pattern_name = "problem:list"
+    return super().get_redirect_url(*args, **kwargs)
