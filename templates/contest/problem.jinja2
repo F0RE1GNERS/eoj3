@@ -7,7 +7,7 @@
 
   {% include 'contest/contest_pdf_statement_notice.jinja2' %}
 
-  {{ problem_view("{}. {}".format(contest_problem.identifier, problem.title), contest) }}
+  {{ problem_view(problem, contest) }}
 
   {% if request.user.is_authenticated %}
     <div class="ui hidden divider" style="margin-bottom: 3em;"></div>

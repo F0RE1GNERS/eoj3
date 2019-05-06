@@ -1,0 +1,32 @@
+{% extends 'base.jinja2' %}
+{% from 'components/problem.jinja2' import problem_view with context %}
+
+{% block page_header %}题目难度比较{% endblock %}
+
+{% block content %}
+
+  <div class="ui grid">
+    <div class="eight wide column">
+      <form class="ui form" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="problem1" value="{{ problem1.id }}">
+        <input type="hidden" name="problem2" value="{{ problem2.id }}">
+        <button type="submit" class="fluid ui primary button">我觉得这题难</button>
+      </form>
+      <div class="ui header">{{ problem1.id }}. {{ problem1.title }}</div>
+      {{ problem_view(problem1, False) }}
+    </div>
+    <div class="eight wide column">
+      <form class="ui form" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="problem1" value="{{ problem2.id }}">
+        <input type="hidden" name="problem2" value="{{ problem1.id }}">
+        <button type="submit" class="fluid ui primary button">我觉得这题难</button>
+      </form>
+      <div class="ui header">{{ problem2.id }}. {{ problem2.title }}</div>
+      {{ problem_view(problem2, False) }}
+    </div>
+  </div>
+
+{% endblock %}
+

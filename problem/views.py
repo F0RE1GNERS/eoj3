@@ -1,3 +1,4 @@
+import random
 import traceback
 from collections import defaultdict
 from os import path
@@ -26,6 +27,7 @@ from account.permissions import is_admin_or_root
 from dispatcher.models import Server
 from problem import recommendation
 from problem.commons.problem_list_helper import attach_personal_solve_info, attach_tag_info
+from problem.models.feedback import FeedbackCompare
 from problem.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from submission.models import Submission
 from submission.util import SubmissionStatus, STATUS_CHOICE
@@ -590,3 +592,24 @@ class RuledRedirectView(RedirectView):
     else:
       self.pattern_name = "problem:list"
     return super().get_redirect_url(*args, **kwargs)
+
+
+class ProblemFeedbackCompare(LoginRequiredMixin, TemplateView):
+  template_name = "problem/feedback/compare.jinja2"
+
+  def post(self, request, *args, **kwargs):
+    FeedbackCompare.objects.create(user=self.request.user,
+                                   problem_1=int(self.request.POST["problem1"]),
+                                   problem_2=int(self.request.POST["problem2"]))
+    return redirect(self.request.path)
+
+  def get_context_data(self, **kwargs):
+    data = super().get_context_data(**kwargs)
+    accept_problems = list(Problem.objects.filter(id__in=get_accept_problem_list(self.request.user.pk),
+                                                  visible=True).values_list("id", flat=True))
+    if len(accept_problems) < 2:
+      raise PermissionDenied
+    random.shuffle(accept_problems)
+    data["problem1"] = Problem.objects.get(id=accept_problems[0])
+    data["problem2"] = Problem.objects.get(id=accept_problems[1])
+    return data
