@@ -5,7 +5,7 @@ import problem.views as v
 app_name = "problem"
 
 urlpatterns = [
-    url(r'^$', v.RuledRedirectView.as_view()),
+    url(r'^$', v.RuledRedirectView.as_view(), name='index'),
     url(r'^list/$', v.ProblemList.as_view(), name='list'),
     url(r'^(?P<pk>\d+)/$', v.ProblemView.as_view(), name='detail'),
     url(r'^(?P<pk>\d+)/submit/$', v.ProblemSubmitView.as_view(), name='submit'),
