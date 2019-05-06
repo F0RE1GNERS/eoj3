@@ -1,8 +1,10 @@
+import functools
 import random
 from collections import Counter
 from datetime import datetime, timedelta
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from tagging.models import Tag, TaggedItem
 
 from problem.commons.problem_list_helper import get_problems_entity_list_helper, attach_personal_solve_info, \
@@ -10,6 +12,20 @@ from problem.commons.problem_list_helper import get_problems_entity_list_helper,
 from problem.models import Problem
 from problem.statistics import get_accept_problem_list, tags_stat
 from submission.models import Submission
+
+
+def use_cached_result(func):
+  @functools.wraps(func)
+  def wrapper(user_id):
+    key = func.__name__ + "_" + str(user_id)
+    val = cache.get(key)
+    if val is not None:
+      return val
+    val = func(user_id)
+    cache.set(key, val, 60)
+    return val
+
+  return wrapper
 
 
 def trending_problems(user_id):
@@ -32,6 +48,7 @@ def trending_problems(user_id):
 
 
 @no_tags_entity_list_helper
+@use_cached_result
 def unsolved_problems(user_id):
   unsolved_problem_id = list(Problem.objects.filter(ac_user_count=0, visible=True).values_list("id", flat=True))
   random.shuffle(unsolved_problem_id)
@@ -46,6 +63,7 @@ def random_unsolved_problems_with_difficulty(solved_list, k):
 
 
 @no_tags_entity_list_helper
+@use_cached_result
 def hard_problems(user_id):
   ac_list = get_accept_problem_list(user_id)
   ac_difficulty = sorted(list(Problem.objects.filter(id__in=ac_list).values_list("reward", flat=True)), reverse=True)
@@ -58,6 +76,7 @@ def hard_problems(user_id):
 
 
 @no_tags_entity_list_helper
+@use_cached_result
 def med_problems(user_id):
   ac_list = get_accept_problem_list(user_id)
   ac_difficulty = sorted(list(Problem.objects.filter(id__in=ac_list).values_list("reward", flat=True)), reverse=True)
@@ -92,6 +111,7 @@ def select_with_tags(user_id, tags_record):
 
 
 @get_problems_entity_list_helper
+@use_cached_result
 def familiar_problems(user_id):
   tags_record = list(filter(lambda k: k[1][0] >= 2 and k[1][1] - k[1][0] >= 1, tags_stat(user_id).items()))
   random.shuffle(tags_record)
@@ -99,6 +119,7 @@ def familiar_problems(user_id):
 
 
 @get_problems_entity_list_helper
+@use_cached_result
 def unfamiliar_problems(user_id):
   tags_record = list(filter(lambda k: k[1][0] < 2 and k[1][1] - k[1][0] >= 1, tags_stat(user_id).items()))
   random.shuffle(tags_record)

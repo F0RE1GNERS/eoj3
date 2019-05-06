@@ -18,4 +18,13 @@
 {#    {% endif %}#}
       {{ submit_view(submit_action=url('contest:submit', contest.pk, contest_problem.identifier), margin_top=True) }}
   {% endif %}
+
+  <script>
+  gtag('event', 'view', {
+    'event_category': 'contest_problems',
+    'event_label': '{{ contest.id }}-{{ contest_problem.identifier }}',
+    'value': 0
+  });
+  </script>
+
 {% endblock %}

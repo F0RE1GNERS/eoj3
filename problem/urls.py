@@ -1,11 +1,13 @@
 from django.conf.urls import url
+from django.views.generic import RedirectView
 
 import problem.views as v
 
 app_name = "problem"
 
 urlpatterns = [
-    url(r'^$', v.ProblemList.as_view(), name='list'),
+    url(r'^$', RedirectView.as_view(url='recommending/', permanent=False)),
+    url(r'^list/$', v.ProblemList.as_view(), name='list'),
     url(r'^(?P<pk>\d+)/$', v.ProblemView.as_view(), name='detail'),
     url(r'^(?P<pk>\d+)/submit/$', v.ProblemSubmitView.as_view(), name='submit'),
     url(r'^(?P<pk>\d+)/tags/edit/$', v.ProblemUpdateTags.as_view(), name='update_tags'),

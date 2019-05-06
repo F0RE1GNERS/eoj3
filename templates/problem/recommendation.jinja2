@@ -107,6 +107,11 @@
     {{ problem_list_display("学习新的", unfamiliar_problems, with_tags=True) }}
   </div>
 
+  <script>
+  gtag('event', 'view', {
+    'event_category': 'recommendation_list',
+  });
+  </script>
 
 {% endblock %}
 
