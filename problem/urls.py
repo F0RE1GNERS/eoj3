@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^source/$', v.SourceList.as_view(), name='source'),
     url(r'^(?P<pk>\d+)/statistics/$', v.ProblemStatisticsView.as_view(), name='statistics'),
     url(r'^compare/$', v.compare_with, name='compare_with'),
+    url(r'^recommending/$', v.ProblemRecommendation.as_view(), name='recommendation'),
 ]

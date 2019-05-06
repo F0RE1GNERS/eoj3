@@ -1,6 +1,9 @@
+from collections import Counter
 from math import log10
 
 import requests
+from django.contrib.contenttypes.models import ContentType
+from tagging.models import TaggedItem, Tag
 
 from problem.models import UserStatus, TagInfo, Problem
 from submission.models import Submission
@@ -112,3 +115,13 @@ def get_children_tag_id(tag: int = -1):
       break
     tags |= adds
   return tags
+
+
+def tags_stat(user_id):
+  all_count = {t.id: t.count for t in Tag.objects.usage_for_model(Problem, counts=True)}
+  accept_counter = Counter()
+  accept_list = get_accept_problem_list(user_id)
+  for tag_id in TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem)) \
+                      .filter(object_id__in=accept_list).values_list("tag_id", flat=True):
+    accept_counter[tag_id] += 1
+  return {tag_id: (accept_counter[tag_id], cnt) for tag_id, cnt in all_count.items()}

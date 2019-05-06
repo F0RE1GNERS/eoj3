@@ -24,6 +24,8 @@ from account.models import User, Payment
 from account.payment import view_report
 from account.permissions import is_admin_or_root
 from dispatcher.models import Server
+from problem import recommendation
+from problem.commons.problem_list_helper import attach_personal_solve_info, attach_tag_info
 from problem.statistics import get_accept_problem_list, get_attempted_problem_list, is_problem_accepted
 from submission.models import Submission
 from submission.util import SubmissionStatus, STATUS_CHOICE
@@ -130,15 +132,10 @@ class ProblemList(ListView):
   def get_context_data(self, **kwargs):
     data = super(ProblemList, self).get_context_data(**kwargs)
     data['keyword'] = self.request.GET.get('keyword')
-    current_problem_set = [problem.pk for problem in data['problem_list']]
-    for problem in data['problem_list']:
-      problem.personal_label = 0
     data['show_tags'] = True
     if self.request.user.is_authenticated:
       # Get AC / Wrong
       if self.comparing:
-        attempt_list = self.my_attempt
-        accept_list = self.my_solved
         for problem in data['problem_list']:
           if problem.id in self.her_solved:
             problem.her_label = 1
@@ -148,28 +145,13 @@ class ProblemList(ListView):
             problem.her_label = 0
         data['comparing'] = True
         data['compare_user'] = self.compare_user
-      else:
-        attempt_list = set(get_attempted_problem_list(self.request.user.id))
-        accept_list = set(get_accept_problem_list(self.request.user.id))
-      for problem in data['problem_list']:
-        if problem.id in accept_list:
-          problem.personal_label = 1
-        elif problem.id in attempt_list:
-          problem.personal_label = -1
+      attach_personal_solve_info(data["problem_list"], self.request.user.id)
 
       if not self.request.user.show_tags:
         data['show_tags'] = False
 
-    # Get Accepted of all users
-    problem_ids = list(map(lambda x: x.id, data['problem_list']))
-
     # Get tags
-    tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
-                        .filter(object_id__in=current_problem_set).select_related("tag"))
-    for problem in data['problem_list']:
-      items = list(filter(lambda x: x.object_id == problem.pk, tagged_items))
-      if items:
-        problem.my_tags = map(lambda x: x.tag.name, items)
+    attach_tag_info(data["problem_list"])
     if hasattr(self, "tag_info"):
       data["tag_info"] = self.tag_info
 
@@ -583,3 +565,17 @@ def compare_with(request):
   return redirect(reverse('problem:list') + '?compare=%d&c=she&a=ascending' % get_object_or_404(User,
                                                                                                 username=request.POST.get(
                                                                                                   'username', '')).pk)
+
+
+class ProblemRecommendation(LoginRequiredMixin, TemplateView):
+  template_name = "problem/recommendation.jinja2"
+
+  def get_context_data(self, **kwargs):
+    data = super().get_context_data(**kwargs)
+    data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
+    data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
+    data["hard_problems"] = recommendation.hard_problems(self.request.user.id)
+    data["med_problems"] = recommendation.med_problems(self.request.user.id)
+    data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
+    data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
+    return data

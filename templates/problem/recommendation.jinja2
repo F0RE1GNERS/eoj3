@@ -1,0 +1,112 @@
+{% extends 'problem/base.jinja2' %}
+
+{% block problem_content %}
+
+{% macro show_tags(problem) %}
+  <div style="float:right">
+  {% for tag in problem.my_tags %}
+    <a href="?tag={{ tag }}" class="label horizontal ui problem-tag">{{ tag }}</a>
+  {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro accept_status(problem) %}
+  {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}
+{% endmacro %}
+
+{% macro accept_user_count(problem) %}
+  {% if problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ problem.ac_user_count }}{% endif %}
+{% endmacro %}
+
+  <div class="ui grid">
+    <div class="eight wide column">
+      <table class="ui backend compact center aligned middle aligned celled unstackable table">
+        <thead>
+          <tr>
+            <th class="left aligned">时下流行</th>
+            <th>热度</th>
+            <th>奖励</th>
+            <th>解出</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for problem in trending_problems %}
+          <tr class="{{ accept_status(problem) }}">
+            <td class="left aligned">
+              <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+            </td>
+            <td>{{ problem.trending }}</td>
+            <td>{{ problem.reward | round(1) }}</td>
+            <td>{{ accept_user_count(problem) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="eight wide column">
+      <table class="ui backend compact center aligned middle aligned celled unstackable table">
+        <thead>
+          <tr>
+            <th class="left aligned">未解之谜</th>
+            <th>更新时间</th>
+            <th>尝试人数</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for problem in unsolved_problems %}
+          <tr class="{{ accept_status(problem) }}">
+            <td class="left aligned">
+              <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+            </td>
+            <td>{{ problem.update_time | date('Y/m/i') }}</td>
+            <td>
+              <i class="icon fitted user" aria-hidden="true"></i> x {{ problem.total_user_count }}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% macro problem_list_display(title, problem_list, with_tags=False) %}
+     <div class="eight wide column">
+      <table class="ui backend compact center aligned middle aligned celled unstackable table">
+        <thead>
+          <tr>
+            <th class="left aligned">{{ title }}</th>
+            <th>奖励</th>
+            <th>解出</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for problem in problem_list %}
+          <tr class="{{ accept_status(problem) }}">
+            <td class="left aligned">
+              {% if with_tags %}{{ show_tags(problem) }}{% endif %}
+              <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+            </td>
+            <td>{{ problem.reward | round(1) }}</td>
+            <td>{{ accept_user_count(problem) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endmacro %}
+
+  <h2 class="ui header">按难度推荐</h2>
+  <div class="ui grid">
+    {{ problem_list_display("挑战难题", hard_problems) }}
+    {{ problem_list_display("刷刷水题", med_problems) }}
+  </div>
+
+  <h2 class="ui header">按知识点推荐</h2>
+  <div class="ui grid">
+    {{ problem_list_display("巩固已学习", familiar_problems) }}
+    {{ problem_list_display("学习新的", unfamiliar_problems) }}
+  </div>
+
+
+{% endblock %}
+
