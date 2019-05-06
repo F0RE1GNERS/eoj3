@@ -77,7 +77,7 @@ def select_with_tags(user_id, tags_record):
       ref_reward = 1.0
     else:
       accept_problems_reward = Problem.objects.filter(id__in=accept_problems) \
-          .order_by("-reward").values_list("reward")[:3]
+          .order_by("-reward").values_list("reward", flat=True)[:3]
       ref_reward = sum(accept_problems_reward) / len(accept_problems)
     retrieve_list = Problem.objects.filter(reward__gte=ref_reward, reward__lte=ref_reward + 2, visible=True,
                                            id__in=set(available_problems) - user_accept_all)
