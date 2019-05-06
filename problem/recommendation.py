@@ -84,6 +84,8 @@ def med_problems(user_id):
     difficulty_level = sum(ac_difficulty) / len(ac_difficulty)
   except:
     difficulty_level = 4
+  if len(ac_difficulty) < 100:
+    difficulty_level *= len(ac_difficulty) / 200 + 0.5
   return random_unsolved_problems_with_difficulty(ac_list, difficulty_level)
 
 
@@ -95,7 +97,7 @@ def select_with_tags(user_id, tags_record):
         .filter(tag_id=k).values_list("object_id", flat=True)
     accept_problems = set(available_problems) & user_accept_all
     if not accept_problems:
-      ref_reward = 1.0
+      ref_reward = 0.
     else:
       accept_problems_reward = Problem.objects.filter(id__in=accept_problems) \
           .order_by("-reward").values_list("reward", flat=True)[:3]

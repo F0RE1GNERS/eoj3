@@ -73,13 +73,3 @@
     {% endif %}
   </tbody>
 </table>
-
-{% if submission.next_problem %}
-  <a class="ui success icon message" href="{{ url('problem:detail', submission.next_problem.id) }}">
-    <i class="checkmark icon"></i>
-    <div class="content">
-      <div class="header">迎接下一个挑战</div>
-      <p>点击进入题目 {{ submission.next_problem.id }}：{{ submission.next_problem.title }}</p>
-    </div>
-  </a>
-{% endif %}
