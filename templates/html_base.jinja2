@@ -14,15 +14,15 @@
   <link rel="stylesheet" href="/static/node_modules/simplemde/dist/simplemde.min.css">
   <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136856183-1"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      {% if request.user.is_authenticated %}gtag('set', {'user_id': '{{ request.user.pk }}'});{% endif %}
 
-    gtag('config', 'UA-136856183-1');
-    {% if request.user.is_authenticated %}gtag('set', {'user_id': '{{ request.user.pk }}'});{% endif %}
+      gtag('config', 'UA-136856183-1');
   </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136856183-1"></script>
 
   {% block css %}
   {% endblock %}
