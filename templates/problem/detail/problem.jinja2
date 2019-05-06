@@ -37,6 +37,14 @@
   {{ submit_view(submit_action=url('problem:submit', problem.pk), margin_top=True) }}
   {% endif %}
 
+  <script>
+  gtag('event', 'view', {
+    'event_category': 'problems',
+    'event_label': '{{ problem.id }}',
+    'value': 0
+  });
+  </script>
+
 {% endblock %}
 
 

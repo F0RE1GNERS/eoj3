@@ -252,6 +252,21 @@ $("#problem-submit").click(function (event) {
   detectLanguage();
   var button = $(event.currentTarget);
   var form = button.closest("form");
+
+  var problem_id = form.find("input[name='problem']").val();
+  var contest_id = form.find("#default-contest").val();
+  if (contest_id) {
+    gtag('event', 'submit', {
+      'event_category': 'contests',
+      'event_label': contest_id + "-" + problem_id
+    });
+  } else {
+    gtag('event', 'submit', {
+      'event_category': 'problems',
+      'event_label': problem_id
+    });
+  }
+
   form.removeClass("error");
   form.addClass("loading");
   $.post(form.attr("action"), form.serialize())
