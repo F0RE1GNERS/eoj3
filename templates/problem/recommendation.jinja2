@@ -103,8 +103,8 @@
 
   <h2 class="ui header">按知识点推荐</h2>
   <div class="ui grid">
-    {{ problem_list_display("巩固已学习", familiar_problems) }}
-    {{ problem_list_display("学习新的", unfamiliar_problems) }}
+    {{ problem_list_display("巩固已学习", familiar_problems, with_tags=True) }}
+    {{ problem_list_display("学习新的", unfamiliar_problems, with_tags=True) }}
   </div>
 
 
