@@ -18,7 +18,7 @@ def trending_problems(user_id):
       values("id", "problem_id", "author_id").distinct():
     counter[sub["problem_id"]] += 1
   problems = []
-  for k, v in counter.items():
+  for k, v in counter.most_common():
     try:
       prob = Problem.objects.get(id=k, visible=True)
       prob.trending = v
