@@ -133,6 +133,8 @@ class ProblemList(ListView):
     data = super(ProblemList, self).get_context_data(**kwargs)
     data['keyword'] = self.request.GET.get('keyword')
     data['show_tags'] = True
+    for problem in data["problem_list"]:
+      problem.personal_label = 0
     if self.request.user.is_authenticated:
       # Get AC / Wrong
       if self.comparing:
