@@ -83,8 +83,8 @@
         {% for problem in problem_list %}
           <tr class="{{ accept_status(problem) }}">
             <td class="left aligned">
-              {% if with_tags %}{{ show_tags(problem) }}{% endif %}
               <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+              {% if with_tags %}{{ show_tags(problem) }}{% endif %}
             </td>
             <td>{{ problem.reward | round(1) }}</td>
             <td>{{ accept_user_count(problem) }}</td>
