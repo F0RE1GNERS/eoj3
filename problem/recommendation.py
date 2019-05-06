@@ -80,7 +80,8 @@ def select_with_tags(user_id, tags_record):
           .order_by("-reward").values_list("reward", flat=True)[:3]
       ref_reward = sum(accept_problems_reward) / len(accept_problems)
     retrieve_list = Problem.objects.filter(reward__gte=ref_reward, reward__lte=ref_reward + 2, visible=True,
-                                           id__in=set(available_problems) - user_accept_all)
+                                           id__in=set(available_problems) - user_accept_all) \
+        .values_list("problem_id", flat=True)
     if retrieve_list:
       ret.add(random.choice(retrieve_list))
     if len(ret) >= 5:
