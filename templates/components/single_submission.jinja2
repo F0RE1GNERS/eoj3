@@ -73,3 +73,13 @@
     {% endif %}
   </tbody>
 </table>
+
+{% if submission.next_problem %}
+  <a class="ui success icon message" href="{{ url('problem:feedback_compare') }}" target="_blank">
+    <i class="checkmark icon"></i>
+    <div class="content">
+      <div class="header">参与题目难度调查</div>
+      <p>帮助我们更好地实现难度评估</p>
+    </div>
+  </a>
+{% endif %}
