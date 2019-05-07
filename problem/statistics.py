@@ -18,9 +18,9 @@ def invalidate_problem(problem: Problem, save=True):
   problem.total_user_count = len(set(map(lambda x: x["author_id"], query_list)))
   problem.ac_count = len(ac_list)
   problem.total_count = len(query_list)
-  reward_est = 5 - (.02 * problem.ac_ratio + .03 * problem.ac_user_ratio) * min(log10(problem.ac_user_count + 1), 1.2) \
+  reward_est = 5 - (2 * problem.ac_ratio + 3 * problem.ac_user_ratio) * min(log10(problem.ac_user_count + 1), 1.2) \
         + max(6 - 2 * log10(problem.ac_user_count + 1), 0)
-  reward_est = (max(reward_est, 0.) ** 2) / 10
+  # reward_est = (max(reward_est, 0.) ** 2) / 10
   problem.reward = max(min(reward_est, 9.9), 0.1)
   for field in problem._meta.local_fields:
     if field.name == "update_time":
