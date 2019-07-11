@@ -1,0 +1,85 @@
+{% extends 'polygon/contest/base.jinja2' %}
+
+{% block contest_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <div class="ui buttons" style="display:block;margin-bottom:10px;">
+    <button class="ui button primary modal-link" data-target="#importNamelistModal">从名单导入</button>
+    <button class="ui button modal-link" data-target="#starListModel">打星 ID 列表</button>
+    <a class="ui button" href="{{ url('polygon:contest_participant_download', contest.pk) }}">导出为 csv</a>
+  </div>
+
+  <div class="ui buttons">
+    <a class="ui secondary small button post prompt" data-link="{{ url('polygon:contest_participant_auto_star', contest.pk) }}?type=nosub">打星没有提交的选手</a>
+    <div class="or"></div>
+    <a class="ui small button post prompt" data-link="{{ url('polygon:contest_participant_auto_star', contest.pk) }}?type=nologin">没有登录过的账号</a>
+  </div>
+
+  <table class="ui table celled small center aligned">
+    <thead>
+      <tr>
+        <th>用户名</th>
+        <th>ID</th>
+        <th>信息</th>
+        <th>预留姓名</th>
+        <th>预留学号</th>
+        <th>上次登录</th>
+        <th>绑定 IP</th>
+        <th>账号密码</th>
+        <th>解绑 IP</th>
+        <th>打星</th>
+        <th>编辑</th>
+        <th class="ui text red">Disable</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in participant_list %}
+        <tr>
+          <td>{{ participant.user.username }}</td>
+          <td>{{ participant.user.id }}</td>
+          <td>{{ participant.comment }}</td>
+          <td>{{ participant.user.name }}</td>
+          <td>{{ participant.user.student_id }}</td>
+          <td>{{ participant.user.last_login | date('Y-m-d H:i:s') }}</td>
+          <td>{{ participant.ip_address }}</td>
+          <td>{{ participant.hidden_comment }}</td>
+          <td><a class="post-link" data-link="{{ url('polygon:contest_participant_clear_ip', contest.pk, participant.pk) }}">解绑</a></td>
+          <td><a class="post-link" data-link="{{ url('polygon:contest_participant_star_toggle', contest.pk, participant.pk) }}">{{ participant.star }}</a></td>
+          <td><a class="modal-link" data-action="{{ url('polygon:contest_participant_change', contest.pk, participant.pk) }}" data-target="#commentUser">编辑</a></td>
+          <td><a class="post-link" data-link="{{ url('polygon:contest_account_disable', contest.pk, participant.pk) }}">{{ participant.is_disabled }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+  {% call modal(title="修改信息", id="commentUser", action="#") %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>修改信息</label>
+      <input id="comment" name="comment">
+    </div>
+  {% endcall %}
+
+  {% call modal(title="名单粘贴到这里", id="importNamelistModal", action=url('polygon:contest_participant_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>名单</label>
+      <textarea name="list" id="list" rows="7" placeholder="一行一个"></textarea>
+    </div>
+  {% endcall %}
+
+  {% call modal(title="打星用户 ID", id="starListModel", action=url('polygon:contest_participant_star_list_toggle', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>名单</label>
+      <textarea name="list" id="list" rows="7" placeholder="一行一个"></textarea>
+    </div>
+  {% endcall %}
+
+{% endblock %}

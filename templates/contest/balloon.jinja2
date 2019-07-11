@@ -1,0 +1,38 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_title %}Balloon - {% endblock %}
+{% block contest_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <table class="ui unstackable celled center aligned very compact table">
+    <thead>
+      <tr class="">
+        <th class="seven wide">Name</th>
+        <th class="three wide">Problem</th>
+        <th class="four wide">Time</th>
+        <th class="two wide">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for balloon in balloon_list %}
+        <tr>
+          <td>{{ balloon.username }}</td>
+          <td>{{ balloon.contest_problem.identifier }}</td>
+          <td>{{ balloon.create_time | date("H:i:s") }}</td>
+          <td>{% if balloon.ok %}
+            <a href="{{ url('contest:balloon_claim', contest.pk, balloon.pk) }}">OK</a>
+          {% else %}
+            {% set form_id = "form%d" % balloon.pk %}
+            <form style="margin:0;padding:0" action="{{ url('contest:balloon_claim', contest.pk, balloon.pk) }}" id="{{ form_id }}" method="post">
+              {% csrf_token %}
+              <a class="text red semi-bold" href="javascript:{}" onclick="document.getElementById('{{ form_id }}').submit(); return false;">Waiting</a>
+            </form>
+          {% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'problem/base.jinja2' %}
+
+{% block problem_content %}
+<div class="ui stackable grid">
+<div class="twelve wide column">
+  {% if comparing %}
+    <h5 class="ui header">
+      <div class="sub header">你当前正在跟 {{ username_display(compare_user) }} 比较</div>
+    </h5>
+  {% endif %}
+
+  <table class="ui backend sortable celled unstackable table">
+    <thead>
+      <tr>
+        <th class="center aligned one wide" data-key="id" data-order="ascending">#</th>
+        <th data-key="name" data-order="ascending">标题</th>
+        <th class="center aligned collapsing hidden-on-small" data-key="rw" data-order="descending">奖励</th>
+        <th class="center aligned two wide" data-key="sol" data-order="ascending">解出人数</th>
+        {% if comparing %}<th class="center aligned two wide" data-key="she" data-order="ascending">比较</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% if tag_info %}
+        <div class="ui fluid card">
+          <div class="content">
+            <div class="header" style="text-transform: capitalize;">{{ tag_info.name }}</div>
+            <div class="description">
+              {{ tag_info.description | markdown | safe }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% for problem in problem_list %}
+        <tr class="center aligned middle aligned">
+          <td class="semi-bold {% if not problem.visible %}deleted{% endif %}">{{ problem.pk }}</td>
+          <td class="left aligned middle aligned">
+          {% if show_tags %}
+            <div style="float:right">
+            {% for tag in problem.my_tags %}
+              <a href="?tag={{ tag }}" class="label horizontal ui problem-tag">{{ tag }}</a>
+            {% endfor %}
+            </div>
+          {% endif %}
+            <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+          </td>
+          <td class="hidden-on-small">{{ problem.reward | round(1) }}</td>
+          <td class="selectable {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}">
+            <a href="{{ url('problem:statistics', problem.pk) }}">{% if problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ problem.ac_user_count }}{% endif %}</a>
+          </td>
+          {% if comparing %}<td>{% if problem.her_label > 0 %}<i class="large green checkmark icon"></i>{% elif problem.her_label < 0 %}<i class="large red remove icon"></i>{% endif %}</td>{% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="four wide column">
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">标签云</div>
+      </div>
+      <div class="content">
+        <div id="word-cloud"></div>
+      </div>
+    </div>
+  {% if request.user.is_authenticated %}
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">和 TA 比一比</div>
+      </div>
+      <div class="content">
+        <form style="margin-bottom:0;" id="compare-form" action="{{ url('problem:compare_with') }}" method="POST">
+          {% csrf_token %}
+          <div class="ui user search">
+            <div class="ui fluid icon input">
+              <input class="prompt" name="username" type="text" placeholder="输入用户名">
+              <i class="search link icon" onclick="document.getElementById('compare-form').submit();"></i>
+            </div>
+            <div class="results"></div>
+            <input type="submit" style="display: none;">
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+</div>
+</div>
+
+  <div class="ui hidden divider"></div>
+  {{ my_paginator() }}
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script>
+    const HEIGHT = 300;
+    const MAX_SIZE = 40, MIN_SIZE = 20;
+
+    function getTextAttrs(cfg) {
+      return _.assign({}, {
+        fillOpacity: cfg.opacity,
+        fontSize: cfg.origin._origin.size,
+        rotate: cfg.origin._origin.rotate,
+        text: cfg.origin._origin.text,
+        textAlign: 'center',
+        fontFamily: cfg.origin._origin.font,
+        fill: cfg.color,
+        textBaseline: 'Alphabetic'
+      }, cfg.style);
+    }
+
+    G2.Shape.registerShape('point', 'cloud', {
+      drawShape(cfg, container) {
+        const attrs = getTextAttrs(cfg);
+        return container.addShape('text', {
+          attrs: _.assign(attrs, {
+            x: cfg.x,
+            y: cfg.y
+          })
+        });
+      }
+    });
+
+    const data = [
+      {% for tag in tags %}
+        {
+          tag: "{{ tag.name }}",
+          count: {{ tag.count }}
+        }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const dv = new DataSet.View().source(data);
+    const range = dv.range('count');
+    const min = range[0];
+    const max = range[1];
+    dv.transform({
+      type: 'tag-cloud',
+      fields: ['tag', 'count'],
+      font: 'Open Sans',
+      forceFit: true,
+      size: [$("#word-cloud").width(), HEIGHT],
+      padding: 0,
+      timeInterval: 5000, // max execute time
+      rotate() {
+        return 0;
+      },
+      fontSize(d) {
+        return ((d.count - min) / (max - min)) * (MAX_SIZE - MIN_SIZE) + MIN_SIZE;
+      }
+    });
+    const chart = new G2.Chart({
+      container: 'word-cloud',
+      forceFit: true,
+      height: HEIGHT,
+      padding: 0
+    });
+    chart.source(dv);
+    chart.legend(false);
+    chart.axis(false);
+    chart.tooltip({
+      showTitle: false
+    });
+    chart.coord().reflect();
+    chart.point()
+      .position('x*y')
+      .color('tag', ['#21BA45', '#009c95', '#2185D0', '#6435C9', '#e61a8d'])
+      .shape('cloud')
+      .tooltip(false); // 'tag*count'
+
+    chart.render();
+    chart.on('point:click', ev => {
+      location.href = "?tag=" + encodeURI(ev.data._origin['text']);
+    });
+
+  </script>
+{% endblock %}

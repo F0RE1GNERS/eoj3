@@ -1,0 +1,38 @@
+{% extends 'html_base.jinja2' %}
+
+{% block _content %}
+
+{% block broadcast_content %}{% endblock %}
+{% include 'components/navbar.jinja2' %}
+  <div class="pusher">
+  <div class="ui main container">
+  {% if not hide_header %}
+    <h1 class="ui header">{% block page_header %}#page_header{% endblock %}</h1>
+  {% endif %}
+    {% if notifications %}
+    <div class="notifications">
+      {% for item in notifications %}
+        <div class="ui message">
+          <i class="close icon" data-close-action="{{ url('notification:notified', item.pk) }}"></i>
+          {{ username_display(item.actor) }} {{ item.verb }}
+          {% if item.target.__class__.__name__ == 'Contest' %}
+            <a href="{{ url('contest:dashboard', item.target.pk) }}">{{ item.target.title }}</a>
+            {% if item.description %}
+              <br>{{ item.description }}
+            {% endif %}
+          {% elif item.target.__class__.__name__ == 'Problem' %}
+            <a href="{{ url('problem:discussion', item.target.pk) }}">{{ item.target.title }}</a>
+          {% elif item.target.__class__.__name__ == 'Blog' %}
+            <a href="{{ url('blog:detail', item.target.pk) }}">{{ item.target.title }}</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+{% block content %}
+{% endblock %}
+  </div>
+  {% include 'components/footer.jinja2' %}
+  </div>
+
+{% endblock %}

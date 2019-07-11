@@ -1,0 +1,15 @@
+{% extends 'account/base.jinja2' %}
+{% block account_setting %}
+
+  <div class="ui warning message">
+    <div class="ui header">请仔细阅读：</div>
+    <ul class="ui list">
+      <li class="item">如果是原 EOJ 中 (acm.cs.ecnu.edu.cn) 中的账号，可以通过输入用户名和密码来迁移，其中 2017 年二月之后的数据将无法迁移。</li>
+      <li class="item">如果是新 EOJ 中的账号（包括比赛中分发的账号），可以通过输入用户名和密码来迁移。</li>
+      <li class="item">比赛中的提交将会被再次提交，而题目集中的提交会进行转移所有者。</li>
+      <li class="item">被迁移的用户会在迁移结束后被禁用，且博客和评论不会被迁移，请再三确认以防数据丢失。</li>
+    </ul>
+  </div>
+
+  {% include 'components/form.jinja2' %}
+{% endblock %}

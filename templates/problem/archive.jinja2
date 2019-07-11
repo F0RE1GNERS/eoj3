@@ -1,0 +1,45 @@
+{% extends 'problem/base.jinja2' %}
+
+{% macro render_problem(problem, comment='') %}
+  <div class="item">
+    {% if problem.personal_label == 1 %}
+      <div class="ui green horizontal label">Solved</div>
+    {% elif problem.personal_label == -1 %}
+      <div class="ui orange horizontal label">Tried</div>
+    {% else %}
+      <div class="ui blue horizontal label">New</div>
+    {% endif %}
+    <a href="{{ url('problem:detail', problem.pk) }}">{{ problem }}</a>
+  </div>
+{% endmacro %}
+
+{% macro render_node(id) %}
+  {% if children_list[id] or problem_list[id] %}
+  <div class="item">
+    <b>{{ skill_list[id].name }}</b>
+    <div class="list">
+      {% if children_list[id] %}
+        {% for child in children_list[id] %}
+          {{ render_node(child) }}
+        {% endfor %}
+      {% endif %}
+      {% if problem_list[id] %}
+        {% for p in (problem_list[id] | sort) %}
+          {{ render_problem(problem_set[p]) }}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{% block title %}Archive - {% endblock %}
+
+{% block problem_content %}
+<div class="ui header">Recommended Problems</div>
+<div class="ui bulleted relaxed list">
+  {% for node in children_list[-1] %}
+    {{ render_node(node) }}
+  {% endfor %}
+</div>
+{% endblock %}

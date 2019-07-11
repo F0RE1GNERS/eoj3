@@ -1,0 +1,38 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}{{ blog.title }} - Blog - {% endblock %}
+
+{% block page_header %}{{ blog.title }}{% endblock %}
+
+{% block content %}
+
+  <p>{{ username_display(blog.author) }} edited {{ blog.edit_time | naturaltime }}
+  {% if is_privileged %}<a href="{{ url('blog:update', blog.pk) }}"><i class="ui icon edit"></i></a>{% endif %}</p>
+  {% cache 3600 'blog_view#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
+    {{ blog.text | markdown | safer | safe }}
+  {% endcache %}
+  <div class="actions">
+    <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
+      <i class="thumbs up {% if blog.likes__flag != 1 %}outline{% endif %} icon"></i>
+      <span>{{ blog.likes__count }}</span>
+    </a>
+    <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="dislike">
+      <i class="thumbs down {% if blog.likes__flag != -1 %}outline{% endif %} icon"></i>
+      <span>{{ blog.dislikes__count }}</span>
+    </a>
+  </div>
+
+  {% if blog_revisions %}
+  <h3 class="ui dividing header">Past Versions</h3>
+    <ul class="ui list">
+    {% for revision in blog_revisions %}
+      <li class="item">#{{ revision.pk }} by {{ username_display(revision.author) }} (<a href="{{ url('blog:revision_detail', blog.pk, revision.pk) }}">{{ revision.create_time | date('Y-m-d H:i:s') }}</a>).</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3 class="ui dividing header">Comments</h3>
+  {{ render_comment_tree(blog) }}
+  {% include 'comments/comment_reply.jinja2' %}
+
+{% endblock %}

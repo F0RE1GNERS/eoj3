@@ -1,0 +1,58 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}比赛 - {% endblock %}
+
+{% block page_header %}比赛{% endblock %}
+
+{% block content %}
+
+  <table class="ui celled table">
+    <thead>
+      <tr class="center aligned">
+        <th class="six wide">名称</th>
+        <th>开始时间</th>
+        <th>时长</th>
+        <th>作者</th>
+        <th class="collapsing">权限</th>
+        <th class="collapsing">状态</th>
+        <th class="collapsing">榜单</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contest in contest_list %}
+        <tr class="center aligned">
+          <td><a href="{{ url('contest:dashboard', contest.pk) }}">{{ contest.title }}</a></td>
+          <td>{{ contest.start_time | date('Y-m-d H:i')}}</td>
+          <td>{{ contest.length | timedelta }}</td>
+          <td style="font-size:.9em"><div class="ui list">
+            {% for author in contest.authors.all() %}
+              <div class="item">{{ username_display(author) }}</div>
+            {% endfor %}
+          </div></td>
+          <td>{% if contest.access_level >= 30 %}<i class="green large check icon"></i>
+          {% elif contest.access_level >= 20 %}<span data-tooltip="赛后公开"><i class="yellow large clock outline icon"></i></span>
+          {% elif contest.access_level >= 15 %}<span data-tooltip="赛后可以虚拟参赛"><i class="yellow large key icon"></i></span>
+          {% elif contest.access_level >= 10 %}<i class="orange large remove icon"></i>
+          {% else %}<i class="red large lock icon"></i>{% endif %}</td>
+          <td>
+          {% if contest.status == 0 %}
+            <h5 class="ui header red">进行中</h5>
+          {% elif contest.status == -1 %}
+            {% if contest.access_level == 30 %}
+              <a href="{{ url('contest:dashboard', contest.pk) }}" style="white-space:nowrap;background-color:#c00;color:white;font-weight:bold;padding:0.2em 0.4em 0.2em 0.4em;text-decoration:underline;">注册 »</a>
+            {% else %}
+              <h5 class="ui header teal">即将开始</h5>
+            {% endif %}
+          {% else %}
+            已结束
+          {% endif %}
+          </td>
+          <td><i class="icon fitted user" aria-hidden="true"></i> <a href="{{ url('contest:standings', contest.pk) }}">&times; {{ contest.participants__count }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{{ my_paginator() }}
+
+{% endblock %}

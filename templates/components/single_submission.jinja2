@@ -1,0 +1,85 @@
+{# This template is for author only if access directly #}
+
+<table class="ui celled table structured">
+  <thead>
+    <tr class="center aligned">
+      <th>#</th>
+      {% if not hide_problem %}
+      <th>题目</th>
+      {% endif %}
+      <th>语言</th>
+      <th>提交时间</th>
+      <th>评测时间</th>
+      <th>结果</th>
+      <th>耗时</th>
+      <th>内存</th>
+      {% if server %}
+      <th>评测机</th>
+      {% endif %}
+      {% if rejudge_authorized %}
+      <th>重测</th>
+      <th>隐藏</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="center aligned">
+      <th rowspan="{% if submission.status_message %}3{% else %}2{% endif %}" style="padding:1em">{{ submission.id }}</th>
+    {% if not hide_problem %}
+      {% if submission.contest_id and submission.contest_problem %}
+        <td><a href="{{ url('contest:problem', submission.contest_id, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
+      {% else %}
+        <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
+      {% endif %}
+    {% endif %}
+      <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
+      <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+      <td>{{ submission.judge_end_time | date('Y-m-d H:i:s') }}</td>
+      <td><h5 class="ui header status-span with-icon" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}"></h5></td>
+      <td>{{ submission.get_time_display() }}</td>
+      <td>{{ submission.get_memory_display() }}</td>
+      {% if server %}
+      <td>{{ server }}</td>
+      {% endif %}
+      {% if rejudge_authorized %}
+      <td><a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}">直到错误</a> /<br>
+        <a class="post" data-link="{{ url('polygon:rejudge_submission', submission.pk) }}?all=1">所有测试点</a></td>
+      <td><a class="post" data-link="{{ url('polygon:toggle_submission_hidden', submission.pk) }}">{% if not submission.visible %}公开{% else %}隐藏{% endif %}</a></td>
+      {% endif %}
+    </tr>
+    <tr>
+      {% set my_colspan = 7 %}
+      {% if hide_problem %}
+        {% set my_colspan = my_colspan - 1 %}
+      {% endif %}
+      {% if server %}
+        {% set my_colspan = my_colspan + 1 %}
+      {% endif %}
+      {% if rejudge_authorized %}
+        {% set my_colspan = my_colspan + 2 %}
+      {% endif %}
+      <td colspan="{{ my_colspan }}">
+        <div class="testcases" style="display: block;">
+          {% for status_number, detail in submission.status_detail_display %}
+            <span class="status-icon" data-tooltip="{{ detail }}" data-status="{{ status_number }}">
+              <a href="#report{{ loop.index }}"><i class="icon"></i></a>
+            </span>
+          {% endfor %}
+        </div>
+      </td>
+    </tr>
+    {% if submission.status_message %}
+      <tr><td colspan="{{ my_colspan }}"><pre style="white-space: pre-wrap;">{{ submission.status_message }}</pre></td></tr>
+    {% endif %}
+  </tbody>
+</table>
+
+{% if submission.next_problem %}
+  <a class="ui success icon message" href="{{ url('problem:feedback_compare') }}" target="_blank">
+    <i class="checkmark icon"></i>
+    <div class="content">
+      <div class="header">花一分钟参与题目难度调查</div>
+      <p>帮助我们更好地实现难度评估</p>
+    </div>
+  </a>
+{% endif %}

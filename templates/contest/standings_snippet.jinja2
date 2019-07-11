@@ -1,0 +1,94 @@
+{% macro display_rank_head(column_style) %}
+  {% set first_column_span = 3 %}
+  <th style="{{ column_style }}">#</th>
+  <th class="ui left aligned"></th>
+  <th style="{{ column_style }}">=</th>
+  {% if contest.contest_type == 0 and contest.penalty_counts %}
+    {% set first_column_span = first_column_span + 1 %}
+    <th class="one wide">罚时</th>
+  {% endif %}
+  {% if not contest.standings_without_problem %}
+    {% if contest.scoring_method == "acm" or (contest.contest_problem_list | length) == 1 %}
+      {% for problem in contest.contest_problem_list %}
+        <th style="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a></th>
+      {% endfor %}
+    {% else %}
+      {% for problem in contest.contest_problem_list %}
+        <th style="{{ column_style }}"><a href="{{ url('contest:problem', contest.pk, problem.identifier) }}">{{ problem.identifier }}</a><br>{{ problem.weight }}</th>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+{% macro virtual_mark(user) %}
+  {% if user.join_time %}
+    <span data-tooltip="Virtual Participant: {{ user.join_time | date('Y-m-d H:i') }}"><i class="ui grey icon hashtag"></i></span>
+  {% endif %}
+{% endmacro %}
+
+{% macro display_rank(rank) %}
+    <td scope="row">{% if rank.actual_rank %}{{ rank.actual_rank }}{% endif %}</td>
+    <td class="ui left aligned">
+      <h5 class="ui header" style="margin-top:0; {% if not rank.user.user.magic %}font-weight:normal;{% endif %}">
+        <div class="content">
+          {% if rank.user.star %}* {% endif %}{% if rank.user.comment %}<span style="font-weight:600">{{ rank.user.comment }}{{ virtual_mark(rank.user) }}</span><div class="sub header">{{ username_display(rank.user.user) }}</div>{% else %}{{ username_display(rank.user.user) }}{{ virtual_mark(rank.user) }}{% endif %}
+        </div>
+      </h5>
+    </td>
+    <td>{{ rank.score }}</td>
+    {% if contest.contest_type == 0 and contest.penalty_counts %}
+    <td>{{ (rank.penalty / 60) | int }}</td>
+    {% endif %}
+  {% if not contest.standings_without_problem %}
+    {% for problem in contest.contest_problem_list %}
+      {% set d = rank.detail[problem.problem_id] %}
+      {% set url_param = '?user=%d&problem=%s' % (rank.user.user.pk, problem.identifier) %}
+      {% if d %}
+        {% if d.waiting %}
+          <td class="penalty-box" data-param="{{ url_param }}"><span class="score text blue"><i class="help icon"></i></td>
+        {% elif d.upsolve %}
+          <td class="penalty-box" data-param="{{ url_param }}">
+            {% if d.partial %}<span class="score text blue">{{ d.upsolve }}</span>
+            {% elif d.upsolve > 0 %}<span class="score text blue">+{% if d.upsolve > 1 %}{{ d.upsolve - 1 }}{% endif %}</span>
+            {% elif d.upsolve < 0 %}<span class="score text red">{{ d.upsolve }}</span>
+            {% endif %}
+          </td>
+        {% elif d.attempt %}
+          <td class="penalty-box {% if rank.user.user.pk == problem.first_yes_by %}accepted{% endif %}" data-param="{{ url_param }}">
+            {% if d.solved %}
+              <span class="score text green">
+                {% if contest.scoring_method == 'acm' %}
+                  +{% if d.attempt > 1 %}{{ d.attempt - 1 }}{% endif %}
+                {% else %}
+                  {{ d.score }}
+                {% endif %}
+              </span><br>
+              {% if contest.contest_type == 0 and contest.penalty_counts %}
+                <span class="penalty">{{ (d.time / 60) | int }}{% if contest.scoring_method != 'acm' and d.attempt > 1 %} ({{ d.attempt - 1 }}){% endif %}</span>
+              {% endif %}
+            {% else %}
+              {% if contest.scoring_method == 'oi' %}
+                {% if d.partial %}
+                  <span class="score text black">{{ d.score }}</span>
+                {% elif d.score %}
+                  <span class="score text yellow">{{ d.score }}</span>
+                {% else %}
+                  <span class="score text red">0</span>
+                {% endif %}
+                {% if contest.contest_type == 0 and contest.penalty_counts %}
+                  <br><span class="penalty">{{ (d.time / 60) | int }} ({{ d.attempt }})</span>
+                {% endif %}
+              {% else %}
+                <span class="score negative text red">-{{ d.attempt }}</span>
+              {% endif %}
+            {% endif %}
+          </td>
+        {% else %}
+          <td></td>
+        {% endif %}
+      {% else %}
+        <td></td>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endmacro %}

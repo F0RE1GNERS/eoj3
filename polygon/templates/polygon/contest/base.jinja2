@@ -1,0 +1,22 @@
+{% extends 'polygon/polygon_base.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
+
+{% block title %}Contest Manage - {% endblock %}
+
+{% block content %}
+  <h1 class="ui header">Contest: {{ contest.title }}</h1>
+
+  <div class="ui pointing secondary menu">
+    <a class="item {{ active('polygon:contest_meta') }}" href="{{ url('polygon:contest_meta', contest.id) }}">基本信息</a>
+    <a class="item {{ active('polygon:contest_problem') }}" href="{{ url('polygon:contest_problem_manage', contest.id) }}">题目</a>
+    <a class="item {{ active('polygon:contest_invitation') }}" href="{{ url('polygon:contest_invitation', contest.id) }}">邀请码</a>
+    <a class="item {{ active('polygon:contest_participant') }}" href="{{ url('polygon:contest_participant', contest.id) }}">已加入的用户</a>
+    <a class="item {{ active('polygon:contest_status') }}" href="{{ url('polygon:contest_status', contest.id) }}">提交</a>
+    <a class="item {{ active('polygon:contest_plag') }}" href="{{ url('polygon:contest_plag', contest.id) }}">反作弊</a>
+    <a class="item" href="{{ url('contest:dashboard', contest.id) }}">查看前台</a>
+  </div>
+
+  {% block contest_content %}
+  {% endblock %}
+
+{% endblock %}

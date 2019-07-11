@@ -1,0 +1,43 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Print Admin - {% endblock %}
+
+{% block page_header %}Print Admin{% endblock %}
+
+{% block content %}
+
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Assigned users</label>
+      <textarea name="users" rows="9"></textarea>
+    </div>
+    <div class="field">
+      <label>Raise limit</label>
+      <input type="number" name="limit" value="0">
+    </div>
+    <div class="field">
+      <button class="ui positive button">Submit</button>
+    </div>
+  </form>
+
+  <table class="ui small center aligned celled table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Limit</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for manager in print_manager_list %}
+      <tr>
+        <td>{{ manager.user.username }}</td>
+        <td>{{ manager.limit }}</td>
+        <td>{{ manager.create_time | date('Y-m-d H:i:s') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

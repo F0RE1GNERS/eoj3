@@ -1,0 +1,12 @@
+{% macro user_search_multiple(name="", extra_class="", query="", exist=[]) %}
+  <div class="ui multiple search selection dropdown user-search {{ extra_class }}" data-query="{{ query }}">
+    <input type="hidden" name="{{ name }}" value="{{ exist | map(attribute='id') | join(',') }}">
+    <i class="dropdown icon"></i>
+    <div class="default text">搜索用户</div>
+    <div class="menu">
+      {% for user in exist %}
+        <div class="item" data-value="{{ user.id }}">{{ user.username }}</div>
+      {% endfor %}
+    </div>
+  </div>
+{% endmacro %}

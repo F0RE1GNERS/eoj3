@@ -1,0 +1,42 @@
+@charset "UTF-8";
+@import '../node_modules/semantic-ui-less/semantic';
+@import 'homepage';
+@import 'layout';
+@import 'typography';
+@import 'problem';
+@import 'code';
+@import 'simplemde';
+@import 'heatmap';
+
+// typed.js
+.typed-cursor {
+  opacity: 1;
+  -webkit-animation: blink 0.7s infinite;
+  -moz-animation: blink 0.7s infinite;
+  -ms-animation: blink 0.7s infinite;
+  -o-animation: blink 0.7s infinite;
+  animation: blink 0.7s infinite;
+}
+
+.float-right {
+  float: right !important;
+}
+
+// problem
+
+.property {
+  p:first-child {
+    margin-top: 1rem;
+  }
+  p:not(:last-child) {
+    margin-bottom: .2rem;
+  }
+}
+
+.blog-like-link {
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 .75em 0 0;
+  color: rgba(0, 0, 0, .4);
+  font-size: .875em;
+}

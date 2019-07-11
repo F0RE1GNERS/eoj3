@@ -1,0 +1,202 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/modal.jinja2' import modal %}
+{% from 'contest/standings_snippet.jinja2' import display_rank, display_rank_head with context %}
+{% from 'components/timeanddate_link.jinja2' import timeanddate_link %}
+
+{% macro separator() %}
+  <div class="ui hidden divider"></div>
+{% endmacro %}
+
+{% block contest_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  {% if not registered and participate_contest_status <= 0 %}
+    {# private contest registration #}
+    <div>
+      <h3 class="ui header">
+        <i class="privacy icon"></i>
+        <div class="content">
+          权限受限
+          <div class="sub header">比赛是私有的，你可以：</div>
+        </div>
+      </h3>
+      <ul class="ui list">
+        <li class="item">输入一个合法的邀请码，或者</li>
+        <li class="item">使用分发的账户密码重新登录。</li>
+      </ul>
+      <form class="ui form" action="{{ url('contest:invitation', contest.pk) }}" method="post">
+        {% csrf_token %}
+        <div class="ui action fluid input">
+          <input type="text" name="code" placeholder="如果你有邀请码的话..." style="font-family:monospace">
+          <button type="submit" class="ui button">确定</button>
+        </div>
+      </form>
+    </div>
+    {{ separator() }}
+  {% endif %}
+
+  {% if (public_register == -1 or public_register == 1) and not has_permission %}
+    {# public rated contest registration #}
+    <div class="ui info message">
+      <div class="header">
+        影响积分的比赛需要额外的注册
+      </div>
+      <ul class="list">
+        <li>你需要在比赛开始前注册，才会影响你的积分。</li>
+        <li>如果你没有注册，你也可以参赛，不过你会被自动打星，你的积分将不受影响。</li>
+        <li>注册但不参赛会在赛后被打星。</li>
+      </ul>
+    </div>
+    {% if public_register == -1 %}
+    <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
+      {% csrf_token %}
+      <button class="fluid ui primary button">好的，注册</button>
+    </form>
+    {% else %}
+    <form class="ui form" action="{{ url('contest:public_register', contest.pk) }}" method="post">
+      {% csrf_token %}
+      <button class="fluid ui red button">取消注册</button>
+    </form>
+    {% endif %}
+    {{ separator() }}
+  {% else %}
+
+  {% if has_permission %}
+
+    {% include 'contest/contest_pdf_statement_notice.jinja2' %}
+
+    {# proble list #}
+    <table class="ui unstackable celled table">
+      <thead>
+        <tr class="center aligned">
+          <th class="two wide">#</th>
+          <th class="left aligned">标题</th>
+          <th class="three wide">{% if enable_scoring %}<i class="icon fitted user"></i> / 最高 / 平均{% else %}已解出{% endif %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contest_problem in tagged_contest_problem_list %}
+        <tr class="center aligned">
+          <td class="semi-bold">{{ contest_problem.identifier }}</td>
+          <td class="left aligned">
+          {% if contest.contest_type == 1 %}
+            <span class="label ui horizontal {{ level_colors[contest_problem.problem.level] }}">{{ contest_problem.problem.get_level_display() }}</span>
+          {% endif %}
+            <a href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+              {{ contest_problem.problem.title }}</a>{% if contest.contest_type != 1 %} <span class="text grey" style="font-size: .7em;">({{ contest_problem.problem.time_limit / 1000 | round(1) }} sec / {{ contest_problem.problem.memory_limit }} MB)</span>{% endif %}
+            {% if not site_closed and (contest_problem.problem.visible or is_privileged) %}
+              <a style="float: right;" data-tooltip="在题目集中练习" href="{{ url('problem:detail', contest_problem.problem.pk) }}"><i class="icon external"></i></a>
+            {% endif %}
+          {% if contest.contest_type == 1 %}
+            <div style="float:right">
+              {% for tag in contest_problem.tags %}
+                <a class="label ui horizontal" href="?tag={{ tag }}">{{ tag }}</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+          </td>
+          <td class="selectable {% if enable_scoring %}{% if contest_problem.personal_label > 0 %}accepted{% elif contest_problem.personal_label < 0 %}warning{% endif %}{% else %}{% if contest_problem.personal_label == 1 %}accepted{% elif contest_problem.personal_label == 2 %}warning{% elif contest_problem.personal_label < 0 %}attempted{% endif %}{% endif %}">
+            <a {% if contest_problem.personal_label == 2 %}data-tooltip="在比赛外通过" data-inverted=""{% endif %} href="{{ url('contest:status', contest.pk) }}?problem={{ contest_problem.identifier }}&verdict=v0">
+              {% if enable_scoring %}{{ contest_problem.total_user_count }} / {{ contest_problem.max_score }} / {{ contest_problem.avg_score }}{% else %}{% if contest_problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ contest_problem.ac_user_count }}{% endif %}{% endif %}
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    {{ separator() }}
+
+    {# personal score #}
+
+    {% if rank %}
+      <h3 class="ui header">
+        <i class="student icon"></i>
+        <div class="content">
+          当前得分
+          <div class="sub header">可能有几秒钟的延迟</div>
+        </div>
+      </h3>
+
+      <table class="ui compact celled table">
+        {% if (contest.contest_problem_list | length) > 6 and not contest.standings_without_problem %}
+          {% set column_style = 'collapsing' %}
+        {% else %}
+          {% set column_style = 'one wide' %}
+        {% endif %}
+        <thead>
+          <tr class="ui center aligned">
+            {{ display_rank_head(column_style) }}
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ui center aligned">
+            {{ display_rank(rank) }}
+          </tr>
+        </tbody>
+      </table>
+
+      {{ separator() }}
+    {% endif %}
+
+    {{ separator() }}
+
+  {% endif %}
+  {% endif %}
+
+  {% if contest.description %}
+    <h3 class="ui header">
+      <i class="announcement icon"></i>
+      <div class="content">
+        公告
+        <div class="sub header">请留意阅读</div>
+      </div>
+    </h3>
+
+    {{ contest.description | markdown | safe }}
+
+    {{ separator() }}
+
+  {% endif %}
+
+  {# contest information (always public) #}
+
+  <h3 class="ui header">
+    <i class="info circle icon"></i>
+    <div class="content">
+      比赛信息
+{#      <div class="sub header">Only the basics</div>#}
+    </div>
+  </h3>
+
+  <ul class="ui list">
+    {% if not contest.start_time or not contest.end_time %}
+      <li class="item">
+        开始时间: {% if contest.start_time %}{{ timeanddate_link(contest.start_time) }}{% else %}无限{% endif %}
+      </li>
+      <li class="item">
+        结束时间: {% if contest.end_time %}{{ timeanddate_link(contest.end_time) }}{% else %}无限{% endif %}
+      </li>
+    {% else %}
+      <li class="item">
+        时长: <b>{{ (contest.end_time - contest.start_time) | naturalduration(abbr=False) }}</b>
+      </li>
+      <li class="item">
+        开始时间: {{ timeanddate_link(contest.start_time) }} ({{ contest.start_time | naturaltime }})
+      </li>
+    {% endif %}
+    {% if contest.freeze %}
+      <li class="item">
+        {% with time = (contest.freeze_time | date('Y-m-d H:i:s')), natural_time = (contest.freeze_time | naturaltime) %}
+          榜单从 {{ time }} 开始停止更新 ({{ natural_time }})
+        {% endwith %}
+      </li>
+    {% endif %}
+  </ul>
+  {{ separator() }}
+
+  {# annoucement #}
+
+
+{% endblock %}

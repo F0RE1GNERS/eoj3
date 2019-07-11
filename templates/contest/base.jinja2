@@ -1,0 +1,206 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}{% block contest_title %}{% endblock %}{{ contest.title }} - {% endblock %}
+
+{% block page_header %}{{ contest.title }}{% endblock %}
+
+{% block content %}
+
+  <div class="ui text stackable menu">
+    <a class="{{ active('contest:dashboard') }} {{ active('contest:problem') }} item" href="{{ url('contest:dashboard', contest.pk) }}">仪表盘</a>
+    {% if request.user.is_authenticated %}
+    <a class="{{ active('contest:question') }} item" href="{{ url('contest:question', contest.pk) }}">问答 <div id="qa-new-flag" class="ui red horizontal label" style="margin-left: 0.5em;{% if not check_new %}display:none{% endif %}">有新的</div></a>
+    <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">我的提交</a>
+    {% endif %}
+    {% if contest.common_status_access_level >= 0 or is_privileged %}
+      <a class="{{ active('contest:status') }} item" href="{{ url('contest:status', contest.pk) }}">所有提交</a>
+      <a class="{{ active('contest:standings') }} item" href="{{ url('contest:standings', contest.pk) }}">榜单</a>
+    {% endif %}
+    {% if is_volunteer or is_privileged %}
+      <a class="{{ active('contest:balloon') }} item" href="{{ url('contest:balloon', contest.pk) }}">气球</a>
+    {% endif %}
+    {% if analysis_available %}
+      <a class="item" href="{{ url('blog:detail', contest.analysis_blog_id) }}" target="_blank">题解</a>
+    {% endif %}
+    {% if is_privileged %}
+      <a class="item" href="{{ url('polygon:contest_meta', contest.pk) }}">管理</a>
+    {% endif %}
+  </div>
+
+  {% if not standings_layout %}
+    <div class="ui stackable grid">
+      <div class="twelve wide column">
+        {% block contest_content %}
+        {% endblock %}
+      </div>
+      <div class="four wide column">
+        <div class="ui segments">
+        {% if not contest.start_time and not contest.end_time %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              不限期开放
+            </div>
+          </div>
+        {% elif not contest.start_time %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              截止: {{ contest.end_time | date('Y-m-d H:i') }}
+            </div>
+          </div>
+        {% elif not contest.end_time %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              开始: {{ contest.start_time | date('Y-m-d H:i') }}
+            </div>
+          </div>
+        {% elif contest.pending_system_tests %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              等待系统测试
+            </div>
+          </div>
+        {% else %}
+          <div class="ui segment">
+            <div class="ui center aligned header">
+              {% if participate_contest_status == 0 %}
+                进行中
+              {% elif participate_contest_status == -1 %}
+                即将开始
+              {% else %}
+                已结束
+              {% endif %}
+            </div>
+          </div>
+          <div class="ui segment">
+            <div class="ui blue progress" data-status="{{ participate_contest_status }}">
+              <div class="bar"></div>
+              {% if time_remaining %}
+              <div class="countdown label" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></div>
+              {% else %}
+              <div class="label">NaN</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+        {% if judgement_status %}
+          <div class="ui secondary center aligned segment">
+            评测状态: <span title="等待评测">{{ judgement_status.pending }}</span>+<span title="完成评测">{{ judgement_status.judged }}</span>={{ judgement_status.pending + judgement_status.judged }}. {% if judgement_status.last %}<span title="最后提交">{{ judgement_status.last | date('H:i,m-d') }}</span>{% endif %}
+          </div>
+        {% endif %}
+        </div>
+
+        {% if has_permission %}
+          <div class="ui segments">
+            <div class="ui segment">
+              <h3 class="ui center aligned header">题目列表</h3>
+            </div>
+            <div class="ui segment">
+              <div class="ui relaxed link list">
+                {% for contest_problem in contest_problem_list %}
+                  <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+                     href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                      {{ contest_problem.identifier }}. {{ contest_problem.problem.title }}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          {% if participate_contest_status == 0 and contest.scoring_method != 'acm' %}
+            <div class="ui segments">
+              <div class="ui segment">
+                <h3 class="ui center aligned header">积分</h3>
+              </div>
+              <div class="ui segment">
+                <table class="ui very basic celled very compact center aligned table">
+                  <thead>
+                    <tr>
+                      <th>题目</th>
+                      <th>计分</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for contest_problem in contest_problem_list %}
+                    <tr>
+                      <td>{{ contest_problem.identifier }}</td>
+                      <td>{% if contest.scoring_method == 'cf' %}
+                        {{ (contest_problem.weight * (1 + remaining_percent) / 2) | round | int }}
+                      {% else %}{{ contest_problem.weight }}{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="ui bottom attached tiny info message">
+                这里显示的是你在现在一次提交正确所获得的计分。
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+
+      </div>
+    </div>
+  {% else %}
+    {% block standings_content %}
+    {% endblock %}
+  {% endif %}
+
+  <div class="ui basic tiny modal" id="refreshNotification">
+    <div class="ui icon header">
+      <i class="announcement icon"></i>
+      通知
+    </div>
+    <div class="content">
+      比赛状态发生变化，点 OK 刷新。
+    </div>
+    <div class="actions">
+      <div class="ui green ok inverted button" onclick="location.reload(true);">
+        <i class="checkmark icon"></i>
+        OK
+      </div>
+    </div>
+  </div>
+
+  <div class="ui basic tiny modal" id="stayNotification">
+    <div class="ui icon header">
+      <i class="announcement icon"></i>
+      通知
+    </div>
+    <div class="content" id="stayNotificationBody">
+    </div>
+    <div class="actions">
+      <div class="ui green ok inverted button">
+        <i class="checkmark icon"></i>
+        OK
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script src="/static/js/countdown.js?v=20170825"></script>
+  {% if has_permission and request.user.is_authenticated %}
+  <script>
+  function checkNew() {
+    $.get("{{ url('contest:check', contest.pk) }}", function (data) {
+      var indicator = parseInt(data);
+      if (indicator >= 1) {
+        $("#qa-new-flag").show();
+        if (indicator >= 2) {
+          alert("New Notification!");
+        }
+      } else {
+        $("#qa-new-flag").hide();
+      }
+    });
+  }
+
+  {% if not check_new %}
+  var checkNewTimer = setInterval(checkNew, 30000);
+  {% endif %}
+  </script>
+  {% endif %}
+  {% block local_script %}{% endblock %}
+{% endblock %}

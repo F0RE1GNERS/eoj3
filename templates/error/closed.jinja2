@@ -1,0 +1,12 @@
+{% extends 'base.jinja2' %}
+
+{% block page_header %}EOJ is closed now{% endblock %}
+
+{% block content %}
+
+  <div class="ui container">
+    <p>EOJ is currently closed due to maintenance or running contests.</p>
+    <p>Please try again later or see contests running <a href="{{ url('contest:list') }}">here</a>.</p>
+  </div>
+
+{% endblock %}

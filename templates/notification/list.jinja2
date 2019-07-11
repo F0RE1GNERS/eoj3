@@ -1,0 +1,38 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}Notifications - {% endblock %}
+
+{% block page_header %}Notifications{% endblock %}
+
+{% block content %}
+
+{% for item in notifications %}
+
+  <div class="ui feed">
+    <div class="event">
+      <div class="label">
+        <a href="{{ url('profile', item.actor.pk) }}"><img src="{{ item.actor.avatar_small.url }}"></a>
+      </div>
+      <div class="content">
+        <div class="date">
+          {{ item.timestamp | naturaltime }}
+        </div>
+        <div class="summary">
+          {{ username_display(item.actor) }} {{ item.verb }}
+          {% if item.target.__class__.__name__ == 'Contest' %}
+            <a href="{{ url('contest:dashboard', item.target.pk) }}">{{ item.target.title }}</a>
+          {% elif item.target.__class__.__name__ == 'Problem' %}
+            <a href="{{ url('problem:discussion', item.target.pk) }}">{{ item.target.title }}</a>
+          {% elif item.target.__class__.__name__ == 'Blog' %}
+            <a href="{{ url('blog:detail', item.target.pk) }}">{{ item.target.title }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endfor %}
+
+{{ my_paginator() }}
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'contest/standings_snippet.jinja2' import display_rank, display_rank_head with context %}
+
+{% set standings_layout = True %}
+
+
+{% block standings_content %}
+
+  {% if is_privileged %}
+  <div class="ui right floated buttons">
+    <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>重新计算</a>
+    <div class="ui simple dropdown icon button">
+      <i class="settings icon"></i>
+      <div class="menu">
+        <a class="item" href="{{ url('contest:download_standings', contest.pk) }}" target="_blank">
+          <i class="download icon"></i> 下载为 .csv
+        </a>
+        <a class="item" href="{{ url('contest:report_testsys', contest.pk) }}" target="_blank">
+          <i class="download icon"></i> 下载为 TestSys
+        </a>
+        <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all" target="_blank">
+          <i class="code icon"></i> 下载所有代码
+        </a>
+        <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=all_accepted" target="_blank">
+          <i class="checkmark icon"></i> 下载通过的代码
+        </a>
+        <a class="item" href="?privilege=true" target="_blank">
+          <i class="bar chart icon"></i> 终榜
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if time_remaining %}
+  <h5 class="ui header">
+    Countdown: <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span><br>
+  </h5>
+  {% endif %}
+
+  <div class="ui hidden divider" style="clear:both;"></div>
+
+  {% set contest_problem_length = (contest.contest_problem_list | length) %}
+  {% if contest_problem_length > 10 and not contest.standings_without_problem %}
+    {% set column_style = 'width: %.2f%% white-space: nowrap;' % (67 / contest_problem_length) %}
+  {% else %}
+    {% set column_style = 'width: 6.25%' %}
+  {% endif %}
+
+  {% set first_column_span = 3 %}
+  {% if contest.contest_type == 0 and contest.penalty_counts %}
+    {% set first_column_span = first_column_span + 1 %}
+  {% endif %}
+
+  <table class="ui compact celled unstackable table">
+    <thead>
+      <tr class="ui center aligned">
+        {{ display_rank_head(column_style) }}
+      </tr>
+    </thead>
+    <tbody>
+      {% for rank in rank_list %}
+        <tr class="ui center aligned">
+          {{ display_rank(rank) }}
+        </tr>
+      {% endfor %}
+    </tbody>
+  {% if not contest.standings_without_problem %}
+    <tfoot>
+      <tr>
+        <th colspan="{{ first_column_span }}"><span class="ui text green">通过</span><br>提交</th>
+        {% for problem in contest.contest_problem_list %}
+          <th class="center aligned" style="{{ column_style }}">
+            <span class="ui text green">{{ problem.ac_count }}</span><br>
+          {{ problem.total_count }}
+          </th>
+        {% endfor %}
+      </tr>
+      {% if contest.contest_type == 0 %}
+      <tr>
+        <th colspan="{{ first_column_span }}">首次通过时间</th>
+        {% for problem in contest.contest_problem_list %}
+          <th class="center aligned" style="{{ column_style }}">{% if problem.first_yes_time %}
+            {{ (problem.first_yes_time.total_seconds() / 60) | int }}
+            {% else %}
+              --
+          {% endif %}</th>
+        {% endfor %}
+      </tr>
+      {% endif %}
+    </tfoot>
+  {% endif %}
+  </table>
+
+  {% if paginator %}
+    {{ my_paginator() }}
+  {% endif %}
+
+  <div id="penalty-detail-modal" class="ui small modal" data-api="{{ url('contest:penalty_detail', contest.pk) }}">
+    <div class="content">
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/js/countdown.js"></script>
+{% endblock %}

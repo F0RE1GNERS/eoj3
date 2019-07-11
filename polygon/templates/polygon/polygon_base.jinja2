@@ -1,0 +1,49 @@
+{% extends 'html_base.jinja2' %}
+{% from 'components/modal.jinja2' import modal with context %}
+
+{% block css %}
+  <style href="/static/node_modules/semantic-ui-calendar/dist/calendar.min.css"></style>
+{% endblock %}
+
+{% block base_title %}EOJ Polygon{% endblock %}
+
+{% block _content %}
+  <div class="ui top inverted fixed menu large" id="navbar">
+    <div class="ui container">
+      <a class="item" href="{{ url('polygon:home') }}">
+        <i class="home icon"></i>
+        主页
+      </a>
+      <a class="item" href="{{ url('polygon:problem_list_2') }}">
+        <i class="fork icon"></i>
+        题目管理
+      </a>
+      <a class="item" href="{{ url('polygon:contest_list') }}">
+        <i class="flag checkered icon"></i>
+        比赛管理
+      </a>
+      <div class="right menu">
+        {% if user.is_authenticated %}
+          <div class="item">当前用户: {{ request.user.username }}</div>
+        {% else %}
+          <a class="item" href="{{ url('login') }}?next={{ request.path }}">登录</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+  <div class="ui main container pusher">
+  {% block content %}
+  {% endblock %}
+  </div>
+  {% include 'components/footer.jinja2' %}
+{% endblock %}
+
+{% block script %}
+  {% block local_script %}
+  {% endblock %}
+  <script src="/static/node_modules/vue/dist/vue.min.js"></script>
+  <script src="/static/node_modules/sortablejs/Sortable.min.js"></script>
+  <script src="/static/node_modules/vuedraggable/dist/vuedraggable.js"></script>
+  <script src="/static/js/polygon.js?v={{ static_file_version }}"></script>
+{% endblock %}

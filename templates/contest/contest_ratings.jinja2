@@ -1,0 +1,31 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}比赛积分 - {% endblock %}
+
+{% block page_header %}比赛积分{% endblock %}
+
+{% block content %}
+
+<h2 class="ui sub header" style="margin-top: 0">
+  <span class="text red">红</span>: 1800. <span class="text orange">橙</span>: 1700. <span class="text purple">紫</span>: 1600. <span class="text blue">蓝</span>: 1500. <span class="text teal">青</span>: 1350. <span class="text green">绿</span>: 0. <span class="text grey">灰</span>: Admin.
+</h2>
+<table class="ui celled very compact center aligned table">
+  <thead>
+    <tr>
+      <th class="ten wide">用户名</th>
+      <th class="six wide">积分</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for rating_user in global_rating %}
+    <tr>
+      <td>{{ username_display(rating_user) }}</td>
+      <td><a href="?q={{ rating_user.pk }}">{{ rating_user.rating }}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{{ my_paginator() }}
+
+{% endblock %}

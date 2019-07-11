@@ -1,0 +1,33 @@
+<div class="ui container center aligned">
+  <div class="ui pagination menu secondary">
+    <a class="icon item" href="?{{ url_replace(request, 'page', 1) }}"><i class="angle double left icon"></i></a>
+
+    {% if page_obj.has_previous() %}
+    <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.previous_page_number()) }}">
+      <i class="left angle icon"></i>
+    </a>
+    {% else %}
+    <div class="disabled item icon"><i class="left angle icon"></i></div>
+    {% endif %}
+
+    {% for page_num in page_numbers %}
+      {% if page_num == page_obj.number %}
+        <a class="active item">{{ page_num }}</a>
+      {% else %}
+        <a class="item" href="?{{ url_replace(request, 'page', page_num) }}">{{ page_num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if endless or page_obj.has_next() %}
+    <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.next_page_number()) }}">
+      <i class="right angle icon"></i>
+    </a>
+    {% else %}
+    <div class="disabled item icon"><i class="right angle icon"></i></div>
+    {% endif %}
+
+    {% if not endless %}
+    <a class="icon item" href="?{{ url_replace(request, 'page', page_obj.paginator.num_pages) }}"><i class="angle double right icon"></i></a>
+    {% endif %}
+  </div>
+</div>

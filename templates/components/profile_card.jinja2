@@ -1,0 +1,27 @@
+{% macro profile_card(profile, solved) %}
+
+  <div class="ui fluid card">
+    <div class="image">
+      <img src="{{ profile.avatar_large.url }}">
+    </div>
+    <div class="content">
+      <span class="header">{{ profile.get_username_display() }}{% if profile.pk == request.user.pk %}
+        <a href="{{ url('account:profile') }}"><i class="ui icon edit"></i></a>{% endif %}</span>
+      <div class="meta">
+        {% with join_time = (profile.date_joined | naturaltime) %}
+        <span class="date">注册于 {{ join_time }}</span>
+        {% endwith %}
+      </div>
+    {% if profile.school or profile.motto %}
+      <div class="description">
+        {% if profile.school %}目前正在 {{ profile.school }} 工作/学习{% endif %}
+        {% if profile.motto %}<br><b>{{ profile.motto }}</b>{% endif %}
+      </div>
+    {% endif %}
+    </div>
+    <div class="extra content">
+      <a href="{{ url('problem:status') }}?user={{ profile.pk }}">已解出 {{ solved }} 个问题</a>
+    </div>
+  </div>
+
+{% endmacro %}

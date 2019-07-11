@@ -1,0 +1,6 @@
+{% for message in messages %}
+  <div class="ui {{ message.tags }} message">
+    <i class="close icon"></i>
+    {{ message | safer | safe }}
+  </div>
+{% endfor %}

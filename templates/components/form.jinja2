@@ -1,0 +1,99 @@
+{% include 'components/message.jinja2' %}
+{% from 'components/search_user.jinja2' import user_search_multiple %}
+
+{% set error_exists = [] %}
+{% for field in form %}
+  {% if field.errors %}{% do error_exists.append(1) %}{% endif %}
+{% endfor %}
+{% if form.non_field_errors() %}
+  {% do error_exists.append(1) %}
+{% endif %}
+
+<form class="ui form {% if error_exists %}error{% endif %}" action="{{ action_path or request.get_full_path() }}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+  <div class="ui error message">
+    <div class="header">存在问题！</div>
+    <ul class="list">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error | escape }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors() %}
+        <li>{{ error | escape }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% for field in form %}
+    <div class="field {% if field.errors %}error{% endif %}">
+      {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
+        <div class="ui checkbox">
+          {{ render_field(field, {'placeholder': field.help_text, 'class': 'hidden'}) }}
+          <label>{{ field.label }}</label>
+        </div>
+      {% elif field.field.widget.__class__.__name__ == 'Select' %}
+        {% if field.name == 'school' %}
+          <label>学校: <a data-target="#addSchoolModal" class="modal-link">找不到你所在的学校？</a></label>
+        {% else %}
+          {{ field.label_tag() }}
+        {% endif %}
+        <select class="ui selection dropdown" id="{{ field.id_for_label }}" name="{{ field.name }}">
+          {% for key, val in field.field.widget.choices %}
+            <option value="{{ key }}" {% if field.initial == key %}selected{% endif %}>{{ val }}</option>
+          {% endfor %}
+        </select>
+      {% elif field.field.__class__.__name__ == 'UserSelectMultiple' %}
+        {{ field.label_tag() }}
+        {{ user_search_multiple(name=field.name) }}  {# TODO: add initial #}
+      {% elif field.field.widget.__class__.__name__ == 'SelectMultiple' %}
+        {{ field.label_tag() }}
+        <div class="ui multiple selection search dropdown">
+          <input name="{{ field.name }}" type="hidden" value="{{ field.initial }}">
+          <i class="dropdown icon"></i>
+          <div class="default text">选择多个</div>
+          <div class="menu">
+            {% for key, val in field.field.widget.choices %}
+              <div class="item" data-value="{{ key }}">{{ val }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      {% elif field.field.widget.__class__.__name__ == 'DateTimeInput' %}
+        {{ field.label_tag() }}
+        <div class="ui calendar">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" placeholder="Date/Time" value="{{ field.initial }}" name="{{ field.name }}">
+          </div>
+        </div>
+      {% elif field.field.widget.__class__.__name__ == 'ClearableFileInput' %}
+        {{ field.label_tag() }}
+        <div class="ui fluid file input action">
+          <input type="text" readonly>
+          <input type="file" name="{{ field.name }}" autocomplete="off">
+          <div class="ui button">Select...</div>
+        </div>
+      {% elif field.field.widget.__class__.__name__ == 'CaptchaTextInput' %}
+        {{ field.label_tag() }}
+        {{ field }}
+      {% else %}
+        {% if field.field.widget.__class__.__name__ != 'HiddenInput' %}
+          {{ field.label_tag() }}
+        {% endif %}
+        {{ render_field(field, {'placeholder': field.help_text}) }}
+      {% endif %}
+    </div>
+  {% endfor %}
+  {% if submit_button %}
+    {{ submit_button }}
+  {% else %}
+    <button type="submit" class="ui positive button">确定</button>
+  {% endif %}
+</form>
+
+<script>
+  $(".ui.form").submit(function() {
+    $(this).prop('loading', true);
+  });
+</script>

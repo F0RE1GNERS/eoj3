@@ -1,0 +1,170 @@
+{% extends 'problem/detail/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block css %}
+  <link href="/static/node_modules/morris.js/morris.css" rel="stylesheet">
+{% endblock %}
+
+{% block problem_content %}
+
+  <table class="ui very padded center aligned celled table">
+    <thead>
+      <tr>
+        <th class="six wide">
+          <h4 class="ui header"><i class="user icon"></i> 人数</h4>
+        </th>
+        <th class="six wide">
+          <h4 class="ui header"><i class="tag icon"></i> 提交量</h4>
+        </th>
+        <th class="four wide">
+          <h4 class="ui header">奖励</h4>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="ui statistic">
+            <div class="value">{{ user_ac_count }} / {{ user_all_count }}</div>
+            <div class="label">{{ "%.2f %%" | format(user_ratio) }} 解出</div>
+          </div>
+        </td>
+        <td>
+          <div class="ui statistic">
+            <div class="value">{{ ac_count }} / {{ all_count }}</div>
+            <div class="label">{{ "%.2f %%" | format(ratio) }} 通过</div>
+          </div>
+        </td>
+        <td>
+          <div class="ui statistic">
+            <div class="value">{{ difficulty | round(1) }}</div>
+            <div class="label">EMB</div>
+          </div>
+        </td>
+      </tr>
+      {% if all_count > 0 %}
+      <tr><td colspan="3"><div id="distribution"></div></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="ui hidden divider"></div>
+
+  <div style="float: right">
+    <div class="ui selection dropdown status-filter" data-filter-type="type" data-value="{{ param_type }}">
+      <div class="text">最迟</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <div class="item" data-value="latest">最迟</div>
+        <div class="item" data-value="fastest">最快</div>
+        <div class="item" data-value="shortest">最短</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ui header">
+    <i class="code icon"></i>
+    <div class="content">
+      提交
+      <div class="sub header">比赛下的提交可能访问受限</div>
+    </div>
+  </h3>
+
+  {{ status(hide_problems=True, code_length=True, judge_server=True) }}
+
+  <div class="ui right floated buttons">
+    <a class="ui green button" href="{{ url('problem:status') }}?problem={{ problem.pk }}&verdict=v0">通过</a>
+    <div class="or"></div>
+    <a class="ui button" href="{{ url('problem:status') }}?problem={{ problem.pk }}">所有提交
+      <i class="right chevron icon"></i>
+    </a>
+  </div>
+  <div class="ui hidden divider" style="clear: both;"></div>
+
+  {% if runtime_data %}
+    <h3 class="ui header">
+      <i class="time icon"></i>
+      <div class="content">耗时 / 代码长度
+        <div class="sub header">你的提交用大圆标出</div>
+      </div>
+    </h3>
+  <div id="runtime-distribution"></div>
+  {% endif %}
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/raphael/raphael.min.js"></script>
+  <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script type="text/javascript">
+    {% if all_count > 0 %}
+    Morris.Donut({
+      element: 'distribution',
+      data: [
+        {label: "Accepted", value: {{ stats.ac }}, color: '#21BA45' },
+        {label: "Wrong Answer", value: {{ stats.wa }}, color: '#DB2828' },
+        {label: "Time Limit Exceeded", value: {{ stats.tle }}, color: '#F2711C' },
+        {label: "Runtime Error", value: {{ stats.re }}, color: '#FBBD08' },
+        {label: "Compile Error", value: {{ stats.ce }}, color: '#878787' },
+        {label: "Others", value: {{ stats.others }}, color: '#2185D0' }
+      ]
+    });
+    {% endif %}
+
+    var myFontFamily = "Open Sans";
+
+    {% if runtime_data %}
+    var runtimeData = [
+      {% for d in runtime_data %}{lang: "{{ d.get_lang_display() }}", length: {{ d.code_length }}, time: {{ d.status_time }}, mine: {% if d.mine %}true{% else %}false{% endif %}, href: "{{ d.link }}" }, {% endfor %}
+    ];
+
+    var chart = new G2.Chart({
+      container: 'runtime-distribution',
+      forceFit: true,
+      height: 400
+    });
+    chart.source(runtimeData);
+    chart.tooltip({
+      showTitle: false,
+      "g2-tooltip": {
+        fontFamily: myFontFamily
+      },
+{#      crosshairs: {#}
+{#        type: 'cross'#}
+{#      },#}
+      itemTpl: '<li data-index={index} style="margin-bottom:4px;">' +
+               '<span style="background-color:{color};" class="g2-tooltip-marker"></span>' +
+               '{name}<br/>' + '{value}' + '</li>'
+    });
+    chart.legend('lang', {
+      textStyle: {
+        fontFamily: myFontFamily
+      }
+    });
+    chart.legend('mine', false);
+    chart.point()
+      .position('length*time')
+      .color('lang', ["#00b5ad", "#2185d0", "#a333c8", "#6435c9", "#b5cc18", "#fbbd08"])
+      .size('mine', function (mine) {
+        return mine ? 7 : 3;
+      })
+      .opacity(0.5)
+      .shape('circle')
+      .tooltip('lang*length*time', function (lang, length, time) {
+        return {
+          name: lang,
+          value: length + 'B, ' + time + 's'
+        };
+      });
+
+    chart.render();
+    chart.on("click", function (ev) {
+      if (ev.hasOwnProperty("data") && ev.data.hasOwnProperty("_origin"))
+        location.href = ev.data._origin.href;
+    });
+    {% endif %}
+
+  </script>
+{% endblock %}

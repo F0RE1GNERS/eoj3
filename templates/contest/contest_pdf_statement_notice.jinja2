@@ -1,0 +1,6 @@
+{% if contest.pdf_statement %}
+<div class="ui success message">
+  <div class="header">PDF 题面可用</div>
+  <div class="content">你可以在<a href="{{ url('contest:statements', contest.pk) }}">这里</a>下载。</div>
+</div>
+{% endif %}

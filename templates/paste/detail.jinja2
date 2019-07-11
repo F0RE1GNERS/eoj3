@@ -1,0 +1,27 @@
+{% extends 'base.jinja2' %}
+
+{% block page_header %}EOJ Pastebin{% endblock %}
+
+{% block content %}
+  <div class="ui breadcrumb">
+    <a href="{{ url('paste:index') }}" class="section">Home</a>
+    <i class="right angle icon divider"></i>
+    {% if paste.created_by %}
+    {{ username_display(paste.created_by, additional_class="section") }}
+    <i class="right angle icon divider"></i>
+    {% endif %}
+    <div class="section">{{ paste.create_time | date('Y-m-d H:i') }}</div>
+    <i class="right angle icon divider"></i>
+    <div class="active section">{{ paste.fingerprint }}</div>
+  </div>
+
+  <div class="ui segment">
+    <div class="ui simple dropdown top right attached label">
+      <i class="code icon"></i> {{ paste.get_lang_display() }}
+      <div class="menu">
+        <a class="item clipboard" data-clipboard-text="{{ paste.code }}"><i class="copy icon"></i> Copy</a>
+      </div>
+    </div>
+    <div>{{ paste.code_as_html | safe }}</div>
+  </div>
+{% endblock %}

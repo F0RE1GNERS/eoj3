@@ -1,0 +1,36 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}提交 #{{ submission.id }} - {% endblock %}
+
+{% block page_header %}提交 #{{ submission.id }}{% endblock %}
+
+{% block content %}
+
+  {{ submission_block }}
+
+  <div class="ui segment">
+    <div class="ui simple dropdown top right attached label">
+      <i class="code icon"></i> {% if submission.lang %}{{ submission.get_lang_display() }}{% endif %}
+      <div class="menu">
+        <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
+{#      {% if not submission.contest %}#}
+{#        <a class="item" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">#}
+{#          <i class="external icon"></i> Open in editor#}
+{#        </a>#}
+{#      {% endif %}#}
+      </div>
+    </div>
+    <div>{{ submission.code_as_html | safe }}</div>
+  </div>
+
+  {{ report_block }}
+
+  {% if submission.author == request.user %}
+    {% if submission.contest_problem and contest %}
+      <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id, submission.contest_problem.identifier) }}"></div>
+    {% else %}
+      <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
+    {% endif %}
+  {% endif %}
+  
+{% endblock %}

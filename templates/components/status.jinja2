@@ -1,0 +1,180 @@
+{% from 'components/modal.jinja2' import modal %}
+
+{% macro status(in_contest=False, hide_problems=False, rejudge=False, code_length=False, show_ip=False, anti_cheat=False, judge_server=False) %}
+
+  <table class="ui celled table center aligned compact unstackable status">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>时间</th>
+        {% if not hide_users %}
+        <th>
+          <div class="ui dropdown status-filter search" data-filter-type="user" data-value="{{ param_user }}" {% if contest %}data-filter-contest="{{ contest.pk }}"{% endif %}>
+            <span class="text">送交者</span>
+            <div class="menu">
+              <div class="item">送交者</div>
+            </div>
+          </div>
+          <span class="restore"><i class="close icon"></i></span>
+        </th>
+        {% endif %}
+        {% if not hide_problems %}
+          {% if contest %}
+            <th>
+              <div class="ui dropdown status-filter local" data-filter-type="problem" data-value="{{ param_problem }}">
+                <div class="text">题目</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                  <div class="ui icon search input">
+                    <i class="search icon"></i>
+                    <input type="text" placeholder="Problems">
+                  </div>
+                  <div class="scrolling menu">
+                    <div class="item" data-value="all">所有</div>
+                    {% for contest_problem in contest.contest_problem_list %}
+                    <div class="item" data-value="{{ contest_problem.identifier }}">{{ contest_problem }}</div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </th>
+          {% else %}
+            <th>
+              <div class="ui dropdown status-filter search" data-filter-type="problem" data-value="{{ param_problem }}">
+                <span class="text">题目</span>
+                <div class="menu">
+                  <div class="item">题目</div>
+                </div>
+              </div>
+              <span class="restore"><i class="close icon"></i></span>
+            </th>
+          {% endif %}
+        {% endif %}
+        <th>
+          <div class="ui dropdown status-filter" data-filter-type="lang" data-value="{{ param_lang }}">
+            <div class="text">语言</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="ui icon search input">
+                <i class="search icon"></i>
+                <input type="text" placeholder="Languages">
+              </div>
+              <div class="scrolling menu">
+                <div class="item" data-value="all">所有</div>
+                {% for identifier, display in lang_choices %}
+                <div class="item" data-value="{{ identifier }}">{{ display }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </th>
+        <th>
+          {% if allow_verdict_query %}
+            <div class="ui scrolling dropdown status-filter" data-filter-type="verdict" data-value="{{ param_verdict }}">
+              <div class="text">评测结果</div>
+              <i class="dropdown icon"></i>
+              <div class="menu">
+                <div class="item" data-value="all">所有</div>
+                {% for identifier, display in verdict_choices %}
+                <div class="item" data-value="v{{ identifier }}">{{ display }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          {% else %}
+            评测结果
+          {% endif %}
+        </th>
+      {% if code_length %}
+        <th>代码长度</th>
+      {% endif %}
+        <th>耗时</th>
+        <th>内存</th>
+      {% if judge_server %}
+        <th>评测机</th>
+      {% endif %}
+      {% if rejudge %}
+        <th><a class="modal-link" data-target="#rejudge-confirmation">重判</a></th>
+      {% endif %}
+      {% if show_ip %}
+        <th>IP</th>
+      {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for submission in submission_list %}
+        <tr {% if not submission.visible %}style="background-color:rgba(0,0,50,.02)"{% endif %}>
+          <td>
+          {% if not submission.contest_id %}<a href="{{ url('problem:submission', submission.problem_id, submission.id) }}">{{ submission.id }}{% else %}<a href="{{ url('contest:submission', submission.contest_id, submission.id) }}">{{ submission.id }}{% endif %}{% if not all_valid and (submission.unofficial or (contest and submission.contest_id != contest.pk) or (not contest and submission.contest_id)) %}*{% endif %}
+          </a></td>
+        {% if submission.contest_time and participate_contest_status == 0 %}
+          <td>{{ submission.contest_time | timedelta(True) }}</td>
+        {% else %}
+          <td>{{ submission.create_time | date('Y-m-d H:i:s') }}</td>
+        {% endif %}
+        {% if not hide_users %}
+          <td>{{ username_display(submission.author) }}</td>
+        {% endif %}
+          {% if not hide_problems %}
+            {% if not contest %}
+              <td><a href="{{ url('problem:detail', submission.problem_id) }}">{{ submission.problem }}</a></td>
+            {% else %}
+              {% if submission.contest_problem %}
+                <td><a href="{{ url('contest:problem', contest.pk, submission.contest_problem.identifier) }}">{{ submission.contest_problem }}</a></td>
+              {% else %}
+                <td>N/A</td>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+          <td>{% if submission.lang %}{{ submission.get_lang_display() }}{% else %}N/A{% endif %}</td>
+          <td><h5 class="ui header status-span" {% if show_percent %}data-sp="1"{% endif %} data-score="{{ submission.status_score }}" data-status="{{ submission.status }}" data-test="{{ submission.status_test }}"></h5></td>
+        {% if code_length %}
+          <td>{% if submission.code_length %}{{ submission.code_length }} B{% else %}N/A{% endif %}</td>
+        {% endif %}
+          <td>{{ submission.get_time_display() }}</td>
+          <td>{{ submission.get_memory_display() }}</td>
+        {% if rejudge %}
+          <td><a data-link="{{ url('polygon:rejudge_submission', submission.id) }}" class="post-link">重判</a></td>
+        {% endif %}
+        {% if judge_server %}
+          <td>{{ submission.judge_server }}</td>
+        {% endif %}
+        {% if show_ip %}
+          <td>{{ submission.ip }}</td>
+        {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if paginator %}
+    {{ my_paginator() }}
+  {% endif %}
+
+  {% if rejudge %}
+    {% call modal(title="Rejudge confirmation", id="rejudge-confirmation") %}
+      {% if not contest %}
+        <p>你确定要重测所有提交吗？</p>
+        <form action="{{ url('polygon:rejudge_problem', problem.id) }}" method="POST">
+          {% csrf_token %}
+        </form>
+      {% else %}
+      <form class="ui form" action="{{ url('polygon:contest_rejudge', contest.id) }}" method="POST">
+        {% csrf_token %}
+        <div class="field">
+          <div class="ui dropdown selection">
+            <input type="hidden" name="problem">
+            <div class="default text">选择题目</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="item" data-value="all">所有</div>
+              {% for contest_problem in contest.contest_problem_list %}
+              <div class="item" data-value="{{ contest_problem.problem_id }}">{{ contest_problem }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </form>
+      {% endif %}
+    {% endcall %}
+  {% endif %}
+
+{% endmacro %}

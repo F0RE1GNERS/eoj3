@@ -1,0 +1,70 @@
+{% macro problem_view(problem, contest) %}
+  <div class="problem-header">
+    <div class="property">
+      <p><strong>单点时限: </strong>{{ problem.time_limit / 1000 }} sec</p>
+      <p><strong>内存限制: </strong>{{ problem.memory_limit }} MB</p>
+    </div>
+  </div>
+
+  {% cache 3600 'problem_view#' + problem.pk.__str__() + '#' + problem.update_time.__str__() %}
+  <div class="problem-body">
+    {% if problem.description %}
+      <div class="passage">
+        {{ problem.description | markdown | safe }}
+      </div>
+    {% endif %}
+    {% if not problem.interactor or (problem.input and problem.output) %}
+      {% if problem.input %}
+        <h3 class="title">输入格式</h3>
+        {{ problem.input | markdown | safer | safe }}
+      {% endif %}
+      {% if problem.output %}
+        <h3 class="title">输出格式</h3>
+        {{ problem.output | markdown | safer | safe }}
+      {% endif %}
+    {% else %}
+      {% if problem.input %}
+        <h3 class="title">交互流程</h3>
+        {{ problem.input | markdown | safer | safe }}
+      {% endif %}
+      {% if problem.output %}
+        <h3 class="title">交互流程</h3>
+        {{ problem.output | markdown | safer | safe }}
+      {% endif %}
+    {% endif %}
+    {% if problem.sample %}
+      <div class="passage examples">
+        <h3 class="title">样例</h3>
+        {% for input, output in problem.sample_display %}
+          <div class="example">
+            <div class="input">
+              <div class="title">Input</div>
+              <pre class="sample-content" data-tooltip="单击复制" data-inverted="">{{ input }}</pre>
+            </div>
+            <div class="output">
+              <div class="title">Output</div>
+              <pre class="sample-content" data-tooltip="单击复制" data-inverted="">{{ output }}</pre>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if problem.hint %}
+      <h3 class="title">提示</h3>
+      {{ problem.hint | markdown | safer | safe }}
+    {% endif %}
+  </div>
+  {% endcache %}
+
+  <div id="code_template" style="display:none;">
+  {% for key, val in problem.template_dict.items() %}
+    <pre id="code_template_{{ key }}">{{ val.template | safe }}</pre>
+  {% endfor %}
+  </div>
+
+  <script>
+    $(".sample-content").click(function() {
+      copyToClipboard($(this)[0].textContent);
+    })
+  </script>
+{% endmacro %}

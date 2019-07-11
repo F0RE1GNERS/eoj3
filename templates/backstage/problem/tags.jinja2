@@ -1,0 +1,119 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Problem Tags
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th colspan="6">
+          <button class="ui right floated primary labeled icon button modal-link" data-target="#tag-add">
+            <i class="server icon"></i> Add Tag
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tag in tag_list %}
+        <tr>
+          {% if tag.taginfo %}
+          <td>{{ tag.name }}</td>
+          <td>{{ tag.taginfo.description }}</td>
+          <td>{{ tag.parent }}</td>
+          {% else %}
+            <td colspan="3">{{ tag.name }}</td>
+          {% endif %}
+          <td class="right aligned collapsing">
+            <a href="{{ url('backstage:tag_edit', tag.pk) }}">Edit</a>
+          </td>
+          <td class="right aligned collapsing">
+            <a class="delete-link" data-link="{{ url('backstage:tag_delete', tag.pk) }}">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div id="mountNode" style="width:100%; margin-top:3em;"></div>
+
+  {% call modal(id="tag-add", title="Add a tag", action=url('backstage:tag_add')) %}
+    {% csrf_token %}
+    <div class="field">
+      <label>Tag name:</label>
+      <input type="text" name="name">
+    </div>
+  {% endcall %}
+
+{% endblock %}
+
+
+{% block script %}
+  <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
+  <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
+  <script>
+
+  var data = {{ tag_tree | safe }};
+
+  var dv = new DataSet.View().source(data, {
+    type: 'hierarchy'
+  });
+  dv.transform({
+    type: 'hierarchy.tree'
+  });
+
+  var chart = new G2.Chart({
+    container: 'mountNode',
+    forceFit: true,
+    height: window.innerHeight,
+    padding: [50, 0, 20, 0]
+  });
+  chart.axis(false);
+  chart.legend(false);
+  chart.coord('polar');
+
+  var edgeView = chart.view();
+  edgeView.source(dv.getAllLinks().map(function(link) {
+    return {
+      x: [link.source.x, link.target.x],
+      y: [link.source.y, link.target.y],
+      source: link.source.id,
+      target: link.target.id
+    };
+  }));
+  edgeView.edge().position('x*y').shape('smooth') // vhv
+    .color('grey').opacity(0.5).tooltip('source*target');
+
+  var nodeView = chart.view();
+  nodeView.source(dv.getAllNodes().map(function(node) {
+    return {
+      hasChildren: !!(node.data.children && node.data.children.length),
+      name: node.data.name,
+      value: node.value,
+      depth: node.depth,
+      x: node.x,
+      y: node.y
+    };
+  }));
+  nodeView.point().position('x*y').color('hasChildren').label('name', {
+    offset: 0,
+    labelEmit: true,
+    textStyle: function textStyle(text, item) {
+      var textAlign = item.textAlign;
+      if (item.point.hasChildren) {
+        textAlign = textAlign === 'left' ? 'right' : 'left';
+      }
+      return {
+        fill: 'grey',
+        fontSize: 12,
+        textAlign: textAlign
+      };
+    }
+  });
+
+  chart.render();
+
+  </script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Judge Servers
+{% endblock %}
+
+{% block backstage_content %}
+
+  <table class="ui celled definition table center aligned">
+    <thead class="full-width">
+
+      <tr>
+        <th>启用</th>
+        <th>名字</th>
+        <th>IP 地址</th>
+        <th>版本</th>
+        <th>主节点</th>
+        <th>编辑</th>
+        <th>更换密钥</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for server in server_list %}
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:server_enable', server.id) }}" type="checkbox" {% if server.enabled %}checked{% endif %}>
+            </div>
+          </td>
+          <td><a href="{{ url('backstage:server_problem_status', server.id) }}">{{ server.name }}</a></td>
+          <td>{{ server.ip }}:{{ server.port }}</td>
+          <td>{{ server.version }}</td>
+          <td>{{ server.master }}</td>
+          <td><a href="{{ url('backstage:server_edit', server.pk) }}">编辑</a></td>
+          <td><a href="{{ url('backstage:server_update_token', server.pk) }}">更新</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="full-width">
+      <tr>
+        <th></th>
+        <th colspan="9">
+          <a href="{{ url('backstage:server_create') }}" class="ui right floated small primary labeled icon button">
+            <i class="server icon"></i> 增加服务器
+          </a>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <h3 class="ui dividing header">信号量状态</h3>
+
+  {% if semaphore_ok %}
+  <ul class="ui list">
+    <li class="item"><a class="post-link" data-link="{{ url('backstage:server_semaphore_reset') }}">重置</a></li>
+    <li class="item">可用数: {{ semaphore_available_count }}</li>
+    <li class="item">可用键: {% for key in semaphore_available_keys %}{{ key }}. {% endfor %}</li>
+    <li class="item">锁定键:
+      <ul class="list">
+        {% for key, val in semaphore_grabbed_keys.items() %}
+          <li class="item">{{ key }}: {{ val | round(6) }} 秒前</li>
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+  {% else %}
+    不可用
+  {% endif %}
+
+  <h3 class="ui dividing header">评测失败</h3>
+
+  <p>{{ crashed_submission_count }} 份提交评测失败. <a class="post-link" data-link="{{ url('backstage:rejudge_crashed_submission') }}">重判</a></p>
+
+{% endblock %}

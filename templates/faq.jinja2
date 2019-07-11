@@ -1,0 +1,112 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}FAQ - {% endblock %}
+
+{% block page_header %}Frequently Asked Questions{% endblock %}
+
+{% macro question(q='') %}
+  <div class="item">
+    <div class="content">
+      <div class="header">Q: {{ q }}</div>
+      <div class="description">
+        {{ caller() }}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% block content %}
+
+  <div class="ui items">
+    {% call question(q='What does "EOJ" stand for?') %}
+      <p>A: EOJ is the abbreviation for ECNU Online Judge.</p>
+    {% endcall %}
+    {% call question(q='Which languages have you supported?') %}
+      <p>A: We have already supported C, C++, Java, Python(3).</p>
+    {% endcall %}
+
+    {% call question(q="What does a typical solution look like?") %}
+      <p>A: Here is an A + B Solution for each language:</p>
+      <p>For language C:</p>
+      <pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    int a, b;
+    scanf("%d%d", &a, &b);
+    printf("%d\n", a + b);
+}</code></pre>
+      <p>For language C++:</p>
+      <pre><code>#include &lt;iostream&gt;
+using namespace std;
+int main()
+{
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
+    return 0;
+}</code></pre>
+      <p>For language Java:</p>
+      <pre><code>import java.util.*;
+public class Main {
+    public static void main(String args[]) {
+        Scanner cin = new Scanner(System.in);
+        int a, b;
+        a = cin.nextInt();
+        b = cin.nextInt();
+        System.out.println(a + b);
+    }
+}</code></pre>
+      <p>For Python:</p>
+      <pre><code>a, b = map(int, input().split())
+print(a + b)</code></pre>
+    {% endcall %}
+
+    {% call question(q="Is there a way to tell whether the environment is on Online Judge or not?") %}
+      <p>A: For C/C++, macro ONLINE_JUDGE is predefined in the program. For Java and Python, currently, no.</p>
+    {% endcall %}
+
+    {% call question(q="Should I use %lld or %I64d?") %}
+      <p>A: We are under Linux environment. So definitely %lld.</p>
+    {% endcall %}
+
+    {% call question(q="Is there any another difference on judge strategy between languages?") %}
+      <p>A: Java has a -150ms bonus on the time record for each test case. Memory display in Java is currently not
+        available (always 0 sadly), but you can still get an error if you ask for too much memory.</p>
+    {% endcall %}
+
+    {% call question(q="Why is my memory status ridiculously high / low?") %}
+      <p>A: Unfortunately there are no known solution to the memory problem. We are able to get a MLE correctly, but not a memory
+      status. When it comes to Java, this problem gets worse. That's why all memory statuses for Java are 0KB.</p>
+    {% endcall %}
+
+    {% call question(q="What is the length limit of our code?") %}
+      <p>A: Code should contain no more than 65536 characters.</p>
+    {% endcall %}
+
+    {% call question(q="What is the version of compiler on the server?") %}
+      <p>A: We have Ubuntu 14.04 on the server, with Java version 1.7.0_121, g++ 4.8.4 and Python 3.4.3. Python 2 is
+      currently not supported on the server.</p>
+    {% endcall %}
+
+    {% call question(q="What are the compile commands?") %}
+      <p>A: Below are the compile commands for C, C++, Java, Python.</p>
+      <div class="ui list">
+        <div class="item">C: <pre>gcc -DONLINE_JUDGE -O2 -w -std=c99 main.c -lm -o main</pre></div>
+        <div class="item">C++: <pre>g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 main.cpp -lm -o main</pre></div>
+        <div class="item">Java: <pre>javac Main.java -encoding UTF8</pre></div>
+        <div class="item">Python: <pre>python3 -m py_compile solution.py</pre></div>
+      </div>
+    {% endcall %}
+
+    {% call question(q="Why did my solution disappear from online status?") %}
+      <p>A: Normally it is because the problem is hidden, or you have submitted it in a contest.</p>
+    {% endcall %}
+
+    {% call question(q="Can I delete my blog?") %}
+      <p>A: Currently you can't. You can hide it though. Still, be careful when you create a blog.</p>
+    {% endcall %}
+
+  </div>
+
+
+{% endblock %}

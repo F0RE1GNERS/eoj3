@@ -1,0 +1,64 @@
+{% macro submit_view(submit_action="", hide_submit=False, running_complete=False, margin_top=False) %}
+
+  {% include 'components/message.jinja2' %}
+
+  <form class="ui form" action="{{ submit_action }}" method="post">
+
+  {% if running_complete %}
+    <input type="hidden" name="complete" value="yes">
+  {% endif %}
+
+    <div class="ui error message">
+      <div class="header">提交失败！</div>
+      <ul class="list">
+        <li id="error-message-goes-here"></li>
+      </ul>
+    </div>
+
+    {% csrf_token %}
+    <div class="ui segments" id="submit-form" style="{% if not margin_top %}margin-top: 0{% endif %}">
+      <div class="ui compact segment">
+        {% if not contest %}
+          <input name="problem" value="{{ problem.pk }}" type="hidden">
+        {% else %}
+          <input name="problem" value="{{ contest_problem.identifier }}" type="hidden">
+        {% endif %}
+        <input id="default-contest" value="{% if contest %}{{ contest.pk }}{% endif %}" type="hidden">
+        <input type="hidden" name="code" id="id_code" {% if code %}value="{{ code }}"{% endif %}>
+        <div id="editor" style="height: 400px; position: relative"></div>
+      </div>
+      <div class="ui compact right aligned segment">
+        <div style="float:left;" class="ui selection search submit language dropdown">
+          <input name="lang" id="id_lang" type="hidden" value="python">
+          <i class="dropdown icon"></i>
+          <div class="text"></div>
+          <div class="menu">
+            {% for identifier, display in lang_choices %}
+            <div class="item" data-value="{{ identifier }}">{{ display }}</div>
+            {% endfor %}
+            <div class="item" data-value="auto">自动: <span class="detected-lang-name">无</span></div>
+          </div>
+        </div>
+        <div style="float:left; margin-top:7px; margin-left:15px; color:#777; cursor:pointer" id="template-button">
+          Template
+        </div>
+      {% if contest and contest_problem %}
+        <input name="problem" type="hidden" value="{{ contest_problem.identifier }}">
+      {% endif %}
+        <button class="ui right labeled icon green button {% if hide_submit %}disabled{% endif %}" id="problem-submit">
+           <i class="icon send"></i> 提交
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+  <div id="current-submission"></div>
+
+  {% if contest %}
+    <div id="past-submissions" data-url="{{ url('contest:past_submission', contest.id, contest_problem.identifier) }}"></div>
+  {% else %}
+    <div id="past-submissions" data-url="{{ url('problem:past_submission', problem.id) }}"></div>
+  {% endif %}
+
+{% endmacro %}

@@ -1,0 +1,14 @@
+{% extends 'base.jinja2' %}
+
+{% block page_header %}登录{% endblock %}
+
+{% block content %}
+
+  {% include 'components/form.jinja2' %}
+  <p><a href="{{ url('account:reset_password') }}">忘记密码</a> | <a href="{{ url('register') }}">注册账号</a></p>
+
+{% endblock %}
+
+{% block script %}
+{% include 'components/rsa_encrypt.jinja2' %}
+{% endblock %}

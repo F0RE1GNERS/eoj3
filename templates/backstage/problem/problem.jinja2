@@ -1,0 +1,65 @@
+{% extends 'backstage/base.jinja2' %}
+
+{% block content_header %}
+  Problems
+{% endblock %}
+
+{% block backstage_content %}
+
+  <div class="ui action input">
+    <input type="text" name="keyword" value="{% if keyword %}{{ keyword }}{% endif %}" placeholder="Search...">
+    <div class="ui button" id="search-button">Search</div>
+  </div>
+
+  <table class="ui celled definition table center aligned">
+    <thead class="full-width">
+      <tr>
+        <th colspan="6">
+          <div class="ui right floated buttons">
+            <a href="{{ url('backstage:tags') }}" class="ui primary labeled icon button">
+              <i class="server icon"></i> 标签管理
+            </a>
+            <a href="{{ url('backstage:source_edit') }}" class="ui button">
+              来源管理
+            </a>
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <th>可见性</th>
+        <th>#</th>
+        <th>标题</th>
+        <th>助记符</th>
+        <th>创建</th>
+        <th>修改</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for problem in problem_list %}
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox immediate">
+              <input data-link="{{ url('backstage:problem_visible_switch', problem.id) }}" type="checkbox" {% if problem.visible %}checked{% endif %}>
+            </div>
+          </td>
+          <td>{{ problem.pk }}</td>
+          <td><a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a></td>
+          <td>{{ problem.alias }}</td>
+          <td>{{ problem.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ problem.update_time | date('Y-m-d H:i:s') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#search-button").click(function () {
+      window.location = '?keyword=' + $("input[name='keyword']").val();
+    });
+  </script>
+{% endblock %}

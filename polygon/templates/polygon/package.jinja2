@@ -1,0 +1,47 @@
+{% extends 'polygon/polygon_base.jinja2' %}
+
+{% block content %}
+  <h1 class="ui header">Packages</h1>
+  <table class="ui celled small center aligned table">
+    <thead>
+      <tr>
+        <th colspan="10">
+          <div class="ui right floated buttons">
+{#            <a class="ui button" href="upload/">上传</a>#}
+            <a class="ui primary right floated button post ask" data-link="create/" data-question="请输入远程仓库的 Problem ID">
+              从 CF Polygon 拉取
+            </a>
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <th>本地 ID</th>
+        <th>远程 ID</th>
+        <th>Short Name</th>
+        <th>Revision</th>
+        <th>所在目录名</th>
+        <th>状态</th>
+        <th>创建时间</th>
+        <th>运行时间</th>
+        <th>日志</th>
+        <th>Package</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for package in package_list %}
+      <tr>
+        <td>{{ package.id }}</td>
+        <td>{{ package.remote_problem_id }}</td>
+        <td>{% if package.short_name %}{{ package.short_name }}{% endif %}</td>
+        <td>{% if package.revision %}{{ package.revision }}{% endif %}</td>
+        <td>{% if package.dir_name %}{{ package.dir_name }}{% endif %}</td>
+        <td>{{ package.get_status_display() }}</td>
+        <td>{{ package.create_time }}</td>
+        <td>{% if package.running_time %}{{ package.running_time | round(3) }} 秒{% endif %}</td>
+        <td>{% if package.status >= 0 %}<a href="{{ package.id }}/log/">下载</a>{% endif %}</td>
+        <td>{% if package.size %}<a href="{{ package.id }}/download/">{{ package.size | round(3) }} MB</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

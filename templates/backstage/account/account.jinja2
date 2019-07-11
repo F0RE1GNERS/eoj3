@@ -1,0 +1,84 @@
+{% extends 'backstage/base.jinja2' %}
+{% block content_header %}
+  Accounts
+{% endblock %}
+
+{% block backstage_content %}
+
+  {% include 'components/message.jinja2' %}
+
+  <a class="ui right floated primary button" href="{{ url('backstage:account_school') }}">Manage Schools</a>
+
+  <div class="ui action input">
+    <input type="text" name="keyword" value="{% if keyword %}{{ keyword }}{% endif %}" placeholder="Search...">
+    <select class="ui compact selection dropdown">
+      <option value="all">All</option>
+      <option value="admin">Admins</option>
+    </select>
+    <div class="ui button" id="search-button">Search</div>
+  </div>
+
+  <table class="ui celled center aligned small table">
+    <thead>
+      <tr>
+        <th>Register</th>
+        <th>Email</th>
+        <th>Who</th>
+        <th>Privilege</th>
+        <th>Active</th>
+        <th>Polygon</th>
+        <th>Password</th>
+        <th>Last Login</th>
+        <th>Solved</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in user_list %}
+        <tr>
+          <td scope="row"> {{ user.date_joined | date('Y-m-d H:i:s') }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.username }}</td>
+          <td>
+            {% if not request.user.is_superuser %}
+              {{ user.is_staff }}
+            {% else %}
+              <a class="post-link" data-link="{{ url('backstage:account_privilege_switch', user.pk) }}">
+              {{ user.is_staff }}</a>
+            {% endif %}
+          </td>
+          <td><a class="post-link" data-link="{{ url('backstage:account_active_switch', user.pk) }}">{{ user.is_active }}</a></td>
+          <td><a class="post-link" data-link="{{ url('backstage:account_polygon_switch', user.pk) }}">{{ user.polygon_enabled }}</a></td>
+          <td><a class="modal-link" data-action="{{ url('backstage:account_password_change', user.pk) }}" data-target="#changePassword">Reset</a></td>
+          <td>{{ user.last_login | date('Y-m-d H:i') }}</td>
+          <td>{{ user.solved }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+  {% call modal(title="Reset password", id="changePassword") %}
+    <form class="ui form" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <div class="field">
+        <label>Password</label>
+        <input id="password" name="password">
+      </div>
+    </form>
+  {% endcall %}
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("#search-button").click(function (e) {
+      var button = $(e.currentTarget);
+      var location = '?keyword=' + button.siblings("input[name='keyword']").val();
+      if (button.siblings(".ui.dropdown").find("select").val() == 'admin')
+        location = location + '&admin=true';
+      window.location = location;
+    });
+  </script>
+{% endblock %}

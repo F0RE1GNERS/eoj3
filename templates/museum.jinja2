@@ -1,0 +1,189 @@
+{% extends 'html_base.jinja2' %}
+
+<title>{% block base_title %}Online Judge Museum{% endblock %}</title>
+
+{% block _content %}
+  <style>
+    .ui.small.header {
+      margin-top: 4.5em;
+      margin-bottom: 3em;
+      font-weight: 500;
+    }
+    .ui.container {
+      padding-top: 5em;
+      padding-bottom: 15em;
+    }
+    .ui.statistics {
+      margin-bottom: 0 !important;
+    }
+    p {
+      text-align: center;
+    }
+    .fixed.launch.button {
+      position: fixed;
+      top: 2.5em;
+      left: 0;
+      width: 55px;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  </style>
+
+  {% macro time_show(t) %}
+    <div class="ui five statistics">
+      <div class="statistic">
+        <div class="value">{{ t.year }}</div>
+        <div class="label">YEARS</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ t.day }}</div>
+        <div class="label">DAYS</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ t.hour }}</div>
+        <div class="label">HOURS</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ t.minute }}</div>
+        <div class="label">MINUTES</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ t.second }}</div>
+        <div class="label">SECONDS</div>
+      </div>
+    </div>
+  {% endmacro %}
+
+  <a class="ui black big launch right attached fixed button" href="{{ url('home') }}">
+    <i class="home icon"></i>
+  </a>
+
+  <div class="ui text container">
+    <h1 class="ui center aligned icon header" style="margin-bottom: 4.5em">
+      <i class="world icon"></i>
+      <div class="content">
+        ONLINE JUDGE MUSEUM
+        <div class="sub header">UPD: {{ server_time | date('Y-m-d H:i:s') }}</div>
+      </div>
+    </h1>
+    <h4 class="ui horizontal divider small header">THERE HAS BEEN</h4>
+    <div class="ui three small statistics">
+      <div class="statistic">
+        <div class="value">{{ total_submission_count | intcomma }}</div>
+        <div class="label">Submissions</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ total_problem_count | intcomma }}</div>
+        <div class="label">Problems</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ total_user_count | intcomma }}</div>
+        <div class="label">Active Users</div>
+      </div>
+    </div>
+    <h4 class="ui horizontal divider small header">SINCE FIRST SUBMISSION</h4>
+    {{ time_show(first_submission_duration) }}
+    <p>Was made by {{ username_display(first_submission_author) }} at {{ first_submission_time | date('Y-m-d h:i:s') }}.</p>
+    <h4 class="ui horizontal divider small header">SINCE LAST REBOOT</h4>
+    {{ time_show(uptime) }}
+{#    <h4 class="ui horizontal divider small header">SINCE LAST MAJOR UPDATE</h4>#}
+{#    {{ time_show(eoj3_create_duration) }}#}
+    <h4 class="ui horizontal divider small header">RECENT SUBMISSIONS</h4>
+    <div class="ui three statistics">
+      <div class="statistic">
+        <div class="value">{{ submission_count_1 | intcomma }}</div>
+        <div class="label">24 hours</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ submission_count_7 | intcomma }}</div>
+        <div class="label">1 week</div>
+      </div>
+      <div class="statistic">
+        <div class="value">{{ submission_count_30 | intcomma }}</div>
+        <div class="label">30 days</div>
+      </div>
+    </div>
+    <div id="recent-submissions"></div>
+    <h4 class="ui horizontal divider small header">USER GROWTH</h4>
+    <div id="recent-users"></div>
+    <h4 class="ui horizontal divider small header">PROBLEM GROWTH</h4>
+    <div id="recent-problems"></div>
+    <h4 class="ui horizontal divider small header">ONLINE JUDGE SERVERS</h4>
+    <table class="ui two column very basic celled center aligned table">
+      <thead>
+        <tr><th>Server</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>
+      {% for server in servers %}
+        <tr>
+          <td>Server #{{ server.pk }}: {{ server.name }}</td>
+          <td>{% if server.enabled %}<span class="ui green empty circular label"></span> OK{% else %}
+            <span class="ui ref empty circular label"></span> Offline{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/node_modules/raphael/raphael.min.js"></script>
+  <script src="/static/node_modules/morris.js/morris.min.js"></script>
+  <script type="text/javascript">
+    Morris.Area({
+      element: 'recent-submissions',
+      data: [
+        {% for s in submission_stat %}
+        { date: '{{ s.date | date('Y-m-d') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count'],
+      lineColors: ['#2185D0'],
+      pointFillColors: ['#2185D0'],
+      goalLineColors: ['#2075bb'],
+      fillOpacity: 0.6,
+      lineWidth: 2,
+      pointSize: 3
+    });
+    Morris.Area({
+      element: 'recent-users',
+      data: [
+        {% for s in user_stat %}
+        { date: '{{ s.date | date('Y') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count'],
+      lineColors: ['#F2711C'],
+      pointFillColors: ['#F2711C'],
+      goalLineColors: ['#cc5f18'],
+      fillOpacity: 0.6,
+      lineWidth: 2,
+      pointSize: 3
+    });
+    Morris.Area({
+      element: 'recent-problems',
+      data: [
+        {% for s in problem_stat %}
+        { date: '{{ s.date | date('Y') }}', count: '{{ s.count }}' }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ],
+      hideHover: 'always',
+      xkey: 'date',
+      ykeys: ['count'],
+      lineColors: ['#21BA45'],
+      pointFillColors: ['#21BA45'],
+      goalLineColors: ['#1b9e3b'],
+      fillOpacity: 0.6,
+      lineWidth: 2,
+      pointSize: 3
+    });
+  </script>
+{% endblock %}

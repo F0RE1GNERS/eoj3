@@ -1,0 +1,18 @@
+{% extends 'problem/detail/base.jinja2' %}
+
+
+{% block problem_content %}
+
+  {% set submit_button %}
+    <button class="ui blue labeled submit icon button" type="submit">
+      <i class="icon edit"></i> 添加回复
+    </button>
+  {% endset %}
+
+  {{ render_comment_tree(problem) }}
+  {% include 'comments/comment_reply.jinja2' %}
+
+{% endblock %}
+
+
+

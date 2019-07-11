@@ -1,0 +1,15 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}下载报告 - {% endblock %}
+
+{% block page_header %}下载报告{% endblock %}
+
+{% block content %}
+  <p>请确认支付 <b>{{ price | round(1) }}</b> EMB 以获取<b>提交 #{{ submission }}</b>的评测报告。</p>
+  <form class="ui form" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="sub" value="{{ submission }}">
+    <button type="submit" class="ui positive button">确定</button>
+  </form>
+
+{% endblock %}

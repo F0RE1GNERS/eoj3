@@ -1,0 +1,81 @@
+{% set static_file_version = static_file_modify() %}
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/node_modules/npm-font-open-sans/open-sans.css">
+  <link rel="stylesheet" href="/static/node_modules/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/css/app.min.css?v={{ static_file_version }}">
+  <link rel="stylesheet" href="/static/node_modules/simplemde/dist/simplemde.min.css">
+  <script src="/static/node_modules/jquery/dist/jquery.min.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    {% if request.user.is_authenticated %}gtag('set', {'user_id': '{{ request.user.pk }}'});{% endif %}
+
+    gtag('config', 'UA-136856183-1');
+
+    // Feature detects Navigation Timing API support.
+    if (window.performance) {
+      // Gets the number of milliseconds since page load
+      // (and rounds the result since the value must be an integer).
+      var timeSincePageLoad = Math.round(performance.now());
+
+      // Sends the timing event to Google Analytics.
+      gtag('event', 'timing_complete', {
+        'name': 'load',
+        'value': timeSincePageLoad,
+        'event_category': 'JS Dependencies'
+      });
+    }
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136856183-1"></script>
+
+  {% block css %}
+  {% endblock %}
+  <title>{% block title %}{% endblock %}{% block base_title %}ECNU Online Judge{% endblock %}</title>
+</head>
+
+<body class="local-body">
+
+{% block _content %}
+{% endblock %}
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    messageStyle: "none",
+    config: ["MMLorHTML.js"],
+    jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+    extensions: ["TeX/AMSmath.js", "TeX/AMSsymbols.js", "MathMenu.js", "MathZoom.js"]
+  });
+</script>
+<script src="/static/node_modules/mathjax/MathJax.js"></script>
+<script src="/static/node_modules/moment/moment.js"></script>
+<script src="/static/node_modules/clipboard/dist/clipboard.min.js"></script>
+<script src="/static/node_modules/js-cookie/src/js.cookie.js"></script>
+<script src="/static/node_modules/jquery-address/src/jquery.address.js"></script>
+<script src="/static/node_modules/lodash/lodash.min.js"></script>
+<script src="/static/node_modules/semantic-ui-less/semantic.js"></script>
+<script src="/static/node_modules/simplemde/dist/simplemde.min.js"></script>
+<script src="/static/node_modules/ace-builds/src-noconflict/ace.js"></script>
+<script src="/static/node_modules/ace-builds/src-noconflict/ext-language_tools.js"></script>
+<script src="/static/node_modules/underscore/underscore.js"></script>
+<script src="/static/node_modules/semantic-ui-calendar/dist/calendar.min.js"></script>
+<script src="/static/js/lang-detector.js?v={{ static_file_version }}"></script>
+<script src="/static/js/markdown.js?v={{ static_file_version }}"></script>
+<script src="/static/js/longpoll.js?v={{ static_file_version }}"></script>
+<script src="/static/js/input.file.js?v={{ static_file_version }}"></script>
+<script src="/static/js/app.js?v={{ static_file_version }}"></script>
+<script src="/static/js/post.js?v={{ static_file_version }}"></script>
+<script src="/static/js/submit.js?v={{ static_file_version }}"></script>
+{% block script %}
+{% endblock %}
+
+</body>
+</html>

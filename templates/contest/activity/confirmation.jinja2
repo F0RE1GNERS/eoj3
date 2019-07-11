@@ -1,0 +1,29 @@
+<p>{{ participant.real_name }}，您好！</p>
+
+<p>感谢报名参加 <b>{{ activity.title }}</b>。</p>
+
+{% if participant.is_deleted %}
+<p><b>您已放弃这次比赛。您收到这封邮件是为了确认您的「放弃」操作。如果存疑，请联系下面的邮箱。</b></p>
+{% endif %}
+
+{{ activity.description | markdown | safe }}
+
+<p>您提供的报名信息如下：</p>
+
+<ul>
+  <li>学校：{{ participant.school }}</li>
+  <li>学号：{{ participant.student_id }}</li>
+  <li>邮箱：{{ participant.email }}</li>
+  <li>电话：{{ participant.phone }}</li>
+  <li>专业：{{ participant.get_major_display() }}</li>
+  <li>性别：{{ participant.get_gender_display() }}</li>
+  <li>毕业年份：{{ participant.graduate_year }}</li>
+</ul>
+
+<p>请尽快点击下面的确认链接确认报名！<b>逾期未确认视为自动放弃。</b></p>
+
+<p><a href="{{ link | safe }}">{{ link | safe }}</a></p>
+
+<p>如果上述报名信息有误，请联系：<a href="mailto:acmsupport@admin.ecnu.edu.cn">acmsupport@admin.ecnu.edu.cn</a>。</p>
+
+<p>EOJ Team</p>

@@ -1,0 +1,18 @@
+{% extends 'base.jinja2' %}
+{% set hide_header = True %}
+
+{% block page_header %}题目集{% endblock %}
+
+{% block content %}
+
+  <div class="ui stackable secondary menu small">
+    <a class="{{ active('problem:recommendation') }} item" href="{{ url('problem:recommendation') }}">智能推荐</a>
+    <a class="{{ active('problem:list') }} item" href="{{ url('problem:list') }}">题目集</a>
+    <a class="{{ active('problem:source') }} item" href="{{ url('problem:source') }}">来源</a>
+    <a class="{{ active('problem:millionaire') }} item" href="{{ url('problem:millionaire') }}">大富翁</a>
+    <a class="{{ active('problem:status') }} item" href="{{ url('problem:status') }}">评测状态</a>
+  </div>
+
+  {% block problem_content %}
+  {% endblock %}
+{% endblock %}

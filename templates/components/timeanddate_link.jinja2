@@ -1,0 +1,3 @@
+{% macro timeanddate_link(time) %}
+<a href="https://www.timeanddate.com/worldclock/fixedtime.html?day={{ time.day }}&month={{ time.month }}&year={{ time.year }}&hour={{ time.hour }}&min={{ time.minute }}&sec={{ time.second }}&p1=237">{{ time | date('Y-m-d H:i') }}</a>
+{% endmacro %}

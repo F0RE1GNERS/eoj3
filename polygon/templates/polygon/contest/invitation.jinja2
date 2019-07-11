@@ -1,0 +1,59 @@
+{% extends 'polygon/contest/base.jinja2' %}
+
+{% block contest_content %}
+
+  {% include 'components/message.jinja2' %}
+  <div class="ui buttons">
+    <button class="ui primary button modal-link" data-target="#addInvitationModal">增加邀请</button>
+    <button class="ui button modal-link" data-toggle="modal" data-target="#importInvitationModal">从名单导入</button>
+    <a role="button" class="ui button" href="{{ url('polygon:contest_invitation_download', contest.pk) }}">导出为 csv</a>
+  </div>
+
+  <table class="ui table center aligned">
+    <thead>
+      <tr>
+        <th>邀请码</th>
+        <th>相关信息</th>
+        <th>分配给用户</th>
+        <th>删除</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for invitation in invitation_list %}
+        <tr>
+          <td>{{ invitation.code }}</td>
+          <td>{{ invitation.comment }}</td>
+          <td><a class="modal-link" data-target="#assignInvitationModal" data-action="{{ url('polygon:contest_invitation_assign', contest.pk, invitation.pk) }}">分配</a></td>
+          <td><a class="post prompt" data-link="{{ url('polygon:contest_invitation_delete', contest.pk, invitation.pk) }}">删除</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ my_paginator() }}
+
+  {% call modal(title="名单粘贴到这里", id="importInvitationModal", action=url('polygon:contest_invitation_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field"><textarea name="list" id="list" rows="7" placeholder="一行一个"></textarea></div>
+  {% endcall %}
+
+  {% call modal(title="分配邀请码", id="assignInvitationModal", action="#") %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>用户名:</label>
+      <input name="username">
+    </div>
+  {% endcall %}
+
+  {% call modal(title="增加邀请码", id="addInvitationModal", action=url('polygon:contest_invitation_create', contest.pk)) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>个数:</label>
+      <input type="number" value="1" id="number" name="number">
+    </div>
+  {% endcall %}
+
+{% endblock %}

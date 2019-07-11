@@ -1,0 +1,29 @@
+{% macro blog_preview(blog) %}
+  {# overflow hidden (temporary) #}
+  <div class="event" style="overflow-x: hidden;">
+    <div class="label">
+      <a href="{{ url('profile', blog.author.pk) }}"><img src="{{ blog.author.avatar_small.url }}"></a>
+    </div>
+    <div class="content">
+      <div class="summary">
+        {{ username_display(blog.author) }}: {{ blog.title }}
+        <div class="date">
+          {{ blog.edit_time | naturaltime }}
+        </div>
+        <p></p>
+      </div>
+      <div class="extra text">
+        {% cache 3600 'blog_preview#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
+          {{ blog.text | markdown | get_intro }}
+        {% endcache %}
+        <a href="{{ url('blog:detail', blog.pk) }}">...查看全文</a>
+      </div>
+      <div class="meta">
+        <a class="like like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
+          <i class="heart icon {% if blog.likes__flag != 1  %} empty {% endif %}"></i>
+          <span>{{ blog.likes__count }}</span> 个赞
+        </a>
+      </div>
+    </div>
+  </div>
+{% endmacro %}

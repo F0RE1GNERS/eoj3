@@ -1,0 +1,99 @@
+{% extends 'base.jinja2' %}
+{% from 'components/post_link.jinja2' import post_link %}
+{% from 'components/profile_card.jinja2' import profile_card with context %}
+{% from 'components/blog_preview.jinja2' import blog_preview %}
+
+{% block page_header %}ECNU Online Judge{% endblock %}
+
+{% block content %}
+
+  <div class="ui stackable grid">
+
+    {% if blog_list %}
+    <div class="eleven wide column">
+      <div class="ui feed">
+        {% for blog in blog_list %}
+          {{ blog_preview(blog) }}
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="eleven wide column">
+      <p>没有博客或者博客功能已关闭。</p>
+    </div>
+    {% endif %}
+
+    <div class="five wide column">
+
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">公告牌</div>
+        </div>
+        <div class="content">
+          <div class="description">{{ bulletin | markdown | safe }}</div>
+        </div>
+      </div>
+
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">牛逼网友</div>
+        </div>
+        <div class="content">
+          <table class="ui very basic celled very compact center aligned table">
+            <thead>
+              <tr>
+                <th class="ten wide">用户名</th>
+                <th class="six wide">积分</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for rating_user in global_rating %}
+              <tr>
+                <td>{{ username_display(rating_user) }}</td>
+                <td><a href="{{ url('contest:rating') }}?q={{ rating_user.pk }}">{{ rating_user.rating }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="extra content right aligned">
+          <a href="{{ url('contest:rating') }}?full=1">
+            <i class="user icon"></i> 查看全部用户
+          </a>
+        </div>
+      </div>
+
+      {{ profile_card(request.user, solved) }}
+
+      {% if comment_list %}
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">最新动态</div>
+        </div>
+        <div class="content">
+          <div class="ui small feed">
+            {% for comment in comment_list %}
+            <div class="event">
+              <div class="content">
+                {% if comment.__class__.__name__ == "Blog" %}
+                  {{ username_display(comment.author) }}: <a href="{{ url('blog:detail', comment.pk) }}">{{ comment.title }}</a> <span data-tooltip="Blog" data-inverted=""><i class="icon idea"></i></span> <span class="date">{{ comment.create_time | naturaltime }}</span>
+                {% elif comment.__class__.__name__ == "XtdComment" %}
+                  {% if comment.content_type.model == "problem" %}
+                    {{ username_display(comment.user) }}: {{ comment.comment }} &mdash; <a href="{{ url('problem:discussion', comment.object_pk) }}">Problem #{{ comment.object_pk }} &mdash; {{ comment.content_object.title }}</a> <span data-tooltip="Discussion" data-inverted=""><i class="icon comments"></i></span> <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                  {% elif comment.content_type.model == "blog" %}
+                    {{ username_display(comment.user) }}: {{ comment.comment }} &mdash; <a href="{{ url('blog:detail', comment.object_pk) }}">Blog &mdash; {{ comment.content_object.title }}</a> <span data-tooltip="Comment in a blog" data-inverted=""><i class="icon reply"></i></span> <span class="date">{{ comment.submit_date | naturaltime }}</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+{% endblock %}

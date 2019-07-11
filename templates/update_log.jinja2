@@ -1,0 +1,33 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}更新日志 - {% endblock %}
+
+{% block page_header %}更新日志{% endblock %}
+
+{% block content %}
+
+  <table class="ui celled center aligned small table">
+    <thead>
+      <tr>
+        <th>创建时间</th>
+        <th>类型</th>
+        <th>优先级</th>
+        <th>Polygon</th>
+        <th>内容</th>
+        <th>签名</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in log_list %}
+        <tr>
+          <td scope="row">{{ log.create_time | date('Y-m-d H:i:s') }}</td>
+          <td>{{ log.get_log_type_display() }}</td>
+          <td>{{ log.get_priority_display() }}</td>
+          <td>{{ log.is_about_polygon }}</td>
+          <td>{{ log.content }}</td>
+          <td>{% if log.created_by %}{{ username_display(log.created_by) }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

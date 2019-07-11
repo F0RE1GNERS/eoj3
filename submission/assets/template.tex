@@ -1,0 +1,34 @@
+% !TEX encoding = UTF-8 Unicode
+\RequirePackage{fix-cm}
+% \documentclass[a4paper,11pt,UTF8]{article}
+\documentclass[a4paper,10pt,UTF8]{ctexart}
+
+\usepackage{fancyhdr,array,lastpage,amsmath,mathtools,enumitem,graphicx,multirow,tocbibind,longtable,makecell,varwidth,titlesec,bm,booktabs,comment,pdfpages}
+%\setCJKmainfont[BoldFont=Heiti SC Medium]{Songti SC Light}
+%\setCJKsansfont{Heiti SC}
+
+\usepackage[left=2cm,right=2cm,top=3cm,bottom=2.5cm]{geometry}
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage[Q=yes]{examplep}
+\setmonofont{Courier}
+
+\pagestyle{fancy}
+\lhead{$$username$$}
+\rhead{$$comment$$}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\lstset{escapeinside=``, breaklines=true, frame=none, extendedchars=false, basicstyle=\ttfamily\small, showstringspaces=false, tabsize=4, numbers=left, stepnumber=1}
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{1.5ex plus 0.5ex minus 0.2ex}
+\linespread{1.0}
+
+\begin{document}
+
+\begin{lstlisting}[language=C++]
+$$code$$
+\end{lstlisting}
+
+\end{document}

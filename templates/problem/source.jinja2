@@ -1,0 +1,24 @@
+{% extends 'problem/base.jinja2' %}
+
+{% block problem_content %}
+
+<table class="ui celled unstackable table">
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th class="center aligned one wide">#</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for source in source_list %}
+      <tr>
+        <td>
+          <a href="{{ url('problem:list') }}?{{ url_encode({'source': source.source}) }}">{{ source.source }}</a>
+        </td>
+        <td class="center aligned">{{ source.count }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

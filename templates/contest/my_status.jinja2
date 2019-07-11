@@ -1,0 +1,27 @@
+{% extends 'contest/base.jinja2' %}
+{% from 'components/status.jinja2' import status with context %}
+
+{% block contest_title %}我的提交 - {% endblock %}
+{% block contest_content %}
+
+  <div class="ui horizontal divided link list">
+    <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my" target="_blank">
+      下载所有代码
+    </a>
+    <a class="item" href="{{ url('contest:download_code', contest.pk) }}?t=my_accepted" target="_blank">
+      下载 AC 代码
+    </a>
+    {% if contest.contest_type == 1 %}
+      <a class="item post-link" data-link="{{ url('contest:my_claim', contest.pk) }}">
+        一键提交所有做过的题
+      </a>
+    {% endif %}
+  </div>
+
+  {% include 'components/message.jinja2' %}
+
+  <div class="ui sub header" style="float:right; margin-top: 0">带 * 的是非正式提交</div>
+
+  {{ status() }}
+
+{% endblock %}

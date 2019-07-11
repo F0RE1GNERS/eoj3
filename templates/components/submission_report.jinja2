@@ -1,0 +1,70 @@
+{% if testcases %}
+<div class="ui header">
+  <i class="ordered list icon"></i>
+  <div class="content">
+    评测报告
+    <div class="sub header">只显示前 512 个字节</div>
+  </div>
+</div>
+
+<div class="submission-report">
+  <div class="passage examples">
+  {% for case in testcases %}
+    <div class="indicator" id="report{{ loop.index }}"><b>测试点 #{{ loop.index }}: {{ case.meta }}</b></div>
+    <div class="example">
+      <div class="input">
+        <div class="title">Input</div>
+        <pre>{{ case.input }}</pre>
+      </div>
+      <div class="output">
+        <div class="title">Output</div>
+        <pre>{{ case.output }}</pre>
+      </div>
+      {% if case.stderr %}
+      <div class="stderr">
+        <div class="title">Stderr</div>
+        <pre>{{ case.stderr }}</pre>
+      </div>
+      {% endif %}
+      <div class="answer">
+        <div class="title">Answer</div>
+        <pre>{{ case.answer }}</pre>
+      </div>
+      <div class="checker">
+        <div class="title">Checker's comment</div>
+        <pre>{{ case.checker }}</pre>
+      </div>
+      {% if case.pipe1 %}
+      <div class="pipe">
+        <div class="title">Pipe 1</div>
+        <pre>{{ case.pipe1 }}</pre>
+      </div>
+      {% endif %}
+      {% if case.pipe2 %}
+      <div class="pipe">
+        <div class="title">Pipe 2</div>
+        <pre>{{ case.pipe1 }}</pre>
+      </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+  <a class="ui fixed circular button icon" href="#top">
+    <i class="arrow up icon"></i>
+  </a>
+  <style>
+    .fixed.button {
+      position: fixed;
+      bottom: 2.5em;
+      right: 2em;
+      height: auto;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 1;
+    }
+  </style>
+
+
+{% endif %}

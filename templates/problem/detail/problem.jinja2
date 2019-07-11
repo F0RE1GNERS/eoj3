@@ -1,0 +1,50 @@
+{% extends 'problem/detail/base.jinja2' %}
+{% from 'components/problem.jinja2' import problem_view with context %}
+{% from 'components/submit.jinja2' import submit_view with context %}
+
+{% block problem_content %}
+
+  <div class="ui stackable grid">
+    <div class="eleven wide column">
+      {{ problem_view(problem, False) }}
+    </div>
+    <div class="five wide column">
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="description">
+            <p><b>{{ user_ac_count | intcomma }} 人解决</b>，{{ user_all_count | intcomma }} 人已尝试。</p>
+            <p><b>{{ ac_count | intcomma }} 份提交通过</b>，共有 {{ all_count | intcomma }} 份提交。</p>
+            <p><b>{{ difficulty | round(1) }}</b> EMB 奖励。</p>
+          </div>
+        </div>
+        <div class="content">
+          <div class="description">
+            <p><b>创建</b>: {{ problem.create_time | naturaltime }}.</p>
+            <p><b>修改</b>: {{ problem.update_time | naturaltime }}.</p>
+            <p><b>最后提交</b>: {% if last_sub_time %}{{ last_sub_time | naturaltime }}{% else %}N/A{% endif %}.</p>
+            <p><b>来源</b>: {% if problem.source %}<a href="{{ url('problem:list') }}?source={{ problem.source }}">{{ problem.source }}</a>{% else %}N/A{% endif %}</p>
+          </div>
+        </div>
+      </div>
+
+      {% include 'problem/detail/tag.jinja2' %}
+    </div>
+  </div>
+
+  <div class="ui hidden divider" style="margin-bottom: 3em;"></div>
+
+  {% if request.user.is_authenticated %}
+  {{ submit_view(submit_action=url('problem:submit', problem.pk), margin_top=True) }}
+  {% endif %}
+
+  <script>
+  gtag('event', 'view', {
+    'event_category': 'problems',
+    'event_label': '{{ problem.id }}',
+    'value': 0
+  });
+  </script>
+
+{% endblock %}
+
+

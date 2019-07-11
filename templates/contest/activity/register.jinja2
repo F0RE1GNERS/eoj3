@@ -1,0 +1,71 @@
+{% extends 'base.jinja2' %}
+{% from 'components/modal.jinja2' import modal with context %}
+
+{% block title %}Activities - {% endblock %}
+
+{% block page_header %}Register: {{ activity.title }}{% endblock %}
+
+{% block content %}
+
+  {% if privileged %}
+  <a class="ui button basic" href="{{ url('contest:activity_update', activity.pk) }}">Update this</a>
+  <a class="ui button basic" href="{{ url('contest:activity_participant', activity.pk) }}">Participants</a>
+  {% endif %}
+
+  <table class="ui definition table">
+    <tbody>
+      <tr>
+        <td>Title</td>
+        <td>{{ activity.title }}</td>
+      </tr>
+      <tr>
+        <td>Description</td>
+        <td>{{ activity.description | markdown | safe }}</td>
+      </tr>
+      <tr>
+        <td>Register Open</td>
+        <td>{{ activity.register_start_time | date("Y-m-d H:i") }}</td>
+      </tr>
+      <tr>
+        <td>Register Closed</td>
+        <td>{{ activity.register_end_time | date("Y-m-d H:i") }}</td>
+      </tr>
+      <tr>
+        <td>Registration Status</td>
+        <td><b>{% if registered %}Already Registered{% else %}Out of activity{% endif %}</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if register_open %}
+  <h3 class="ui header">Registration Details</h3>
+
+  {% set submit_button %}
+    <button type="submit" class="ui positive button">{% if registered %}Update Info{% else %}Register{% endif %}</button>
+    {% if registered %}<a class="post-link ui red button" data-link="{{ url('contest:activity_quit', activity.id) }}">Quit</a>{% endif %}
+  {% endset %}
+
+  {% include 'components/form.jinja2' %}
+
+  {% call modal(title="Add a school", id="addSchoolModal", action=url('contest:activity_add_school')) %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label for="id_name">English Full Name:</label>
+      <input id="id_name" maxlength="192" name="name" placeholder="East China Normal University" required="" type="text">
+    </div>
+    <div class="field ">
+      <label for="id_abbr">Abbreviation:</label>
+      <input id="id_abbr" maxlength="192" name="abbr" placeholder="ECNU" required="" type="text">
+    </div>
+    <div class="field ">
+      <label for="id_alias">Chinese Name:</label>
+      <input id="id_alias" maxlength="192" name="alias" placeholder="华东师范大学" type="text">
+    </div>
+  {% endcall %}
+
+  {% else %}
+  <h4 class="ui header">Registration is over. Contact admin if you have any questions.</h4>
+  {% endif %}
+
+{% endblock %}

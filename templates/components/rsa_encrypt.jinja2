@@ -1,0 +1,24 @@
+<script src="/static/js/forge.min.js"></script>
+<script>
+  function doRSA(stringToBeEncrypted, pubkey) {
+    var publicKey = forge.pki.publicKeyFromPem(pubkey);
+    var buffer = forge.util.createBuffer(stringToBeEncrypted, 'utf8');
+    var binaryString = buffer.getBytes();
+    var encrypted = publicKey.encrypt(binaryString, 'RSA-OAEP', {
+        md: forge.md.sha256.create(),
+        mgf1: {
+            md: forge.md.sha256.create()
+        }
+    });
+    return forge.util.encode64(encrypted);
+  }
+
+  var passwords = $("*[name='password'], *[name='repeat_password']");
+  passwords.val("");
+  var public_key = $("*[name='public_key']").val();
+  $("form").submit(function () {
+    passwords.each(function () {
+      $(this).val(doRSA($(this).val(), public_key));
+    })
+  });
+</script>
