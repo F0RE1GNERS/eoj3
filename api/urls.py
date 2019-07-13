@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from api.views.problem import ProblemView
+from api.views.user import UserView
 from home import search_api
 from submission.views import submission_code_api, submission_count_api
 from utils.markdown3 import markdown_convert_api
@@ -32,4 +33,5 @@ urlpatterns += [
 urlpatterns += [
   url(r'^status/hidden/$', SubmissionListView.as_view()),
   url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view()),
+  url(r'^user/(?P<pk>\d+)/$', UserView.as_view()),
 ]
