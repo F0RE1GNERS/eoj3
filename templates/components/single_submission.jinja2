@@ -1,4 +1,5 @@
 {# This template is for author only if access directly #}
+{% from 'components/modal.jinja2' import modal with context %}
 
 <table class="ui celled table structured">
   <thead>
@@ -73,6 +74,28 @@
     {% endif %}
   </tbody>
 </table>
+
+{%  if submission.status != 0 %}
+    <div class="ui animated fade button fluid basic orange modal-link" tabindex="0" data-target="#askForDebug">
+      <div class="visible content">
+          <i class="question circle outline icon"></i>
+          需要帮助吗？
+      </div>
+      <div class="hidden content">
+        <i class="right arrow icon"></i>
+          一键提交到悬赏区吧
+      </div>
+    </div>
+
+    {% call modal(title="说些什么，让大家明白你在哪里遇到了困难：", id="askForDebug", action=url('polygon:contest_invitation_create', submission.id)) %}
+        {% csrf_token %}
+    {#        <input type="hidden" name="next" value="{{ request.path }}">#}
+        <div class="field">
+          <label>留言:</label>
+            <textarea placeholder="请问我的代码哪里遇到了问题？我觉得有问题的地方大概是……" id="content" name="content"></textarea>
+        </div>
+    {% endcall %}
+{% endif %}
 
 {% if submission.next_problem %}
   <a class="ui success icon message" href="{{ url('problem:feedback_compare') }}" target="_blank">

@@ -19,6 +19,9 @@ repo/
 # local settings
 local_settings.py
 
+# dev env
+init.bat
+
 # library
 cdn/
 node_modules/
