@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect, HttpResponse
-from django.template import loader, Context
+from django.template import loader, Context, RequestContext
 from django.views.generic import View
 from os import path
 from pygments import highlight
@@ -21,6 +21,7 @@ from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
 from dispatcher.models import Server
 from utils.permission import get_permission_for_submission
+from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
 from .models import Submission, SubmissionReport
 from submission.util import SubmissionStatus
 
@@ -51,10 +52,14 @@ def render_submission(submission: Submission, permission=1, hide_problem=False, 
     judge_server = Server.objects.get(pk=submission.judge_server).name
   except:
     judge_server = ''
-  t = loader.get_template('components/single_submission.jinja2')
-  c = Context({'submission': submission, 'hide_problem': hide_problem, 'show_percent': show_percent,
-               'server': judge_server, 'rejudge_authorized': permission >= 2 and rejudge_available})
-  return t.render(c)
+  c = RequestContext(GlobalRequestMiddleware.get_current_request(),
+                     {'submission': submission,
+                      'hide_problem': hide_problem,
+                      'show_percent': show_percent,
+                      'server': judge_server,
+                      'rejudge_authorized': permission >= 2 and rejudge_available
+                      })
+  return loader.render_to_string('components/single_submission.jinja2', c, GlobalRequestMiddleware.get_current_request())
 
 
 def render_submission_report(pk):
