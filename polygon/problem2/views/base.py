@@ -152,7 +152,6 @@ class ProblemClone(PolygonBaseMixin, View):
 
     return redirect(reverse('polygon:problem_list_2') + "?exact=%d" % saved_id)
 
-
 class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
   raise_exception = True
   post_allowed_for_low_permission = False

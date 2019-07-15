@@ -8,9 +8,20 @@
     <thead class="full-width">
       <tr>
         <th colspan="5">
-          <button id="contest-create-button" class="ui right floated primary labeled icon button">
+          <div class="ui right floated buttons">
+          {% set clone_message = "输入你想要复制的作业题库ID。该项目必须是作业集而不能是比赛，同时你必须拥有作业集的管理权限。复制作业集会复制包括作业起始时间、通知公告、题目列表在内的所有信息，但不包括参与者信息，您需要手动导入学生名单，以及修改起始时间和通知（如果必要）。" %}
+            <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Contest
-          </button>
+            </button>
+            {% if user is admin %}
+            <div class="ui primary floating dropdown icon button">
+              <i class="dropdown icon"></i>
+              <div class="menu">
+                <a class="post ask item" data-link="{{ url('polygon:homework_clone') }}?force=1" data-question="{{ clone_message }}">复制历史作业集到新学期作业集</a>
+              </div>
+            </div>
+            {% endif %}
+          </div>
         </th>
       </tr>
       <tr>
