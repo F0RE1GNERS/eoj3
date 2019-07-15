@@ -3,6 +3,7 @@ import traceback
 from collections import defaultdict
 from os import path
 
+import django_comments
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -613,3 +614,13 @@ class ProblemFeedbackCompare(LoginRequiredMixin, TemplateView):
     data["problem1"] = Problem.objects.get(id=accept_problems[0])
     data["problem2"] = Problem.objects.get(id=accept_problems[1])
     return data
+
+class RewardView(View):
+  def Post(self):
+    comment = django_comments.get_model().objects.create()
+    comment.objects = Submission.objects.get(pk=self.request.POST.get('id'))
+    comment.user_name = self.request.user.username
+    comment.user_email = self.request.user.email
+    comment.comment = self.request.POST.get('content')
+    comment.save()
+    return redirect(reverse('problem:discussion', comment.objects.id))
