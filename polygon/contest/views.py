@@ -5,6 +5,7 @@ from os import path
 from threading import Thread
 
 import shortuuid
+from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
@@ -126,6 +127,33 @@ class ContestCreate(PolygonBaseMixin, View):
     contest.save(update_fields=['title'])
     contest.managers.add(request.user)
     return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
+
+class HomeworkClone(PolygonBaseMixin, View):
+  def post(self, request, *args, **kwargs):
+    try:
+      n = request.POST['answer']
+      contest = Contest.objects.get(pk=n)
+      if not is_contest_manager(request.user, contest):
+        raise PermissionError
+      if contest.contest_type != 1:
+        raise PermissionError
+      problem_list = contest.contestproblem_set.all()
+      new_hw = Contest.objects.create(title='Contest')
+      new_hw.title = 'Contest #%d' % contest.id
+      new_hw.save(update_fields=['title'])
+      new_hw.managers.add(request.user)
+      saved_id = new_hw.id
+      contest.id = saved_id
+      contest.title = contest.title + ' - 复制'
+      contest.create_time = datetime.now()
+      contest.save()
+      for p in problem_list:
+        contest.contestproblem_set.create(identifier=p.identifier, problem_id=p.problem_id, weight=p.weight)
+    except:
+      messages.error(request, "Homework does not exist or not available.")
+      return redirect(reverse('polygon:contest_list'))
+
+    return redirect(reverse('polygon:contest_list') + "?exact=%d" % saved_id)
 
 
 class ContestAccessManage(PolygonContestMixin, View):
