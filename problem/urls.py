@@ -21,5 +21,4 @@ urlpatterns = [
   url(r'^compare/$', v.compare_with, name='compare_with'),
   url(r'^recommending/$', v.ProblemRecommendation.as_view(), name='recommendation'),
   url(r'^feedback/compare/$', v.ProblemFeedbackCompare.as_view(), name='feedback_compare'),
-  url(r'^reward/$', v.RewardView.as_view, name='reward')
 ]

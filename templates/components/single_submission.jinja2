@@ -95,9 +95,13 @@
         </div>
     </div>
 
-    {% call modal(title="说些什么，让大家明白你在哪里遇到了困难：", id="askForDebug", action=url('problem:reward')) %}
+    {% call modal(title="说些什么，让大家明白你在哪里遇到了困难：", id="askForDebug", action=url('blog:reward')) %}
             {% csrf_token %}
             <input type="hidden" name="id" value={{ submission.id }}>
+            <div class="field">
+                <label>title:</label>
+                <input placeholder="标题" id="title" name="title">
+            </div>
             <div class="field">
                 <label>留言:</label>
                 <textarea placeholder="请问我的代码哪里遇到了问题？我觉得有问题的地方大概是……" id="content" name="content"></textarea>

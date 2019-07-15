@@ -3,6 +3,7 @@ from django.db.models import Sum, Case, When, IntegerField
 from account.models import User
 from problem.models import Problem
 from django.utils.translation import ugettext_lazy as _
+from submission.models import Submission
 
 
 class BlogQuerySet(models.QuerySet):
@@ -81,3 +82,8 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ["-create_time"]
+
+
+class BlogProblem(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)

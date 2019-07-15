@@ -16,7 +16,8 @@ from problem.models import Problem
 from problem.statistics import get_accept_problem_count
 from utils.comment import CommentForm
 from .forms import BlogEditForm
-from .models import Blog, Comment, BlogLikes, BlogRevision
+from .models import Blog, Comment, BlogLikes, BlogRevision, BlogProblem
+from submission.models import Submission
 
 
 class GenericView(ListView):
@@ -170,3 +171,19 @@ class BlogDeleteComment(LoginRequiredMixin, View):
         else:
             return PermissionDenied(_("You don't have the access."))
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
+
+class RewardView(View):
+    def post(self, request):
+        submission = Submission.objects.get(pk=request.POST.get('id'))
+        if(submission.author != request.user):
+            raise PermissionDenied
+        instance = Blog()
+        instance.title = request.POST.get('title')
+        instance.text = request.POST.get('content')
+        instance.visible = True
+        instance.hide_revisions = False
+        instance.author = request.user
+        instance.save()
+        instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
+        BlogProblem.objects.create(blog=instance, submission=submission)
+        return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))
