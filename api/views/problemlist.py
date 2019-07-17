@@ -12,8 +12,13 @@ class ProblemListSerializer(serializers.ModelSerializer):
     problem_list_info = serializers.SerializerMethodField()
 
     def get_problem_list_info(self, problem):
-        return list(zip([_id[0] for _id in Problem.objects.values_list("id")[:]],
-                        [title[0] for title in Problem.objects.values_list("title")[:]]))
+        ids = [_id[0] for _id in Problem.objects.values_list("id")[:]]
+        titles = [title[0] for title in Problem.objects.values_list("title")[:]]
+        id_titles = []
+        space_between = ".   "
+        for i in range(len(ids)):
+            id_titles.append(str(ids[i]) + space_between + str(titles[i]))
+        return id_titles
 
 
 class ProblemListView(RetrieveAPIView):
