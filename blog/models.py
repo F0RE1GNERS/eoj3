@@ -8,6 +8,22 @@ from contest.models import Contest
 from contest.models import ContestProblem
 
 
+class BlogManager(models.Manager):
+
+  def get_status_list(self, show_all=False, filter_user=None):
+    q = models.Q()
+    if not show_all:
+        q &= models.Q(is_reward=True, contest=None)
+        if(filter_user):
+            q |= models.Q(contest__participants__username__contains=filter_user.username)
+            q |= models.Q(contest__managers__username__contains=filter_user.username)
+            q |= models.Q(contest__volunteers__username__contains=filter_user.username)
+            q |= models.Q(contest__authors__username__contains=filter_user.username)
+    else:
+        q &= models.Q(is_reward=True)
+    return self.filter(q).distinct()
+
+
 class BlogQuerySet(models.QuerySet):
     def with_likes(self):
         return self.annotate(
@@ -27,6 +43,19 @@ class BlogQuerySet(models.QuerySet):
                     Case(When(bloglikes__user=user, bloglikes__flag='like', then=1),
                          When(bloglikes__user=user, bloglikes__flag='dislike', then=-1), default=0, output_field=IntegerField()))
         )
+
+    def get_rewards_list(self, show_all=False, filter_user=None):
+        q = models.Q()
+        if not show_all:
+            q &= models.Q(is_reward=True, contest=None)
+            if (filter_user):
+                q |= models.Q(contest__participants__username__contains=filter_user.username)
+                q |= models.Q(contest__managers__username__contains=filter_user.username)
+                q |= models.Q(contest__volunteers__username__contains=filter_user.username)
+                q |= models.Q(contest__authors__username__contains=filter_user.username)
+        else:
+            q &= models.Q(is_reward=True)
+        return self.filter(q).distinct()
 
 
 class BlogRevision(models.Model):
@@ -57,7 +86,7 @@ class Blog(models.Model):
 
     is_reward = models.BooleanField("是否是悬赏", default=False)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, default=None, null=True)
-    problem = models.ForeignKey(ContestProblem, on_delete=models.CASCADE, default=None, null=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, default=None, null=True)
 
     class Meta:
         ordering = ["-edit_time"]

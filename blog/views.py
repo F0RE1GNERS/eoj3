@@ -26,7 +26,7 @@ class GenericView(ListView):
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
-        qs = self.user.blog_set.all().with_likes().with_likes_flag(self.request.user)
+        qs = self.user.blog_set.filter(is_reward=False).with_likes().with_likes_flag(self.request.user)
         if not is_admin_or_root(self.request.user) and not self.request.user == self.user:
             qs = qs.filter(visible=True)
         return qs
@@ -183,9 +183,33 @@ class RewardView(View):
         instance.visible = True
         instance.hide_revisions = False
         instance.author = request.user
-        instance.contest = submission.contest
+        if submission.contest is None:
+            instance.contest = None
+        else:
+            instance.contest = submission.contest
         instance.is_reward = True
-        instance.problem = submission.problem.contestproblem_set.all().get(contest=instance.contest)
-        print(submission.problem.contestproblem_set)
+        instance.problem = submission.problem
         instance.save()
         return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))
+
+class GetRewardsView(ListView):
+    template_name = 'blog/generic.jinja2'
+    context_object_name = 'blog_list'
+
+    def get_queryset(self):
+        self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
+        if self.request.user.is_authenticated:
+            qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user), self.request.user).with_likes().with_likes_flag(self.request.user)
+        else:
+            qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user)).with_likes().with_likes_flag(self.request.user)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        res = super(GetRewardsView, self).get_context_data(**kwargs)
+        res['profile'] = self.user
+        res['solved'] = get_accept_problem_count(self.user.pk)
+        if is_admin_or_root(self.request.user):
+            res['is_privileged'] = True
+        if self.request.user == self.user:
+            res['is_author'] = res['is_privileged'] = True
+        return res
