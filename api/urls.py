@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import (
   TokenVerifyView
 )
 
+from api.views import tag
 from api.views.problem import ProblemView
 from api.views.problemlist import ProblemListView
 from api.views.user import UserView
@@ -36,4 +37,5 @@ urlpatterns += [
   url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view()),
   url(r'^user/(?P<pk>\d+)/$', UserView.as_view()),
   url(r'^problem_list/(?P<pk>\d+)/$', ProblemListView.as_view()),
+  url(r'^tag/$', tag.return_problems)
 ]
