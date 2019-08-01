@@ -260,3 +260,14 @@ class ContestVirtualParticipantJoin(BaseContestMixin, View):
       return redirect(redirect_link)
     self.contest.contestparticipant_set.create(user=self.request.user, join_time=start_time)
     return redirect(redirect_link)
+
+
+class ContestReward(BaseContestMixin, TemplateView):
+  template_name = 'contest/reward.jinja2'
+
+  def get_context_data(self, **kwargs):
+    data = super(ContestReward, self).get_context_data(**kwargs)
+    data['blog_list'] = self.contest.blog_set.with_likes().with_likes_flag(self.request.user)
+    print(self.contest.blog_set.all())
+    return data
+

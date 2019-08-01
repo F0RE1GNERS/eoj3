@@ -12,7 +12,7 @@
     <a class="{{ active('contest:question') }} item" href="{{ url('contest:question', contest.pk) }}">问答 <div id="qa-new-flag" class="ui red horizontal label" style="margin-left: 0.5em;{% if not check_new %}display:none{% endif %}">有新的</div></a>
     <a class="{{ active('contest:my') }} item" href="{{ url('contest:my', contest.pk) }}">我的提交</a>
         {% if contest.contest_type %}
-            <a class="{{ active('contest:debug') }} item" href="{{ url('contest:debug', contest.pk) }}">悬赏区</a>
+            <a class="{{ active('contest:reward') }} item" href="{{ url('contest:reward', contest.pk) }}">悬赏区</a>
         {% endif %}
     {% endif %}
     {% if contest.common_status_access_level >= 0 or is_privileged %}

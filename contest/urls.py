@@ -1,13 +1,12 @@
 from django.conf.urls import url
 
 from .views import ContestList, ContestProblemDetail, ContestBoundUser, DashboardView, ContestGymList, \
-    ContestPublicToggleRegister, ContestRatings, ContestStatements, ContestVirtualParticipantJoin
+    ContestPublicToggleRegister, ContestRatings, ContestStatements, ContestVirtualParticipantJoin, ContestReward
 from .submission import ContestMyPastSubmissions, ContestStatus, ContestSubmit, ContestBalloon,\
     ContestSubmissionView, ContestMyStatus, ContestSubmissionAPI, ContestPenaltyDetail, ContestSubmissionClaim, \
     ContestStatusForAll, ContestBalloonClaim, ContestBalloonCancel
 from .standings import ContestStandings, ContestUpdateStandings, ContestDownloadStandings, ContestDownloadCode, \
     ContestStandingsTestSys
-from .debug import ContestDebug
 from .clarification import ContestClarificationView, ContestClarificationAnswer, ContestClarificationList, ContestNotificationCheck
 from .activity import ActivityList, ActivityAddView, ActivityUpdateView, ActivityRegisterView, ActivityQuitView, \
     ActivityParticipantList, ActivityAdminAddUserView, ActivityAdminUpdateUserView, ActivityAddSchoolView, \
@@ -44,5 +43,5 @@ urlpatterns = [
     url(r'^(?P<cid>\d+)/code/download/$', ContestDownloadCode.as_view(), name='download_code'),
     url(r'^(?P<cid>\d+)/report/testsys/$', ContestStandingsTestSys.as_view(), name='report_testsys'),
     url(r'^(?P<cid>\d+)/register/$', ContestPublicToggleRegister.as_view(), name='public_register'),
-    url(r'^(?P<cid>\d+)/debug/$', ContestDebug.as_view(), name='debug'),
+    url(r'^(?P<cid>\d+)/reward/$', ContestReward.as_view(), name='reward'),
 ]

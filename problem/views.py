@@ -21,6 +21,7 @@ from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
 from ipware.ip import get_ip
 from tagging.models import Tag, TaggedItem, ContentType
+from blog.models import Blog
 
 from account.models import User, Payment
 from account.payment import view_report
@@ -622,13 +623,13 @@ class ProblemFeedbackCompare(LoginRequiredMixin, TemplateView):
         return data
 
 
-# class RewardView(View):
-#     def post(self, request):
-#         comment = django_comments.get_model()
-#         comment.object_pk = Submission.objects.get(pk=request.POST.get('id'))
-#         comment.user_name = request.user.username
-#         comment.user_email = request.user.email
-#         comment.comment = request.POST.get('content')
-#         comment.content_type = ContentType.objects.get(pk='12')
-#         comment.save()
-#         return redirect(reverse('problem:discussion', comment.objects.id))
+class ProblemReward(ListView):
+    template_name = 'problem/reward.jinja2'
+    context_object_name = 'reward_list'
+
+    def get_queryset(self):
+        return Blog.objects.filter(is_reward=True, contest=None).with_likes().with_likes_flag(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        data = super(ProblemReward, self).get_context_data(**kwargs)
+        return data

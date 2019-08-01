@@ -10,41 +10,7 @@ from contest.models import ContestProblem
 
 class BlogManager(models.Manager):
 
-  def get_status_list(self, show_all=False, filter_user=None):
-    q = models.Q()
-    if not show_all:
-        q &= models.Q(is_reward=True, contest=None)
-        if(filter_user):
-            q |= models.Q(contest__participants__username__contains=filter_user.username)
-            q |= models.Q(contest__managers__username__contains=filter_user.username)
-            q |= models.Q(contest__volunteers__username__contains=filter_user.username)
-            q |= models.Q(contest__authors__username__contains=filter_user.username)
-    else:
-        q &= models.Q(is_reward=True)
-    return self.filter(q).distinct()
-
-
-class BlogQuerySet(models.QuerySet):
-    def with_likes(self):
-        return self.annotate(
-                likes__count=Sum(Case(When(bloglikes__flag='like', then=1), default=0, output_field=IntegerField()))
-        )
-
-    def with_dislikes(self):
-        return self.annotate(
-                dislikes__count=Sum(Case(When(bloglikes__flag='dislike', then=1), default=0, output_field=IntegerField()))
-        )
-
-    def with_likes_flag(self, user):
-        if not user.is_authenticated:
-            return self
-        return self.annotate(
-                likes__flag=Sum(
-                    Case(When(bloglikes__user=user, bloglikes__flag='like', then=1),
-                         When(bloglikes__user=user, bloglikes__flag='dislike', then=-1), default=0, output_field=IntegerField()))
-        )
-
-    def get_rewards_list(self, show_all=False, filter_user=None):
+    def get_status_list(self, show_all=False, filter_user=None):
         q = models.Q()
         if not show_all:
             q &= models.Q(is_reward=True, contest=None)
@@ -55,6 +21,44 @@ class BlogQuerySet(models.QuerySet):
                 q |= models.Q(contest__authors__username__contains=filter_user.username)
         else:
             q &= models.Q(is_reward=True)
+        return self.filter(q).distinct()
+
+
+class BlogQuerySet(models.QuerySet):
+    def with_likes(self):
+        return self.annotate(
+            likes__count=Sum(Case(When(bloglikes__flag='like', then=1), default=0, output_field=IntegerField()))
+        )
+
+    def with_dislikes(self):
+        return self.annotate(
+            dislikes__count=Sum(Case(When(bloglikes__flag='dislike', then=1), default=0, output_field=IntegerField()))
+        )
+
+    def with_likes_flag(self, user):
+        if not user.is_authenticated:
+            return self
+        return self.annotate(
+            likes__flag=Sum(
+                Case(When(bloglikes__user=user, bloglikes__flag='like', then=1),
+                     When(bloglikes__user=user, bloglikes__flag='dislike', then=-1), default=0,
+                     output_field=IntegerField()))
+        )
+
+    def get_rewards_list(self, show_all=False, filter_user=None, contest=None, flag=False):
+        q = models.Q(is_reward=True)
+        if not show_all:
+            if flag:
+                q &= models.Q(contest=contest)
+            if (filter_user):
+                print(222222222222)
+                q &= models.Q(contest=None) | models.Q(contest__participants__username__contains=filter_user.username) | models.Q(
+                    contest__managers__username__contains=filter_user.username) | models.Q(
+                    contest__volunteers__username__contains=filter_user.username) | models.Q(
+                    contest__authors__username__contains=filter_user.username)
+            else:
+                q &= models.Q(contest=None)
+        print(q)
         return self.filter(q).distinct()
 
 
@@ -93,7 +97,6 @@ class Blog(models.Model):
 
 
 class BlogLikes(models.Model):
-
     BLOG_LIKE_FLAGS = (
         ('like', '点赞'),
         ('dislike', '点踩')
@@ -117,4 +120,3 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ["-create_time"]
-

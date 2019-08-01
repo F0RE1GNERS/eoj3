@@ -60,6 +60,13 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         blogs = Blog.objects.with_likes().with_dislikes().with_likes_flag(request.user)
         self.blog = get_object_or_404(blogs, pk=kwargs.get('pk'))
+        if self.blog.is_reward:
+            if self.blog.contest:
+                if self.request.user.id in self.blog.contest.participants_ids:
+                    pass
+                else:
+                    raise PermissionDenied
+
         return super(BlogView, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
@@ -199,6 +206,7 @@ class GetRewardsView(ListView):
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
         if self.request.user.is_authenticated:
+            print(11111111111)
             qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user), self.request.user).with_likes().with_likes_flag(self.request.user)
         else:
             qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user)).with_likes().with_likes_flag(self.request.user)
