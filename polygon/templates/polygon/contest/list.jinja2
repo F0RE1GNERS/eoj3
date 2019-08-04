@@ -8,8 +8,32 @@
     <thead class="full-width">
       <tr>
         <th colspan="5">
+            <div class="ui right floated button modal-link" data-target="#askForHelp" >需要帮助？</div>
+                {% call modal(title="克隆作业集的帮助", id="askForHelp", negative_button_name='了解了，关闭帮助', button_name=None) %}
+                    {% csrf_token %}
+                    <div>
+                        <p>
+                            该功能意在帮助教师快速复用历史学期的作业集，而无需重新添加题目。
+                        </p>
+                        <p>
+                            该项目必须是作业集而不能是比赛，同时你必须拥有该作业集的管理权限，或者你是作为超级管理员执行操作。
+                        </p>
+                        <p>
+                            该操作会完整复制作业集的基本信息，包括作业起始时间、通知、可使用语言、代码公开等级等所有信息，包括完整的题目列表。
+                        </p>
+                        <p>
+                            但不包括参与者信息（即学生名单）以及他们的提交记录，同时，每学期的作业集会采用独立的悬赏区，不会复制历史作业集的悬赏内容。
+                        </p>
+                        <p>
+                            在完成复制后，您需要进入管理页面，手动导入学生名单，以及修改作业集的开始和结束时间。
+                        </p>
+                    </div>
+                {% endcall %}
+
+
+
           <div class="ui right floated buttons">
-          {% set clone_message = "输入你想要复制的作业题库ID。该项目必须是作业集而不能是比赛，同时你必须拥有作业集的管理权限。复制作业集会复制包括作业起始时间、通知公告、题目列表在内的所有信息，但不包括参与者信息，您需要手动导入学生名单，以及修改起始时间和通知（如果必要）。" %}
+          {% set clone_message = "输入你想要复制的作业题库ID。" %}
             <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Contest
             </button>
@@ -22,6 +46,7 @@
             </div>
             {% endif %}
           </div>
+
         </th>
       </tr>
       <tr>
