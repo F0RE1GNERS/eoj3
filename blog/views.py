@@ -16,7 +16,7 @@ from problem.models import Problem
 from problem.statistics import get_accept_problem_count
 from utils.comment import CommentForm
 from .forms import BlogEditForm
-from .models import Blog, Comment, BlogLikes, BlogRevision, BlogProblem
+from .models import Blog, Comment, BlogLikes, BlogRevision
 from submission.models import Submission
 
 
@@ -183,7 +183,9 @@ class RewardView(View):
         instance.visible = True
         instance.hide_revisions = False
         instance.author = request.user
+        instance.contest = submission.contest
+        instance.is_reward = True
+        instance.problem = submission.problem.contestproblem_set.all().get(contest=instance.contest)
+        print(submission.problem.contestproblem_set)
         instance.save()
-        instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
-        BlogProblem.objects.create(blog=instance, submission=submission)
         return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))

@@ -4,6 +4,8 @@ from account.models import User
 from problem.models import Problem
 from django.utils.translation import ugettext_lazy as _
 from submission.models import Submission
+from contest.models import Contest
+from contest.models import ContestProblem
 
 
 class BlogQuerySet(models.QuerySet):
@@ -53,6 +55,10 @@ class Blog(models.Model):
 
     objects = BlogQuerySet.as_manager()
 
+    is_reward = models.BooleanField("是否是悬赏", default=False)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, default=None, null=True)
+    problem = models.ForeignKey(ContestProblem, on_delete=models.CASCADE, default=None, null=True)
+
     class Meta:
         ordering = ["-edit_time"]
 
@@ -83,7 +89,3 @@ class Comment(models.Model):
     class Meta:
         ordering = ["-create_time"]
 
-
-class BlogProblem(models.Model):
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
