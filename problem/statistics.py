@@ -1,14 +1,22 @@
+import logging
+import traceback
 from collections import Counter
 from math import log10
 
 import requests
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from tagging.models import TaggedItem, Tag
 
 from problem.models import UserStatus, TagInfo, Problem
 from submission.models import Submission
 from submission.util import SubmissionStatus
 from utils.permission import is_problem_manager
+
+logger = logging.getLogger(__name__)
+
+FORTNIGHT = 3600 * 24 * 7
 
 
 def invalidate_problem(problem: Problem, save=True):
@@ -39,7 +47,8 @@ def invalidate_user(user_id, contest_id=0):
     submission_filter = Submission.objects.filter(author_id=user_id, contest_id=contest_id).all()
   else:
     submission_filter = Submission.objects.filter(author_id=user_id).all()
-  ac_filter = submission_filter.filter(status__in=[SubmissionStatus.ACCEPTED, SubmissionStatus.PRETEST_PASSED]).all()
+  ac_filter = submission_filter.filter(status__in=[SubmissionStatus.ACCEPTED, SubmissionStatus.PRETEST_PASSED]). \
+    only("problem_id", "id", "author_id", "status", "create_time").all()
 
   total_count = submission_filter.count()
   total_list = list(submission_filter.order_by().values_list("problem_id", flat=True).distinct())
@@ -55,19 +64,31 @@ def invalidate_user(user_id, contest_id=0):
                                                    "ac_list": ",".join(map(str, accept_list)),
                                                    "ac_distinct_count": accept_diff
                                                  })
+
+  new_solved = created or us.ac_count != accept_count
   if not created:
     us.total_count = total_count
     us.total_list = ",".join(map(str, total_list))
-    if accept_count != us.ac_count and not contest_id:
-      try:
-        predict_list = requests.post("http://127.0.0.1:20019/predict", json={"solved": accept_list}).json()
-        us.predict_list = ",".join(map(str, predict_list))
-      except:
-        pass
     us.ac_count = accept_count
     us.ac_list = ",".join(map(str, accept_list))
     us.ac_distinct_count = accept_diff
     us.save()
+
+  next_problem_key = "NEXT_PROBLEM_{}".format(user_id)
+  if contest_id == 0 and (new_solved or cache.get(next_problem_key) is None):
+    try:
+      already_ac_set = set()
+      ac_time_ordered_list = []
+      for ac_sub in ac_filter.order_by("create_time"):
+        if ac_sub.id not in already_ac_set:
+          already_ac_set.add(ac_sub.id)
+          ac_time_ordered_list.append(ac_sub.id)
+      predict_list = requests.post("http://{}/predict".format(settings.RECOMMENDATION_SERVICE_URL),
+                                   json={"solved": accept_list}).json()
+      cache.set(next_problem_key, predict_list["prediction"], timeout=FORTNIGHT)
+    except:
+      logger.warning(traceback.format_exc())
+      cache.set(next_problem_key, [], timeout=FORTNIGHT)
   return us
 
 
@@ -126,3 +147,28 @@ def tags_stat(user_id):
                       .filter(object_id__in=accept_list).values_list("tag_id", flat=True):
     accept_counter[tag_id] += 1
   return {tag_id: (accept_counter[tag_id], cnt) for tag_id, cnt in all_count.items()}
+
+
+def get_next_k_recommended_problems(user_id, problem_ids, k=5):
+  try:
+    problem_list = []
+    for retry in range(3):
+      problem_list = cache.get("NEXT_PROBLEM_{}".format(user_id))
+      if problem_list is None:
+        invalidate_user(user_id)
+    if problem_list is None:
+      logger.error("Out of retry count")
+      problem_list = []
+    problem_ids = set(problem_ids)
+    ret = []
+    for prob in problem_list:
+      if prob in problem_ids:
+        ret.append(prob)
+      if len(ret) >= k:
+        break
+    if len(ret) < k:
+      logger.warning("There isn't enough problems to recommend")
+    return ret
+  except:
+    logger.warning(traceback.format_exc())
+    return []

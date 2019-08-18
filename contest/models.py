@@ -198,6 +198,10 @@ class Contest(models.Model):
       self._contest_user_ids = list(self.contestparticipant_set.order_by().values_list("user_id", flat=True))
     return self._contest_user_ids
 
+  def fetch_problem_entities_from_ids(self, problem_ids):
+    pool = {t.problem_id: t for t in self.contest_problem_list}
+    return [pool[problem_id] for problem_id in problem_ids]
+
   def __str__(self):
     return self.title
 

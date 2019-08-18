@@ -1,9 +1,6 @@
-import json
-
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.http import Http404
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
@@ -13,6 +10,7 @@ from django.views.generic import View, TemplateView
 from django_q.tasks import async_task
 from ipware.ip import get_ip
 
+from contest.base import BaseContestMixin
 from contest.statistics import invalidate_contest_participant
 from problem.models import Problem
 from problem.statistics import invalidate_problem
@@ -21,12 +19,10 @@ from problem.views import StatusList
 from submission.models import Submission
 from submission.util import SubmissionStatus
 from submission.views import render_submission, render_submission_report
-from utils.language import LANG_CHOICE
 from utils.permission import get_permission_for_submission
 from utils.permission import is_contest_manager, is_case_download_available
 from .models import ContestProblem, ContestParticipant
 from .tasks import judge_submission_on_contest
-from contest.base import BaseContestMixin
 
 
 class ContestSubmit(BaseContestMixin, View):
@@ -127,6 +123,10 @@ class ContestSubmissionAPI(BaseContestMixin, View):
     if self.contest.case_public and submission.is_judged and \
         is_case_download_available(self.request.user, submission.problem_id, submission.contest_id):
       submission.allow_case_download = True
+    if SubmissionStatus.is_accepted(submission.status):
+      recommended_problems = self.get_recommended_problem_list()
+      if recommended_problems:
+        submission.next_problem = recommended_problems[0]
     return HttpResponse(
       render_submission(submission, permission=get_permission_for_submission(request.user, submission),
                         hide_problem=True, rejudge_available=False))

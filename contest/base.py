@@ -9,6 +9,7 @@ from ipware.ip import get_ip
 
 from blog.models import Blog
 from contest.models import Contest, ContestParticipant
+from problem.statistics import get_accept_problem_list, get_next_k_recommended_problems
 from utils.middleware.close_site_middleware import CloseSiteException
 from utils.permission import is_contest_manager, is_contest_volunteer
 from utils.site_settings import is_site_closed
@@ -101,6 +102,16 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
       self.permission_denied_message = "你是不是忘了注册？"
       return False
 
+  def get_recommended_problem_list(self):
+    if not self.user.is_authenticated:
+      return []
+    accepted_problem_ids = set(get_accept_problem_list(self.user.id, self.contest.id))
+    all_problem_ids = set([problem.problem_id for problem in self.contest.contest_problem_list])
+    print(all_problem_ids - accepted_problem_ids)
+    recommended_problems = get_next_k_recommended_problems(
+      self.user.id, all_problem_ids - accepted_problem_ids, k=7)
+    return self.contest.fetch_problem_entities_from_ids(recommended_problems)
+
   def get_context_data(self, **kwargs):
     data = super(BaseContestMixin, self).get_context_data(**kwargs)
     data['contest'] = self.contest
@@ -120,6 +131,7 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
         if data['time_all'] > 0:
           data['remaining_percent'] = data['time_remaining'] / data['time_all']
     data['contest_problem_list'] = self.contest.contest_problem_list
+    data['recommended_problem_list'] = self.get_recommended_problem_list()
     data['has_permission'] = self.test_func()
     data['is_privileged'] = self.privileged
     data['is_volunteer'] = self.volunteer

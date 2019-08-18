@@ -90,6 +90,23 @@
         </div>
 
         {% if has_permission %}
+          {% if contest.contest_type == 1 and recommended_problem_list %}
+          <div class="ui segments">
+            <div class="ui segment">
+              <h3 class="ui center aligned header">推荐习题</h3>
+            </div>
+            <div class="ui segment">
+              <div class="ui relaxed link list">
+                {% for contest_problem in recommended_problem_list %}
+                  <a class="item {{ active('contest:problem', cid=contest.pk, pid=contest_problem.identifier) }}"
+                     href="{{ url('contest:problem', contest.pk, contest_problem.identifier) }}">
+                      {{ contest_problem }}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% else %}
           <div class="ui segments">
             <div class="ui segment">
               <h3 class="ui center aligned header">题目列表</h3>
@@ -105,6 +122,9 @@
               </div>
             </div>
           </div>
+          {% endif %}
+
+
 
           {% if participate_contest_status == 0 and contest.scoring_method != 'acm' %}
             <div class="ui segments">

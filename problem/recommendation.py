@@ -10,7 +10,7 @@ from tagging.models import Tag, TaggedItem
 from problem.commons.problem_list_helper import get_problems_entity_list_helper, attach_personal_solve_info, \
   no_tags_entity_list_helper
 from problem.models import Problem
-from problem.statistics import get_accept_problem_list, tags_stat
+from problem.statistics import get_accept_problem_list, tags_stat, get_next_k_recommended_problems
 from submission.models import Submission
 
 
@@ -126,3 +126,12 @@ def unfamiliar_problems(user_id):
   tags_record = list(filter(lambda k: k[1][0] < 2 and k[1][1] - k[1][0] >= 1, tags_stat(user_id).items()))
   random.shuffle(tags_record)
   return select_with_tags(user_id, tags_record)
+
+
+@get_problems_entity_list_helper
+def coming_up_magic_problems(user_id):
+  fetch_pool = Problem.objects.filter(visible=True). \
+    exclude(pk__in=get_accept_problem_list(user_id)). \
+    values_list("id", flat=True)
+  recommended_problems = get_next_k_recommended_problems(user_id, fetch_pool, k=5)
+  return recommended_problems

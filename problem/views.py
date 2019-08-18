@@ -1,7 +1,5 @@
 import random
-import traceback
 from collections import defaultdict
-from os import path
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -11,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
-from django.shortcuts import HttpResponse, get_object_or_404, reverse, render, Http404, redirect
+from django.shortcuts import HttpResponse, get_object_or_404, reverse, Http404, redirect
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, View, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, RedirectView
@@ -21,8 +19,7 @@ from django_q.tasks import async_task
 from ipware.ip import get_ip
 from tagging.models import Tag, TaggedItem, ContentType
 
-from account.models import User, Payment
-from account.payment import view_report
+from account.models import User
 from account.permissions import is_admin_or_root
 from dispatcher.models import Server
 from problem import recommendation
@@ -33,12 +30,10 @@ from submission.models import Submission
 from submission.util import SubmissionStatus, STATUS_CHOICE
 from submission.views import render_submission, render_submission_report
 from utils.comment import CommentForm
-from utils.download import respond_as_attachment
 from utils.language import LANG_CHOICE
 from utils.permission import is_problem_manager, get_permission_for_submission, is_case_download_available
-from utils.site_settings import open_all_protocols
 from utils.tagging import edit_string_for_tags
-from .models import Problem, Skill, get_input_path, get_output_path, UserStatus
+from .models import Problem, Skill, UserStatus
 from .tasks import create_submission, judge_submission_on_problem
 
 
@@ -462,15 +457,9 @@ class ProblemSubmissionAPI(LoginRequiredMixin, View):
       if is_case_download_available(self.request.user, pk):
         submission.allow_case_download = True
       if SubmissionStatus.is_accepted(submission.status):
-        try:
-          user_status = UserStatus.objects.get(user_id=submission.author_id, contest_id=0)
-          for problem_id in filter(lambda x: x, map(int, user_status.predict_list.split(","))):
-            problem = Problem.objects.get(id=problem_id)
-            if problem.visible:
-              submission.next_problem = problem
-              break
-        except:
-          pass
+        recommended_problems = recommendation.coming_up_magic_problems(submission.author_id)
+        if recommended_problems:
+          submission.next_problem = recommended_problems[0]
     return HttpResponse(render_submission(submission,
                                           permission=get_permission_for_submission(request.user, submission),
                                           hide_problem=True,
@@ -576,6 +565,7 @@ class ProblemRecommendation(LoginRequiredMixin, TemplateView):
 
   def get_context_data(self, **kwargs):
     data = super().get_context_data(**kwargs)
+    data["recommended_problems"] = recommendation.coming_up_magic_problems(self.request.user.id)
     data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
     data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
     data["hard_problems"] = recommendation.hard_problems(self.request.user.id)

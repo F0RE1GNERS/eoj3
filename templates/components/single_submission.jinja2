@@ -75,8 +75,26 @@
 </table>
 
 {% if submission.next_problem %}
-  <a class="ui success icon message" href="{{ url('problem:feedback_compare') }}" target="_blank">
+  {% if submission.next_problem.__class__.__name__ == "ContestProblem" %}
+  <a class="ui success icon message" href="{{ url('contest:problem', submission.next_problem.contest_id, submission.next_problem.identifier) }}">
     <i class="checkmark icon"></i>
+    <div class="content">
+      <div class="header">迎接下一个挑战</div>
+      <p>点击进入题目 {{ submission.next_problem }}</p>
+    </div>
+  </a>
+  {% else %}
+  <a class="ui success icon message" href="{{ url('problem:detail', submission.next_problem.id) }}">
+    <i class="checkmark icon"></i>
+    <div class="content">
+      <div class="header">迎接下一个挑战</div>
+      <p>点击进入题目 {{ submission.next_problem }}</p>
+    </div>
+  </a>
+  {% endif %}
+
+  <a class="ui info icon message" href="{{ url('problem:feedback_compare') }}" target="_blank">
+    <i class="arrow right icon"></i>
     <div class="content">
       <div class="header">花一分钟参与题目难度调查</div>
       <p>帮助我们更好地实现难度评估</p>

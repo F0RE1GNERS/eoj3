@@ -31,7 +31,11 @@ def get_problems_entity_list_helper(func):
   @functools.wraps(func)
   def wrapper(user_id):
     problem_id_list = func(user_id)
+    if isinstance(problem_id_list, list):
+      orders = {problem_id: k for k, problem_id in enumerate(problem_id_list)}
     problems = list(Problem.objects.filter(pk__in=problem_id_list))
+    if isinstance(problem_id_list, list):
+      problems.sort(key=lambda problem: orders.get(problem.id, 10 ** 9))
     attach_personal_solve_info(problems, user_id)
     attach_tag_info(problems)
     return problems

@@ -18,6 +18,26 @@
   {% if problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ problem.ac_user_count }}{% endif %}
 {% endmacro %}
 
+  {% if recommended_problems %}
+  <a class="ui info icon message" href="{{ url('problem:detail', recommended_problems[0].id) }}">
+    <i class="right arrow icon"></i>
+    <div class="content">
+      <div class="header">迎接下一个挑战</div>
+      <p>点击进入题目 {{ recommended_problems[0] }}</p>
+    </div>
+  </a>
+  <div class="ui message">
+    <div class="header">
+      我们认为这些题目也很适合您
+    </div>
+    <ul class="list">
+      {% for problem in recommended_problems[1:] %}
+        <li><a href="{{ url('problem:detail', problem.id) }}">{{ problem }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   <div class="ui stackable grid">
     <div class="eight wide column">
       <table class="ui backend compact center aligned middle aligned celled unstackable table">
