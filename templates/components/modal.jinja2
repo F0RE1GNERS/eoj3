@@ -11,14 +11,18 @@
       {% endif %}
     </div>
     <div class="actions">
-      <div class="ui basic cancel inverted button">
-        <i class="remove icon"></i>
-        {{ negative_button_name }}
-      </div>
-      <div class="ui green ok inverted button">
-        <i class="checkmark icon"></i>
-        {{ button_name }}
-      </div>
+        {% if negative_button_name %}
+          <div class="ui basic cancel inverted button">
+            <i class="remove icon"></i>
+            {{ negative_button_name }}
+          </div>
+        {% endif %}
+        {% if button_name %}
+          <div class="ui green ok inverted button">
+            <i class="checkmark icon"></i>
+            {{ button_name }}
+          </div>
+        {% endif %}
     </div>
   </div>
 {% endmacro %}
