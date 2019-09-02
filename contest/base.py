@@ -107,7 +107,6 @@ class BaseContestMixin(ContextMixin, UserPassesTestMixin):
       return []
     accepted_problem_ids = set(get_accept_problem_list(self.user.id, self.contest.id))
     all_problem_ids = set([problem.problem_id for problem in self.contest.contest_problem_list])
-    print(all_problem_ids - accepted_problem_ids)
     recommended_problems = get_next_k_recommended_problems(
       self.user.id, all_problem_ids - accepted_problem_ids, k=7)
     return self.contest.fetch_problem_entities_from_ids(recommended_problems)
