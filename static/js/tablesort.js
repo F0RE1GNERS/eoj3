@@ -87,7 +87,7 @@
 		},
 
 		log: function(msg) {
-			if(($.tablesort.DEBUG || his.settings.debug) && console && console.log) {
+			if(($.tablesort.DEBUG || this.settings.debug) && console && console.log) {
 				console.log('[tablesort] ' + msg);
 			}
 		},
