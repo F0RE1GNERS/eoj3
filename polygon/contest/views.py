@@ -159,7 +159,6 @@ class HomeworkClone(PolygonBaseMixin, View):
         contest.managers.add(m.id)
       contest.save()
     except:
-      messages.error(request, "Homework does not exist or not available.")
       return redirect(reverse('polygon:contest_list'))
 
     return redirect(reverse('polygon:contest_list') + "?exact=%d" % saved_id)
