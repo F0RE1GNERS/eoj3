@@ -133,22 +133,31 @@ class HomeworkClone(PolygonBaseMixin, View):
     try:
       n = request.POST['answer']
       contest = Contest.objects.get(pk=n)
+      # 检查权限，如果不是比赛管理员，或者该比赛不是作业集（这是一个常规比赛），不允许复制
       if not is_contest_manager(request.user, contest):
         raise PermissionError
       if contest.contest_type != 1:
         raise PermissionError
+      # 复制的内容包括作业集的比赛的基本元信息、题目列表、命题人列表、管理员列表（不包括志愿者列表）
+      # 需要教师手动导入新学期的学生名单，并修改作业集的起始时间
+      # 除非复制者已具备作业集题目的管理权限，否则复制成功后不会将题目的管理权限赋予复制者，复制者只能管理比赛内容，并管理具备权限的题目
       problem_list = contest.contestproblem_set.all()
+      contest_author = contest.authors.all()
+      contest_manager = contest.managers.all()
       new_hw = Contest.objects.create(title='Contest')
       new_hw.title = 'Contest #%d' % contest.id
-      new_hw.save(update_fields=['title'])
       new_hw.managers.add(request.user)
       saved_id = new_hw.id
       contest.id = saved_id
       contest.title = contest.title + ' - 复制'
-      contest.create_time = datetime.now()
       contest.save()
       for p in problem_list:
         contest.contestproblem_set.create(identifier=p.identifier, problem_id=p.problem_id, weight=p.weight)
+      for c in contest_author:
+        contest.authors.add(c.id)
+      for m in contest_manager:
+        contest.managers.add(m.id)
+      contest.save()
     except:
       messages.error(request, "Homework does not exist or not available.")
       return redirect(reverse('polygon:contest_list'))
