@@ -8,7 +8,7 @@ def return_problems(request):
     if request.method == "GET":
         tag = request.GET.get("tag", default="tree")
 
-        problems = Problem.objects.all()
+        problems = Problem.objects.filter(visible=True)
 
         ids = []
 

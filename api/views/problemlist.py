@@ -24,5 +24,5 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
 
 class ProblemListView(RetrieveAPIView):
-    queryset = Problem.objects.all()
+    queryset = Problem.objects.filter(visible=True)
     serializer_class = ProblemListSerializer
