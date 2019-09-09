@@ -51,7 +51,6 @@ class BlogQuerySet(models.QuerySet):
             if flag:
                 q &= models.Q(contest=contest)
             if (filter_user):
-                print(222222222222)
                 q &= models.Q(contest=None) | models.Q(contest__participants__username__contains=filter_user.username) | models.Q(
                     contest__managers__username__contains=filter_user.username) | models.Q(
                     contest__volunteers__username__contains=filter_user.username) | models.Q(
@@ -89,8 +88,9 @@ class Blog(models.Model):
     objects = BlogQuerySet.as_manager()
 
     is_reward = models.BooleanField("是否是悬赏", default=False)
-    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, default=None, null=True)
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, default=None, null=True)
+    contest = models.ForeignKey(Contest, models.SET_NULL, default=None, null=True)
+    problem = models.ForeignKey(Problem, models.SET_NULL, default=None, null=True)
+    submission = models.ForeignKey(Submission, models.SET_NULL, default=None, null=True)
 
     class Meta:
         ordering = ["-edit_time"]

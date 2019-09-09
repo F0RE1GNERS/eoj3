@@ -60,12 +60,7 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         blogs = Blog.objects.with_likes().with_dislikes().with_likes_flag(request.user)
         self.blog = get_object_or_404(blogs, pk=kwargs.get('pk'))
-        if self.blog.is_reward:
-            if self.blog.contest:
-                if self.request.user.id in self.blog.contest.participants_ids:
-                    pass
-                else:
-                    raise PermissionDenied
+
 
         return super(BlogView, self).dispatch(request, *args, **kwargs)
 
@@ -78,6 +73,13 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
+        if self.blog.is_reward:
+            context['submission'] = Submission.objects.get(pk=self.blog.submission_id)
+            if self.blog.contest:
+                if self.request.user.id in self.blog.contest.participants_ids:
+                    pass
+                else:
+                    raise PermissionDenied
         context['blog'] = self.blog
         context['is_privileged'] = is_admin_or_root(self.request.user) or self.request.user == self.blog.author
         if context['is_privileged'] or not self.blog.hide_revisions:
@@ -181,7 +183,7 @@ class BlogDeleteComment(LoginRequiredMixin, View):
 
 class RewardView(View):
     def post(self, request):
-        submission = Submission.objects.get(pk=request.POST.get('id'))
+        submission = get_object_or_404(Submission, pk=request.POST.get('id'))
         if(submission.author != request.user):
             raise PermissionDenied
         instance = Blog()
@@ -190,23 +192,20 @@ class RewardView(View):
         instance.visible = True
         instance.hide_revisions = False
         instance.author = request.user
-        if submission.contest is None:
-            instance.contest = None
-        else:
-            instance.contest = submission.contest
+        instance.contest = submission.contest
         instance.is_reward = True
+        instance.submission = submission
         instance.problem = submission.problem
         instance.save()
         return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))
 
 class GetRewardsView(ListView):
-    template_name = 'blog/generic.jinja2'
+    template_name = 'blog/reward_list.jinja2'
     context_object_name = 'blog_list'
 
     def get_queryset(self):
         self.user = get_object_or_404(User, pk=self.kwargs.get('pk'))
         if self.request.user.is_authenticated:
-            print(11111111111)
             qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user), self.request.user).with_likes().with_likes_flag(self.request.user)
         else:
             qs = self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user)).with_likes().with_likes_flag(self.request.user)
