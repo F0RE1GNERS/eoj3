@@ -8,45 +8,44 @@
     <thead class="full-width">
       <tr>
         <th colspan="5">
-            <div class="ui right floated button modal-link" data-target="#askForHelp" >需要帮助？</div>
-                {% call modal(title="克隆作业集的帮助", id="askForHelp", negative_button_name='了解了，关闭帮助', button_name=None) %}
-                    {% csrf_token %}
-                    <div>
-                        <p>
-                            该功能意在帮助教师快速复用历史学期的作业集，而无需重新添加题目。
-                        </p>
-                        <p>
-                            该项目必须是作业集而不能是比赛，同时你必须拥有该作业集的管理权限，或者你是作为超级管理员执行操作。
-                        </p>
-                        <p>
-                            该操作会完整复制作业集的基本信息，包括作业起始时间、通知、可使用语言、代码公开等级等所有信息，包括完整的题目列表。
-                        </p>
-                        <p>
-                            但不包括参与者信息（即学生名单）以及他们的提交记录，同时，每学期的作业集会采用独立的悬赏区，不会复制历史作业集的悬赏内容。
-                        </p>
-                        <p>
-                            在完成复制后，您需要进入管理页面，手动导入学生名单，以及修改作业集的开始和结束时间。
-                        </p>
-                    </div>
-                {% endcall %}
-
-
 
           <div class="ui right floated buttons">
           {% set clone_message = "输入你想要复制的作业题库ID。" %}
             <button id="contest-create-button" class="ui right floated primary labeled icon button">
             <i class="server icon"></i> Add Contest
             </button>
-            {% if user is admin %}
             <div class="ui primary floating dropdown icon button">
               <i class="dropdown icon"></i>
               <div class="menu">
-                <a class="post ask item" data-link="{{ url('polygon:homework_clone') }}?force=1" data-question="{{ clone_message }}">复制历史作业集到新学期作业集</a>
+                <a class="post ask item" data-link="{{ url('polygon:homework_clone') }}?force=1" data-question="{{ clone_message }}">复制以前的作业集作为新学期的作业集</a>
               </div>
             </div>
-            {% endif %}
           </div>
+          <div class="ui right floated button modal-link" data-target="#askForHelp" >想要复制以前的作业集作为新学期的作业集？</div>
 
+            {% call modal(title="克隆作业集的帮助", id="askForHelp", negative_button_name='了解了，关闭帮助', button_name=None) %}
+                {% csrf_token %}
+                <div>
+                    <p>
+                        该功能意在帮助教师快速复用历史学期的作业集，而无需重新添加题目。
+                    </p>
+                    <p>
+                        该项目必须是作业集而不能是比赛，同时你必须拥有该作业集的管理权限，或者你是作为超级管理员执行操作。如果教师想要复制某次作业集而没有权限，可以寻找超级管理员的帮助。
+                    </p>
+                    <p>
+                        该操作会完整复制作业集的基本元信息，包括作业起始时间、通知、可使用语言、代码公开等级等所有信息，包括命题人列表和管理员列表（不包括志愿者列表），以及包括完整的题目列表。
+                    </p>
+                    <p>
+                        但不包括参与者信息（即学生名单）以及他们的提交记录，同时，每学期的作业集会采用独立的悬赏区，不会复制历史作业集的悬赏内容。
+                    </p>
+                    <p>
+                        在完成复制后，教师需要进入管理页面，导入新学期的学生名单，以及修改作业集的开始和结束时间。
+                    </p>
+                    <p>
+                        除非复制者已具备作业集题目的管理权限，否则复制成功后不会将题目的管理权限赋予复制者，复制者只能管理比赛内容，并管理具备权限的题目。
+                    </p>
+                </div>
+            {% endcall %}
         </th>
       </tr>
       <tr>
