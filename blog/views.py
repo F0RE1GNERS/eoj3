@@ -183,7 +183,7 @@ class BlogDeleteComment(LoginRequiredMixin, View):
 
 class RewardView(View):
     def post(self, request):
-        submission = Submission.objects.get(pk=request.POST.get('id'))
+        submission = get_object_or_404(Submission, pk=request.POST.get('id'))
         if(submission.author != request.user):
             raise PermissionDenied
         instance = Blog()
@@ -192,15 +192,11 @@ class RewardView(View):
         instance.visible = True
         instance.hide_revisions = False
         instance.author = request.user
-        if submission.contest is None:
-            instance.contest = None
-        else:
-            instance.contest = submission.contest
+        instance.contest = submission.contest
         instance.is_reward = True
         instance.submission = submission
         instance.problem = submission.problem
         instance.save()
-        print(reverse('blog:index', kwargs={'pk': request.user.pk}))
         return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))
 
 class GetRewardsView(ListView):

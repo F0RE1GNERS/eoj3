@@ -26,7 +26,6 @@ class ProfileView(TemplateView):
         return self.user.blog_set.filter(visible=True, is_reward=False).order_by("-edit_time")[:5]
 
     def get_recent_rewards(self):
-        print(self.request.user)
         if self.request.user.is_authenticated:
             return self.user.blog_set.get_rewards_list(is_admin_or_root(self.request.user), self.request.user)[:5]
         else:
