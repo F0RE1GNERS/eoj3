@@ -1,4 +1,6 @@
 import markdown
+
+from utils.jinja2.filters import xss_filter
 from . import mdx_downheader
 from . import mdx_math
 from . import semantic
@@ -21,4 +23,4 @@ def convert(text):
 
 
 def markdown_convert_api(request):
-    return HttpResponse(convert(request.POST.get('text', '')))
+    return HttpResponse(xss_filter(convert(request.POST.get('text', ''))))
