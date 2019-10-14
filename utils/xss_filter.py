@@ -118,10 +118,10 @@ class XssHtml(HTMLParser):
         return attrs
 
     def node_script(self, attrs):
-        attrs = self._set_attr_default(attrs, "type", "math/tex")
         attrs = self._limit_attr(attrs, {
             "type": ["math/tex", "math/tex; mode=display"]
         })
+        attrs = self._set_attr_default(attrs, "type", "math/tex")
         return attrs
 
     def node_embed(self, attrs):
@@ -183,7 +183,7 @@ class XssHtml(HTMLParser):
             attrs[name] = default
         return attrs
 
-    def _limit_attr(self, attrs, limit={}):
+    def _limit_attr(self, attrs, limit=None):
         for (key, value) in limit.items():
             if key in attrs and attrs[key] not in value:
                 del attrs[key]
@@ -208,7 +208,7 @@ if "__main__" == __name__:
         <td rowspan="2">
         <p><code>&lt;int&gt;</code></p>
         <script>setInterval(function() { alert("hello"); }, 100);</script>
-
+        <script type="text/javascript">alert(/xss/)</script>
 """)
     parser.close()
     print(parser.getHtml())
