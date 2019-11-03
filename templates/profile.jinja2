@@ -198,72 +198,72 @@
   <script src="/static/node_modules/@antv/g2/dist/g2.min.js"></script>
   <script src="/static/node_modules/@antv/data-set/dist/data-set.min.js"></script>
   <script type="text/javascript">
-      const theme = G2.Util.deepMix({
-          fontFamily: "'Open Sans','Helvetica Neue','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Hiragino Kaku Gothic Pro',Meiryo,'Malgun Gothic',Arial,Helvetica,sans-serif"
-      }, G2.Theme);
-      G2.Global.setTheme(theme);
+    const theme = G2.Util.deepMix({
+      fontFamily: "'Open Sans','Helvetica Neue','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Hiragino Kaku Gothic Pro',Meiryo,'Malgun Gothic',Arial,Helvetica,sans-serif"
+    }, G2.Theme);
+    G2.Global.setTheme(theme);
 
-      function renderRatingChanges() {
+    function renderRatingChanges() {
 
-          {% if rating_changes %}
-              const data = [
-                  {time: "{{ profile.date_joined | date('Y-m-d H:i') }}", rating: 1500, comment: "Joined EOJ"},
-                      {% for rating in rating_changes %}{ time: "{{ rating.modified | date('Y-m-d H:i') }}", rating:
-                          {{ rating.rating }}, comment: "{{ rating.contest.title }}" },{% endfor %}];
-              const chart = new G2.Chart({
-                  container: 'rating-changes',
-                  forceFit: true,
-                  height: 400,
-                  padding: [20, "auto", 50, "auto"]
-              });
-              chart.source(data);
-              chart.scale('rating', {
-                  type: 'linear',
-                  min: {{ min_rating }},
-                  max: {{ max_rating }}
-              });
-              chart.scale('time', {
-                  range: [0, 1],
-                  type: 'time'
-              });
-              chart.axis('rating').axis('time');
-              chart.tooltip({
-                  crosshairs: {
-                      type: 'line'
-                  },
-                  position: 'top',
-                  inPlot: false,
-                  title: 'comment'
-              });
-              chart.area().position('time*rating*comment');
-              chart.line().position('time*rating*comment');
-              chart.point().position('time*rating*comment').size(4).shape('circle').style({
-                  stroke: '#fff',
-                  lineWidth: 1
-              });
-              chart.render();
+      {% if rating_changes %}
+        const data = [
+          {time: "{{ profile.date_joined | date('Y-m-d H:i') }}", rating: 1500, comment: "Joined EOJ"},
+            {% for rating in rating_changes %}{ time: "{{ rating.modified | date('Y-m-d H:i') }}", rating:
+              {{ rating.rating }}, comment: "{{ rating.contest.title }}" },{% endfor %}];
+        const chart = new G2.Chart({
+          container: 'rating-changes',
+          forceFit: true,
+          height: 400,
+          padding: [20, "auto", 50, "auto"]
+        });
+        chart.source(data);
+        chart.scale('rating', {
+          type: 'linear',
+          min: {{ min_rating }},
+          max: {{ max_rating }}
+        });
+        chart.scale('time', {
+          range: [0, 1],
+          type: 'time'
+        });
+        chart.axis('rating').axis('time');
+        chart.tooltip({
+          crosshairs: {
+            type: 'line'
+          },
+          position: 'top',
+          inPlot: false,
+          title: 'comment'
+        });
+        chart.area().position('time*rating*comment');
+        chart.line().position('time*rating*comment');
+        chart.point().position('time*rating*comment').size(4).shape('circle').style({
+          stroke: '#fff',
+          lineWidth: 1
+        });
+        chart.render();
 
-          {% endif %}
-      }
+      {% endif %}
+    }
 
-      function renderHeatmap() {
-          var Shape = G2.Shape;
-          var Util = G2.Util;
-          Shape.registerShape('polygon', 'boundary-polygon', {
-              draw: function draw(cfg, container) {
-                  if (!Util.isEmpty(cfg.points)) {
-                      var attrs = {
-                          stroke: '#fff',
-                          lineWidth: 1,
-                          fill: cfg.color,
-                          fillOpacity: cfg.opacity
-                      };
-                      var points = cfg.points;
-                      var path = [['M', points[0].x, points[0].y], ['L', points[1].x, points[1].y], ['L', points[2].x, points[2].y], ['L', points[3].x, points[3].y], ['Z']];
-                      attrs.path = this.parsePath(path);
-                      var polygon = container.addShape('path', {
-                          attrs: attrs
-                      });
+    function renderHeatmap() {
+      var Shape = G2.Shape;
+      var Util = G2.Util;
+      Shape.registerShape('polygon', 'boundary-polygon', {
+        draw: function draw(cfg, container) {
+          if (!Util.isEmpty(cfg.points)) {
+            var attrs = {
+              stroke: '#fff',
+              lineWidth: 1,
+              fill: cfg.color,
+              fillOpacity: cfg.opacity
+            };
+            var points = cfg.points;
+            var path = [['M', points[0].x, points[0].y], ['L', points[1].x, points[1].y], ['L', points[2].x, points[2].y], ['L', points[3].x, points[3].y], ['Z']];
+            attrs.path = this.parsePath(path);
+            var polygon = container.addShape('path', {
+              attrs: attrs
+            });
 
             if (cfg.origin._origin.lastWeek) {
               var linePath = [['M', points[2].x, points[2].y], ['L', points[3].x, points[3].y]];
@@ -292,65 +292,67 @@
         }
       });
 
-          const data = {{ heatmap | safe }};
-          const weekToMonth = {{ week_to_month | safe }};
-          var chartHeight = $("#heatmap").width() / 7;
-          var chart = new G2.Chart({
-              container: 'heatmap',
-              forceFit: true,
-              height: chartHeight,
-              padding: [20, 20, 20, 80]
-          });
-          chart.source(data, {
-              day: {
-                  type: 'cat',
-                  values: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-              },
-              week: {
-                  type: 'cat'
-              },
-              submissions: {
-                  sync: true
-              }
-          });
+      const data = {{ heatmap | safe }};
+      const weekToMonth = {{ week_to_month | safe }};
+      var chartHeight = $("#heatmap").width() / 7;
+      var chart = new G2.Chart({
+        container: 'heatmap',
+        forceFit: true,
+        height: chartHeight,
+        padding: [20, 20, 20, 80]
+      });
+      chart.source(data, {
+        day: {
+          type: 'cat',
+          values: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+        },
+        week: {
+          type: 'cat'
+        },
+        submissions: {
+          sync: true
+        }
+      });
 
-          chart.axis('week', false);
-          /*
-          chart.axis('week', {
-            position: 'top',
-            tickLine: null,
-            line: null,
-            label: {
-              offset: 12,
-              textStyle: {
-                fontSize: 12,
-                fill: '#666',
-                textBaseline: 'top'
-              },
-              formatter: function formatter(val) {
-                if (weekToMonth.hasOwnProperty(val)) {
-                  return ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][weekToMonth[val]];
-                } else {
-                  return "";
-                }
-              }
+      chart.axis('week', false);
+      /*
+      chart.axis('week', {
+        position: 'top',
+        tickLine: null,
+        line: null,
+        label: {
+          offset: 12,
+          textStyle: {
+            fontSize: 12,
+            fill: '#666',
+            textBaseline: 'top'
+          },
+          formatter: function formatter(val) {
+            if (weekToMonth.hasOwnProperty(val)) {
+              return ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][weekToMonth[val]];
+            } else {
+              return "";
             }
-          });
-          */
-          chart.axis('day', {
-              grid: null
-          });
-          chart.legend(false);
-          chart.tooltip({
-              title: 'date'
-          });
-          chart.coord().reflect('y');
-          chart.polygon().position('week*day*date').color('submissions', '#F3F9FE-#ABD4FF-#7BBCFF-#1387FF-#00458D-#00356D').shape('boundary-polygon');
-          chart.render();
-      }
+          }
+        }
+      });
+      */
+      chart.axis('day', {
+        grid: null
+      });
+      chart.legend(false);
+      chart.tooltip({
+        title: 'date'
+      });
+      chart.coord().reflect('y');
+      chart.polygon().position('week*day*date').color('submissions', '#F3F9FE-#ABD4FF-#7BBCFF-#1387FF-#00458D-#00356D').shape('boundary-polygon');
+      chart.render();
+    }
 
-      renderRatingChanges();
-      renderHeatmap();
+    renderRatingChanges();
+
+
+    renderHeatmap();
 
   </script>
 {% endblock %}
