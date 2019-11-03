@@ -43,7 +43,7 @@ def submission_code_api(request):
 
 
 def render_submission(submission: Submission, permission=1, hide_problem=False, show_percent=False,
-                      rejudge_available=True) -> str:
+                      rejudge_available=True, hide_reward=False) -> str:
   if permission == 0:
     raise PermissionDenied
   if permission == 1 and submission.status != SubmissionStatus.COMPILE_ERROR and submission.status_message:
@@ -57,7 +57,8 @@ def render_submission(submission: Submission, permission=1, hide_problem=False, 
                       'hide_problem': hide_problem,
                       'show_percent': show_percent,
                       'server': judge_server,
-                      'rejudge_authorized': permission >= 2 and rejudge_available
+                      'rejudge_authorized': permission >= 2 and rejudge_available,
+                      'hide_reward': hide_reward,
                       })
   return loader.render_to_string('components/single_submission.jinja2', c, GlobalRequestMiddleware.get_current_request())
 

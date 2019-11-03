@@ -465,7 +465,8 @@ class ProblemSubmissionAPI(LoginRequiredMixin, View):
     return HttpResponse(render_submission(submission,
                                           permission=get_permission_for_submission(request.user, submission),
                                           hide_problem=True,
-                                          rejudge_available=False))
+                                          rejudge_available=False,
+                                          hide_reward=True))
 
 
 class ProblemSubmissionView(LoginRequiredMixin, TemplateView):

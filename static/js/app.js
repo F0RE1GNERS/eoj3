@@ -258,7 +258,7 @@ $(".modal-link")
     var button = $(e.currentTarget);
     var modal = $(button.data('target'));
     if (button.data('action'))
-      modal.find("form").attr("action", $(e.currentTarget).data('action'));
+      modal.find("form").attr("action", button.data('action'));
     if (modal.find("form").length > 0)
       replaceFormData(modal.find("form"), button.data());
     modal
@@ -272,8 +272,12 @@ $(".modal-link")
             data: data,
             processData: false,
             contentType: false,
-            complete: function () {
-              location.reload();
+            success: function (data) {
+              if (data.redirect) {
+                window.location.href = data.redirect;
+              } else {
+                location.reload();
+              }
             }
           });
         }
