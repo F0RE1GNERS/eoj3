@@ -82,7 +82,7 @@
     </tbody>
 </table>
 
-{% if submission.status != 0 and 'api' not in request.get_full_path() %}
+{% if submission.status != 0 and not hide_reward %}
     {% from 'components/modal.jinja2' import modal with context %}
     <div class="ui animated fade button fluid basic orange modal-link" tabindex="0" data-target="#askForDebug">
         <div class="visible content">

@@ -187,7 +187,7 @@ class RewardView(View):
         submission = get_object_or_404(Submission, pk=request.POST.get('id'))
         if submission.author != request.user:
             raise PermissionDenied
-        blog = Blog(
+        blog = Blog.objects.create(
             title=request.POST.get('title'),
             text=request.POST.get('content'),
             visible=True,
@@ -198,7 +198,6 @@ class RewardView(View):
             submission=submission,
             problem=submission.problem
         )
-        blog.save()
         return JsonResponse(dict(redirect=reverse('blog:detail', kwargs={'pk': blog.pk})))
 
 
