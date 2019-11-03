@@ -159,7 +159,7 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
       data['submission_block'] = render_submission(submission,
                                                    permission=permission,
                                                    show_percent=data['show_percent'],
-                                                   hide_reward=self.content_type == 0)
+                                                   hide_reward=self.contest.contest_type == 0)
       if permission == 2 or (self.request.user == submission.author and self.contest.case_public >= 2):
         data['report_block'] = render_submission_report(submission.pk)
       else:
