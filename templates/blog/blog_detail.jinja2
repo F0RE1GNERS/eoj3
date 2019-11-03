@@ -11,19 +11,21 @@
   {% cache 3600 'blog_view#'+blog.pk.__str__()+'#'+blog.edit_time.__str__() %}
     {{ blog.text | markdown | safer | safe }}
   {% endcache %}
+  {% if submission %}
     <div class="ui segment">
-    <div class="ui simple dropdown top right attached label">
-      <i class="code icon"></i> {% if submission.lang %}{{ submission.get_lang_display() }}{% endif %}
-      <div class="menu">
-        <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
-{#      {% if not submission.contest %}#}
-{#        <a class="item" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">#}
-{#          <i class="external icon"></i> Open in editor#}
-{#        </a>#}
-{#      {% endif %}#}
+      <div class="ui simple dropdown top right attached label">
+        <i class="code icon"></i> {% if submission.lang %}{{ submission.get_lang_display() }}{% endif %}
+        <div class="menu">
+          <a class="item clipboard" data-clipboard-text="{{ submission.code }}"><i class="copy icon"></i> Copy</a>
+  {#      {% if not submission.contest %}#}
+  {#        <a class="item" href="{{ url('problem:submit', submission.problem_id) }}?submission={{ submission.pk }}">#}
+  {#          <i class="external icon"></i> Open in editor#}
+  {#        </a>#}
+  {#      {% endif %}#}
+        </div>
       </div>
-    </div>
     <div>{{ submission.code_as_html | safe }}</div>
+  {% endif %}
   </div>
   <div class="actions">
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
