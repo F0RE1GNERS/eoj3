@@ -158,7 +158,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
       # it is already authorized thus requires special permission to open it
       data['submission_block'] = render_submission(submission,
                                                    permission=permission,
-                                                   show_percent=data['show_percent'])
+                                                   show_percent=data['show_percent'],
+                                                   hide_reward=self.content_type == 0)
       if permission == 2 or (self.request.user == submission.author and self.contest.case_public >= 2):
         data['report_block'] = render_submission_report(submission.pk)
       else:
