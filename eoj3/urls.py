@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.views.static import serve
 
 from account.profile import ProfileView
+from blog.views import GetRewardsView
 from home.search import search_view
 from migrate.views import migrate_view
 from tests.views import judge_mock, query_mock, query_report_mock
@@ -43,7 +44,8 @@ urlpatterns = [
   url(r'^paste/$', PasteView.as_view(), name='pastebin'),
   url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
   url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
-  url(r'^i18n/', include('django.conf.urls.i18n'))
+  url(r'^i18n/', include('django.conf.urls.i18n')),
+  url(r'^reward/(?P<pk>\d+)/$', GetRewardsView.as_view(), name='rewardslist'),
 ]
 
 urlpatterns += [

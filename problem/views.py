@@ -1,6 +1,7 @@
 import random
 from collections import defaultdict
 
+import django_comments
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,6 +19,7 @@ from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
 from ipware.ip import get_ip
 from tagging.models import Tag, TaggedItem, ContentType
+from blog.models import Blog
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -475,13 +477,13 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                                                         problem_id=self.kwargs.get('pk'),
                                                         contest__isnull=True)
     if self.request.user.is_authenticated and (
-        submission.author == self.request.user or
-        is_problem_manager(self.request.user,
-                           submission.problem) or
-        self.request.user.submission_set.filter(
-          problem_id=self.kwargs.get('pk'),
-          status=SubmissionStatus.ACCEPTED).exists() or
-        self.request.user.has_coach_access()):
+            submission.author == self.request.user or
+            is_problem_manager(self.request.user,
+                               submission.problem) or
+            self.request.user.submission_set.filter(
+              problem_id=self.kwargs.get('pk'),
+              status=SubmissionStatus.ACCEPTED).exists() or
+            self.request.user.has_coach_access()):
       permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
       data['submission_block'] = render_submission(submission, permission=permission)
       if permission == 2 or self.request.user == submission.author:
@@ -563,16 +565,17 @@ def compare_with(request):
 class ProblemRecommendation(LoginRequiredMixin, TemplateView):
   template_name = "problem/recommendation.jinja2"
 
-  def get_context_data(self, **kwargs):
-    data = super().get_context_data(**kwargs)
-    data["recommended_problems"] = recommendation.coming_up_magic_problems(self.request.user.id)
-    data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
-    data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
-    data["hard_problems"] = recommendation.hard_problems(self.request.user.id)
-    data["med_problems"] = recommendation.med_problems(self.request.user.id)
-    data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
-    data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
-    return data
+
+def get_context_data(self, **kwargs):
+  data = super().get_context_data(**kwargs)
+  data["recommended_problems"] = recommendation.coming_up_magic_problems(self.request.user.id)
+  data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
+  data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
+  data["hard_problems"] = recommendation.hard_problems(self.request.user.id)
+  data["med_problems"] = recommendation.med_problems(self.request.user.id)
+  data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
+  data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
+  return data
 
 
 class RuledRedirectView(RedirectView):
@@ -602,4 +605,15 @@ class ProblemFeedbackCompare(LoginRequiredMixin, TemplateView):
     random.shuffle(accept_problems)
     data["problem1"] = Problem.objects.get(id=accept_problems[0])
     data["problem2"] = Problem.objects.get(id=accept_problems[1])
+    return data
+
+class ProblemReward(ListView):
+  template_name = 'problem/reward.jinja2'
+  context_object_name = 'reward_list'
+
+  def get_queryset(self):
+    return Blog.objects.filter(is_reward=True, contest=None).with_likes().with_likes_flag(self.request.user)
+
+  def get_context_data(self, **kwargs):
+    data = super(ProblemReward, self).get_context_data(**kwargs)
     return data

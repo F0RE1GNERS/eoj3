@@ -10,9 +10,13 @@
 {% block _content %}
   <div class="ui top inverted fixed menu large" id="navbar">
     <div class="ui container">
-      <a class="item" href="{{ url('polygon:home') }}">
+    <a class="item" href="{{ url('home') }}">
         <i class="home icon"></i>
         主页
+      </a>
+      <a class="item" href="{{ url('polygon:home') }}">
+        <i class="home icon"></i>
+        Polygon主页
       </a>
       <a class="item" href="{{ url('polygon:problem_list_2') }}">
         <i class="fork icon"></i>

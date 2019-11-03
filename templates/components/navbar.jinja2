@@ -7,6 +7,7 @@
         <span class="item"><b>EMB: </b>{{ request.user.score | round(1) }}</span>
         <a class="item" href="{{ url('profile', request.user.pk) }}">个人档案</a>
         <a class="item" href="{{ url('blog:index', request.user.pk) }}">博客</a>
+        <a class="item" href="{{ url('rewardslist', request.user.pk) }}">悬赏</a>
         <a class="item" href="{{ url('problem:status') }}?user={{ request.user.pk }}">提交记录</a>
         <a class="item" href="{{ url('account:profile') }}">个人设置</a>
         <a class="item" href="{{ url('migrate') }}">迁移</a>
