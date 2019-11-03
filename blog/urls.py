@@ -15,4 +15,5 @@ urlpatterns = [
     # url('^discuss/(?P<pk>\d+)/$', views.ProblemDiscuss.as_view(), name='discuss'),
     # url('^discuss/(?P<pk>\d+)/comment/$', views.ProblemAddComment.as_view(), name='problem_add_comment'),
     # url('^discuss/(?P<pk>\d+)/comment/(?P<comment_id>\d+)/delete/$', views.ProblemDeleteComment.as_view(), name='problem_delete_comment'),
+    url(r'^reward/$', views.RewardView.as_view(), name='reward')
 ]

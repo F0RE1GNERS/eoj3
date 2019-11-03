@@ -1,0 +1,19 @@
+{% extends 'problem/base.jinja2' %}
+{% from 'components/blog_preview.jinja2' import blog_preview %}
+{% block problem_content %}
+  <div class="ui stackable grid">
+
+    <div class="eleven wide column">
+
+      {% if is_author %}<a class="ui labeled icon button primary" href="{{ url('blog:create') }}"><i class="icon add"></i>写博客</a>{% endif %}
+      <div class="ui feed">
+        {% if reward_list %}
+          {% for reward in reward_list %}
+            {{ blog_preview(reward) }}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

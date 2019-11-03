@@ -1,6 +1,7 @@
 import random
 from collections import defaultdict
 
+import django_comments
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,6 +19,7 @@ from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
 from ipware.ip import get_ip
 from tagging.models import Tag, TaggedItem, ContentType
+from blog.models import Blog
 
 from account.models import User
 from account.permissions import is_admin_or_root
@@ -561,7 +563,7 @@ def compare_with(request):
 
 
 class ProblemRecommendation(LoginRequiredMixin, TemplateView):
-  template_name = "problem/recommendation.jinja2"
+    template_name = "problem/recommendation.jinja2"
 
   def get_context_data(self, **kwargs):
     data = super().get_context_data(**kwargs)

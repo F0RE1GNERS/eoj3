@@ -5,7 +5,10 @@ from rest_framework_simplejwt.views import (
   TokenVerifyView
 )
 
+from api.views import tag
 from api.views.problem import ProblemView
+from api.views.problemlist import ProblemListView
+from api.views.user import UserView
 from home import search_api
 from submission.views import submission_code_api, submission_count_api
 from utils.markdown3 import markdown_convert_api
@@ -32,4 +35,7 @@ urlpatterns += [
 urlpatterns += [
   url(r'^status/hidden/$', SubmissionListView.as_view()),
   url(r'^problem/(?P<pk>\d+)/$', ProblemView.as_view()),
+  url(r'^user/(?P<pk>\d+)/$', UserView.as_view()),
+  url(r'^problem_list/(?P<pk>\d+)/$', ProblemListView.as_view()),
+  url(r'^tag/$', tag.return_problems)
 ]

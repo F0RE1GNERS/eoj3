@@ -1,0 +1,29 @@
+{# has a weird name; it means personal profile... #}
+{# UPD: this is a personal blog page now #}
+
+{% extends 'base.jinja2' %}
+{% from 'components/profile_card.jinja2' import profile_card with context %}
+{% from 'components/blog_preview.jinja2' import blog_preview %}
+
+{% block title %}悬赏 - {% endblock %}
+
+{% block page_header %}{{ profile.get_username_display() }}{% endblock %}
+
+{% block content %}
+
+  <div class="ui stackable grid">
+
+    <div class="eleven wide column">
+
+      <div class="ui feed">
+        {% if blog_list %}
+          {% for blog in blog_list %}
+            {{ blog_preview(blog) }}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

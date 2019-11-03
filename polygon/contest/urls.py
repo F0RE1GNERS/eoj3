@@ -51,6 +51,8 @@ urlpatterns = [
   url(r'^(?P<pk>\d+)/system-test/', v.ContestSystemTestView.as_view(), name='contest_system_test'),
   url(r'^(?P<pk>\d+)/disable/(?P<participant_pk>\d+)/$', v.ContestAccountDisable.as_view(),
       name='contest_account_disable'),
+  url(r'^homeworkclone/$', v.HomeworkClone.as_view(), name='homework_clone'),
+
 ]
 
 urlpatterns += [
