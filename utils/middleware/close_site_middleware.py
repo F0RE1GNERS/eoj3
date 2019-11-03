@@ -20,7 +20,7 @@ class CloseSiteMiddleware(object):
 
     @staticmethod
     def process_view(request, view_func, view_args, view_kwargs):
-        force_closed = view_kwargs.pop('force_closed', True)
+        force_closed = view_kwargs.pop('force_closed', False)
         try:
             if force_closed and is_site_closed(request):
                 raise CloseSiteException
