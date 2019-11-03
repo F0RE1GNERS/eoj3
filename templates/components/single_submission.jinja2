@@ -1,5 +1,4 @@
 {# This template is for author only if access directly #}
-{% from 'components/modal.jinja2' import modal with context %}
 <table class="ui celled table structured">
     <thead>
     <tr class="center aligned">
@@ -84,6 +83,7 @@
 </table>
 
 {% if submission.status != 0 %}
+    {% from 'components/modal.jinja2' import modal with context %}
     <div class="ui animated fade button fluid basic orange modal-link" tabindex="0" data-target="#askForDebug">
         <div class="visible content">
             <i class="question circle outline icon"></i>
