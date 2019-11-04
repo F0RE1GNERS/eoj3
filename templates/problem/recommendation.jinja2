@@ -1,7 +1,5 @@
 {% extends 'problem/base.jinja2' %}
 
-{% block problem_content %}
-
 {% macro show_tags(problem) %}
   <div style="float:right">
   {% for tag in problem.my_tags %}
@@ -17,6 +15,35 @@
 {% macro accept_user_count(problem) %}
   {% if problem.ac_user_count %}<i class="icon fitted user" aria-hidden="true"></i> x {{ problem.ac_user_count }}{% endif %}
 {% endmacro %}
+
+{% macro problem_list_display(title, problem_list, with_tags=False) %}
+   <div class="eight wide column">
+    <table class="ui backend compact center aligned middle aligned celled unstackable table">
+      <thead>
+        <tr>
+          <th class="left aligned">{{ title }}</th>
+          <th>奖励</th>
+          <th>解出</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for problem in problem_list %}
+        <tr class="{{ accept_status(problem) }}">
+          <td class="left aligned">
+            <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
+            {% if with_tags %}{{ show_tags(problem) }}{% endif %}
+          </td>
+          <td>{{ problem.reward | round(1) }}</td>
+          <td>{{ accept_user_count(problem) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
+
+{% block problem_content %}
 
   {% if recommended_problems %}
   <a class="ui info icon message" href="{{ url('problem:detail', recommended_problems[0].id) }}">
@@ -88,32 +115,6 @@
       </table>
     </div>
   </div>
-
-  {% macro problem_list_display(title, problem_list, with_tags=False) %}
-     <div class="eight wide column">
-      <table class="ui backend compact center aligned middle aligned celled unstackable table">
-        <thead>
-          <tr>
-            <th class="left aligned">{{ title }}</th>
-            <th>奖励</th>
-            <th>解出</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for problem in problem_list %}
-          <tr class="{{ accept_status(problem) }}">
-            <td class="left aligned">
-              <a href="{{ url('problem:detail', problem.pk) }}">{{ problem.title }}</a>
-              {% if with_tags %}{{ show_tags(problem) }}{% endif %}
-            </td>
-            <td>{{ problem.reward | round(1) }}</td>
-            <td>{{ accept_user_count(problem) }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% endmacro %}
 
   <h2 class="ui header">按难度推荐</h2>
   <div class="ui stackable grid">

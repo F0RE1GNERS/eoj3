@@ -1,12 +1,10 @@
-import re
-
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.static import serve
 
-from account.profile import ProfileView
 from blog.views import GetRewardsView
+from account.profile import ProfileView, ProgressTreeView
 from home.search import search_view
 from migrate.views import migrate_view
 from tests.views import judge_mock, query_mock, query_report_mock
@@ -19,7 +17,6 @@ from home.views import home_view, faq_view, TestView, forbidden_view, not_found_
 from home.museum import museum_view
 from utils.site_settings import force_closed
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
-
 urlpatterns = [
   url(r'^login/$', my_login, name='login'),
   url(r'^contest/', include('contest.urls', namespace='contest')),
@@ -43,10 +40,12 @@ urlpatterns = [
   url(r'^museum/$', museum_view, name='museum'),
   url(r'^paste/$', PasteView.as_view(), name='pastebin'),
   url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
+  url(r'^profile/progress/(?P<pk>\d+)/$', ProgressTreeView.as_view(), name='progress'),
   url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
   url(r'^i18n/', include('django.conf.urls.i18n')),
   url(r'^reward/(?P<pk>\d+)/$', GetRewardsView.as_view(), name='rewardslist'),
 ]
+
 
 urlpatterns += [
   url(r'^403/(?P<exception>\w+)/$', forbidden_view),
