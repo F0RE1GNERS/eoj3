@@ -9,7 +9,9 @@
 {% endmacro %}
 
 {% macro accept_status(problem) %}
-  {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}
+  {% if problem.personal_label %}
+    {% if problem.personal_label > 0 %}accepted{% elif problem.personal_label < 0 %}attempted{% endif %}
+  {% endif %}
 {% endmacro %}
 
 {% macro accept_user_count(problem) %}

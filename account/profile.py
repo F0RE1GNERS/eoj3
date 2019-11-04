@@ -18,39 +18,42 @@ from problem.statistics import get_accept_problem_count, tags_stat
 from submission.util import SubmissionStatus
 
 
+# NOTE: internal usage for demo
 class ProgressTreeView(TemplateView):
-  template_name = 'progress_tree.jinja2'
+    template_name = 'progress_tree.jinja2'
 
-  def gen_tag_tree(self, id, dep=0):
-    children = TagInfo.objects.filter(parent_id=id).values_list("tag_id", flat=True)
-    name = "root" if id == -1 else Tag.objects.get(id=id).name
-    children_list = [self.gen_tag_tree(child, dep + 1) for child in children]
-    familiar = 0
-    if id == -1:
-      familiar = 1
-    elif id in self.tags_stat:
-      familiar = self.tags_stat[id][0] / min(self.tags_stat[id][1], 10)
-    return {"id": name,
-            "children": children_list,
-            "familiar": familiar,
-            "realID": id}
+    def gen_tag_tree(self, id, dep=0):
+        children = TagInfo.objects.filter(parent_id=id).values_list("tag_id", flat=True)
+        name = "root" if id == -1 else Tag.objects.get(id=id).name
+        children_list = [self.gen_tag_tree(child, dep + 1) for child in children]
+        familiar = 0
+        if id == -1:
+            familiar = 1
+        elif id in self.tags_stat:
+            familiar = self.tags_stat[id][0] / min(self.tags_stat[id][1], 10)
+        return {"id": name,
+                "children": children_list,
+                "familiar": familiar,
+                "realID": id}
 
-  def get_context_data(self, **kwargs):
-    data = super().get_context_data(**kwargs)
-    try:
-      data['profile'] = self.user = User.objects.get(pk=self.kwargs['pk'], is_active=True)
-    except:
-      raise Http404
-    self.tags_stat = tags_stat(self.user.id)
-    data['tree'] = json.dumps(self.gen_tag_tree(-1))
-    data['p_tags'] = list(Problem.objects.all())
-    data['tag_problem_recommendation'] = dict()
-    for tag_id in TagInfo.objects.values_list('tag_id', flat=True):
-      if tag_id in self.tags_stat:
-        data['tag_problem_recommendation'][tag_id] = select_with_tags(self.user.id, [(tag_id, self.tags_stat[tag_id])])
-      else:
-        data['tag_problem_recommendation'][tag_id] = []
-    return data
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        try:
+            data['profile'] = self.user = User.objects.get(pk=self.kwargs['pk'], is_active=True)
+        except:
+            raise Http404
+        self.tags_stat = tags_stat(self.user.id)
+        data['tree'] = json.dumps(self.gen_tag_tree(-1))
+        data['p_tags'] = list(Problem.objects.all())
+        data['tag_problem_recommendation'] = dict()
+        for tag_id in TagInfo.objects.values_list('tag_id', flat=True):
+            if tag_id in self.tags_stat:
+                problem_id_list = select_with_tags(self.user.id, [(tag_id, self.tags_stat[tag_id])])
+                data['tag_problem_recommendation'][tag_id] = [Problem.objects.get(id=p_id) for p_id in problem_id_list]
+            else:
+                data['tag_problem_recommendation'][tag_id] = []
+        return data
+
 
 class ProfileView(TemplateView):
     template_name = 'profile.jinja2'
