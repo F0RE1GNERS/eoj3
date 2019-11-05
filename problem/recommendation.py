@@ -92,7 +92,7 @@ def med_problems(user_id):
 def select_with_tags(user_id, tags_record):
   user_accept_all = set(get_accept_problem_list(user_id))
   ret = set()
-  for k, (done, _) in tags_record:
+  for k, _ in tags_record:
     available_problems = TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem)) \
         .filter(tag_id=k).values_list("object_id", flat=True)
     accept_problems = set(available_problems) & user_accept_all

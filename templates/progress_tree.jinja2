@@ -1,0 +1,94 @@
+{% extends 'base.jinja2' %}
+
+{% from  "problem/recommendation.jinja2" import problem_list_display with context %}
+
+{% block title %}{{ profile.username }} - {% endblock %}
+
+{% block page_header %}{{ username_display(profile, additional_class="bold") }}{% endblock %}
+
+{% block css %}
+  <script src="/static/node_modules/@antv/g6/build/g6.js"></script>
+  <script src="/static/node_modules/@antv/hierarchy/build/hierarchy.js"></script>
+{% endblock %}
+
+{% block content %}
+  {% for tag_id, problem_list in tag_problem_recommendation.items() %}
+    <div class="ui modal" id="recommend{{ tag_id }}">
+      <div class="content">
+        {{ problem_list_display("相关推荐", problem_list, with_tags=True) }}
+      </div>
+    </div>
+  {% endfor %}
+
+  <div id="mountNode" class="col-lg-12"></div>
+
+  <script>
+  var data = {{ tree | safe }};
+  function getColor(value){
+    // value from 0 to 1
+    var hue = ((2 + value) * 120).toString(10);
+    return ["hsl(", hue, ", 100%, 50%)"].join("");
+  }
+  var graph = new G6.TreeGraph({
+      container: 'mountNode',
+      width: window.innerWidth,
+      height: window.innerHeight,
+      pixelRatio: 2,
+      modes: {
+        default: ['drag-canvas', 'zoom-canvas']
+      },
+      defaultNode: {
+        size: 16,
+        anchorPoints: [[0, 0.5], [1, 0.5]]
+      },
+      defaultEdge: {
+        shape: 'cubic-horizontal'
+      },
+      nodeStyle: {
+        default: {
+          fill: '#40a9ff',
+          stroke: '#096dd9'
+        }
+      },
+      edgeStyle: {
+        default: {
+          stroke: '#A3B1BF'
+        }
+      },
+      layout: function layout(data) {
+        return Hierarchy.dendrogram(data, {
+          direction: 'LR', // H / V / LR / RL / TB / BT
+          nodeSep: 20,
+          rankSep: 100
+        });
+      },
+    });
+    graph.data(data);
+
+    graph.render();
+    graph.getNodes().forEach(function(node) {
+      var model = node.get('model');
+      model.label = model.data.id;
+      model.labelCfg = {
+        offset: 10,
+        style: {
+          fill: '#666'
+        }
+      };
+      if (model.children && model.children.length > 0) {
+        model.labelCfg.position = 'left';
+      } else {
+        model.labelCfg.position = 'right';
+      }
+      model.style = {
+        fill: getColor(model.data.familiar)
+      };
+    });
+    graph.refresh();
+    graph.fitView();
+    graph.on('node:click', function(evt) {
+      const id = 'recommend' + evt.item._cfg.model.data.realID;
+      $('#' + id).modal('show');
+    })
+  </script>
+{% endblock %}
