@@ -48,7 +48,8 @@ class ProgressTreeView(TemplateView):
         data['tag_problem_recommendation'] = dict()
         for tag_id in TagInfo.objects.values_list('tag_id', flat=True):
             if tag_id in self.tags_stat:
-                problem_id_list = select_with_tags(self.user.id, [(tag_id, self.tags_stat[tag_id])])
+                problem_id_list = select_with_tags(self.user.id, [(tag_id, self.tags_stat[tag_id])],
+                                                   max_count_per_tag=5)
                 data['tag_problem_recommendation'][tag_id] = [Problem.objects.get(id=p_id) for p_id in problem_id_list]
             else:
                 data['tag_problem_recommendation'][tag_id] = []
