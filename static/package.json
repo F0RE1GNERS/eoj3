@@ -21,7 +21,7 @@
   "dependencies": {
     "@antv/data-set": "^0.8.3",
     "@antv/g2": "^3.0.4-beta.2",
-    "@antv/g6": "^3.0.2",
+    "@antv/g6": "3.0.2",
     "@antv/hierarchy": "^0.5.0",
     "ace-builds": "^1.4.1",
     "cal-heatmap": "^3.6.2",
