@@ -30,7 +30,7 @@ class ProgressTreeView(TemplateView):
         if id == -1:
             familiar = 1
         elif id in self.tags_stat:
-            familiar = self.tags_stat[id][0] / min(self.tags_stat[id][1], 10)
+            familiar = min(self.tags_stat[id][0] / min(self.tags_stat[id][1], 10), 1)
         return {"id": name,
                 "children": children_list,
                 "familiar": familiar,
