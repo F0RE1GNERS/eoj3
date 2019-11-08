@@ -1,0 +1,24 @@
+[SETTINGS]
+
+max-line-length=120
+max-args=8
+max-locals=15
+max-statements=50
+max-attributes=15
+indent-string='  '
+const-naming-style=any
+indent-after-paren=2
+
+disable=R,
+        no-member,
+        missing-module-docstring,
+        missing-class-docstring,
+        missing-method-docstring,
+        missing-function-docstring,
+        invalid-name,
+        unused-argument,
+        redefined-builtin,
+        bare-except,
+        attribute-defined-outside-init
+
+ignore=migrations
