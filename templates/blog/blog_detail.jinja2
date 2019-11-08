@@ -24,9 +24,9 @@
   {#      {% endif %}#}
         </div>
       </div>
-    <div>{{ submission.code_as_html | safe }}</div>
+      <div>{{ submission.code_as_html | safe }}</div>
+    </div>
   {% endif %}
-  </div>
   <div class="actions">
     <a class="blog-like-link like-link" data-link="{{ url('blog:like') }}" data-comment="{{ blog.pk }}" data-flag="like">
       <i class="thumbs up {% if blog.likes__flag != 1 %}outline{% endif %} icon"></i>
