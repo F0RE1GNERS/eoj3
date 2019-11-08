@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse, redirect
 from django.views.generic import View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -181,23 +181,25 @@ class BlogDeleteComment(LoginRequiredMixin, View):
             return PermissionDenied(_("You don't have the access."))
         return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': self.kwargs.get('pk')}))
 
+
 class RewardView(View):
     def post(self, request):
         submission = get_object_or_404(Submission, pk=request.POST.get('id'))
-        if(submission.author != request.user):
+        if submission.author != request.user:
             raise PermissionDenied
-        instance = Blog()
-        instance.title = request.POST.get('title')
-        instance.text = request.POST.get('content')
-        instance.visible = True
-        instance.hide_revisions = False
-        instance.author = request.user
-        instance.contest = submission.contest
-        instance.is_reward = True
-        instance.submission = submission
-        instance.problem = submission.problem
-        instance.save()
-        return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': request.user.pk}))
+        blog = Blog.objects.create(
+            title=request.POST.get('title'),
+            text=request.POST.get('content'),
+            visible=True,
+            hide_revisions=False,
+            author=request.user,
+            contest=submission.contest,
+            is_reward=True,
+            submission=submission,
+            problem=submission.problem
+        )
+        return JsonResponse(dict(redirect=reverse('blog:detail', kwargs={'pk': blog.pk})))
+
 
 class GetRewardsView(ListView):
     template_name = 'blog/reward_list.jinja2'

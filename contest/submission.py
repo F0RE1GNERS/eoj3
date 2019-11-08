@@ -129,7 +129,7 @@ class ContestSubmissionAPI(BaseContestMixin, View):
         submission.next_problem = recommended_problems[0]
     return HttpResponse(
       render_submission(submission, permission=get_permission_for_submission(request.user, submission),
-                        hide_problem=True, rejudge_available=False))
+                        hide_problem=True, rejudge_available=False, hide_reward=True))
 
 
 class ContestSubmissionView(BaseContestMixin, TemplateView):
@@ -158,7 +158,8 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
       # it is already authorized thus requires special permission to open it
       data['submission_block'] = render_submission(submission,
                                                    permission=permission,
-                                                   show_percent=data['show_percent'])
+                                                   show_percent=data['show_percent'],
+                                                   hide_reward=self.contest.contest_type == 0)
       if permission == 2 or (self.request.user == submission.author and self.contest.case_public >= 2):
         data['report_block'] = render_submission_report(submission.pk)
       else:

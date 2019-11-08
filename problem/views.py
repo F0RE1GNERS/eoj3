@@ -465,7 +465,8 @@ class ProblemSubmissionAPI(LoginRequiredMixin, View):
     return HttpResponse(render_submission(submission,
                                           permission=get_permission_for_submission(request.user, submission),
                                           hide_problem=True,
-                                          rejudge_available=False))
+                                          rejudge_available=False,
+                                          hide_reward=True))
 
 
 class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
@@ -565,17 +566,17 @@ def compare_with(request):
 class ProblemRecommendation(LoginRequiredMixin, TemplateView):
   template_name = "problem/recommendation.jinja2"
 
-
-def get_context_data(self, **kwargs):
-  data = super().get_context_data(**kwargs)
-  data["recommended_problems"] = recommendation.coming_up_magic_problems(self.request.user.id)
-  data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
-  data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
-  data["hard_problems"] = recommendation.hard_problems(self.request.user.id)
-  data["med_problems"] = recommendation.med_problems(self.request.user.id)
-  data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
-  data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
-  return data
+  def get_context_data(self, **kwargs):
+    data = super().get_context_data(**kwargs)
+    data["recommended_problems"] = recommendation.coming_up_magic_problems(self.request.user.id)
+    data["trending_problems"] = recommendation.trending_problems(self.request.user.id)
+    data["unsolved_problems"] = recommendation.unsolved_problems(self.request.user.id)
+    data["hard_problems"] = recommendation.hard_problems(self.request.user.id)
+    data["med_problems"] = recommendation.med_problems(self.request.user.id)
+    data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
+    data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
+    print(data)
+    return data
 
 
 class RuledRedirectView(RedirectView):

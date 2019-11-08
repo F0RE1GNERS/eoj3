@@ -1,5 +1,6 @@
 from random import randint
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -26,18 +27,23 @@ def home_view(request):
             LIMIT, LIMIT_BLOG = 20, 15
             ctx['blog_list'] = Blog.objects.with_likes().with_likes_flag(request.user).select_related(
                 "author").order_by("-create_time").filter(visible=True, recommend=True, is_reward=False)[:LIMIT_BLOG]
-            comment_list, blog_list = XtdComment.objects.filter(is_public=True, is_removed=False).order_by(
-                "-submit_date").select_related("user", "content_type").prefetch_related('content_object').all()[:LIMIT], \
-                                      Blog.objects.order_by("-create_time").select_related("author").filter(
+            # prefetch more comments
+            comment_list = XtdComment.objects.filter(is_public=True, is_removed=False).order_by(
+                "-submit_date").select_related("user", "content_type").prefetch_related('content_object').all()[:LIMIT * 2]
+            blog_list = Blog.objects.order_by("-create_time").select_related("author").filter(
                                           visible=True, is_reward=False)[:LIMIT]
             ctx['comment_list'] = []
             i, j = 0, 0
             for k in range(LIMIT):
+                while i < len(comment_list) and \
+                        comment_list[i].content_type == ContentType.objects.get_for_model(Blog) and \
+                        Blog.objects.filter(pk=comment_list[i].object_pk, is_reward=True).exists():
+                    # Skip this comment
+                    i += 1
+                # Merge comments and blogs in time order
                 if i < len(comment_list) and (j == len(blog_list) or (
                         j < len(blog_list) and comment_list[i].submit_date > blog_list[j].create_time)):
-                    if comment_list[i].content_type_id == 12 or not Blog.objects.get(pk=comment_list[i].object_pk).is_reward:
-                        # 将悬赏区的评论跳过
-                        ctx['comment_list'].append(comment_list[i])
+                    ctx['comment_list'].append(comment_list[i])
                     i += 1
                 elif j < len(blog_list):
                     ctx['comment_list'].append(blog_list[j])
