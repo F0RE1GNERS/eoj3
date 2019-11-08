@@ -19,6 +19,8 @@ disable=R,
         unused-argument,
         redefined-builtin,
         bare-except,
-        attribute-defined-outside-init
+        broad-except,
+        attribute-defined-outside-init,
+        relative-beyond-top-level
 
 ignore=migrations

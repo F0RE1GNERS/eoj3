@@ -2,9 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
-from rest_framework.views import APIView
 
 from api.views.pagination import StandardResultsSetPagination
 from contest.models import Contest

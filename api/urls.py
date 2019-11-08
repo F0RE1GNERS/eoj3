@@ -12,7 +12,6 @@ from api.views.user import UserView
 from home import search_api
 from submission.views import submission_code_api, submission_count_api
 from utils.markdown3 import markdown_convert_api
-
 from .views.submission import SubmissionListView
 
 app_name = "api"

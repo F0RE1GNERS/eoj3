@@ -1,13 +1,10 @@
-import json
-from datetime import datetime, timedelta
-from threading import Thread
+from datetime import timedelta
 
-from django.core.cache import cache
 from django.db import transaction
 
 from problem.statistics import invalidate_problem
 from submission.util import SubmissionStatus
-from .models import Contest, ContestParticipant
+from .models import Contest
 
 
 def RANK_AS_DICT(x):
@@ -60,9 +57,8 @@ def calculate_problems(contest: Contest, problems: list, snapshot: timedelta = N
       if submission.contest_time is not None and pstat["first_yes_time"] is None:
         pstat["first_yes_time"] = submission.contest_time
         pstat["first_yes_by"] = submission.author_id
-    if (submission.author_id in pstat["user_tot"] and pstat["user_tot"][
-      submission.author_id] < submission.status_percent) or \
-        submission.author_id not in pstat["user_tot"]:
+    if (submission.author_id in pstat["user_tot"] and pstat["user_tot"][submission.author_id] <
+        submission.status_percent) or submission.author_id not in pstat["user_tot"]:
       pstat["user_tot"][submission.author_id] = submission.status_percent
     pstat["tot"] += 1
 

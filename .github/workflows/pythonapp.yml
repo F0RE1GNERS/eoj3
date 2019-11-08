@@ -20,4 +20,4 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --rcfile pylintrc account
+        pylint --rcfile pylintrc account api backstage blog contest
