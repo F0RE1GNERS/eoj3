@@ -154,9 +154,11 @@ class HomeworkClone(PolygonBaseMixin, View):
       for p in problem_list:
         contest.contestproblem_set.create(identifier=p.identifier, problem_id=p.problem_id, weight=p.weight)
       for c in contest_author:
-        contest.authors.add(c.id)
+        contest.authors.add(c.id) # 复制出题人
+        contest.managers.add(c.id) # 将出题人添加到该学期作业集的管理名单中
       for m in contest_manager:
-        contest.managers.add(m.id)
+        if m.polygon_enabled:
+          contest.managers.add(m.id) # 只把具有 Polygon 权限的教师添加到新学期作业集，排除上学期助教
       contest.save()
     except:
       return redirect(reverse('polygon:contest_list'))
