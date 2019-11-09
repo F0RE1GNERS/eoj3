@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import RegexValidator
 from django.db import models
+
 from account.models import User
 from problem.models import Problem
 from utils.hash import sha_hash, case_hash
@@ -115,7 +116,7 @@ class Program(models.Model):
   def save_fingerprint(self):
     self.fingerprint = sha_hash(sha_hash(self.lang) + sha_hash(self.code) + sha_hash(self.tag))
 
-  def save(self, **kwargs):
+  def save(self, **kwargs):  # pylint: disable=arguments-differ
     self.save_fingerprint()
     super().save(**kwargs)
 

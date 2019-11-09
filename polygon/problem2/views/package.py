@@ -11,11 +11,9 @@ from django.db import transaction
 from django.urls import reverse
 from django.views.generic import FormView
 
-from polygon.models import Revision, Program, Statement, Asset, Case
+from polygon.models import Revision, Program, Statement, Case
 from polygon.problem2.views.base import ProblemRevisionMixin
-from problem.models import SpecialProgram
 from utils import random_string
-from utils.hash import sha_hash
 
 LANGUAGE_ADAPTER = {
   "c.gcc": "c",
@@ -31,7 +29,7 @@ LANGUAGE_ADAPTER = {
   "pas.fpc": "pas",
   "perl.5": "perl",
   "php.5": "php",
-  "python.2":"py2",
+  "python.2": "py2",
   "python.3": "python",
   "rust": "rs",
   "scala": "scala"
@@ -116,9 +114,9 @@ class CodeforcesPackageAdapter:
     for test_node in testset_node.find('tests').findall('test'):
       test_id += 1
       with open(os.path.join(self.directory, input_pattern % test_id), 'rb') as test_input:
-        input_text = test_input.read().replace(b"\r\n", b"\n") # process CRLF
+        input_text = test_input.read().replace(b"\r\n", b"\n")  # process CRLF
       with open(os.path.join(self.directory, answer_pattern % test_id), 'rb') as test_answer:
-        answer_text = test_answer.read().replace(b"\r\n", b"\n") # replace \r\n
+        answer_text = test_answer.read().replace(b"\r\n", b"\n")  # replace \r\n
       is_sample = 'sample' in test_node.attrib and test_node.attrib["sample"] == "true"
       points = int(float(test_node.attrib.get("points", 1)))
       group_name = test_node.attrib.get("group", "")
@@ -211,7 +209,7 @@ class PackageImportView(ProblemRevisionMixin, FormView):
       myZip.extractall(path=tmp_directory)
     try:
       CodeforcesPackageAdapter(tmp_directory, self.revision).build()
-    except Exception as e:
+    except:
       form.add_error(None, traceback.format_exc())
       shutil.rmtree(tmp_directory, ignore_errors=True)
       return super().form_invalid(form)

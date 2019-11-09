@@ -15,7 +15,7 @@ from polygon.models import CodeforcesPackage
 
 def get_directory_size(dir):
   total_size = 0
-  for top, dirs, files in os.walk(dir):
+  for top, _, files in os.walk(dir):
     for f in files:
       fp = os.path.join(top, f)
       total_size += os.path.getsize(fp)
@@ -39,8 +39,9 @@ def create_task(problem_id: str, created_by: User, init_file=None):
     log_dir = os.path.join(dst_address, "logs")
     os.makedirs(log_dir, exist_ok=True)
     with open(os.path.join(log_dir, "django.log"), "w") as stderr:
-      subp = subprocess.run(["sudo", cf_settings["script"], cf_settings["key"], cf_settings["secret"], problem_id, dst_address],
-                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=stderr)
+      subp = subprocess.run(
+        ["sudo", cf_settings["script"], cf_settings["key"], cf_settings["secret"], problem_id, dst_address],
+        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=stderr, check=True)
     if subp.returncode:
       package.status = 1
     else:
@@ -63,7 +64,7 @@ def create_task(problem_id: str, created_by: User, init_file=None):
 def zip_directory(dir):
   bytes_io = io.BytesIO()
   with zipfile.ZipFile(bytes_io, "w") as zipFile:
-    for top, dirs, files in os.walk(dir):
+    for top, _, files in os.walk(dir):
       for file in files:
         zipFile.write(os.path.join(top, file), os.path.relpath(os.path.join(top, file), dir))
   bytes_io.seek(0)

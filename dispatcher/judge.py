@@ -1,19 +1,16 @@
 import time
 import traceback
 from datetime import datetime
-from random import randint
 
 import requests
 from django.conf import settings
-from django.core.cache import cache
 from django.core.mail import send_mail
 from django_redis import get_redis_connection
 
-# from dispatcher.semaphore import Semaphore
 from dispatcher.models import Server
 from dispatcher.semaphore import Semaphore
 from utils import random_string
-from utils.detail_formatter import response_fail_with_timestamp, add_timestamp_to_reply
+from utils.detail_formatter import add_timestamp_to_reply
 from utils.site_settings import nonstop_judge
 from .manage import DEFAULT_USERNAME
 

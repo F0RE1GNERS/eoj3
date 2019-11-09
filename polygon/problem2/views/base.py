@@ -1,9 +1,7 @@
 import re
-import traceback
 from itertools import chain
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count
 from django.db.models import Q
@@ -22,8 +20,6 @@ from polygon.base_views import PolygonBaseMixin
 from polygon.models import Revision, FavoriteProblem
 from polygon.rejudge import rejudge_all_submission_on_problem
 from problem.models import Problem
-from problem.views import StatusList
-from submission.models import Submission
 from utils.permission import is_problem_manager, is_contest_manager
 
 
@@ -67,7 +63,7 @@ class ProblemList(PolygonBaseMixin, ListView):
     for revision in sorted(problem.revisions.all(), key=lambda x: x.create_time, reverse=True):
       return revision
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
     for problem in data['problem_list']:
       problem.latest_revision = self.get_problem_latest_revision(problem)
@@ -191,7 +187,7 @@ class PolygonProblemMixin(ContextMixin, PolygonBaseMixin):
     data['problem'] = self.problem
     data['latest_revisions'] = self.latest_revisions
     data['admin_list'] = self.problem.managers.all()
-    data['level_select'] = self.problem._meta.get_field('level').choices
+    data['level_select'] = self.problem._meta.get_field('level').choices  # pylint: disable=protected-access
     data['polygon_title'] = self.polygon_title
     return data
 
@@ -211,9 +207,11 @@ class ProblemRevisionMixin(PolygonProblemMixin):
     ret = set()
     while True:
       ret_nxt = expand_queryset(qs)
-      if ret_nxt == ret: break
+      if ret_nxt == ret:
+        break
       ret = ret_nxt
-      if id in ret: return True
+      if id in ret:
+        return True
       qs = self.model_class.objects.filter(id__in=ret)
     return False
 
@@ -247,9 +245,9 @@ class ProblemRevisionMixin(PolygonProblemMixin):
       self.warnings.append("测试点编号不规范。")
     if not self.revision.active_statement:
       self.errors.append("必须有一份题面激活（打开前面的开关）。")
-    if not (4 <= self.revision.memory_limit <= 4096):
+    if not 4 <= self.revision.memory_limit <= 4096:
       self.errors.append("内存限制应在 256MB 和 4GB 之间。")
-    if not (500 <= self.revision.time_limit <= 30000):
+    if not 500 <= self.revision.time_limit <= 30000:
       self.errors.append("时限应在 500ms 和 30s 之间.")
     if not self.revision.time_limit * self.revision.cases.count() <= 900000:
       self.warnings.append("所有测试点的时限之和超过 900 秒，可能导致评测超时。")

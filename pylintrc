@@ -21,6 +21,7 @@ disable=R,
         bare-except,
         broad-except,
         attribute-defined-outside-init,
-        relative-beyond-top-level
+        relative-beyond-top-level,
+        import-outside-toplevel
 
 ignore=migrations

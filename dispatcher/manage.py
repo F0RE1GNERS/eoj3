@@ -1,9 +1,9 @@
-from .models import Server
-from .utils import is_success_response
+from os import path
+
 import requests
 from django.conf import settings
-from os import path
-import traceback
+
+from .utils import is_success_response
 
 DEFAULT_USERNAME = 'ejudge'
 
@@ -43,7 +43,8 @@ def upload_case(server, case):
   if requests.get(url_check_exist).json().get('exist'):
     return True
   with open(path.join(settings.TESTDATA_DIR, 'in', case[:2], case[2:4], case), 'rb') as inf, \
-      open(path.join(settings.TESTDATA_DIR, 'out', case[:2], case[2:4], case), 'rb') as ouf:  # TODO: unsafe
+      open(path.join(settings.TESTDATA_DIR, 'out', case[:2], case[2:4], case), 'rb') as ouf:
+    # NOTE: path slice and concat is unsafe, needs refactor
     res1 = requests.post(url_input, data=inf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
     res2 = requests.post(url_output, data=ouf.read(), auth=(DEFAULT_USERNAME, server.token)).json()
   if not is_success_response(res1) and is_success_response(res2):

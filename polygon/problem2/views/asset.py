@@ -1,16 +1,16 @@
 import os
 from datetime import datetime
+from shutil import copyfile
 
 from django.conf import settings
 from django.db import transaction
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
-from shutil import copyfile
 
 from polygon.models import Asset
 from polygon.problem2.forms import AssetUpdateForm, AssetRenameForm

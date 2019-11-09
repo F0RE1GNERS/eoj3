@@ -20,4 +20,4 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --rcfile pylintrc account api backstage blog contest
+        pylint --rcfile pylintrc account api backstage blog contest dispatcher eoj3 filemanager home migrate notification paste polygon problem scripts submission tests utils

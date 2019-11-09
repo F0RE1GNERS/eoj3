@@ -1,22 +1,19 @@
+from functools import reduce
+from operator import or_
+
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from tagging.models import Tag
 
 from account.models import User
-from blog.models import Blog
-from contest.models import Contest, ContestParticipant
-from problem.models import Problem
 from account.permissions import is_admin_or_root
-
-from django.db.models import Q
-from django.urls import reverse
-
-from functools import reduce
-from operator import or_
+from blog.models import Blog
+from contest.models import Contest
+from problem.models import Problem
 
 
 def query_user(kw):
