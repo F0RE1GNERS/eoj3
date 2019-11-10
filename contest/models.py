@@ -6,7 +6,6 @@ from django.core.validators import EmailValidator
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 
 from account.models import User, School
 from problem.models import Problem
@@ -110,8 +109,8 @@ class Contest(models.Model):
                                                   default=False)  # Have a standing without specific problems
   case_public = models.PositiveIntegerField(choices=CASE_PUBLIC_CHOICE, default=0)
 
-  system_tested = models.BooleanField("系统测试准备就绪",
-                                      default=False)  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
+  system_tested = models.BooleanField("系统测试准备就绪", default=False)
+  # Passing system test or not, shall be available for run_tests_during_contest none, sample and pretest
 
   problems = models.ManyToManyField(Problem, through='ContestProblem')
   participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
@@ -295,7 +294,7 @@ class ContestParticipant(models.Model):
   def detail(self):
     try:
       if hasattr(self, "_detail"):
-        return self._detail
+        return self._detail  # pylint: disable=access-member-before-definition
       if not self.detail_raw:
         return {}
       self._detail = {int(k): v for k, v in json.loads(self.detail_raw).items()}
@@ -336,7 +335,7 @@ class ContestUserRating(models.Model):
     ordering = ["-modified"]
 
   def __str__(self):
-    return 'ContestUserRating: {user: %d, rating: %d}' % (self.user_id, self.rating)
+    return 'ContestUserRating: {user: %s, rating: %s}' % (self.user_id, self.rating)
 
 
 class ContestProblemPlag(models.Model):

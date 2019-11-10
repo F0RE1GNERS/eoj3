@@ -58,7 +58,7 @@ class DashboardView(BaseContestMixin, TemplateView):
       if tag_filter:
         data['tagged_contest_problem_list'] = []
       for contest_problem in data['contest_problem_list']:
-        items = list(filter(lambda x: x.object_id == contest_problem.problem_id, tagged_items))
+        items = [x for x in tagged_items if x.object_id == contest_problem.problem_id]
         if items:
           contest_problem.tags = list(map(lambda x: x.tag.name, items))
         if tag_filter and hasattr(contest_problem, "tags") and tag_filter in contest_problem.tags:
@@ -184,7 +184,7 @@ class ContestList(ListView):
   def get_queryset(self):
     return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), contest_type=0)
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
     data["hide_header"] = True
     return data
@@ -200,7 +200,7 @@ class ContestGymList(ListView):
     return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
                                            sorting_by_id=True, contest_type=1)
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
     data["hide_header"] = True
     return data
@@ -231,7 +231,7 @@ class ContestRatings(ListView):
     else:
       return User.objects.filter(rating__gt=0).order_by("-rating")[:15]
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
     data['full'] = self.full
     if not self.full:
@@ -269,4 +269,3 @@ class ContestReward(BaseContestMixin, TemplateView):
     data = super(ContestReward, self).get_context_data(**kwargs)
     data['blog_list'] = self.contest.blog_set.with_likes().with_likes_flag(self.request.user)
     return data
-

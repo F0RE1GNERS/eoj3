@@ -1,8 +1,8 @@
+import multiprocessing
 import threading
 import traceback
 from datetime import datetime
 
-import multiprocessing
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import transaction
@@ -11,11 +11,10 @@ from django.shortcuts import HttpResponseRedirect, reverse, get_object_or_404
 from django.views.generic import FormView
 from django.views.generic import View
 from django.views.generic.list import ListView
-from django_q.tasks import async_task
 from django_redis import get_redis_connection
 
-from dispatcher.models import Server, ServerProblemStatus
 from dispatcher.manage import update_token, list_spj, upload_spj
+from dispatcher.models import Server, ServerProblemStatus
 from dispatcher.semaphore import Semaphore
 from polygon.rejudge import rejudge_submission_set
 from problem.models import Problem, SpecialProgram
@@ -48,7 +47,7 @@ class ServerList(BaseBackstageMixin, ListView):
   queryset = Server.objects.all().order_by("-last_seen_time")
   context_object_name = 'server_list'
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super(ServerList, self).get_context_data(**kwargs)
     redis_server = get_redis_connection("judge")
     sem = Semaphore(redis_server)
@@ -194,7 +193,7 @@ class ServerProblemStatusList(BaseBackstageMixin, ListView):
                                                                                 "problem__update_time", "last_status",
                                                                                 "last_synchronize").all()
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
     data['server'] = self.server
     return data

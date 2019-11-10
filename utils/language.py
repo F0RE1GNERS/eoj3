@@ -1,6 +1,6 @@
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
 
 LANG_CHOICE = (
   ('c', 'C'),

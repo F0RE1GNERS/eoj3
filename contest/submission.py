@@ -89,8 +89,8 @@ class ContestSubmissionClaim(BaseContestMixin, View):
         self.submissions.append(submission)
         contest_already_accept.add(submission.problem_id)
 
-  def post(self, request, cid):
-    contest_participant, _ = self.contest.contestparticipant_set.get_or_create(user=self.user)
+  def post(self, request, cid):  # pylint: disable=unused-variable
+    self.contest.contestparticipant_set.get_or_create(user=self.user)
     self.prepare_submissions()
     if len(self.submissions) > 0:
       for submission in self.submissions:
@@ -148,10 +148,11 @@ class ContestSubmissionView(BaseContestMixin, TemplateView):
         if self.participate_contest_status > 0 and self.contest.allow_code_share >= 2:
           authorized = True
         if self.request.user.submission_set.filter(problem_id=submission.problem_id,
-                                                   status=SubmissionStatus.ACCEPTED).exists() and (
-            self.participate_contest_status > 0 or self.contest.allow_code_share >= 3):
+                                                   status=SubmissionStatus.ACCEPTED).exists() and \
+            (self.participate_contest_status > 0 or self.contest.allow_code_share >= 3):
           authorized = True
-    if self.participate_contest_status > 0 and self.request.user.is_authenticated and self.request.user.has_coach_access():
+    if self.participate_contest_status > 0 and self.request.user.is_authenticated and \
+        self.request.user.has_coach_access():
       authorized = True
     if authorized:
       permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
@@ -273,8 +274,7 @@ class ContestBalloon(BaseContestMixin, ListView):
   def get_queryset(self):
     contest_participants = {user.user_id: user.comment for user in
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user',
-                                                                                                   'contest').
-                              all()}
+                                                                                                   'contest').all()}
     qs = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED). \
       defer("code", "status_message", "status_detail").all()
     available = set(

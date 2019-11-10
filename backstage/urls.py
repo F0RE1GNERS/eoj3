@@ -14,7 +14,7 @@ from .problem.views import ProblemList, ProblemVisibleSwitch, ProblemTagList, Pr
   ProblemArchiveList, ProblemArchiveEdit, ProblemArchiveCreate, ProblemSourceBatchEdit, ProblemTagDelete
 from .server.views import ServerCreate, ServerUpdate, ServerList, ServerDelete, ServerRefresh, ServerEnableOrDisable, \
   ServerUpdateToken, ServerSynchronize, ServerProblemStatusList, ServerSemaphoreReset, RejudgeAllCrashedSubmission
-from .site.views import SiteSettingsUpdate, MigrateList, OldSubmissionQuery, OldSubmissionRejudge
+from .site.views import SiteSettingsUpdate
 
 app_name = "backstage"
 
@@ -60,9 +60,6 @@ urlpatterns = [
   url(r'^server/rejudge/crashed/$', RejudgeAllCrashedSubmission.as_view(), name='rejudge_crashed_submission'),
 
   url(r'^site/$', SiteSettingsUpdate.as_view(), name='site'),
-  url(r'^migrate/$', MigrateList.as_view(), name='migrate'),
-  url(r'^migrate/code/(?P<submission_id>\d+)/', OldSubmissionQuery.as_view(), name='migrate_code'),
-  url(r'^migrate/rejudge/(?P<submission_id>\d+)/', OldSubmissionRejudge.as_view(), name='migrate_rejudge'),
 
   url(r'^blog/$', BlogList.as_view(), name='blog'),
   url(r'^blog/(?P<pk>\d+)/visible/$', BlogVisibleSwitch.as_view(), name='blog_visible_switch'),

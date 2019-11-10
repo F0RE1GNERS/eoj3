@@ -1,22 +1,22 @@
+import django_comments_xtd.api as comment_xtd_api
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.static import serve
 
-from blog.views import GetRewardsView
 from account.profile import ProfileView, ProgressTreeView
+from account.views import my_login, RegisterView, FeedbackView
+from blog.views import GetRewardsView
+from home.museum import museum_view
 from home.search import search_view
+from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, PasteView
 from migrate.views import migrate_view
 from tests.views import judge_mock, query_mock, query_report_mock
 from utils.auth_view import logout
 from utils.comment import login_required_post_comment
-import django_comments_xtd.api as comment_xtd_api
-
-from account.views import my_login, RegisterView, FeedbackView
-from home.views import home_view, faq_view, TestView, forbidden_view, not_found_view, server_error_view, PasteView
-from home.museum import museum_view
 from utils.site_settings import force_closed
 from .settings import UPLOAD_DIR, DEBUG, STATIC_DIR, MEDIA_URL, MEDIA_ROOT
+
 urlpatterns = [
   url(r'^login/$', my_login, name='login'),
   url(r'^contest/', include('contest.urls', namespace='contest')),
@@ -46,7 +46,6 @@ urlpatterns = [
   url(r'^reward/(?P<pk>\d+)/$', GetRewardsView.as_view(), name='rewardslist'),
 ]
 
-
 urlpatterns += [
   url(r'^403/(?P<exception>\w+)/$', forbidden_view),
   url(r'^404/$', not_found_view),
@@ -65,11 +64,11 @@ if DEBUG:
   import debug_toolbar
 
   urlpatterns += [
-                   url(r'^static/(?P<path>.*)$', serve, name='static', kwargs={'document_root': STATIC_DIR}),
-                   url(r'^upload/(?P<path>.*)$', serve, name='upload', kwargs={'document_root': UPLOAD_DIR}),
-                   url(r'^__debug__/', include(debug_toolbar.urls)),
-                   url(r'^t/', TestView.as_view())
-                 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
+    url(r'^static/(?P<path>.*)$', serve, name='static', kwargs={'document_root': STATIC_DIR}),
+    url(r'^upload/(?P<path>.*)$', serve, name='upload', kwargs={'document_root': UPLOAD_DIR}),
+    url(r'^__debug__/', include(debug_toolbar.urls)),
+    url(r'^t/', TestView.as_view())
+  ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
   urlpatterns += [
     # mock judge's response
     url(r'^judge$', judge_mock),

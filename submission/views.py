@@ -1,29 +1,18 @@
 import datetime
-import json
 from base64 import b64decode
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.http import JsonResponse
-from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404, HttpResponse
 from django.template import loader, Context, RequestContext
-from django.views.generic import View
-from os import path
-from pygments import highlight
-from pygments.formatters.html import HtmlFormatter
-from pygments.lexers import get_lexer_by_name
 
 from account.models import User
-from account.permissions import is_admin_or_root
 from contest.models import ContestProblem
 from dispatcher.models import Server
-from utils.permission import get_permission_for_submission
+from submission.util import SubmissionStatus
 from utils.middleware.globalrequestmiddleware import GlobalRequestMiddleware
 from .models import Submission, SubmissionReport
-from submission.util import SubmissionStatus
 
 
 @login_required
@@ -60,7 +49,8 @@ def render_submission(submission: Submission, permission=1, hide_problem=False, 
                       'rejudge_authorized': permission >= 2 and rejudge_available,
                       'hide_reward': hide_reward,
                       })
-  return loader.render_to_string('components/single_submission.jinja2', c, GlobalRequestMiddleware.get_current_request())
+  return loader.render_to_string('components/single_submission.jinja2', c,
+                                 GlobalRequestMiddleware.get_current_request())
 
 
 def render_submission_report(pk):

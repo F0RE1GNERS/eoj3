@@ -1,7 +1,6 @@
 import random
 from collections import defaultdict
 
-import django_comments
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -19,10 +18,10 @@ from django_comments_xtd.models import XtdComment
 from django_q.tasks import async_task
 from ipware.ip import get_ip
 from tagging.models import Tag, TaggedItem, ContentType
-from blog.models import Blog
 
 from account.models import User
 from account.permissions import is_admin_or_root
+from blog.models import Blog
 from dispatcher.models import Server
 from problem import recommendation
 from problem.commons.problem_list_helper import attach_personal_solve_info, attach_tag_info
@@ -50,7 +49,7 @@ class ProblemList(ListView):
     tg = self.request.GET.get('tag')
     order_c = self.request.GET.get('c', 'id')
     order_a = self.request.GET.get('a', 'descending')
-    compare_with = self.request.GET.get('compare', '')
+    compared_user = self.request.GET.get('compare', '')
 
     if order_c not in ['id', 'name', 'rw', 'sol', 'she'] or order_a not in ['ascending', 'descending']:
       raise PermissionDenied("Invalid order")
@@ -64,10 +63,10 @@ class ProblemList(ListView):
         }
     else:
       queryset = Problem.objects.all()
-    if self.request.user.is_authenticated and compare_with and compare_with.isdigit():
-      self.compare_user = get_object_or_404(User, pk=compare_with)
-      self.her_attempt = set(get_attempted_problem_list(compare_with))
-      self.her_solved = set(get_accept_problem_list(compare_with))
+    if self.request.user.is_authenticated and compared_user and compared_user.isdigit():
+      self.compare_user = get_object_or_404(User, pk=compared_user)
+      self.her_attempt = set(get_attempted_problem_list(compared_user))
+      self.her_solved = set(get_accept_problem_list(compared_user))
       self.my_attempt = set(get_attempted_problem_list(self.request.user.id))
       self.my_solved = set(get_accept_problem_list(self.request.user.id))
       queryset = queryset.filter(pk__in=self.her_attempt | self.her_solved | self.my_attempt | self.my_solved)
@@ -118,17 +117,17 @@ class ProblemList(ListView):
         ret = ret.order_by("ac_user_count")
     elif order_c == 'she' and self.comparing:
       if order_a == 'ascending':
-        reverse = False
+        reversed = False
       else:
-        reverse = True
+        reversed = True
       ref = {problem_id: 1 for problem_id in self.her_attempt}
       ref.update({problem_id: -1 for problem_id in self.her_solved})
       ref2 = {problem_id: -1 for problem_id in self.my_attempt}
       ref2.update({problem_id: 1 for problem_id in self.my_solved})
-      ret = sorted(ret, key=lambda x: (ref2.get(x.id, 0), ref.get(x.id, 0)), reverse=reverse)
+      ret = sorted(ret, key=lambda x: (ref2.get(x.id, 0), ref.get(x.id, 0)), reverse=reversed)
     return ret
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super(ProblemList, self).get_context_data(**kwargs)
     data['keyword'] = self.request.GET.get('keyword')
     data['show_tags'] = True
@@ -349,7 +348,7 @@ class StatusList(ListView):
     except Exception as e:
       raise Http404(e)
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super(StatusList, self).get_context_data(**kwargs)
     user = self.request.user
     data['keyword'] = self.request.GET.get('keyword')
@@ -478,13 +477,13 @@ class ProblemSubmissionView(LoginRequiredMixin, TemplateView):
                                                         problem_id=self.kwargs.get('pk'),
                                                         contest__isnull=True)
     if self.request.user.is_authenticated and (
-            submission.author == self.request.user or
-            is_problem_manager(self.request.user,
-                               submission.problem) or
-            self.request.user.submission_set.filter(
-              problem_id=self.kwargs.get('pk'),
-              status=SubmissionStatus.ACCEPTED).exists() or
-            self.request.user.has_coach_access()):
+        submission.author == self.request.user or
+        is_problem_manager(self.request.user,
+                           submission.problem) or
+        self.request.user.submission_set.filter(
+          problem_id=self.kwargs.get('pk'),
+          status=SubmissionStatus.ACCEPTED).exists() or
+        self.request.user.has_coach_access()):
       permission = get_permission_for_submission(self.request.user, submission, special_permission=True)
       data['submission_block'] = render_submission(submission, permission=permission)
       if permission == 2 or self.request.user == submission.author:
@@ -505,7 +504,7 @@ class Millionaires(ListView):
   def get_queryset(self):
     return User.objects.only("username", "magic", "score").filter(score__gt=0).exclude(username__contains='#')
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     user_solved = {r.user_id: r.ac_distinct_count for r in UserStatus.objects.filter(contest_id=0)}
     data = super(Millionaires, self).get_context_data(**kwargs)
     if not self.request.user.is_authenticated:
@@ -558,9 +557,8 @@ class ArchiveList(TemplateView):
 @login_required
 @require_http_methods(['POST'])
 def compare_with(request):
-  return redirect(reverse('problem:list') + '?compare=%d&c=she&a=ascending' % get_object_or_404(User,
-                                                                                                username=request.POST.get(
-                                                                                                  'username', '')).pk)
+  return redirect(reverse('problem:list') + '?compare=%d&c=she&a=ascending' %
+                  get_object_or_404(User, username=request.POST.get('username', '')).pk)
 
 
 class ProblemRecommendation(LoginRequiredMixin, TemplateView):
@@ -608,6 +606,7 @@ class ProblemFeedbackCompare(LoginRequiredMixin, TemplateView):
     data["problem2"] = Problem.objects.get(id=accept_problems[1])
     return data
 
+
 class ProblemReward(ListView):
   template_name = 'problem/reward.jinja2'
   context_object_name = 'reward_list'
@@ -615,6 +614,6 @@ class ProblemReward(ListView):
   def get_queryset(self):
     return Blog.objects.filter(is_reward=True, contest=None).with_likes().with_likes_flag(self.request.user)
 
-  def get_context_data(self, **kwargs):
+  def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super(ProblemReward, self).get_context_data(**kwargs)
     return data

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from tagging.models import Tag, TaggedItem
+from tagging.models import TaggedItem
 
 from problem.commons.problem_list_helper import get_problems_entity_list_helper, attach_personal_solve_info, \
   no_tags_entity_list_helper
@@ -57,7 +57,7 @@ def unsolved_problems(user_id):
 
 def random_unsolved_problems_with_difficulty(solved_list, k):
   problem_ids = list(Problem.objects.filter(visible=True, reward__gte=k - 0.5, reward__lte=k + 1.5). \
-              exclude(pk__in=solved_list).values_list("id", flat=True))
+                     exclude(pk__in=solved_list).values_list("id", flat=True))
   random.shuffle(problem_ids)
   return problem_ids[:5]
 
@@ -94,13 +94,13 @@ def select_with_tags(user_id, tags_record, max_count_per_tag=1):
   ret = set()
   for k, _ in tags_record:
     available_problems = TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem)) \
-        .filter(tag_id=k).values_list("object_id", flat=True)
+      .filter(tag_id=k).values_list("object_id", flat=True)
     accept_problems = set(available_problems) & user_accept_all
     if not accept_problems:
       ref_reward = 0.
     else:
       accept_problems_reward = Problem.objects.filter(id__in=accept_problems) \
-          .order_by("-reward").values_list("reward", flat=True)[:3]
+                                 .order_by("-reward").values_list("reward", flat=True)[:3]
       ref_reward = sum(accept_problems_reward) / len(accept_problems)
     retrieve_list = list(Problem.objects.filter(reward__gte=ref_reward, reward__lte=ref_reward + 2, visible=True,
                                                 id__in=set(available_problems) - user_accept_all).

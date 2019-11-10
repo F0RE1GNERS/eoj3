@@ -1,7 +1,7 @@
 from math import sqrt
 
-from contest.statistics import get_contest_rank
 from contest.models import ContestUserRating, Contest
+from contest.statistics import get_contest_rank
 
 INITIAL_RATING = 1500
 
@@ -122,7 +122,7 @@ def _process(contestants):
     a.seed = 1
     for b in contestants:
       if a.user != b.user:
-        a.seed += _get_elo_win_probability(b, a)
+        a.seed += _get_elo_win_probability(b, a)  # pylint: disable=arguments-out-of-order
   for contestant in contestants:
     mid_rank = sqrt(contestant.rank * contestant.seed)
     contestant.need_rating = _get_rating_to_rank(contestants, mid_rank)
@@ -146,7 +146,7 @@ def _process(contestants):
 
 def _validate_deltas(contestants):
   _sort_by_points_desc(contestants)
-  for i in range(len(contestants)):
+  for i in range(len(contestants)):  # pylint: disable=consider-using-enumerate
     for j in range(i + 1, len(contestants)):
       if contestants[i].rating > contestants[j].rating:
         if contestants[i].rating + contestants[i].delta < contestants[j].rating + contestants[j].delta:

@@ -9,6 +9,7 @@ from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import View
 from django.views.generic.list import ListView
 
+from contest.base import BaseContestMixin
 from submission.util import SubmissionStatus
 from utils import random_string
 from utils.csv_writer import write_csv
@@ -16,7 +17,6 @@ from utils.download import respond_generate_file
 from utils.language import LANG_EXT
 from .models import ContestParticipant
 from .statistics import get_contest_rank, invalidate_contest, calculate_problems
-from contest.base import BaseContestMixin
 
 
 class ContestStandings(BaseContestMixin, ListView):
@@ -50,8 +50,7 @@ class ContestStandings(BaseContestMixin, ListView):
   def get_context_data(self, **kwargs):
     data = super(ContestStandings, self).get_context_data(**kwargs)
     contest_participants = {user.user_id: user for user in
-                            ContestParticipant.objects.filter(contest=self.contest).select_related('user').
-                              all()}
+                            ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
     for rank in data['rank_list']:
       # convert user_id to actual user
       rank.update(user=contest_participants[rank['user']])
@@ -77,8 +76,7 @@ class ContestDownloadStandings(BaseContestMixin, View):
     rank_list = get_contest_rank(self.contest)
     contest_participants = {user.user_id: user for user in
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user',
-                                                                                                   'contest').
-                              all()}
+                                                                                                   'contest').all()}
 
     header = ["Rank", "Username", "Info", "Score"]
     if not self.contest.contest_type == 0 and self.contest.penalty_counts:
