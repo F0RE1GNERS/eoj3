@@ -1,0 +1,24 @@
+name: EOJ Test
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        cp eoj3/local_settings.example.py eoj3/local_settings.py
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        pylint --rcfile pylintrc account api backstage blog contest dispatcher eoj3 filemanager home migrate notification paste polygon problem scripts submission tests utils

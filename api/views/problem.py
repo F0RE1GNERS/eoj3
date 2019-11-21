@@ -1,22 +1,15 @@
 from django.template import loader, Context
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
-from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle
-from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 
-from api.views.pagination import StandardResultsSetPagination
-from contest.models import Contest
 from problem.models import Problem
-from submission.models import Submission
-from utils.permission import is_contest_manager
 
 
 class ProblemSerializer(serializers.ModelSerializer):
   class Meta:
     model = Problem
-    fields = ("id", "title", "tags", "statement", "level", "ac_user_count", "total_user_count", "ac_count", "total_count", "reward")
+    fields = ("id", "title", "tags", "statement", "level", "ac_user_count", "total_user_count", "ac_count",
+              "total_count", "reward")
 
   tags = serializers.SerializerMethodField()
   statement = serializers.SerializerMethodField()

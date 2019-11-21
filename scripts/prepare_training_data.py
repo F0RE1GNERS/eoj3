@@ -5,8 +5,8 @@ from datetime import datetime
 
 import progressbar
 
-from submission.models import Submission
 from problem.models import Problem
+from submission.models import Submission
 from submission.util import SubmissionStatus
 
 
@@ -29,17 +29,17 @@ def run(*args):
   print("Processing submissions...")
   sub_list_unfiltered = {}
   submission_record = defaultdict(int)
-  for submission in progressbar.progressbar(Submission.objects.all().only("id", "author_id", "problem_id", "create_time", "status").
-                                                order_by("create_time")):
+  for submission in progressbar.progressbar(
+      Submission.objects.all().only("id", "author_id", "problem_id", "create_time", "status").order_by("create_time")):
     user_problem = (submission.author_id, submission.problem_id)
     if submission.status == SubmissionStatus.ACCEPTED:
       if submission.author_id not in sub_list_unfiltered:
         sub_list_unfiltered[submission.author_id] = []
       lst = sub_list_unfiltered[submission.author_id]
       if submission_record[user_problem] != -1:
-        lst.append((datetime.timestamp(submission.create_time),   # time
-                    submission_record[user_problem],              # attempts
-                    submission.problem_id))                       # problem id
+        lst.append((datetime.timestamp(submission.create_time),  # time
+                    submission_record[user_problem],  # attempts
+                    submission.problem_id))  # problem id
         submission_record[user_problem] = -1
     else:
       if submission_record[user_problem] != -1:

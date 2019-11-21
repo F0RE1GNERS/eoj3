@@ -7,16 +7,13 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, FormView, DetailView
 from django_q.tasks import async_task
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from account.permissions import is_coach
 from polygon.base_views import PolygonBaseMixin
-from polygon.models import Run, Package, CodeforcesPackage
+from polygon.models import Run, CodeforcesPackage
 from polygon.package import codeforces
-from polygon.rejudge import rejudge_submission, rejudge_all_submission_on_problem
-from problem.models import Problem
+from polygon.rejudge import rejudge_submission
 from submission.models import Submission
 from utils.permission import is_problem_manager, is_contest_manager
 

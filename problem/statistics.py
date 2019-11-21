@@ -27,10 +27,10 @@ def invalidate_problem(problem: Problem, save=True):
   problem.ac_count = len(ac_list)
   problem.total_count = len(query_list)
   reward_est = 5 - (2 * problem.ac_ratio + 3 * problem.ac_user_ratio) * min(log10(problem.ac_user_count + 1), 1.2) \
-        + max(6 - 2 * log10(problem.ac_user_count + 1), 0)
+               + max(6 - 2 * log10(problem.ac_user_count + 1), 0)
   # reward_est = (max(reward_est, 0.) ** 2) / 10
   problem.reward = max(min(reward_est, 9.9), 0.1)
-  for field in problem._meta.local_fields:
+  for field in problem._meta.local_fields:  # pylint: disable=protected-access
     if field.name == "update_time":
       field.auto_now = False
   if save:
@@ -109,7 +109,8 @@ def get_accept_problem_count(user_id, contest_id=0):
 
 def get_accept_problem_list(user_id, contest_id=0):
   t = _get_or_invalidate_user(user_id, contest_id, "ac_list")
-  if not t: return []
+  if not t:
+    return []
   return list(map(int, t.split(',')))
 
 
@@ -119,7 +120,8 @@ def get_total_submission_count(user_id, contest_id=0):
 
 def get_attempted_problem_list(user_id, contest_id=0):
   t = _get_or_invalidate_user(user_id, contest_id, "total_list")
-  if not t: return []
+  if not t:
+    return []
   return list(map(int, t.split(',')))
 
 
@@ -144,7 +146,7 @@ def tags_stat(user_id):
   accept_counter = Counter()
   accept_list = get_accept_problem_list(user_id)
   for tag_id in TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem)) \
-                      .filter(object_id__in=accept_list).values_list("tag_id", flat=True):
+      .filter(object_id__in=accept_list).values_list("tag_id", flat=True):
     accept_counter[tag_id] += 1
   return {tag_id: (accept_counter[tag_id], cnt) for tag_id, cnt in all_count.items()}
 
@@ -152,7 +154,7 @@ def tags_stat(user_id):
 def get_next_k_recommended_problems(user_id, problem_ids, k=5):
   try:
     problem_list = []
-    for retry in range(3):
+    for _ in range(3):  # retry 3 times
       problem_list = cache.get("NEXT_PROBLEM_{}".format(user_id))
       if problem_list is None:
         invalidate_user(user_id)

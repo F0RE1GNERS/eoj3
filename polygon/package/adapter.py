@@ -1,5 +1,5 @@
+# pylint: disable=fixme
 import os
-import re
 from xml.etree import ElementTree
 
 from django.db import transaction
@@ -25,7 +25,7 @@ LANGUAGE_ADAPTER = {
   "pas.fpc": "pas",
   "perl.5": "perl",
   "php.5": "php",
-  "python.2":"py2",
+  "python.2": "py2",
   "python.3": "python",
   "rust": "rs",
   "scala": "scala"
@@ -101,8 +101,9 @@ class CodeforcesPackageAdapter:
 
   def save_judging_node(self, judging_node):
     if judging_node is not None:
-      input_file_name = judging_node.attrib['input-file']   # ignore input and output
-      output_file_name = judging_node.attrib['output-file'] # read them anyway
+      input_file_name = judging_node.attrib['input-file']  # pylint: disable=unused-variable
+      output_file_name = judging_node.attrib['output-file']  # pylint: disable=unused-variable
+      # ignore input and output, read them anyway
       any_testset = judging_node.find('testset')
       time_limit = int(any_testset.find('time-limit').text)
       memory_limit = int(any_testset.find('memory-limit').text) // 2 ** 20

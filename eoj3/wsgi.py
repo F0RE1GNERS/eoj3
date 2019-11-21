@@ -8,11 +8,13 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
-from os.path import join, dirname, abspath
+from os.path import dirname, abspath
+
 from django.core.wsgi import get_wsgi_application
 
 PROJECT_DIR = dirname(dirname(abspath(__file__)))
-import sys
+import sys  # pylint: disable=wrong-import-position,wrong-import-order
+
 sys.path.insert(0, PROJECT_DIR)
 sys.path.insert(0, dirname(PROJECT_DIR))
 

@@ -1,14 +1,13 @@
+from threading import Thread
+
 from django.db import transaction
-from django.core.cache import cache
 from django_q.tasks import async_task
 
 from contest.models import Contest
-from problem.models import Problem
 from contest.tasks import judge_submission_on_contest
+from problem.models import Problem
 from problem.tasks import judge_submission_on_problem
 from submission.util import SubmissionStatus
-from time import sleep
-from threading import Thread
 
 REJUDGE_TASK_LIMIT = 24
 REJUDGE_COUNTER = 'rejudge_counter'

@@ -298,7 +298,8 @@ class CaseUpdateInfoView(RevisionCaseMixin, UpdateView):
 
   def form_valid(self, form):
     with transaction.atomic():
-      with UpdateManager(self.object, self.revision) as case:
+      with UpdateManager(self.object, self.revision) as case:  # pylint: disable=unused-variable
+        # probably buggy here, fix later
         case = form.save()
     return redirect(self.get_success_url())
 

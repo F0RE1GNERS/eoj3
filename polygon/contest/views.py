@@ -1,17 +1,12 @@
 import json
 import re
 from datetime import timedelta
-from os import path
 from threading import Thread
 
 import shortuuid
-from datetime import datetime
-from django.conf import settings
 from django.contrib import messages
-from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
-from django.forms import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, HttpResponse, reverse
 from django.shortcuts import get_object_or_404, redirect
@@ -128,6 +123,7 @@ class ContestCreate(PolygonBaseMixin, View):
     contest.managers.add(request.user)
     return redirect(reverse('polygon:contest_meta', kwargs={'pk': str(contest.id)}))
 
+
 class HomeworkClone(PolygonBaseMixin, View):
   def post(self, request, *args, **kwargs):
     try:
@@ -154,11 +150,11 @@ class HomeworkClone(PolygonBaseMixin, View):
       for p in problem_list:
         contest.contestproblem_set.create(identifier=p.identifier, problem_id=p.problem_id, weight=p.weight)
       for c in contest_author:
-        contest.authors.add(c.id) # 复制出题人
-        contest.managers.add(c.id) # 将出题人添加到该学期作业集的管理名单中
+        contest.authors.add(c.id)  # 复制出题人
+        contest.managers.add(c.id)  # 将出题人添加到该学期作业集的管理名单中
       for m in contest_manager:
         if m.polygon_enabled:
-          contest.managers.add(m.id) # 只把具有 Polygon 权限的教师添加到新学期作业集，排除上学期助教
+          contest.managers.add(m.id)  # 只把具有 Polygon 权限的教师添加到新学期作业集，排除上学期助教
       contest.save()
     except:
       return redirect(reverse('polygon:contest_list'))
@@ -540,14 +536,14 @@ class ContestGhostRecordImport(PolygonContestMixin, FormView):
         directive, content = re.split(r'\s+', line[1:], 1)
         ret, cur = [], ''
         quote_count = False
-        for i in range(len(content)):
-          if content[i] == ',' and not quote_count:
+        for token in content:
+          if token == ',' and not quote_count:
             ret.append(cur.strip())
             cur = ''
-          elif content[i] == '"':
+          elif token == '"':
             quote_count = not quote_count
           else:
-            cur += content[i]
+            cur += token
         assert not quote_count
         ret.append(cur.strip())
         return (directive.lower(), ret)
@@ -596,9 +592,9 @@ class ContestGhostRecordImport(PolygonContestMixin, FormView):
           verdict = verdict_map[args[4]]
           if team_number not in team_name_map:
             raise Exception("队伍 %s 没有注册过。" % team_number)
-          if not (0 <= time_seconds <= int(round(self.contest.length.total_seconds()))):
+          if not 0 <= time_seconds <= int(round(self.contest.length.total_seconds())):
             raise Exception("提交时间 %d 不在范围内。" % time_seconds)
-          candidate_problem_list = list(filter(lambda x: x.identifier == args[1], self.contest.contest_problem_list))
+          candidate_problem_list = [x for x in self.contest.contest_problem_list if x.identifier == args[1]]
           if len(candidate_problem_list) != 1:
             raise Exception("'%s' 没找到或者找到了多个相应的题目。" % args[1])
           problem_id = candidate_problem_list[0].problem_id

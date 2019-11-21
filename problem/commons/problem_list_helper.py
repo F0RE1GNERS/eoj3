@@ -22,7 +22,7 @@ def attach_tag_info(problems):
   tagged_items = list(TaggedItem.objects.filter(content_type=ContentType.objects.get_for_model(Problem))
                       .filter(object_id__in=[problem.pk for problem in problems]).select_related("tag"))
   for problem in problems:
-    items = list(filter(lambda x: x.object_id == problem.pk, tagged_items))
+    items = [x for x in tagged_items if x.object_id == problem.pk]
     if items:
       problem.my_tags = list(map(lambda x: x.tag.name, items))
 

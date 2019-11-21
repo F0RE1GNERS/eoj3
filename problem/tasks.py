@@ -3,13 +3,11 @@ from collections import Counter
 from datetime import datetime
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
 
 from account.models import User
 from account.payment import reward_problem_ac, reward_contest_ac
 from dispatcher.judge import send_judge_through_watch
 from dispatcher.manage import upload_case, upload_checker, upload_interactor, upload_validator
-from dispatcher.models import Server
 from problem.statistics import invalidate_user
 from submission.models import Submission, SubmissionReport
 from submission.util import SubmissionStatus

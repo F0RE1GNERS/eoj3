@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-import polygon.contest.views as v
 import polygon.contest.jplag as j
+import polygon.contest.views as v
 
 urlpatterns = [
   url(r'^$', v.ContestList.as_view(), name='contest_list'),
