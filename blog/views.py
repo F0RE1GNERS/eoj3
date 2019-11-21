@@ -74,7 +74,9 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     if self.blog.is_reward:
       context['submission'] = Submission.objects.get(pk=self.blog.submission_id)
       if self.blog.contest:
-        if self.request.user.id in self.blog.contest.participants_ids:
+        if self.request.user.id in self.blog.contest.participants_ids or \
+          self.request.user.id in self.blog.contest.managers or \
+          self.request.user.id in self.blog.contest.authors or is_admin_or_root(self.request.user):
           pass
         else:
           raise PermissionDenied
