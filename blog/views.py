@@ -17,6 +17,7 @@ from submission.models import Submission
 from utils.comment import CommentForm
 from .forms import BlogEditForm
 from .models import Blog, Comment, BlogLikes, BlogRevision
+from utils.permission import is_contest_manager, is_contest_volunteer
 
 
 class GenericView(ListView):
@@ -74,9 +75,7 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     if self.blog.is_reward:
       context['submission'] = Submission.objects.get(pk=self.blog.submission_id)
       if self.blog.contest:
-        if self.request.user.id in self.blog.contest.participants_ids or \
-          self.request.user.id in self.blog.contest.managers or \
-          self.request.user.id in self.blog.contest.authors or is_admin_or_root(self.request.user):
+        if self.request.user.id in self.blog.contest.participants_ids or is_contest_manager(self.request.user, self.blog.contest) or is_contest_volunteer(self.request.user, self.blog.contest):
           pass
         else:
           raise PermissionDenied
