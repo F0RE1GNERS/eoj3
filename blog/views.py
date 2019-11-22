@@ -16,7 +16,6 @@ from blog.base import BlogMixin
 from problem.statistics import get_accept_problem_count
 from submission.models import Submission
 from utils.comment import CommentForm
-from utils.permission import is_contest_manager, is_contest_volunteer
 from .forms import BlogEditForm
 from .models import Blog, Comment, BlogLikes, BlogRevision
 

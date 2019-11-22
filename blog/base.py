@@ -1,9 +1,9 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from ipware.ip import get_ip
+
 
 from account.permissions import is_admin_or_root
 from blog.models import Blog
