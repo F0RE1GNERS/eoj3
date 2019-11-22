@@ -12,6 +12,7 @@ from django.views.generic.list import ListView
 
 from account.models import User
 from account.permissions import is_admin_or_root
+from blog.base import BlogMixin
 from problem.statistics import get_accept_problem_count
 from submission.models import Submission
 from utils.comment import CommentForm
@@ -48,7 +49,7 @@ class BlogGoto(View):
     return HttpResponseRedirect(reverse('profile', kwargs={'pk': user.pk}))
 
 
-class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
+class BlogView(BlogMixin, FormMixin, TemplateView):
   form_class = CommentForm
   template_name = 'blog/blog_detail.jinja2'
 
@@ -57,30 +58,8 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     kw['target_object'] = self.blog
     return kw
 
-  def dispatch(self, request, *args, **kwargs):
-    blogs = Blog.objects.with_likes().with_dislikes().with_likes_flag(request.user)
-    self.blog = get_object_or_404(blogs, pk=kwargs.get('pk'))
-
-    return super(BlogView, self).dispatch(request, *args, **kwargs)
-
-  def test_func(self):
-    if is_admin_or_root(self.request.user):
-      return True
-    if self.request.user == self.blog.author or self.blog.visible:
-      return True
-    return False
-
   def get_context_data(self, **kwargs):
     context = super(BlogView, self).get_context_data(**kwargs)
-    if self.blog.is_reward:
-      context['submission'] = Submission.objects.get(pk=self.blog.submission_id)
-      if self.blog.contest:
-        if self.request.user.id in self.blog.contest.participants_ids or \
-            is_contest_manager(self.request.user, self.blog.contest) or \
-            is_contest_volunteer(self.request.user, self.blog.contest):
-          pass
-        else:
-          raise PermissionDenied
     context['blog'] = self.blog
     context['is_privileged'] = is_admin_or_root(self.request.user) or self.request.user == self.blog.author
     if context['is_privileged'] or not self.blog.hide_revisions:
