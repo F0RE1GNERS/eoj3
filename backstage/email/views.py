@@ -78,7 +78,7 @@ class EmailAddRecipient(BaseBackstageMixin, View):
       users = User.objects.filter(username=text)
     with transaction.atomic():
       for user in users:
-        EmailRecipient.objects.create(email=email, user=user)
+        EmailRecipient.objects.get_or_create(email=email, user=user)
     return redirect(reverse('backstage:email_update', kwargs={'eid': eid}))
 
 
