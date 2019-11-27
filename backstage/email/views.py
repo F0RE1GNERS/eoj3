@@ -125,6 +125,6 @@ class EmailSend(BaseBackstageMixin, View):
     if 't' in self.request.GET:
       recipients = EmailRecipient.objects.filter(email=email, pk=self.request.GET['t']).select_related("user")
     else:
-      recipients = EmailRecipient.objects.filter(email=email, status=-1).select_related("user")
+      recipients = EmailRecipient.objects.filter(email=email).exclude(status=0).select_related("user")
     async_task(EmailSend.send, email, list(recipients))
     return redirect(reverse('backstage:email_update', kwargs={'eid': eid}))
