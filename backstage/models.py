@@ -24,6 +24,8 @@ class EmailRecipient(models.Model):
   update_time = models.DateTimeField(auto_now=True)
   error_message = models.TextField(blank=True)
 
+  class Meta:
+    unique_together = ('user', 'email')
 
 class UpdateLog(models.Model):
   create_time = models.DateTimeField(auto_now_add=True)
