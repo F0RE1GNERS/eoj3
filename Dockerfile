@@ -2,12 +2,12 @@ FROM node:8 as yarn
 
 RUN mkdir /static
 WORKDIR /static
-COPY ./static/.bowerrc ./static/bower.json ./static/package.json ./
-RUN yarn install --production=true
+COPY ./static/.bowerrc ./static/bower.json ./static/package.json ./static/yarn.lock ./
+RUN yarn install --production=true --frozen-lockfile
 
 FROM yarn as gulp
 
-RUN yarn install
+RUN yarn install --frozen-lockfile
 COPY ./static/ ./
 RUN yarn build
 
@@ -18,7 +18,6 @@ RUN apt update && apt install -y openjdk-11-jre-headless && apt clean
 WORKDIR /eoj3
 COPY ./requirements.txt  ./
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN pip3 install --no-cache-dir uwsgi
 COPY .  ./
 COPY --from=yarn /static/ ./static
 COPY --from=gulp /static/css/ ./static/css
