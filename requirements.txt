@@ -2,7 +2,7 @@ amqp
 anyjson
 beautifulsoup4
 billiard
-Django>=2.1
+Django==2.2.9
 django-jinja
 django-widget-tweaks
 Jinja2
@@ -42,3 +42,4 @@ django-q
 pycrypto
 djangorestframework_simplejwt
 progressbar2
+mysqlclient

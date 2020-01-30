@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 
@@ -37,9 +36,9 @@ def site_settings_set(key, val):
 def is_site_closed(request):
   if is_admin_or_root(request.user):
     return False
-  if request.META.get("HTTP_HOST", '').split(":")[0] in settings.WHITE_LIST_HOST:
-    return False
-  return True
+  if 'X-CLOSED' in request.headers:
+    return True
+  return False
 
 
 def is_festival():
