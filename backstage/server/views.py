@@ -25,6 +25,8 @@ from submission.util import SubmissionStatus
 from .forms import ServerEditForm, ServerUpdateTokenForm
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
 
+logger = logging.getLogger(__name__)
+
 
 class ServerCreate(BaseCreateView):
   form_class = ServerEditForm
@@ -130,7 +132,6 @@ def sync_and_update_status(server, problem):
 def upload_spj_exception_wrapper(server, program):
   res = upload_spj(server, program)
   if res["status"] != "received":
-    logger = logging.getLogger(__name__)
     logger.error("%s", res)
 
 

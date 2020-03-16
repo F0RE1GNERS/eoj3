@@ -60,6 +60,7 @@ def start_jplag(plags):
     except:
       plag.status = 1
       with open(os.path.join(manager.result_dir, "stderr"), "a", encoding="utf-8") as f:
+        print(traceback.format_exc(), file=f)
         logger.error(traceback.format_exc())
       plag.save()
 

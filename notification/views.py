@@ -29,5 +29,5 @@ class NotificationMarkAsRead(LoginRequiredMixin, APIView):
     try:
       request.user.notifications.get(pk=pk).mark_as_read()
       return Response(status=status.HTTP_200_OK)
-    except Exception as e:
+    except:
       return Response(status=status.HTTP_400_BAD_REQUEST)
