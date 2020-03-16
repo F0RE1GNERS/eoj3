@@ -1,0 +1,36 @@
+# junk files
+[Tt]humbs.db
+*.DS_Store
+.idea/
+__pycache__/
+
+# Database
+*.sqlite3
+
+# ignore datadir
+data/
+upload/
+testdata/
+cases/
+generate/
+media/
+repo/
+
+# local settings
+local_settings.py
+
+# dev env
+init.bat
+
+# library
+cdn/
+node_modules/
+bower_components/
+venv/
+package-lock.json
+
+# generated css
+app.css
+app.min.css
+
+Dockerfile
