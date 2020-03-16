@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import threading
 import traceback
@@ -129,7 +130,8 @@ def sync_and_update_status(server, problem):
 def upload_spj_exception_wrapper(server, program):
   res = upload_spj(server, program)
   if res["status"] != "received":
-    print(res)
+    logger = logging.getLogger(__name__)
+    logger.error("%s", res)
 
 
 def synchronize_func(server, problems):

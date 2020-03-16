@@ -67,5 +67,4 @@ def get_file_list(file_path, prefix):
       ))
     return result
   except Exception as e:
-    print(repr(e))
     return []

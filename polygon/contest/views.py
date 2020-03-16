@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import timedelta
 from threading import Thread
@@ -22,8 +23,10 @@ from contest.models import Contest, ContestInvitation, ContestParticipant, Conte
 from contest.statistics import invalidate_contest
 from contest.tasks import add_participant_with_invitation
 from polygon.base_views import PolygonBaseMixin
-from polygon.rejudge import rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem, \
+from polygon.rejudge import (
+  rejudge_all_submission_on_contest, rejudge_all_submission_on_contest_problem,
   rejudge_submission_set
+)
 from problem.models import Problem
 from problem.views import StatusList
 from submission.util import SubmissionStatus
@@ -32,6 +35,8 @@ from utils.download import respond_generate_file
 from utils.identicon import Identicon
 from utils.permission import is_contest_manager
 from .forms import ContestEditForm, TestSysUploadForm
+
+logger = logging.getLogger(__name__)
 
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
@@ -573,7 +578,7 @@ class ContestGhostRecordImport(PolygonContestMixin, FormView):
         if parse_result is None:
           continue
         directive, args = parse_result
-        print(directive, args)
+        logger.info("%s %s", directive, args)
         if directive == "teams":
           participant_count = int(args[0])
           if participant_count >= 10000:

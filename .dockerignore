@@ -3,9 +3,11 @@
 *.DS_Store
 .idea/
 __pycache__/
+.vscode
 
 # Database
 *.sqlite3
+*.sqlite
 
 # ignore datadir
 data/
@@ -15,6 +17,7 @@ cases/
 generate/
 media/
 repo/
+logs/
 
 # local settings
 local_settings.py
