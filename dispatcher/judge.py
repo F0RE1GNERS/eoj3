@@ -1,3 +1,4 @@
+import logging
 import time
 import traceback
 from datetime import datetime
@@ -13,6 +14,8 @@ from utils import random_string
 from utils.detail_formatter import add_timestamp_to_reply
 from utils.site_settings import nonstop_judge
 from .manage import DEFAULT_USERNAME
+
+logger = logging.getLogger(__name__)
 
 
 def process_runtime(server, data):
@@ -72,6 +75,7 @@ def send_judge_through_watch(code, lang, max_time, max_memory, run_until_complet
         raise RuntimeError("Send judge through socketio timed out.")
     except:
       msg = "Time: %s\n%s" % (datetime.now(), traceback.format_exc())
+      logger.error(msg)
       send_mail(subject="Submit fail notice", message=msg, from_email=None,
                 recipient_list=settings.ADMIN_EMAIL_LIST,
                 fail_silently=True)

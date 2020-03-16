@@ -1,3 +1,4 @@
+import logging
 import random
 from collections import defaultdict
 
@@ -36,6 +37,8 @@ from utils.permission import is_problem_manager, get_permission_for_submission, 
 from utils.tagging import edit_string_for_tags
 from .models import Problem, Skill, UserStatus
 from .tasks import create_submission, judge_submission_on_problem
+
+logger = logging.getLogger(__name__)
 
 
 class ProblemList(ListView):
@@ -573,7 +576,7 @@ class ProblemRecommendation(LoginRequiredMixin, TemplateView):
     data["med_problems"] = recommendation.med_problems(self.request.user.id)
     data["unfamiliar_problems"] = recommendation.unfamiliar_problems(self.request.user.id)
     data["familiar_problems"] = recommendation.familiar_problems(self.request.user.id)
-    print(data)
+    logger.info("%s", data)
     return data
 
 

@@ -66,6 +66,5 @@ def get_file_list(file_path, prefix):
         path=os.path.join('/upload/', prefix, file)
       ))
     return result
-  except Exception as e:
-    print(repr(e))
+  except:
     return []

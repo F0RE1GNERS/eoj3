@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import traceback
@@ -13,6 +14,8 @@ from contest.models import ContestProblemPlag
 from polygon.contest.views import PolygonContestMixin
 from submission.util import SubmissionStatus
 from utils import random_string
+
+logger = logging.getLogger(__name__)
 
 
 class JPlagManager():
@@ -58,6 +61,7 @@ def start_jplag(plags):
       plag.status = 1
       with open(os.path.join(manager.result_dir, "stderr"), "a", encoding="utf-8") as f:
         print(traceback.format_exc(), file=f)
+        logger.error(traceback.format_exc())
       plag.save()
 
 

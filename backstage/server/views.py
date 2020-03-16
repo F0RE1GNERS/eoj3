@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import threading
 import traceback
@@ -23,6 +24,8 @@ from submission.models import Submission
 from submission.util import SubmissionStatus
 from .forms import ServerEditForm, ServerUpdateTokenForm
 from ..base_views import BaseCreateView, BaseUpdateView, BaseBackstageMixin
+
+logger = logging.getLogger(__name__)
 
 
 class ServerCreate(BaseCreateView):
@@ -129,7 +132,7 @@ def sync_and_update_status(server, problem):
 def upload_spj_exception_wrapper(server, program):
   res = upload_spj(server, program)
   if res["status"] != "received":
-    print(res)
+    logger.error("%s", res)
 
 
 def synchronize_func(server, problems):
