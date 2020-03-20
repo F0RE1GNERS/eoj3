@@ -3,6 +3,7 @@
     <thead>
     <tr class="center aligned">
         <th>#</th>
+        <th>送交者</th>
         {% if not hide_problem %}
             <th>题目</th>
         {% endif %}
@@ -25,6 +26,7 @@
     <tr class="center aligned">
         <th rowspan="{% if submission.status_message %}3{% else %}2{% endif %}"
             style="padding:1em">{{ submission.id }}</th>
+        <td>{{ username_display(submission.author) }}</td>
         {% if not hide_problem %}
             {% if submission.contest_id and submission.contest_problem %}
                 <td>
@@ -52,7 +54,7 @@
         {% endif %}
     </tr>
     <tr>
-        {% set my_colspan = 7 %}
+        {% set my_colspan = 8 %}
         {% if hide_problem %}
             {% set my_colspan = my_colspan - 1 %}
         {% endif %}
