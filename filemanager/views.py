@@ -103,7 +103,6 @@ class FileManager(UserPassesTestMixin, TemplateView):
 
   def handle_create_new_dir(self, request):
     file_path = path.join(self.root, request.POST['name'].replace('/', '_'))
-    print(file_path)
     os.makedirs(file_path, exist_ok=True)
 
   def post(self, request, *args, **kwargs):

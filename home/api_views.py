@@ -21,6 +21,5 @@ class LoginAPI(APIView):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
-    # print(user)
     login(request, user)
     return Response({'username': user.username})

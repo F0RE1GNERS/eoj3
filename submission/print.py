@@ -124,7 +124,6 @@ class PrintCodeView(LoginRequiredMixin, ListView):
         return redirect(request.path)
       p = manager.printcode_set.create(code=code, user=self.request.user, comment=comment)
     else:
-      # print(request.POST)
       file = request.FILES['file']
       secret_key = random_string()
       save_uploaded_file_to(file, settings.GENERATE_DIR, secret_key + ".pdf")

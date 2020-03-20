@@ -303,6 +303,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
 MIRROR_DIR = os.path.join(BASE_DIR, "upload", "mirror")
 GENERATE_DIR = os.path.join(BASE_DIR, "generate")
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+
+os.makedirs(LOG_DIR, exist_ok=True)
 
 # database
 
@@ -355,6 +358,38 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 ADMINS = [('support', 'support@server.fake')]
 ADMIN_EMAIL_LIST = []
+
+# logging
+
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'formatters': {
+    'verbose': {
+      'format': '{levelname} {asctime} ({module}) {message}',
+      'style': '{',
+    },
+    'simple': {
+      'format': '{levelname} {message}',
+      'style': '{',
+    },
+  },
+  'handlers': {
+    'file': {
+      'level': 'WARNING',
+      'formatter': 'verbose',
+      'class': 'logging.FileHandler',
+      'filename': os.path.join(LOG_DIR, 'django.log'),
+    },
+  },
+  'loggers': {
+    'django': {
+      'handlers': ['file'],
+      'level': 'WARNING',
+      'propagate': True,
+    },
+  },
+}
 
 # recommendation service
 

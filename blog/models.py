@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.db.models import Sum, Case, When, IntegerField
 from django.utils.translation import ugettext_lazy as _
@@ -6,6 +8,8 @@ from account.models import User
 from contest.models import Contest
 from problem.models import Problem
 from submission.models import Submission
+
+logger = logging.getLogger(__name__)
 
 
 class BlogManager(models.Manager):
@@ -58,7 +62,7 @@ class BlogQuerySet(models.QuerySet):
              models.Q(contest__authors__username__contains=filter_user.username)
       else:
         q &= models.Q(contest=None)
-    print(q)
+    logger.debug("%s", q)
     return self.filter(q).distinct()
 
 
