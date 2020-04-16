@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from itertools import chain
 
 from django.contrib import messages
@@ -98,7 +99,7 @@ class ProblemCreate(PolygonBaseMixin, View):
     else:
       problem = self.get_unused_problem()
     if not problem:
-      problem = Problem.objects.create()
+      problem = Problem.objects.create(update_time=datetime.now())
       problem.title = 'Problem #%d' % problem.id
       problem.alias = 'p%d' % problem.id
       problem.save(update_fields=['title', 'alias'])
