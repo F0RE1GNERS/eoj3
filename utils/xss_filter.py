@@ -49,7 +49,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
   _regex_style_2 = re.compile(r'e.*x.*p.*r.*e.*s.*s.*i.*o.*n', re.I | re.S)
 
   def __init__(self, allows=None):
-    HTMLParser.__init__(self)
+    HTMLParser.__init__(self, convert_charrefs=False)
     self.allow_tags = allows if allows else self.allow_tags
     self.result = []
     self.start = []
