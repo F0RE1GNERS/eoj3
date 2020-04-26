@@ -44,7 +44,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     "td": ["rowspan"],
   }
 
-  _regex_url = re.compile(r'^(((http|https|ftp)://)|/).*', re.I | re.S)
+  _regex_url = re.compile(r'^(http|https|ftp)://.*', re.I | re.S)
   _regex_style_1 = re.compile(r'(\\|&#|/\*|\*/)', re.I)
   _regex_style_2 = re.compile(r'e.*x.*p.*r.*e.*s.*s.*i.*o.*n', re.I | re.S)
 
@@ -94,8 +94,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
       self.start.pop()
 
   def handle_data(self, data):
-    # self.result.append(self._htmlspecialchars(data))
-    self.result.append(data)
+    self.result.append(self._htmlspecialchars(data))
 
   def handle_entityref(self, name):
     if name.isalpha():
