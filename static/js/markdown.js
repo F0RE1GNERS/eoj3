@@ -9,7 +9,7 @@ $.fn.simpleMDE = function () {
           text: plainText || ""
         }, function (data) {
           preview.innerHTML = data;
-          MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+          MathJax.typeset();
         }.bind(this));
         return "Loading...";
       }, 1000),
