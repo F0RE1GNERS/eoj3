@@ -22,6 +22,7 @@ disable=R,
         broad-except,
         attribute-defined-outside-init,
         relative-beyond-top-level,
-        import-outside-toplevel
+        import-outside-toplevel,
+        invalid-str-returned
 
 ignore=migrations
