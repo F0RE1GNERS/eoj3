@@ -2376,10 +2376,10 @@ marked@*:
   resolved "https://registry.yarnpkg.com/marked/-/marked-0.8.0.tgz#ec5c0c9b93878dc52dd54be8d0e524097bd81a99"
   integrity sha512-MyUe+T/Pw4TZufHkzAfDj6HarCBWia2y27/bhuYkTaiUnfDYFnCP3KUN+9oM7Wi6JA2rymtVYbQu3spE0GCmxQ==
 
-mathjax@^2.7.1:
-  version "2.7.7"
-  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-2.7.7.tgz#22ff89550a7b1f5f06a037d13da5ff3c33e11ec4"
-  integrity sha512-OOl0B2/0tSJAtAZarXnQuLDBLgTNRqiI9VqHTQzPsxf4okT2iIpDrvaklK9x2QEMD1sDj4yRn11Ygci41DxMAQ==
+mathjax@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-3.0.5.tgz#707e703a9c1d95f0790bbd404b895566f459d514"
+  integrity sha512-9M7VulhltkD8sIebWutK/VfAD+m+6BIFqfpjDh9Pz/etoKUtjO6UMnOhUcDmNl6iApE8C9xrUmaMyNZkZAlrMw==
 
 meow@^3.3.0:
   version "3.7.0"
