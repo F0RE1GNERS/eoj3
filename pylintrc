@@ -23,6 +23,7 @@ disable=R,
         attribute-defined-outside-init,
         relative-beyond-top-level,
         import-outside-toplevel,
-        invalid-str-returned
+        invalid-str-returned,
+        unused-variable
 
 ignore=migrations
