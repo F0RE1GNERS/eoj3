@@ -29,7 +29,7 @@
     "django-channels": "^1.1.5",
     "echarts": "^3.7.1",
     "font-awesome": "^4.7.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jquery-address": "^1.6.0",
     "jquery.scrollto": "^2.1.2",
     "js-cookie": "^2.1.4",
