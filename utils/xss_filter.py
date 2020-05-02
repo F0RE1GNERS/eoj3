@@ -32,7 +32,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
                 'p', 'div', 'em', 'span', 'h1', 'h2', 'h3', 'h4',
                 'h5', 'h6', 'blockquote', 'ul', 'ol', 'tr', 'th', 'td',
                 'hr', 'li', 'u', 'embed', 's', 'table', 'thead', 'tbody',
-                'caption', 'small', 'q', 'sup', 'sub', 'script']
+                'caption', 'small', 'q', 'sup', 'sub']
   common_attrs = ["style", "class", "name"]
   nonend_tags = ["img", "hr", "br", "embed"]
   tags_own_attrs = {
@@ -40,7 +40,6 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     "a": ["href", "target", "rel", "title"],
     "embed": ["src", "width", "height", "type", "allowfullscreen", "loop", "play", "wmode", "menu"],
     "table": ["border", "cellpadding", "cellspacing"],
-    "script": ["type"],
     "td": ["rowspan"],
   }
 
@@ -115,13 +114,6 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     attrs = self._limit_attr(attrs, {
       "target": ["_blank", "_self"]
     })
-    return attrs
-
-  def node_script(self, attrs):
-    attrs = self._limit_attr(attrs, {
-      "type": ["math/tex", "math/tex; mode=display"]
-    })
-    attrs = self._set_attr_default(attrs, "type", "math/tex")
     return attrs
 
   def node_embed(self, attrs):

@@ -9,7 +9,7 @@ from . import semantic
 def convert(text):
   md = markdown.Markdown(
     extensions=[mdx_downheader.makeExtension(levels=2),
-                mdx_math.makeExtension(enable_dollar_delimiter=True, add_preview=False),
+                # mdx_math.makeExtension(enable_dollar_delimiter=True, add_preview=False),
                 'fenced_code',
                 'codehilite',
                 'markdown.extensions.attr_list',
