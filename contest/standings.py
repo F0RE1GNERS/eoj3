@@ -198,7 +198,8 @@ class ContestStandingsTestSys(BaseContestMixin, View):
       SubmissionStatus.MEMORY_LIMIT_EXCEEDED: "ML",
       SubmissionStatus.COMPILE_ERROR: "CE",
     }
-    for s in self.contest.submission_set.exclude(contest_time__isnull=True).order_by("contest_time").all():
+    for s in self.contest.submission_set.exclude(contest_time__isnull=True).filter(visible=True) \
+        .order_by("contest_time").all():
       if s.problem_id in available_prob_ids:
         subs.append(self.get_line('s', team_mapper[s.author_id],
                                   self.contest.get_contest_problem(s.problem_id).identifier,
