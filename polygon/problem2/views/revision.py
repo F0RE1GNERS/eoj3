@@ -5,7 +5,7 @@ from shutil import copyfile
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.files import File
+from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse
@@ -259,6 +259,25 @@ class RevisionDiscardView(ProblemRevisionMixin, View):
     self.revision.status = -1
     self.revision.save(update_fields=["status"])
     return redirect(reverse('polygon:revision_update', kwargs=self.kwargs))
+
+
+class RevisionCleanupView(ProblemRevisionMixin, View):
+  """
+  Only privileged adminstrators can do this.
+  This will clean up all the test data in the revision to save space.
+  The API is under development and currently not accessible through RESTful API.
+  """
+
+  @transaction.atomic()
+  def post(self, request, *args, **kwargs):
+    for case in self.revision.cases.all():
+      input_preview = ContentFile(case.input_preview)
+      output_preview = ContentFile(case.output_preview)
+      os.remove(case.input_file.name)
+      os.remove(case.output_file.name)
+      case.input_file.save("in", input_preview)
+      case.output_file.save("out", output_preview)
+      case.save()
 
 
 class RevisionStatus(ProblemRevisionMixin, StatusList):

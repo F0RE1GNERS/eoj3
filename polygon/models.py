@@ -166,6 +166,10 @@ class Case(models.Model):
   def output_preview(self):
     return self._read_file_preview(self.output_file)
 
+  @property
+  def case_size(self):
+    return self.input_file.size + self.output_file.size
+
 
 class Template(models.Model):
   template_code = models.TextField("模板代码")
