@@ -8,14 +8,12 @@ from django.contrib import messages
 from django.core.files.base import ContentFile, File
 from django.db import transaction
 from django.db.models import Max
-from django.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import UpdateView
 
-from account.premissions import is_admin_or_root
 from dispatcher.models import Server
 from dispatcher.models import ServerProblemStatus
 from polygon.models import Revision
