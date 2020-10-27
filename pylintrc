@@ -8,6 +8,7 @@ max-attributes=15
 indent-string='  '
 const-naming-style=any
 indent-after-paren=2
+notes=
 
 disable=R,
         no-member,
@@ -24,6 +25,7 @@ disable=R,
         relative-beyond-top-level,
         import-outside-toplevel,
         invalid-str-returned,
-        unused-variable
+        unused-variable,
+        raise-missing-from
 
 ignore=migrations
