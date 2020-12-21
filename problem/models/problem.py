@@ -78,9 +78,9 @@ class Problem(models.Model):
   reward = models.FloatField(default=9.9)
 
 
-  def save(self, *args, **kwargs):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     self.update_time = timezone.now()
-    return super(Problem, self).save(*args, **kwargs)
+    return super(Problem, self).save(force_insert, force_update, using, update_fields)
 
   def __str__(self):
     return '%d. %s' % (self.pk, self.title)
