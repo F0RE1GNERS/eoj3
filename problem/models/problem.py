@@ -5,6 +5,7 @@ from os import path, makedirs
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from tagging.registry import register
 
@@ -38,7 +39,7 @@ class Problem(models.Model):
   visible = models.BooleanField(default=False, db_index=True)
   maintaining = models.BooleanField(default=False)
   create_time = models.DateTimeField(auto_now_add=True)
-  update_time = models.DateTimeField(auto_now=True)
+  update_time = models.DateTimeField()
 
   time_limit = models.IntegerField(_('Time Limit'), default=2000)
   memory_limit = models.IntegerField(_('Memory Limit'), default=256)
@@ -75,6 +76,11 @@ class Problem(models.Model):
   ac_count = models.PositiveIntegerField(default=0)
   total_count = models.PositiveIntegerField(default=0)
   reward = models.FloatField(default=9.9)
+
+
+  def save(self, *args, **kwargs):
+    self.update_time = timezone.now()
+    return super(Problem, self).save(*args, **kwargs)
 
   def __str__(self):
     return '%d. %s' % (self.pk, self.title)
