@@ -18,9 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-from .local_settings import *  # pylint: disable=unused-import,unused-wildcard-import,wildcard-import,wrong-import-position
-
-ALLOWED_HOSTS = ['*']
+SITE_ID = 1
 
 # Application definition
 
@@ -158,10 +156,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'eoj3.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -179,25 +173,6 @@ AUTH_PASSWORD_VALIDATORS = [
     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
   }
 ]
-
-CACHES = {
-  "default": {
-    "BACKEND": "django_redis.cache.RedisCache",
-    "LOCATION": "redis://127.0.0.1:6379/1",
-    "OPTIONS": {
-      "CLIENT_CLASS": "django_redis.client.DefaultClient",
-      "MAX_ENTRIES": 65536,
-    }
-  },
-  "judge": {
-    "BACKEND": "django_redis.cache.RedisCache",
-    "LOCATION": "redis://127.0.0.1:6379/2",
-    "OPTIONS": {
-      "CLIENT_CLASS": "django_redis.client.DefaultClient",
-      "MAX_ENTRIES": 65536,
-    }
-  }
-}
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
@@ -218,27 +193,21 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_L10N = True
 USE_TZ = False
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
+# settings
+
+MEDIA_URL = '/media/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
+DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M:%S'
 
 STATIC_ROOT = STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/fake/static/'
 STATICFILES_DIRS = []
 
-# my settings
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
 AUTH_USER_MODEL = 'account.User'
 SESSION_COOKIE_AGE = 1209600  # default 2 weeks
-LOGIN_URL = '/login/'
-UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
-MIRROR_DIR = os.path.join(BASE_DIR, "upload/mirror")
-GENERATE_DIR = os.path.join(BASE_DIR, "generate")
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-DATETIME_FORMAT = 'Y-m-d H:i'  # only for django templates
-DATETIME_FORMAT_TEMPLATE = '%Y-%m-%d %H:%M:%S'
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -263,7 +232,8 @@ DEBUG_TOOLBAR_PANELS = [
   'debug_toolbar.panels.request.RequestPanel',
   'debug_toolbar.panels.sql.SQLPanel',
   'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-  'utils.debug.TemplatesPanel',  # original broken by django-jinja, remove this whole block later
+  # original broken by django-jinja, remove this whole block later
+  'utils.debug.TemplatesPanel',
   'debug_toolbar.panels.cache.CachePanel',
   'debug_toolbar.panels.signals.SignalsPanel',
   'debug_toolbar.panels.logging.LoggingPanel',
@@ -274,6 +244,8 @@ DEBUG_TOOLBAR_PANELS = [
 CAPTCHA_FOREGROUND_COLOR = "#001100"
 CAPTCHA_FILTER_FUNCTIONS = []
 CAPTCHA_CHALLENGE_FUNCT = 'eoj3.captcha.random_math_challenge'
+
+AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
 
 # comment
 COMMENTS_APP = 'django_comments_xtd'
@@ -298,8 +270,6 @@ COMMENT_MAX_LENGTH = 3000
 # notification
 NOTIFICATIONS_SOFT_DELETE = True
 
-AUTHENTICATION_BACKENDS = ['account.permissions.UsernameOrEmailModelBackend']
-
 Q_CLUSTER = {
   'name': 'eoj_cluster',
   'workers': 24,
@@ -316,5 +286,122 @@ Q_CLUSTER = {
 SUBMISSION_INTERVAL_LIMIT = 5
 SUBMISSION_ATTEMPT_LIMIT = 100
 
+# configurable settings
+
+# host & ip
+
+ALLOWED_HOSTS = ['*']
+IPWARE_PRIVATE_IP_PREFIX = ()
+WHITE_LIST_HOST = []
+
+# path
+
+REPO_DIR = os.path.join(BASE_DIR, 'repo')
+TESTDATA_DIR = os.path.join(BASE_DIR, 'testdata')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+UPLOAD_DIR = os.path.join(BASE_DIR, "upload")
+MIRROR_DIR = os.path.join(BASE_DIR, "upload", "mirror")
+GENERATE_DIR = os.path.join(BASE_DIR, "generate")
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# database
+
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'eoj',
+    'CONN_MAX_AGE': 2,
+    'HOST': '127.0.0.1',
+    'PORT': 3306,
+    'USER': 'eoj',
+    'PASSWORD': 'eoj'
+  }
+}
+
+# cache
+
+CACHES = {
+  "default": {
+    "BACKEND": "django_redis.cache.RedisCache",
+    "LOCATION": "redis://127.0.0.1:6379/1",
+    "OPTIONS": {
+      "CLIENT_CLASS": "django_redis.client.DefaultClient",
+      "MAX_ENTRIES": 65536,
+    }
+  },
+  "judge": {
+    "BACKEND": "django_redis.cache.RedisCache",
+    "LOCATION": "redis://127.0.0.1:6379/2",
+    "OPTIONS": {
+      "CLIENT_CLASS": "django_redis.client.DefaultClient",
+      "MAX_ENTRIES": 65536,
+    }
+  }
+}
+
+# security
+
+SECRET_KEY = 'secret_key'
+DEBUG = False
+
+# email
+
+EMAIL_HOST = "mail.server.fake"
+EMAIL_HOST_USER = "noreply@server.fake"
+EMAIL_HOST_PASSWORD = ""
+SERVER_EMAIL = "noreply@server.fake"
+DEFAULT_FROM_EMAIL = "noreply@server.fake"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+ADMINS = [('support', 'support@server.fake')]
+ADMIN_EMAIL_LIST = []
+
+# logging
+
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'formatters': {
+    'verbose': {
+      'format': '{levelname} {asctime} ({module}) {message}',
+      'style': '{',
+    },
+    'simple': {
+      'format': '{levelname} {message}',
+      'style': '{',
+    },
+  },
+  'handlers': {
+    'file': {
+      'level': 'WARNING',
+      'formatter': 'verbose',
+      'class': 'logging.FileHandler',
+      'filename': os.path.join(LOG_DIR, 'django.log'),
+    },
+  },
+  'loggers': {
+    'django': {
+      'handlers': ['file'],
+      'level': 'WARNING',
+      'propagate': True,
+    },
+  },
+}
+
 # recommendation service
-RECOMMENDATION_SERVICE_URL = "202.120.85.206:20019"
+
+RECOMMENDATION_SERVICE_URL = "127.0.0.1:20019"
+
+
+# local settings override
+
+if "USE_ENV" in os.environ:
+  from .env_settings import * # pylint: disable=unused-import,unused-wildcard-import,wildcard-import,wrong-import-position
+
+try:
+  from .local_settings import * # pylint: disable=unused-import,unused-wildcard-import,wildcard-import,wrong-import-position
+except ImportError:
+  pass

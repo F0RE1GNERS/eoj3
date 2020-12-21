@@ -1,3 +1,4 @@
+import logging
 import threading
 import traceback
 from hashlib import sha1
@@ -17,6 +18,8 @@ from problem.statistics import invalidate_problem
 from submission.models import Submission
 from submission.util import SubmissionStatus
 from .models import OldUser
+
+logger = logging.getLogger(__name__)
 
 
 def verify_old_user(user, pwd):
@@ -98,6 +101,6 @@ class MigrationThread(threading.Thread):
         self.old_user.save(update_fields=['is_active'])
     except:
       msg = traceback.format_exc()
-      print(msg)
+      logger.error(msg)
       send_mail(subject="Migrate fail notice", message=msg, from_email=None,
                 recipient_list=settings.ADMIN_EMAIL_LIST, fail_silently=True)

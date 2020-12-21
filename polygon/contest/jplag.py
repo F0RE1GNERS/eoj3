@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import traceback
@@ -14,6 +15,8 @@ from polygon.contest.views import PolygonContestMixin
 from submission.util import SubmissionStatus
 from utils import random_string
 
+logger = logging.getLogger(__name__)
+
 
 class JPlagManager():
   def __init__(self, plag: ContestProblemPlag):
@@ -28,8 +31,10 @@ class JPlagManager():
 
   def code_ready(self):
     problem_id = self.contest.contestproblem_set.get(identifier=self.plag.identifier).problem_id
-    for s in self.contest.submission_set.filter(contest_time__isnull=False, status=SubmissionStatus.ACCEPTED,
-                                                problem_id=problem_id):
+    submission_set = self.contest.submission_set.filter(status=SubmissionStatus.ACCEPTED, problem_id=problem_id)
+    if self.contest.contest_type != 1:
+      submission_set = submission_set.filter(contest_time__isnull=False)
+    for s in submission_set:
       with open(os.path.join(self.code_dir, "%d_%d.cpp" % (s.pk, s.author_id)), "w", encoding="utf-8") as f:
         f.write(s.code)
 
@@ -58,6 +63,7 @@ def start_jplag(plags):
       plag.status = 1
       with open(os.path.join(manager.result_dir, "stderr"), "a", encoding="utf-8") as f:
         print(traceback.format_exc(), file=f)
+        logger.error(traceback.format_exc())
       plag.save()
 
 

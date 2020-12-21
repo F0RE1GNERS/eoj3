@@ -167,17 +167,15 @@ function postWithLocalData (button) {
 
 function replaceFormData(form, extra_data) {
   for (var val in extra_data) {
-    if (extra_data.hasOwnProperty(val)) {
-      var already_exist = form.find('*[name="' + val + '"]');
-      if (already_exist.length > 0) {
-        if (already_exist.prop("tagName") == "SELECT") {
-          already_exist.parent(".ui.dropdown").dropdown("set selected", extra_data[val]);
-        } else {
-          already_exist.val(extra_data[val]);
-        }
+    var already_exist = form.find('*[name="' + val + '"]');
+    if (already_exist.length > 0) {
+      if (already_exist.prop("tagName") == "SELECT") {
+        already_exist.parent(".ui.dropdown").dropdown("set selected", extra_data[val]);
       } else {
-        form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
+        already_exist.val(extra_data[val]);
       }
+    } else {
+      form.append("<input type='hidden' name='" + val + "' value='" + extra_data[val] + "'>");
     }
   }
 }

@@ -35,3 +35,5 @@ package-lock.json
 # generated css
 app.css
 app.min.css
+
+Dockerfile

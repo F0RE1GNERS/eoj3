@@ -24,4 +24,4 @@ class CloseSiteMiddleware(object):
         raise CloseSiteException
       return view_func(request, *view_args, **view_kwargs)
     except CloseSiteException:
-      return render(request, 'error/closed.jinja2')
+      return render(request, 'error/closed.jinja2', status=418)

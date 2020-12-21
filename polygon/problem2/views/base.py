@@ -268,6 +268,9 @@ class ProblemRevisionMixin(PolygonProblemMixin):
     if not all(map(lambda case: case.activated, self.revision.cases.filter(in_samples=True))):
       self.warnings.append("不是所有的样例都在测试点中。")
 
+  def get_current_total_size(self):
+    return sum([c.case_size for c in self.revision.cases.all()])
+
   def init_revision(self, *args, **kwargs):
     self.revision = self.problem.revisions.select_related("active_statement", "active_checker", "active_validator",
                                                           "active_interactor", "user").filter(pk=kwargs['rpk'])

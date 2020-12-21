@@ -29,6 +29,9 @@ from utils.download import respond_generate_file
 from utils.file_preview import sort_data_list_from_directory
 
 
+CASE_SUM_MAX_TOTAL_LENGTH = 2048 * 1024 * 1024
+
+
 class UpdateManager(object):
   def __init__(self, object, revision):
     self.object = object
@@ -182,6 +185,7 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
     option = form.cleaned_data["option"]
     case_number_start = form.cleaned_data["case_number"]
     cases = []
+    current_total_size = self.get_current_total_size()
 
     if option == "text":
       input_binary = REFORMAT(form.cleaned_data["input_text"].encode(), self.revision.well_form_policy)
@@ -194,6 +198,8 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
       case.input_file.save("in", ContentFile(input_binary), save=False)
       case.output_file.save("out", ContentFile(output_binary), save=False)
       case.save_fingerprint(self.problem.id)
+      if current_total_size + case.case_size > CASE_SUM_MAX_TOTAL_LENGTH:
+        raise ValueError("测试点总规模已超过限制 (2GB)")
       cases.append(case)
 
     elif option == "batch":
@@ -222,6 +228,9 @@ class CaseCreateView(ProblemRevisionMixin, FormView):
             case.input_file.save("in", File(ins), save=False)
             case.output_file.save("out", File(ous), save=False)
           case.save_fingerprint(self.problem.id)
+          if current_total_size + case.case_size > CASE_SUM_MAX_TOTAL_LENGTH:
+            raise ValueError("测试点总规模已超过限制 (2GB)")
+          current_total_size += case.case_size
           cases.append(case)
       shutil.rmtree(tmp_directory)
 
@@ -274,14 +283,17 @@ class CaseUpdateFileView(RevisionCaseMixin, FormView):
     return self.case
 
   def form_valid(self, form):
+    current_total_size = self.get_current_total_size()
     with transaction.atomic():
-      object = self.get_object()
+      obj = self.get_object()
       input_binary = REFORMAT(form.cleaned_data["input_text"].encode(), self.revision.well_form_policy)
       output_binary = REFORMAT(form.cleaned_data["output_text"].encode(), self.revision.well_form_policy)
-      with UpdateManager(object, self.revision) as object:
-        object.input_file.save("in", ContentFile(input_binary), save=False)
-        object.output_file.save("out", ContentFile(output_binary), save=False)
-        object.save_fingerprint(self.problem.id)
+      with UpdateManager(obj, self.revision) as obj:
+        obj.input_file.save("in", ContentFile(input_binary), save=False)
+        obj.output_file.save("out", ContentFile(output_binary), save=False)
+        obj.save_fingerprint(self.problem.id)
+      if current_total_size + obj.case_size > CASE_SUM_MAX_TOTAL_LENGTH:
+        raise ValueError("测试点总规模已超过限制 (2GB)")
     return redirect(self.get_success_url())
 
 
