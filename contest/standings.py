@@ -4,6 +4,7 @@ from os import path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import View
@@ -44,16 +45,37 @@ class ContestStandings(BaseContestMixin, ListView):
 
   def get_queryset(self):
     if self.virtual_progress is not None:
-      return get_contest_rank(self.contest, self.virtual_progress)
-    return get_contest_rank(self.contest)
+      rank_list = get_contest_rank(self.contest, self.virtual_progress)
+    else:
+      rank_list = get_contest_rank(self.contest)
+
+    if 'q' in self.request.GET:
+      contest_participants = {user.user_id: user for user in
+                              ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
+      self.search_text = self.request.GET['q']
+      ret_list = []
+      for item in rank_list:
+        user = contest_participants[item['user']]
+        if not user.comment.find(self.search_text) == -1 \
+                or not user.user.username.find(self.search_text) == -1:
+          ret_list.append(item)
+
+    else:
+      ret_list = rank_list
+      self.search_text = ''
+
+    return ret_list
 
   def get_context_data(self, **kwargs):
     data = super(ContestStandings, self).get_context_data(**kwargs)
+    data['search_text'] = self.search_text
     contest_participants = {user.user_id: user for user in
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
+
     for rank in data['rank_list']:
       # convert user_id to actual user
       rank.update(user=contest_participants[rank['user']])
+
     if not self.contest.standings_without_problem:
       problems = self.contest.contest_problem_list  # to make sure we get a cache
       if self.virtual_progress is not None:
