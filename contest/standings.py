@@ -59,7 +59,6 @@ class ContestStandings(BaseContestMixin, ListView):
         if not user.comment.find(self.search_text) == -1 \
                 or not user.user.username.find(self.search_text) == -1:
           ret_list.append(item)
-
     else:
       ret_list = rank_list
       self.search_text = ''
@@ -71,11 +70,9 @@ class ContestStandings(BaseContestMixin, ListView):
     data['search_text'] = self.search_text
     contest_participants = {user.user_id: user for user in
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
-
     for rank in data['rank_list']:
       # convert user_id to actual user
       rank.update(user=contest_participants[rank['user']])
-
     if not self.contest.standings_without_problem:
       problems = self.contest.contest_problem_list  # to make sure we get a cache
       if self.virtual_progress is not None:
