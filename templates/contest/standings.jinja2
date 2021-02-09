@@ -5,14 +5,7 @@
 
 
 {% block standings_content %}
-  <div class="ui left floated buttons">
-    <form class="ui form" name="searchForm">
-      <div class="ui icon input">
-        <input type="text" name="q" value="{{ search_text }}" placeholder="Search">
-        <i class="inverted circular search link icon" onclick="document.forms.searchForm.submit()"></i>
-      </div>
-    </form>
-  </div>
+
   {% if is_privileged %}
   <div class="ui right floated buttons">
     <a class="ui labeled icon primary button" href="{{ url('contest:update_standings', contest.pk) }}"><i class="refresh icon"></i>重新计算</a>
@@ -38,14 +31,20 @@
     </div>
   </div>
   {% endif %}
-
+  <div class="ui left floated buttons">  <form class="ui form" name="searchForm">
+      <div class="ui icon input">
+        <input type="text" name="q" value="{{ search_text }}" placeholder="搜索...">
+        <i class="circular search link icon" onclick="document.forms.searchForm.submit()"></i>
+      </div>
+    </form>
+  </div>
   {% if time_remaining %}
   <h5 class="ui header">
-    Countdown: <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span><br>
+    &emsp;Countdown: <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span><br>
   </h5>
   {% endif %}
 
-  <div class="ui hidden divider" style="clear:both;"></div>
+
 
   {% set contest_problem_length = (contest.contest_problem_list | length) %}
   {% if contest_problem_length > 10 and not contest.standings_without_problem %}
