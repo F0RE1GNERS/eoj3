@@ -4,7 +4,6 @@ from os import path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import View
