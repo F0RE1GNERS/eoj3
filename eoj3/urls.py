@@ -25,7 +25,7 @@ urlpatterns = [
   url(r'^captcha/', include('captcha.urls')),
   url(r'^logout/$', logout, name='logout'),
   url(r'^search/$', search_view, name='search', kwargs=force_closed()),
-  url(r'^mirror/', include('filemanager.urls', namespace='filemanager')),
+  url(r'^mirror/', include('filemanager.urls', namespace='filemanager'), kwargs=force_closed()),
   url(r'^admin/', admin.site.urls),
   url(r'^api/', include('api.urls', namespace='api')),
   url(r'^$', home_view, name='home'),
@@ -35,16 +35,16 @@ urlpatterns = [
   url(r'^account/', include('account.urls', namespace='account')),
   url(r'^blog/', include('blog.urls', namespace='blog'), kwargs=force_closed()),
   url(r'^feedback/', FeedbackView.as_view(), name='feedback'),
-  url(r'^polygon/', include('polygon.urls', namespace='polygon')),
+  url(r'^polygon/', include('polygon.urls', namespace='polygon'), kwargs=force_closed()),
   url(r'^notification/', include('notification.urls', namespace='notification')),
-  url(r'^migrate/$', migrate_view, name='migrate'),
+  url(r'^migrate/$', migrate_view, name='migrate', kwargs=force_closed()),
   url(r'^museum/$', museum_view, name='museum'),
-  url(r'^paste/$', PasteView.as_view(), name='pastebin'),
+  url(r'^paste/$', PasteView.as_view(), name='pastebin'),  # TODO: delete?
   url(r'^h/', include('paste.urls', namespace='paste'), kwargs=force_closed()),
-  url(r'^profile/progress/(?P<pk>\d+)/$', ProgressTreeView.as_view(), name='progress'),
-  url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile'),
-  url(r'^i18n/', include('django.conf.urls.i18n')),
-  url(r'^reward/(?P<pk>\d+)/$', GetRewardsView.as_view(), name='rewardslist'),
+  url(r'^profile/progress/(?P<pk>\d+)/$', ProgressTreeView.as_view(), name='progress', kwargs=force_closed()),
+  url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(), name='profile', kwargs=force_closed()),
+  # url(r'^i18n/', include('django.conf.urls.i18n')),  # TODO: delete?
+  url(r'^reward/(?P<pk>\d+)/$', GetRewardsView.as_view(), name='rewardslist', kwargs=force_closed()),
 ]
 
 urlpatterns += [
