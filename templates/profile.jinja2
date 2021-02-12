@@ -126,7 +126,6 @@
             <th>标题</th>
             <th>最后提交</th>
             <th>得分</th>
-            <th>注册</th>
           </tr>
           </thead>
           <tbody>
@@ -137,7 +136,7 @@
               <td>{% if c.last_submission %}
                 {{ c.last_submission.create_time | naturaltime }}{% endif %}</td>
               <td>{{ c.score }}</td>
-              <td>{{ c.comment }}</td>
+
             </tr>
           {% endfor %}
           </tbody>
