@@ -56,11 +56,7 @@ class ContestStandings(BaseContestMixin, ListView):
               (Q(user__username__icontains=self.search_text) | Q(comment__icontains=self.search_text))
       selected_participants = {user.user_id: user for user in
                               ContestParticipant.objects.filter(query).select_related('user').all()}
-      ret_list = []
-      for item in rank_list:
-        if item['user'] in selected_participants:
-          ret_list.append(item)
-      rank_list = ret_list
+      rank_list = [item for item in rank_list if item['user'] in selected_participants]
     return rank_list
 
   def get_context_data(self, **kwargs):
