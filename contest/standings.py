@@ -4,6 +4,7 @@ from os import path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import View
@@ -48,21 +49,19 @@ class ContestStandings(BaseContestMixin, ListView):
     else:
       rank_list = get_contest_rank(self.contest)
 
+    self.search_text = ''
     if 'q' in self.request.GET:
-      contest_participants = {user.user_id: user for user in
-                              ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
       self.search_text = self.request.GET['q']
+      query = Q(contest__exact=self.contest) & \
+              (Q(user__username__icontains=self.search_text) | Q(comment__icontains=self.search_text))
+      selected_participants = {user.user_id: user for user in
+                              ContestParticipant.objects.filter(query).select_related('user').all()}
       ret_list = []
       for item in rank_list:
-        user = contest_participants[item['user']]
-        if not user.comment.find(self.search_text) == -1 \
-                or not user.user.username.find(self.search_text) == -1:
+        if item['user'] in selected_participants:
           ret_list.append(item)
-    else:
-      ret_list = rank_list
-      self.search_text = ''
-
-    return ret_list
+      rank_list = ret_list
+    return rank_list
 
   def get_context_data(self, **kwargs):
     data = super(ContestStandings, self).get_context_data(**kwargs)
