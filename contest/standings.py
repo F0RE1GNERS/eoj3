@@ -49,9 +49,8 @@ class ContestStandings(BaseContestMixin, ListView):
     else:
       rank_list = get_contest_rank(self.contest)
 
-    self.search_text = ''
-    if 'q' in self.request.GET:
-      self.search_text = self.request.GET['q']
+    self.search_text = self.request.GET.get('q', '')
+    if self.search_text:
       query = Q(contest__exact=self.contest) & \
               (Q(user__username__icontains=self.search_text) | Q(comment__icontains=self.search_text))
       selected_participants = {user.user_id: user for user in
