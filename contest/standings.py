@@ -4,6 +4,7 @@ from os import path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.views.generic import View
@@ -44,11 +45,22 @@ class ContestStandings(BaseContestMixin, ListView):
 
   def get_queryset(self):
     if self.virtual_progress is not None:
-      return get_contest_rank(self.contest, self.virtual_progress)
-    return get_contest_rank(self.contest)
+      rank_list = get_contest_rank(self.contest, self.virtual_progress)
+    else:
+      rank_list = get_contest_rank(self.contest)
+
+    self.search_text = self.request.GET.get('q', '')
+    if self.search_text:
+      query = Q(contest__exact=self.contest) & \
+              (Q(user__username__icontains=self.search_text) | Q(comment__icontains=self.search_text))
+      selected_participants = {user.user_id: user for user in
+                              ContestParticipant.objects.filter(query).select_related('user').all()}
+      rank_list = [item for item in rank_list if item['user'] in selected_participants]
+    return rank_list
 
   def get_context_data(self, **kwargs):
     data = super(ContestStandings, self).get_context_data(**kwargs)
+    data['search_text'] = self.search_text
     contest_participants = {user.user_id: user for user in
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user').all()}
     for rank in data['rank_list']:

@@ -31,14 +31,21 @@
     </div>
   </div>
   {% endif %}
-
+  <div style="padding-right: 20px" class="ui left floated buttons">
+    <form class="ui form" name="searchForm">
+      <div class="ui icon input">
+        <input type="text" name="q" value="{{ search_text }}" placeholder="搜索...">
+        <i class="circular search link icon" onclick="document.forms.searchForm.submit()"></i>
+      </div>
+    </form>
+  </div>
   {% if time_remaining %}
   <h5 class="ui header">
     Countdown: <span class="countdown" data-duration="{{ time_all }}" data-delta-seconds="{{ time_remaining }}"></span><br>
   </h5>
   {% endif %}
 
-  <div class="ui hidden divider" style="clear:both;"></div>
+
 
   {% set contest_problem_length = (contest.contest_problem_list | length) %}
   {% if contest_problem_length > 10 and not contest.standings_without_problem %}
