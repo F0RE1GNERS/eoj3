@@ -132,10 +132,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     return attrs
 
   def _true_url(self, url):
-    if self._regex_url.match(url):
-      return url
-    else:
-      return "http://%s" % url
+    return url
 
   def _true_style(self, style):
     if style:
