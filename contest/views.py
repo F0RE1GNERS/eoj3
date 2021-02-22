@@ -182,7 +182,9 @@ class ContestList(ListView):
   context_object_name = 'contest_list'
 
   def get_queryset(self):
-    return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), contest_type=0)
+    user = self.request.user if self.request.user.is_authenticated else None
+    return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user,
+                                           contest_type=0)
 
   def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
     data = super().get_context_data(**kwargs)
