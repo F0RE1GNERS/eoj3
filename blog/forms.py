@@ -1,5 +1,6 @@
 import re
 
+from captcha.fields import CaptchaField
 from django import forms
 
 from account.models import User
@@ -17,6 +18,8 @@ def generate_username_link(matchobj):
 
 
 class BlogEditForm(forms.ModelForm):
+  captcha = CaptchaField(label="小学数学题")
+
   class Meta:
     model = Blog
     fields = ['title', 'text', 'visible', 'hide_revisions']
@@ -26,7 +29,7 @@ class BlogEditForm(forms.ModelForm):
       'text': "支持 Markdown 和 MathJax，使用 $e^x$ 来写公式。"
     }
     widgets = {
-      'text': forms.Textarea(attrs={'class': 'markdown'})
+      'text': forms.Textarea(attrs={'class': 'markdown'}),
     }
 
   def clean_text(self):
