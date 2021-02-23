@@ -29,7 +29,7 @@ class BlogEditForm(forms.ModelForm):
       'text': "支持 Markdown 和 MathJax，使用 $e^x$ 来写公式。"
     }
     widgets = {
-      'text': forms.Textarea(attrs={'class': 'markdown'}),
+      'text': forms.Textarea(attrs={'class': 'markdown'})
     }
 
   def clean_text(self):
