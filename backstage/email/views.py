@@ -1,3 +1,4 @@
+import time
 import traceback
 from datetime import datetime, timedelta
 
@@ -119,6 +120,7 @@ class EmailSend(BaseBackstageMixin, View):
         recipient.error_message = traceback.format_exc()
         recipient.status = 1
         recipient.save()
+      time.sleep(2)
 
   def post(self, request, eid):
     email = get_object_or_404(Email, pk=eid)
