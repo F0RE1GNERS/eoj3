@@ -46,7 +46,7 @@ Pillow==7.0.0
 progressbar2==3.47.0
 psycopg2-binary==2.8.4
 pycrypto==2.6.1
-Pygments==2.5.2
+Pygments==2.7.4
 PyJWT==1.7.1
 python-dateutil==2.8.1
 python-markdown-math==0.6
