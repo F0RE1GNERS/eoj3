@@ -1,5 +1,6 @@
 import re
 
+from captcha.fields import CaptchaField
 from django import forms
 
 from account.models import User
@@ -17,6 +18,8 @@ def generate_username_link(matchobj):
 
 
 class BlogEditForm(forms.ModelForm):
+  captcha = CaptchaField(label="小学数学题")
+
   class Meta:
     model = Blog
     fields = ['title', 'text', 'visible', 'hide_revisions']
