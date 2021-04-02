@@ -38,8 +38,7 @@ def change_username(user, amount, new_username):
   with transaction.atomic():
     try:
       user.username = User.normalize_username(new_username)
-      UsernameValidator()(user.username)
-      UsernameLengthValidator(6)(user.username)
+      user.full_clean()
       user.save(update_fields=["username"])
     except ValidationError:
       raise PermissionError(_("Username too short or illegal."))
