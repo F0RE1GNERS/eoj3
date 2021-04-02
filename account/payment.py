@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Payment, User, UsernameValidator
+from .models import Payment, User
 
 
 def create_payment(user: User, credit, type, memo):
@@ -38,7 +38,7 @@ def change_username(user, amount, new_username):
   with transaction.atomic():
     try:
       user.username = User.normalize_username(new_username)
-      UsernameValidator()(user.username)
+      user.full_clean()
       user.save(update_fields=["username"])
     except ValidationError:
       raise PermissionError(_("Username too short or illegal."))
