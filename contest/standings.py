@@ -90,8 +90,8 @@ class ContestDownloadStandings(BaseContestMixin, View):
                             ContestParticipant.objects.filter(contest=self.contest).select_related('user',
                                                                                                    'contest').all()}
 
-    header = ["Rank", "Username", "Info", "Score"]
-    if not self.contest.contest_type == 0 and self.contest.penalty_counts:
+    header = ["Rank", "Username", "Info", "E-mail", "Name", "Score"]
+    if self.contest.contest_type == 0 and self.contest.penalty_counts:
       header.append("Penalty")
     for problem in self.contest.contest_problem_list:
       header.append(problem.identifier)
@@ -102,6 +102,8 @@ class ContestDownloadStandings(BaseContestMixin, View):
       participant = contest_participants[rank['user']]
       d.append(participant.user.username)
       d.append(participant.comment)
+      d.append(participant.user.email)
+      d.append(participant.user.name)
       d.append(str(rank["score"]))
       if self.contest.contest_type == 0 and self.contest.penalty_counts:
         d.append(str(rank["penalty"] // 60))
