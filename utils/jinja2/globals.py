@@ -242,10 +242,7 @@ def static_file_modify():
 @library.render_with("components/username_display.jinja2")
 def username_display(context, user, *args, **kwargs):
   legend = in_contest = ghost = False
-  username = first_name = second_name = user.username
-  if user.magic == 'legendary':
-    first_name = user.username[0]
-    second_name = user.username[1:]
+  username = user.username
   if '#' in username:
     if username.endswith('old'):
       legend = True
@@ -263,8 +260,6 @@ def username_display(context, user, *args, **kwargs):
     'legend': legend,
     'in_contest': in_contest,
     'ghost': ghost,
-    'first_name': first_name,
-    'second_name': second_name,
     'additional_class': kwargs.pop('additional_class', '')
   }
 
