@@ -45,7 +45,7 @@
     "sortablejs": "^1.6.0",
     "spectre.css": "^0.2.14",
     "typed.js": "^2.0.2",
-    "underscore": "^1.8.3",
+    "underscore": "^1.12.1",
     "vue": "^2.4.1",
     "vuedraggable": "^2.14.1"
   }
