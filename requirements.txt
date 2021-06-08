@@ -42,7 +42,7 @@ mysqlclient==1.4.6
 names==0.3.0
 ordered-set==3.1.1
 pilkit==2.0
-Pillow==7.0.0
+Pillow==8.2.0
 progressbar2==3.47.0
 psycopg2-binary==2.8.4
 pycrypto==2.6.1
