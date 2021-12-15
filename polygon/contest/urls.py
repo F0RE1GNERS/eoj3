@@ -26,6 +26,8 @@ urlpatterns = [
       name='contest_invitation_delete'),
   url(r'^(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/assign/$', v.ContestInvitationAssign.as_view(),
       name='contest_invitation_assign'),
+  url(r'^(?P<pk>\d+)/invitation/(?P<invitation_pk>\d+)/avail/$', v.ContestInvitationChangeAvailability.as_view(),
+      name='contest_invitation_change_availability'),
   url(r'^(?P<pk>\d+)/invitation/download/$', v.ContestInvitationCodeDownload.as_view(),
       name='contest_invitation_download'),
   url(r'^(?P<pk>\d+)/participants/$', v.ContestParticipantList.as_view(), name='contest_participant'),
