@@ -26,6 +26,7 @@ disable=R,
         import-outside-toplevel,
         invalid-str-returned,
         unused-variable,
-        raise-missing-from
+        raise-missing-from,
+        unspecified-encoding
 
 ignore=migrations
