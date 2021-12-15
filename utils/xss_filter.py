@@ -58,8 +58,8 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     """
     Get the safe html code
     """
-    for i in range(0, len(self.result)):
-      self.data.append(self.result[i])
+    for r in self.result:
+      self.data.append(r)
     return ''.join(self.data)
 
   def handle_startendtag(self, tag, attrs):

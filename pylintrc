@@ -28,6 +28,8 @@ disable=R,
         unused-variable,
         raise-missing-from,
         unspecified-encoding,
-        consider-using-f-string
+        consider-using-f-string,
+        consider-using-dict-items,
+        consider-iterating-dictionary
 
 ignore=migrations
