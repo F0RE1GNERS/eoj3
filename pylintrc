@@ -27,6 +27,7 @@ disable=R,
         invalid-str-returned,
         unused-variable,
         raise-missing-from,
-        unspecified-encoding
+        unspecified-encoding,
+        consider-using-f-string
 
 ignore=migrations
