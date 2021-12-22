@@ -151,7 +151,6 @@ class BlogAddComment(LoginRequiredMixin, View):
   def post(self, request, pk):
     if 'text' in request.POST and request.POST['text'] \
         and (is_admin_or_root(self.request.user) or not review_requested()):
-      print("HAHA")
       Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
     return redirect(reverse('blog:detail', kwargs={'pk': pk}))
 
