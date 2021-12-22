@@ -41,6 +41,10 @@ def is_site_closed(request):
   return False
 
 
+def review_requested():
+  return eval(site_settings_get("REVIEW_REQUESTED", default=False, use_cache=True))
+
+
 def is_festival():
   return site_settings_get("FESTIVAL", default=False, use_cache=True)
 
