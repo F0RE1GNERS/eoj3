@@ -1,3 +1,5 @@
+from ast import literal_eval
+
 from django.core.cache import cache
 from django.db import models
 
@@ -42,7 +44,7 @@ def is_site_closed(request):
 
 
 def review_requested():
-  return eval(site_settings_get("REVIEW_REQUESTED", default=False, use_cache=True))
+  return literal_eval(site_settings_get("REVIEW_REQUESTED", default=False, use_cache=True))
 
 
 def is_festival():
