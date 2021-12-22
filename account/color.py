@@ -4,7 +4,8 @@ from account.models import User
 
 
 def update_color():
-  colors = [(1800, 'red'),
+  colors = [(2300, 'legendary'),
+            (1800, 'red'),
             (1700, 'orange'),
             (1600, 'purple'),
             (1500, 'blue'),
@@ -17,7 +18,7 @@ def update_color():
     user_list = list(User.objects.filter(rating__gt=0, is_staff=False, is_superuser=False).order_by("-rating"))
     for user in user_list:
       select_color = 0
-      while select_color < 5 and user.rating < colors[select_color][0]:
+      while select_color < 6 and user.rating < colors[select_color][0]:
         select_color += 1
       user.magic = colors[select_color][1]
       user.save(update_fields=['magic'])

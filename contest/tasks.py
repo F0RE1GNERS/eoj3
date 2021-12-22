@@ -46,5 +46,9 @@ def add_participant_with_invitation(contest_pk, invitation_pk, user):
       participant.save(update_fields=['comment'])
     else:
       ContestParticipant.objects.create(user=user, comment=invitation.comment, contest=contest)
-    invitation.delete()
+    if invitation.availability == 1:
+      invitation.delete()
+    else:
+      invitation.availability -= 1
+      invitation.save(update_fields=['availability'])
   invalidate_contest(contest)

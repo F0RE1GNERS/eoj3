@@ -12,6 +12,7 @@ from imagekit.processors import ResizeToFill
 from utils.language import LANG_CHOICE
 
 MAGIC_CHOICE = (
+  ('legendary', _('Legendary')),
   ('red', _('Red')),
   ('green', _('Green')),
   ('teal', _('Teal')),
