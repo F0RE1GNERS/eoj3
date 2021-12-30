@@ -86,6 +86,7 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     if context['is_privileged'] or not self.blog.hide_revisions:
       context['blog_revisions'] = self.blog.revisions.select_related("author").all()[1:]
     context['action_path'] = reverse('comments-post-comment')
+    context['comment_allowed'] = is_admin_or_root(self.request.user) or not review_requested()
     return context
 
 
