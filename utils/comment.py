@@ -3,13 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.dispatch import receiver
 from django_comments.models import CommentFlag
 from django_comments.signals import comment_was_flagged, comment_was_posted
-from django_comments.views.comments import post_comment
+from django_comments.views.comments import post_comment, CommentPostBadRequest
 from django_comments_xtd.forms import XtdCommentForm
 from django_comments_xtd.models import XtdComment
 from notifications.signals import notify
 
 from account.permissions import is_admin_or_root
 from utils.permission import is_contest_manager
+from utils.site_settings import review_requested
 
 
 class CommentForm(XtdCommentForm):
@@ -25,8 +26,11 @@ class CommentForm(XtdCommentForm):
 
 
 @login_required
-def login_required_post_comment(*args, **kwargs):
-  return post_comment(*args, **kwargs)
+def login_required_post_comment(request, *args, **kwargs):
+  if not review_requested() or is_admin_or_root(request.user):
+    return post_comment(request, *args, **kwargs)
+  else:
+    return CommentPostBadRequest("Comment not allowed.")
 
 
 @receiver(comment_was_flagged)
