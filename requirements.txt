@@ -47,7 +47,7 @@ progressbar2==3.47.0
 psycopg2-binary==2.8.4
 pycrypto==2.6.1
 Pygments==2.5.2
-PyJWT==1.7.1
+PyJWT==2.4.0
 python-dateutil==2.8.1
 python-markdown-math==0.6
 python-utils==2.3.0
