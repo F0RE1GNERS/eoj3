@@ -15,6 +15,7 @@
         <th>邀请码</th>
         <th>相关信息</th>
         <th>分配给用户</th>
+        <th>可用次数</th>
         <th>删除</th>
       </tr>
     </thead>
@@ -24,6 +25,7 @@
           <td>{{ invitation.code }}</td>
           <td>{{ invitation.comment }}</td>
           <td><a class="modal-link" data-target="#assignInvitationModal" data-action="{{ url('polygon:contest_invitation_assign', contest.pk, invitation.pk) }}">分配</a></td>
+          <td><a class="modal-link" data-target="#changeAvailabilityModal" data-action="{{ url('polygon:contest_invitation_change_availability', contest.pk, invitation.pk) }}">{{invitation.availability}}</a></td>
           <td><a class="post prompt" data-link="{{ url('polygon:contest_invitation_delete', contest.pk, invitation.pk) }}">删除</a></td>
         </tr>
       {% endfor %}
@@ -47,6 +49,15 @@
     </div>
   {% endcall %}
 
+  {% call modal(title="更改邀请码可用次数", id="changeAvailabilityModal", action="#") %}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="field">
+      <label>次数:</label>
+      <input type="number" value="1" id="number" name="number">
+    </div>
+  {% endcall %}
+
   {% call modal(title="增加邀请码", id="addInvitationModal", action=url('polygon:contest_invitation_create', contest.pk)) %}
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.path }}">
@@ -55,5 +66,7 @@
       <input type="number" value="1" id="number" name="number">
     </div>
   {% endcall %}
+
+
 
 {% endblock %}

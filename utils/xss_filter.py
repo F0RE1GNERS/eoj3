@@ -58,8 +58,8 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     """
     Get the safe html code
     """
-    for i in range(0, len(self.result)):
-      self.data.append(self.result[i])
+    for r in self.result:
+      self.data.append(r)
     return ''.join(self.data)
 
   def handle_startendtag(self, tag, attrs):
@@ -132,10 +132,7 @@ class XssHtml(HTMLParser):  # pylint: disable=abstract-method
     return attrs
 
   def _true_url(self, url):
-    if self._regex_url.match(url):
-      return url
-    else:
-      return "http://%s" % url
+    return url
 
   def _true_style(self, style):
     if style:

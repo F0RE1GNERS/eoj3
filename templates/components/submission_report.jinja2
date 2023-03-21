@@ -14,11 +14,13 @@
     <div class="example">
       <div class="input">
         <div class="title">Input</div>
-        <pre>{{ case.input }}</pre>
+        <pre>
+{{ case.input }}</pre>
       </div>
       <div class="output">
         <div class="title">Output</div>
-        <pre>{{ case.output }}</pre>
+        <pre>
+{{ case.output }}</pre>
       </div>
       {% if case.stderr %}
       <div class="stderr">
@@ -28,7 +30,8 @@
       {% endif %}
       <div class="answer">
         <div class="title">Answer</div>
-        <pre>{{ case.answer }}</pre>
+        <pre>
+{{ case.answer }}</pre>
       </div>
       <div class="checker">
         <div class="title">Checker's comment</div>
@@ -43,7 +46,7 @@
       {% if case.pipe2 %}
       <div class="pipe">
         <div class="title">Pipe 2</div>
-        <pre>{{ case.pipe1 }}</pre>
+        <pre>{{ case.pipe2 }}</pre>
       </div>
       {% endif %}
     </div>

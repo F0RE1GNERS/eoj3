@@ -49,6 +49,8 @@
 
   <h3 class="ui dividing header">Comments</h3>
   {{ render_comment_tree(blog) }}
-  {% include 'comments/comment_reply.jinja2' %}
+  {% if comment_allowed %}
+    {% include 'comments/comment_reply.jinja2' %}
+  {% endif %}
 
 {% endblock %}
