@@ -34,7 +34,7 @@ disable=R,
         unsupported-binary-operation,
         broad-exception-raised,
         nested-min-max,
-        unknown-option-value
+        unknown-option-value,
         missing-timeout
 
 ignore=migrations
