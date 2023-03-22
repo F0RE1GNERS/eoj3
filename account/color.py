@@ -4,7 +4,7 @@ from account.models import User
 
 
 def update_color():
-  colors = [(2300, 'legendary'),
+  colors = [(2100, 'legendary'),
             (1800, 'red'),
             (1700, 'orange'),
             (1600, 'purple'),
