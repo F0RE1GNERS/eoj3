@@ -303,7 +303,7 @@ class StatusList(ListView):
 
   def get_queryset(self):
     try:
-      queryset = self.get_selected_from().select_related('problem', 'author'). \
+      queryset = self.get_selected_from().prefetch_related('problem', 'author'). \
         only('pk', 'contest_id', 'create_time', 'author_id', 'author__username',
              'author__magic', 'problem_id', 'problem__title', 'lang', 'status', 'status_time', 'status_percent',
              'code_length', 'ip', 'status_test', 'status_memory', 'visible', 'judge_server', 'contest_time')
