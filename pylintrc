@@ -30,6 +30,7 @@ disable=R,
         unspecified-encoding,
         consider-using-f-string,
         consider-using-dict-items,
-        consider-iterating-dictionary
+        consider-iterating-dictionary,
+        unsupported-binary-operation
 
 ignore=migrations
