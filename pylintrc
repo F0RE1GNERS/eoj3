@@ -31,6 +31,10 @@ disable=R,
         consider-using-f-string,
         consider-using-dict-items,
         consider-iterating-dictionary,
-        unsupported-binary-operation
+        unsupported-binary-operation,
+        broad-exception-raised,
+        nested-min-max,
+        unknown-option-value
+        missing-timeout
 
 ignore=migrations
