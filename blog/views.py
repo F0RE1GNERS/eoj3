@@ -15,6 +15,7 @@ from account.permissions import is_admin_or_root
 from problem.statistics import get_accept_problem_count
 from submission.models import Submission
 from utils.comment import CommentForm
+from utils.site_settings import review_requested
 from .forms import BlogEditForm
 from .models import Blog, Comment, BlogLikes, BlogRevision
 
@@ -85,6 +86,7 @@ class BlogView(UserPassesTestMixin, FormMixin, TemplateView):
     if context['is_privileged'] or not self.blog.hide_revisions:
       context['blog_revisions'] = self.blog.revisions.select_related("author").all()[1:]
     context['action_path'] = reverse('comments-post-comment')
+    context['comment_allowed'] = is_admin_or_root(self.request.user) or not review_requested()
     return context
 
 
@@ -118,6 +120,8 @@ class BlogCreate(LoginRequiredMixin, CreateView):
   def form_valid(self, form):
     instance = form.save(commit=False)
     instance.author = self.request.user
+    if not is_admin_or_root(self.request.user) and review_requested():
+      instance.visible = False
     instance.save()
     instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
     return HttpResponseRedirect(reverse('blog:index', kwargs={'pk': self.request.user.pk}))
@@ -137,6 +141,8 @@ class BlogUpdate(UserPassesTestMixin, UpdateView):
     if not is_admin_or_root(self.request.user) and instance.author != self.request.user:
       raise PermissionDenied(_("You don't have the access."))
     with transaction.atomic():
+      if not is_admin_or_root(self.request.user) and review_requested():
+        instance.visible = False
       instance.save()
       instance.revisions.create(title=instance.title, text=instance.text, author=self.request.user)
     return redirect(reverse('blog:detail', kwargs=self.kwargs))
@@ -144,7 +150,8 @@ class BlogUpdate(UserPassesTestMixin, UpdateView):
 
 class BlogAddComment(LoginRequiredMixin, View):
   def post(self, request, pk):
-    if 'text' in request.POST and request.POST['text']:
+    if 'text' in request.POST and request.POST['text'] \
+        and (is_admin_or_root(self.request.user) or not review_requested()):
       Comment.objects.create(text=request.POST['text'], author=request.user, blog_id=pk)
     return redirect(reverse('blog:detail', kwargs={'pk': pk}))
 
