@@ -52,7 +52,7 @@ python-dateutil==2.8.1
 python-markdown-math==0.6
 python-utils==2.3.0
 pytz==2019.3
-PyYAML==5.3
+PyYAML==5.4
 redis==3.3.11
 requests==2.22.0
 shortuuid==0.5.0
