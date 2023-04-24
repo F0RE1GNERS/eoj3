@@ -11,7 +11,7 @@ Django==2.2.10
 django-appconf==1.0.3
 django-comments-xtd==2.4.2
 django-contrib-comments==1.9.2
-django-debug-toolbar==2.1
+django-debug-toolbar==2.2.1
 django-extensions==2.2.6
 django-imagekit==4.0.2
 django-ipware==2.1.0
