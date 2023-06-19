@@ -26,6 +26,15 @@ disable=R,
         import-outside-toplevel,
         invalid-str-returned,
         unused-variable,
-        raise-missing-from
+        raise-missing-from,
+        unspecified-encoding,
+        consider-using-f-string,
+        consider-using-dict-items,
+        consider-iterating-dictionary,
+        unsupported-binary-operation,
+        broad-exception-raised,
+        nested-min-max,
+        unknown-option-value,
+        missing-timeout
 
 ignore=migrations

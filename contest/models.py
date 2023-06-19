@@ -316,6 +316,7 @@ class ContestInvitation(models.Model):
   star = models.BooleanField(default=False)
   code = models.CharField(max_length=24)
   comment = models.TextField(blank=True)
+  availability = models.PositiveIntegerField(default=1)
 
   class Meta:
     unique_together = ('contest', 'code')

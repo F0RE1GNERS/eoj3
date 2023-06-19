@@ -330,6 +330,20 @@ class ContestInvitationAssign(PolygonContestMixin, View):
     return HttpResponseRedirect(request.POST['next'])
 
 
+class ContestInvitationChangeAvailability(PolygonContestMixin, View):
+  def post(self, request, pk, invitation_pk):
+    contest = Contest.objects.get(pk=pk)
+    invitation = contest.contestinvitation_set.get(pk=invitation_pk)
+    number = int(request.POST.get('number'))
+    if number <= 0:
+      messages.error(request, 'Availability cannot be non-positive.')
+    else:
+      invitation.availability = number
+      invitation.save(update_fields=['availability'])
+    return HttpResponseRedirect(request.POST['next'])
+
+
+
 class ContestParticipantList(PolygonContestMixin, ListView):
   template_name = 'polygon/contest/participant.jinja2'
   paginate_by = 100
